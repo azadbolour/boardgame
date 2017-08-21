@@ -1,0 +1,104 @@
+
+- Debugging technique - when a function from a module under test is 
+  called from a test and its behavior is leading to a test failure,
+  copy the implementaiton of that function from the module under test
+  to the test itself, so that you can easily add print statements
+  without affecting the module under test itself.
+
+- Add list comprehensions to your repertoire. 
+
+- Named constructor parameters.
+
+    let config = Config {
+        Config.pool = myPool,
+        Config.env = myEnv
+        }
+
+- Avoiding qualification of field names by using pattern matching:
+
+  {-# LANGUAGE NamedFieldPuns #-}
+  {-# LANGUAGE DisambiguateRecordFields #-}
+  {-# LANGUAGE RecordWildCards #-}
+    
+    import qualified BoardGame.Common.Domain.GridPiece as GridPiece
+    setGridPiece grid (GridPiece.GridPiece {piece, gridPoint}) = setGridCell grid gridPoint (Just piece)
+
+  Need DisambigauteRecordFields for this. Not sure why you have to qualify the data constructor.
+  But you do. NamedFieldPuns means that you don't have to have both the field name and a 
+  variable name that refers to it - the field name and variable names are the same.
+
+- Decided not to use Data.Matrix to represent grid because it does not provide accurate
+  errors, e.g., for index out of range errors. Also it uses 1-based indexing, whereas the rest 
+  of this application uses 0-based indexing.
+
+- To use a specific test suite, create a main program for it like test/InFocus/Main.hs,
+  and add your specific tests to it as exemplified. Then create the test suite in cabal,
+  adding the main you created as its main, and the tests in the suite as other-modules
+  (see .cabal file for deatils). To run, see run-test-suite.sh.
+
+- Top-level definitions are always functions that can get called 
+  multiple times with the same parameter. If you need to to do something
+  time-consuming and cache its results, you need to create a data structure
+  that contains the results and also contains functions that are closed on that result.
+  See WordDictionary.hs.
+
+- defaultInitialGridPieces :: MonadIO m => Board -> m [GridPiece]
+
+  Compare this with Java interface - not making a commitment to any particular monad.
+
+- Returning raw IO monad from a function is analogous to returning an ArrayList
+  from a Java method. Better return interface List. Better return m where MonadIO m
+  is the context.
+
+- GridValue.GridValue {value = piece, point}) = Board.setBoardCell bd point piece
+
+  Assignemnt is field = variable - here field name is 'value' but it is areally a piece.
+
+- If a function has special treatment for null list, just use a separate 
+  definition clause for the [] case. Using if makes it less readable.
+
+- ghci -XTupleSections 
+  (, []) <$> Just "A"
+
+  Just ("A",[])
+
+- class Monad m => MonadError em 
+
+    throwError :: e -> m a
+    catchError :: ExceptT e m a -> (e -> ExceptT e' m a) -> Except e' m a
+
+  If you are doing something inside the IO monad that returns an either
+  so that the result is IO Either left right, encapsulate it in ExceptT
+  so that first of all you have a monad to work with, and second of all
+  you can use catchError in callers. ExceptT is an instance of MonadError.
+
+- Doing a monadic computation requires each step in the do block to return a
+  monad. Rather than using a specific monad, you can make the do block as
+  general as possible by considering what monad producers are used in the do
+  block and restricting the monad to classes that define those functions
+  by providing context bounds for the monad.
+
+  This is just Haskell's equivalent of interface-based functions
+  in object-oriented programming. MTL implements lots of interfaces
+  to use in this way for monad transformers.
+  
+- An easy way to conceptualize our transformer stack is to think of every 
+  function you create as having the following capabilities:
+
+  - In addition to its normal input arguments, it has access to additional 
+     _implicit_ or hidden arguments that are passed down to it 
+     automatically (the reader part).
+
+  - Its output return type is augmented by an error type, so you have
+    the option of either returning normal results (Right) or abnormal
+    results (Left) (the except/either part).
+
+  - In addition to the above input and output enhancements, your 
+    functions also take another hidden input, an accumulator, and return 
+    a possibly transformed accumulator, with some appended data (the writer
+    or logger part).
+
+  The transformer machinery allows such functions to be easily 
+  composed, so that if you follow one with another the inputs
+  and outputs are passed, and returned by the framework.
+

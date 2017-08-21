@@ -1,0 +1,172 @@
+
+# Haskell Server
+
+This sub-project includes an implementartion of the game server in Haskell.  The
+game server exposes a game API, and uses a game end point to listen for client
+requests used in playing the board game.
+
+## Game API
+
+The api is defined [here](http://www.bolour.com/boardgame/hdocs/BoardGame-Common-GameApi.html).
+
+A user error, e.g., the user trying to commit a non-existent word is always 
+indicated in the HTTP response by status code 422. The body of the response
+includes the JSON encoding of the server side error. To find out the exact
+nature of the error, the json needs to be analyzed by clients.
+
+## Getting Started
+
+* Make sure you are in the haskell-server directory.
+
+* Install the [Haskell Tool Stack](https://docs.haskellstack.org). 
+
+  The project uses the tool stack for managing the development process - 
+  building, testing, etc.
+
+  See the file _stack.yaml_ for the Stack snapshot being used, and the file
+  _boardgame.cabal_ for the build and test specifications used by stack. 
+
+* `stack setup`
+
+  This will install the correct version of GHC (Glascow Haskell Compiler) in
+  an isolated sandbox. The correct version is automatically selected by 
+  Stack to match the stack snapshot version in _stack.yaml_. 
+
+* To see where the compiler was installed:
+
+  `stack path`
+
+* Note that you do not need to separately install _cabal_ (the base Haskell 
+  build manager). It is best to just let stack handle cabal under the covers.
+
+* Install the postgres RDBMS. (Currently the application is only supported on
+  postgres.) 
+  
+  On Ubuntu 14.04:
+
+  - sudo apt-get install postgresql postgresql-contrib
+  - sudo apt-get install libpq-dev
+
+  The library libpq-dev is the client-side driver for postgres and is
+  a dependency of the boardgame server needed to store and retrive
+  game information from the database access.
+
+* Create a user called _postgres_ with _postgres_ as its password. By convention
+  in development mode, the game server connects to postgres as this user.
+
+* Build the software: `stack build`. This may take a while as all dependencies
+  of the game server are downloaded as source and compiled. But this is basically
+  a one-time cost as the compiled versions are cached. Grab a cup of coffee and attend
+  to the rest of your day while occasionally checking on the build's progress.
+  Initial build time about 20 minutes on a reasonably capable machine.
+
+* Set up the configuration of your development deployment environment:
+
+    `cp config.yml.template config.yml`
+
+    edit your config.yml as appropriate
+
+  Note that config.yml is gitignored so that different developer environments
+  may have specific deployment configurations without interfering with each
+  other.
+
+* Initialize the database with the needed tables: `./migrate-postgres.sh`.
+
+  It gets its configuraiton from the _config.yml_ file you created.
+
+  If all went well a few tables will have been created in the database, 
+  and the _player_ table will include a single user.
+
+* Run the tests: `stack test`.
+
+* `./gendocs.sh` uses stack to generate documentation in the project site
+  (under ../docs).
+
+### Running the Game Server
+
+* `./run.sh` - to start the server. 
+
+  It gets its configuraiton from the _config.yml_ file you created.
+
+### Running Specific Test Suites
+
+Specific test suites may be defined in the cabal file and run through stack.
+But the process is a bit involved. We'll take a particular case as an example
+of how to create and run specific test suites.
+
+While developing a given a feature, it is useful to be able to run the tests
+pertaining to that feature alone. For this purpose, a specific test suite is
+defined in _boardgame.cabal_ called _infocus_ for tests that are currently in
+focus. The specification of this suite in the _.cabal_ file includes a
+specific main program (defined as `main-is: InFocus/Main.hs`) to run the suite.
+The main program includes a list of the tests to run in its _spec_
+specification.
+
+To run the infocus test suite: `./run-test-suite.sh infocus`
+
+You may define and run your own test suites in the same fashion.
+
+### Tests against the Database
+
+Make sure the database tables are up-to-date (use `migrate-postgres.sh` when
+database structures change).
+
+Tests are supposed to clear out and recreate the part of the database they need.
+In case you need to explicitly clean out all data, use:
+
+`./clear-db.sh`
+
+### Profiling
+
+To profile the application, the source files need to be compiled for profiling.
+
+`./profile-bld.sh`
+
+Then run the application in profile statistics gathering mode:
+
+`./profile-run.sh`
+
+### Configuration Parameters of the Game Server
+
+As of vesion 0.1 the game server is configured through a YAML configuration
+file. For now, the server does not support configuration through environment
+variables. But should the need arise, environment variables overriding the 
+configuration file may be easily be added. See Data.Yaml.Config for details.
+
+The following configuration parameters are recognized:
+
+- `serverPort` The port number on which the server listens. Default 6587.
+
+- `dictionaryDir` The directory of dictionary files. The naming convention 
+  for dictionary files recognized by the server is <languageCode>-words.txt.
+  So for example, the generic English dictionary used by the server is the file
+  within the dictionary directory named _en-words.txt_. If `DICTIONARY_DIR` is 
+  not set, the default is the _data_ directory of the Haskell server. The
+  contents of the project's _data_ directory are copied to the data directory 
+  of the Haskell server (similar to resources in Java).
+
+  By convention, the directory _dict_ is earmarked for specific dictionaries
+  you may wish to use in testing, and is gitignored. To do testing with the MAC system
+  dictionary, for example, I have linked it within the _dict_ dictionary as
+  follows:
+
+    ```
+    cd dict
+    ln -s /usr/share/dict/words en-words.txt`
+    ```
+
+  Then I use _dict_ as the dictionary directory in my config.yml file.
+
+- `deployEnv` _dev_, _test_, and _prod_. 
+
+- `maxGameMinutes` The maximum duration of a game in minutes. Default 30.
+  Games lasting longer are subject to automatic termination without notice.
+
+- `maxActiveGames` The maximum number of games that may be active at any 
+  given time. Default 100 for version 0.1. Additional games cannot be started
+  once this limit is reached, that is, until some existing games end or
+  are timed out.
+
+
+
+

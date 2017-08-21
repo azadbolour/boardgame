@@ -1,0 +1,162 @@
+/*
+ * Copyright 2017 Azad Bolour
+ * Licensed under GNU Affero General Public License v3.0 -
+ *   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
+ */
+
+/* Import of react is needed even though it is not used directly in this file!
+   Without it the board is not displayed! Why? */
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+import GameComponent from './component/GameComponent';
+import {queryParams} from './util/UrlUtil';
+import GameParams from './domain/GameParams';
+import AppParams from './util/AppParams';
+import GameService from "./service/GameService"
+import {mkGameEventHandler} from './event/GameEventHandler';
+import {gameDispatcher} from './event/GameDispatcher';
+import {mkEmptyGame} from './domain/Game';
+
+let params = queryParams(window.location);
+
+// TODO. Login to the game server: need user name and password fields.
+
+let gameParams = GameParams.defaultClientParams();
+
+let settableParameters = {
+  'api-type': 'string',
+  'env-type': 'string',
+  'game-server-url': 'string',
+  'dimension': 'int',
+  'tray-capacity': 'int',
+  'square-pixels': 'int'
+};
+
+const initialState = (function() {
+  let _error = false;
+  let _status = "";
+  return {
+    get error() { return _error; },
+    get status() { return _status; },
+    addError: function (message) {
+      _status += _error ? "\n" : "";
+      _error = true;
+      _status += message;
+    }
+  }
+})();
+
+// TODO. Move validation to GameParams once it is refactored to use the module pattern,
+// with immutable fields.
+
+const validateParam = function(name, value) {
+  switch (name) {
+    case 'api-type':
+      return GameParams.validateApiType(value);
+    case 'env-type':
+      return AppParams.validateEnvType(value);
+    case 'game-server-url':
+      return GameParams.validateGameServerUrl(value);
+    case 'dimension':
+      return GameParams.validateDimension(value);
+    case 'tray-capacity':
+      return GameParams.validateTrayCapacity(value);
+    case 'square-pixels':
+      return GameParams.validateSquarePixels(value);
+    default:
+      break;
+  }
+};
+
+let toCamelCase = function(name) {
+  let camelName = name.replace(/(-)([a-z])/g, function(match, dash, initial, offset, string) { return initial.toUpperCase()});
+  return camelName;
+};
+
+console.log(`game params: ${JSON.stringify(gameParams)}`);
+
+// TODO. Move integer parsing to a util module - must make it more robust.
+// TODO. User errors should be reported on the user's UI.
+// For now just ignoring with a log message.
+
+
+for (let name in settableParameters) {
+  let value = params.getParam(name);
+  if (value === undefined)
+    continue;
+  if (settableParameters[name] === 'int') {
+    value = (/[0-9]+/).test ? Number(value) : NaN;
+    if (isNaN(value)) {
+      let message = `invalid value ${value} for numeric parameter ${name}`;
+      initialState.addError(message);
+      console.log(message);
+      continue;
+    }
+  }
+  if (!validateParam(name, value)) {
+    let message = `invalid value ${value} for parameter ${name}`;
+    initialState.addError(message);
+    console.log(message);
+    continue;
+  }
+  let property = toCamelCase(name);
+  if (name === 'env-type')
+    gameParams.appParams[property] = value;
+  else
+    gameParams[property] = value;
+  console.log(`query param: ${name} = ${value}`);
+}
+
+// TODO. Add language-code to the query parameters and GameParams - default is en.
+// TODO. If not specified get the user's preferred language like this:
+
+// `/** @const */ DEFAULT_VALUE = 'en';
+// /** @const */ PREFERRED_LANGUAGE = navigator.language
+//   || navigator.userLanguage
+//   || navigator.browserLanguage
+//   || navigator.systemLanguage
+//   || DEFAULT_VALUE;
+
+// Note that in Javascript the language and country codes are dash-separated: 'en-US'.
+// On many server languages including Haskell they are underscore-separated: 'en_US. Need to convert.
+// But initially we'll just support generic language codes like "en"
+// TODO. Transmit the language code to the server - see Converters.
+
+// In production the same server serves the UI content and the server API.
+// TODO. It should be an error to try to set game server url in production mode.
+// It should not be allowed on the user preference page.
+// For now it is just ignored.
+let origin = window.location.origin;
+if (gameParams.appParams.envType === 'prod')
+  gameParams.gameServerUrl = origin;
+
+const rootEl = document.getElementById('root');
+
+const renderGame = function(game, status, changeStage) {
+  ReactDOM.render(
+    <GameComponent game={game} status={status}/>,
+    rootEl
+  );
+};
+
+const gameChangeObserver = function(changeStage, game, status) {
+  renderGame(game, status, changeStage);
+};
+
+let gameService = new GameService(gameParams);
+let gameEventHandler = mkGameEventHandler(gameService);
+gameDispatcher.register(gameEventHandler.dispatchHandler);
+
+gameEventHandler.registerChangeObserver(gameChangeObserver);
+
+console.log(`game params: ${JSON.stringify(gameParams)}`);
+
+let status = initialState.error ? initialState.status : "OK"
+let emptyGame = mkEmptyGame(gameParams);
+renderGame(emptyGame, status);
+
+
+
+
+

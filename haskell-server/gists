@@ -1,0 +1,21 @@
+
+- Get postgress connection string using environment variables.
+
+  mkProdDbConnectionString = do
+    let keys = [
+            "host="
+          , "port="
+          , "user="
+          , "password="
+          , "dbname="
+          ]
+        envs = [
+            "PGHOST"
+          , "PGPORT"
+          , "PGUSER"
+          , "PGPASS"
+          , "PGDATABASE"
+         ]
+    envVars <- traverse (MaybeT . lookupEnv) envs
+    let prodStr = mconcat . zipWith (++) keys $ envVars
+    return prodStr

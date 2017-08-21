@@ -1,0 +1,46 @@
+--
+-- Copyright 2017 Azad Bolour
+-- Licensed under GNU Affero General Public License v3.0 -
+--   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
+--
+
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE DisambiguateRecordFields #-}
+
+module BoardGame.Common.Domain.PlayPiece (
+    PlayPiece(..)
+  , playPiecesToWord
+  , getGridPiece
+)
+where
+
+import GHC.Generics (Generic)
+import Control.DeepSeq (NFData)
+import Data.Aeson (FromJSON, ToJSON)
+import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
+import BoardGame.Common.Domain.Point (Point)
+import BoardGame.Common.Domain.Piece (Piece)
+import qualified BoardGame.Common.Domain.Piece as Piece
+
+-- | A piece that forms part of the word formed in a play.
+data PlayPiece = PlayPiece {
+    piece :: Piece -- ^ The piece in play or being played.
+  , point :: Point -- ^ The position of the piece in teh board.
+  , moved :: Bool -- ^ True iff the piece is being played (versus having been on the board already).
+}
+  deriving (Eq, Show, Generic, NFData)
+
+instance FromJSON PlayPiece
+instance ToJSON PlayPiece
+
+-- | Convenience function to get the play piece's location on the board.
+getGridPiece :: PlayPiece -> GridValue Piece
+getGridPiece PlayPiece {piece, point} = GridValue piece point
+
+-- | Get the word spelled out by the pieces in a list of play pieces.
+playPiecesToWord :: [PlayPiece] -> String
+playPiecesToWord playPieces = (Piece.value . piece) <$> playPieces
+
+

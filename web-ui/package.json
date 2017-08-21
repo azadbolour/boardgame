@@ -1,0 +1,44 @@
+{
+  "name": "boardgame-ui",
+  "version": "1.0.0",
+  "description": "React client for a board game",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest",
+    "lint": "eslint src",
+    "build": "webpack; cp index.html dist",
+    "build-prod": "webpack --config webpack.prod.config.js; cp index.html dist"
+  },
+  "keywords": [
+    "board",
+    "game"
+  ],
+  "devDependencies": {
+    "babel-core": "^6.0.20",
+    "babel-eslint": "^7.1.1",
+    "babel-loader": "^6.2.10",
+    "babel-preset-es2015": "^6.0.15",
+    "babel-preset-react": "^6.22.0",
+    "babel-preset-stage-0": "^6.22.15",
+    "eslint": "^3.14.0",
+    "eslint-plugin-react": "^6.9.0",
+    "react-hot-loader": "^1.3.0",
+    "webpack": "^2.7.0",
+    "webpack-dev-server": "^2.6.1",
+    "clean-webpack-plugin":"^0.1.16",
+    "jest": "*",
+    "json-loader": "*"
+  },
+  "dependencies": {
+    "basic-authorization-header": "^0.2.7",
+    "react": "^15.4.2",
+    "react-dnd": "^2.4.0",
+    "react-dnd-html5-backend": "^2.4.0",
+    "react-dom": "^15.4.2",
+    "flux": "^3.1.2",
+    "node-fetch": "*",
+    "react-addons-test-utils": "^15.4.0",
+    "react-dnd-test-backend": "^2.4.0",
+    "valid-url": "*"
+  }
+}

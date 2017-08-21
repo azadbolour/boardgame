@@ -1,0 +1,30 @@
+#!/bin/sh
+
+#
+# The environment for development in the current branch.
+# 
+
+echo "..."
+
+myname=boardgame
+
+export WORKSPACE="$HOME/dev/bolour/main/${myname}/master"
+echo "WORKSPACE=$WORKSPACE"
+
+echo "..."
+
+# For Ubuntu.
+base_path="/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# For MAC OS/X.
+# base_path="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/git/bin"
+
+echo "base_path=$base_path"
+export PATH="$base_path:."
+echo "PATH=$PATH"
+
+alias be='. branch.sh' # branch environment
+alias workspace="cd $WORKSPACE"
+
+alias pq='psql -U postgres -h 127.0.0.1'
+

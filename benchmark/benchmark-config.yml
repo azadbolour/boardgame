@@ -1,0 +1,9 @@
+runnerConfig:
+  users: 10
+  durationSeconds: 300
+  thinkTimeMillis: 30000
+  personas:
+    - className: 'com.bolour.boardgame.benchmark.PlayerPersona'
+      weight: 100
+gameServerUrl: 'http://localhost:6587'
+gameEndProbability: 0.1

@@ -1,0 +1,7 @@
+deployEnv: Test
+serverPort: 2345
+dbUser: defaultDbUser
+dbPassword: defaultDbPassword
+activeGames: 20
+# gameMinutes: 1
+dictionaryLocation: dictionaries

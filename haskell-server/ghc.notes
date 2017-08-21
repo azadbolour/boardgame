@@ -1,0 +1,18 @@
+  
+  Best to install in a sandbox by doing stack setup.
+
+  If you have to have a separate version:
+  
+  Here is the basic instructions for Linux: 
+  
+  https://www.haskell.org/downloads/linux
+
+  But DO NOT install cabal. And modify as appropriate to install GHC 8.0.1.
+
+  You may have to add the path to where GHC is installed to your PATH 
+  environment variable. In your ../branch.sh, add a variable for the 
+  GHC bin and incude it in your path (as necessary).
+
+  In my Ubuntu installation, GHC was installed at: /opt/ghc/bin.
+
+
