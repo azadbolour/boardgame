@@ -1,13 +1,4 @@
 
-- DONE. delete .git
-
-- DONE. Add existing source.
-
-- DONE. check references to license
-
-- Clean up this file.
-
-
 # Board Game Application Backlog
 
 ## The Release
