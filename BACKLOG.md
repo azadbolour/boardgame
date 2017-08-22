@@ -5,6 +5,9 @@
 
 ### Prepare Release
 
+- Convert to gradle. util and benchmark converted. java-client,
+  and boardgame-benchmark should be easy: gradle init.
+
 - Already added output from maven for boardgame/benchmark build. 
   Unsure whether this is an issue.
 
@@ -12,15 +15,8 @@
 
 - Refer to API documentation from the index.html of the project site.
 
-- Add SCM information to poms. Assuming git protocol OK.
-
-   <scm>
-      <url>https://github.com/azadbolour/util</url>
-      <connection>scm:git:git://github.com/azadbolour/util.git</connection>
-      <developerConnection>scm:git://github.com/azadbolour/util.git</developerConnection>
-    </scm>
-
-- publish util and benchmark jars - should not be snapshot - include manifest
+- Maybe obsolete. Trying to convert to gradle.
+  publish util and benchmark jars - should not be snapshot - include manifest
 
   http://maven.apache.org/maven-release/maven-release-plugin/examples/prepare-release.html
 
