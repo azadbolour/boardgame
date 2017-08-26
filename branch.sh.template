@@ -11,6 +11,12 @@ myname=boardgame
 export WORKSPACE="$HOME/dev/bolour/main/${myname}/master"
 echo "WORKSPACE=$WORKSPACE"
 
+export JAVA_HOME=$(/usr/libexec/java_home)
+echo "JAVA_HOME=$JAVA_HOME"
+
+export M2_HOME=$HOME/software/mvn/apache-maven-3.2.2
+export M2=$M2_HOME/bin
+
 echo "..."
 
 # For Ubuntu.
@@ -20,7 +26,7 @@ base_path="/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 # base_path="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/git/bin"
 
 echo "base_path=$base_path"
-export PATH="$base_path:."
+export PATH="$JAVA_HOME/bin:$M2:$base_path:."
 echo "PATH=$PATH"
 
 alias be='. branch.sh' # branch environment

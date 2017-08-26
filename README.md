@@ -82,6 +82,8 @@ writing this dependency is not available from public maven repositories (an
 oversight to be fixed shortly). For now, you may clone
 https://github.com/azadbolour/util.git and build it locally.
 
+Note. The java client code uses Java 8.
+
 ## Benchmarking
 
 The benchmark sub-project is written in Java, and uses a standard Maven pom
@@ -94,6 +96,8 @@ com.bolour.benchmark.base. Until the dependency jar files make it to
 public places (shortly) clone https://github.com/azadbolour/util.git
 and https://github.com/azadbolour/benchmark.git and build them locally.
 
+Note. The benchmark code uses Java 8.
+
 ### Performance
 
 Following are some preliminary results of benchmarking on my MAC development
@@ -104,7 +108,7 @@ dictionary: 60K words
 users: 10
 average think time: 2.5 seconds
 
-resulting average latency of a machine move: 2.6
+resulting average latency of a machine move: 2.6 seconds
 ```
 
 ```
@@ -112,7 +116,17 @@ dictionary: 235K words
 users: 10
 average think time: 15 seconds
 
-resulting average latency of a machine move: 5.8
+resulting average latency of a machine move: 5.8 seconds
+```
+
+On an amazon m3-xlarge 4-CPU 2.5 MHz ssd machine:
+
+```
+dictionary: 90K words
+users: 10
+average think time: 15 seconds
+
+resulting average latency of a machine move: 4 seconds
 ```
 
 Note that in version 0.1, the algorithm to find the best match against the board
