@@ -13,6 +13,6 @@ spec :: Spec
 spec = do
   describe "read word list" $ do
     it "read" $ do
-      words <- readDataFileAsLines "data/wordlist.txt"
-      length words `shouldSatisfy` (1000 <)
+      words <- readDataFileAsLines "data/test-words.txt"
+      length words `shouldSatisfy` (10 <)
 
