@@ -70,7 +70,7 @@ metaRemoveFullStrips metaStrips = removeFullStrips <$> metaStrips
 -- lists of the strips of the board in that direction grouped
 -- by length of strip; then for each word try matching only
 -- against strips of the same length. Strips with no pieces
--- present, and strips will all positions filled are ruled out -
+-- present, and strips with all positions filled are ruled out -
 -- cannot play in those strips.
 findMatchesOnBoard ::
   [Mot]
