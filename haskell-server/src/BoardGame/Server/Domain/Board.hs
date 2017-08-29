@@ -25,10 +25,12 @@ module BoardGame.Server.Domain.Board (
   , validPositionIsFree
   , validPositionIsTaken
   , pointHasNoLineNeighbors
+  , computePlayableStrips
 )
 where
 
 import Data.List
+import qualified Data.Map as Map
 
 import Control.Monad.Except (MonadError(..))
 
@@ -41,6 +43,7 @@ import BoardGame.Common.Domain.Point (Coordinate, Height, Width, Axis(..), Point
 import qualified BoardGame.Common.Domain.Point as Point
 import BoardGame.Server.Domain.Grid (Grid, Grid(Grid))
 import qualified BoardGame.Server.Domain.Grid as Grid
+import BoardGame.Server.Domain.Strip (Strip, GroupedStrips)
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
 
@@ -154,6 +157,14 @@ lineNeighbors (Board {height, width, grid}) (Point {row, col}) Y =
 gridPiecesOfPoints :: Grid GridPiece -> [Point] -> [GridPiece]
 gridPiecesOfPoints Grid {cells} points =
   filter (\GridValue {point} -> elem point points) (getGridPiecesOfCells cells)
+
+-- | A strip is playable iff it has at least 1 anchor letter,
+--   and at most c blanks, where c is the capacity of the tray.
+computePlayableStrips :: Board -> Int -> GroupedStrips
+
+-- TODO. Implement.
+computePlayableStrips board trayCapacity = Map.empty
+
 
 
 

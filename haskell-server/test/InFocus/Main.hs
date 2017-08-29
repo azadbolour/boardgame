@@ -18,7 +18,8 @@ module Main (
 
 import Test.Hspec
 
-import qualified BoardGame.Server.Domain.ServerParametersSpec as TheTest
+import qualified BoardGame.Server.Domain.StripMatcherSpec as TheTest
+
 
 main :: IO ()
 main = do

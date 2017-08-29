@@ -73,11 +73,14 @@ library
       BoardGame.Server.Domain.GameError
       BoardGame.Server.Domain.Game
       BoardGame.Server.Domain.Play
+      BoardGame.Server.Domain.Strip
       BoardGame.Server.Domain.Tray
       BoardGame.Server.Domain.PlayInfo
       BoardGame.Server.Domain.PlayDetails
       BoardGame.Server.Domain.BoardStripMatcher
+      BoardGame.Server.Domain.IndexedStripMatcher
       BoardGame.Server.Domain.LanguageDictionary
+      BoardGame.Server.Domain.IndexedLanguageDictionary
       BoardGame.Server.Domain.GameCache
       BoardGame.Server.Domain.GameEnv
       BoardGame.Server.Web.GameEndPoint
@@ -85,6 +88,7 @@ library
       BoardGame.Server.Service.GameTransformerStack
       BoardGame.Server.Service.GameService
       BoardGame.Server.Service.GameDao
+      BoardGame.Util.WordUtil
       BoardGame.Client.GameClient
   other-modules:
       Paths_boardgame
@@ -185,6 +189,7 @@ test-suite spec
     , http-client
     , http-types
     , logging-effect >= 1.1
+    , containers
   other-modules:
       Bolour.Util.DataFileSpec
       Bolour.Util.SpecUtil
@@ -196,6 +201,7 @@ test-suite spec
       BoardGame.Server.Domain.BoardSpec
       BoardGame.Server.Domain.CommonSpec
       BoardGame.Server.Domain.WordMatcherSpec
+      BoardGame.Server.Domain.StripMatcherSpec
       BoardGame.Server.Domain.EnglishDictionarySpec
       BoardGame.Server.Domain.ServerParametersSpec
       BoardGame.Server.Service.GameServiceSpec
@@ -222,10 +228,11 @@ test-suite infocus
     , http-client
     , aeson
     , logging-effect >= 1.1
+    , containers
   other-modules:
       Bolour.Util.SpecUtil
       BoardGame.Util.TestUtil
-      BoardGame.Server.Domain.ServerParametersSpec
+      BoardGame.Server.Domain.StripMatcherSpec
   default-language: Haskell2010
 
 executable uuid
