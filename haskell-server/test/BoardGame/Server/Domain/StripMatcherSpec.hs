@@ -31,27 +31,24 @@ pce s = Just $ Piece s "" -- Ignore id.
 
 baseTestGrid :: Grid (Maybe Piece)
 baseTestGrid = Grid [
---        0        1        2        3        4        5        6        7        8
-      [Nothing, Nothing, Nothing, pce 'C', Nothing, Nothing, Nothing, Nothing, Nothing] -- 0
-    , [Nothing, pce 'A', pce 'C', pce 'E', Nothing, Nothing, Nothing, Nothing, Nothing] -- 1
-    , [Nothing, Nothing, Nothing, pce 'R', Nothing, Nothing, Nothing, Nothing, Nothing] -- 2
-    , [Nothing, Nothing, Nothing, pce 'T', pce 'A', pce 'X', Nothing, Nothing, Nothing] -- 3
-    , [Nothing, Nothing, Nothing, pce 'A', Nothing, Nothing, Nothing, Nothing, Nothing] -- 4
-    , [Nothing, Nothing, Nothing, pce 'I', Nothing, Nothing, Nothing, Nothing, Nothing] -- 5
-    , [Nothing, Nothing, Nothing, pce 'N', Nothing, Nothing, Nothing, Nothing, Nothing] -- 6
-    , [Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing] -- 7
-    , [Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing] -- 8
+--        0        1        2        3        4        5
+      [Nothing, Nothing, Nothing, pce 'C', Nothing, Nothing] -- 0
+    , [Nothing, pce 'A', pce 'C', pce 'E', Nothing, Nothing] -- 1
+    , [Nothing, Nothing, Nothing, pce 'R', Nothing, Nothing] -- 2
+    , [Nothing, Nothing, Nothing, pce 'T', pce 'A', pce 'X'] -- 3
+    , [Nothing, Nothing, Nothing, pce 'A', Nothing, Nothing] -- 4
+    , [Nothing, Nothing, Nothing, pce 'I', Nothing, Nothing] -- 5
   ]
 
 testGrid :: Grid GridPiece
 testGrid =
   let cellMaker r c = Maybe.fromMaybe Piece.noPiece (Grid.getValue baseTestGrid r c)
-  in Grid.mkPointedGrid cellMaker 9 9
+  in Grid.mkPointedGrid cellMaker 6 6
 
-testBoard = Board 9 9 testGrid
+testBoard = Board 6 6 testGrid
 
 trayCapacity :: Int
-trayCapacity = 7
+trayCapacity = 4
 
 spec :: Spec
 spec =

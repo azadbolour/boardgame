@@ -31,6 +31,8 @@ where
 
 import Data.List
 import qualified Data.Map as Map
+import qualified Data.Set as Set
+import qualified Data.ByteString.Char8 as BS
 
 import Control.Monad.Except (MonadError(..))
 
@@ -44,7 +46,7 @@ import BoardGame.Common.Domain.Point (Coordinate, Height, Width, Axis(..), Point
 import qualified BoardGame.Common.Domain.Point as Point
 import BoardGame.Server.Domain.Grid (Grid, Grid(Grid))
 import qualified BoardGame.Server.Domain.Grid as Grid
-import BoardGame.Server.Domain.Strip (Strip, GroupedStrips)
+import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
@@ -169,10 +171,19 @@ charRows Board {grid} = Grid.cells $ GridPiece.gridLetter <$> grid
 computePlayableStrips :: Board -> Int -> GroupedStrips
 
 -- TODO. Board should just have a dimension.
+
 computePlayableStrips (board @ Board {width = dimension}) trayCapacity =
-  let rows = charRows board
-  in Strip.allLineStripsByLengthByBlanks rows dimension
-  -- TODO. Filter by strips having an anchor and max blanks.
+  let allStrips = let rows = charRows board
+                  in Strip.allStripsByLengthByBlanks rows dimension
+      blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
+      filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
+      playableStrips = filterPlayableBlanks <$> allStrips
+      dummy = Util.debug ("XXXXXXX" ++ show playableStrips) 1
+      hasAnchor strip @ Strip { letters } = BS.length letters > 0
+      filterStripsForAnchor = filter hasAnchor -- :: [Strip] -> [Strip]
+      filterStripsByBlankForAnchor = (filterStripsForAnchor <$>) -- :: Map BlankCount [Strip] -> Map BlankCount [Strip]
+      playableStrips' = filterStripsByBlankForAnchor <$> playableStrips
+  in Util.debug ("XXXXXXX" ++ show allStrips) playableStrips'
 
 
 
