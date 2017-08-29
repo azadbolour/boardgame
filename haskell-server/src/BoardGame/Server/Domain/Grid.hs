@@ -123,7 +123,7 @@ mapMatrixWithCoordinates matrix mapper =
 
 -- | Get contiguous sub-lists (strips) of a given length k.
 kStrips :: [a] -> Int -> [[a]]
-kStrips list size = (\i -> (take size . drop i) list) <$> [0 .. length list - size + 1]
+kStrips list size = (\i -> (take size . drop i) list) <$> [0 .. length list - size]
 
 -- V.generate (V.length vector - size + 1) (\pos -> V.slice pos size vector)
 

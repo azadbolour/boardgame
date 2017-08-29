@@ -36,6 +36,7 @@ import Control.Monad.Except (MonadError(..))
 
 import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
+import qualified BoardGame.Common.Domain.GridPiece as GridPiece
 import qualified BoardGame.Common.Domain.GridValue as GridValue
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
@@ -44,6 +45,7 @@ import qualified BoardGame.Common.Domain.Point as Point
 import BoardGame.Server.Domain.Grid (Grid, Grid(Grid))
 import qualified BoardGame.Server.Domain.Grid as Grid
 import BoardGame.Server.Domain.Strip (Strip, GroupedStrips)
+import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
 
@@ -158,12 +160,19 @@ gridPiecesOfPoints :: Grid GridPiece -> [Point] -> [GridPiece]
 gridPiecesOfPoints Grid {cells} points =
   filter (\GridValue {point} -> elem point points) (getGridPiecesOfCells cells)
 
+
+charRows :: Board -> [[Char]]
+charRows Board {grid} = Grid.cells $ GridPiece.gridLetter <$> grid
+
 -- | A strip is playable iff it has at least 1 anchor letter,
 --   and at most c blanks, where c is the capacity of the tray.
 computePlayableStrips :: Board -> Int -> GroupedStrips
 
--- TODO. Implement.
-computePlayableStrips board trayCapacity = Map.empty
+-- TODO. Board should just have a dimension.
+computePlayableStrips (board @ Board {width = dimension}) trayCapacity =
+  let rows = charRows board
+  in Strip.allLineStripsByLengthByBlanks rows dimension
+  -- TODO. Filter by strips having an anchor and max blanks.
 
 
 

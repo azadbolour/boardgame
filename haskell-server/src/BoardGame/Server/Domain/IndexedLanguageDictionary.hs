@@ -31,6 +31,7 @@ import Control.Monad.Except (MonadError(..), throwError)
 import BoardGame.Server.Domain.GameError
 import BoardGame.Util.WordUtil (WordIndex, DictWord)
 import qualified BoardGame.Util.WordUtil as WordUtil
+import qualified Bolour.Util.MiscUtil as MiscUtil
 
 english :: String
 english = "en"
@@ -49,9 +50,10 @@ mkDictionary :: String -> [DictWord] -> IndexedLanguageDictionary
 mkDictionary languageCode words = IndexedLanguageDictionary languageCode (Set.fromList words) (mkWordIndex words)
 
 mkWordIndex :: [DictWord] -> WordIndex
-mkWordIndex words =
-  let keyValue word = (WordUtil.mkLetterCombo word, [word])
-  in Map.fromListWith (++) $ keyValue <$> words
+mkWordIndex words = MiscUtil.mapFromValueList WordUtil.mkLetterCombo words
+
+--   let keyValue word = (WordUtil.mkLetterCombo word, [word])
+--   in Map.fromListWith (++) $ keyValue <$> words
 
 mkDummyDictionary :: String -> IndexedLanguageDictionary
 mkDummyDictionary languageCode = mkDictionary languageCode []

@@ -19,9 +19,12 @@ module Bolour.Util.MiscUtil (
   , mapMaybeToEither
   , IOEither
   , IOExceptT
+  , mapFromValueList
 ) where
 
 import Data.Char (isAlphaNum)
+import Data.Map (Map)
+import qualified Data.Map as Map
 import Debug.Trace
 import Data.UUID
 import Data.UUID.V4
@@ -82,6 +85,13 @@ contiguous (x:y:ys) = (y == x + 1) && contiguous (y:ys)
 
 type IOEither left right = IO (Either left right)
 type IOExceptT left right = ExceptT left IO right
+
+mapFromValueList :: (Ord key) => (value -> key) -> [value] -> Map key [value]
+mapFromValueList keyMaker values =
+  let pairMaker value = (keyMaker value, [value])
+      pairs = pairMaker <$> values
+  in Map.fromListWith (++) pairs
+
 
 
 

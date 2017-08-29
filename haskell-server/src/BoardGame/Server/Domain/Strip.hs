@@ -4,18 +4,27 @@
 --   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
 --
 
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE RecordWildCards #-}
+
 module BoardGame.Server.Domain.Strip (
     Strip
   , GroupedStrips
+  , allLineStripsByLengthByBlanks
   ) where
 
+import qualified Data.List as List
 import Data.ByteString.Char8 (ByteString)
-import qualified Data.ByteString.Char8 as ByteString
+import qualified Data.ByteString.Char8 as BS
 import Data.Map (Map)
 import qualified Data.Map as Map
 
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
+import qualified BoardGame.Util.WordUtil as WordUtil
+import qualified Bolour.Util.MiscUtil as MiscUtil
 import BoardGame.Common.Domain.Point (Axis, Coordinate)
+import qualified BoardGame.Common.Domain.Point as Axis
 
 -- | A horizontal or vertical strip of the board.
 data Strip = Strip {
@@ -49,6 +58,51 @@ matchWordToStrip strip word = Nothing
 matchWordsToStrip :: Strip -> [DictWord] -> Maybe (Strip, DictWord)
 
 matchWordsToStrip strip words = Nothing
+
+numBlanks :: ByteString -> Int
+numBlanks string = BS.length $ BS.filter (== ' ') string
+
+nonBlankCombo :: ByteString -> LetterCombo
+nonBlankCombo string =
+  let nonBlanks = BS.filter (/= ' ') string
+  in WordUtil.mkLetterCombo nonBlanks
+
+lineStripsForLength :: Axis -> Int -> String -> ByteCount -> [Strip]
+lineStripsForLength axis lineNumber line size =
+  let mkStrip from = Strip
+                        axis
+                        lineNumber
+                        from
+                        (from + size - 1)
+                        content
+                        (nonBlankCombo content)
+                        (numBlanks content)
+                          where content = BS.pack $ (take size . drop from) line
+  in mkStrip <$> [0 .. length line - size]
+
+allLineStripsForLengthAndAxis :: Axis -> [String] -> ByteCount -> [Strip]
+allLineStripsForLengthAndAxis axis lines size = do
+  numberedLine <- zip [0 .. length lines - 1] lines
+  let mkStrip (lineNumber, line) = lineStripsForLength axis lineNumber line size
+  mkStrip numberedLine
+
+allLineStripsForLength :: [String] -> ByteCount -> [Strip]
+allLineStripsForLength rows size =
+  let horizontals = allLineStripsForLengthAndAxis Axis.X rows size
+      verticals = allLineStripsForLengthAndAxis Axis.Y (List.transpose rows) size
+  in horizontals ++ verticals
+
+allLineStripsForLengthByBlanks :: [String] -> ByteCount -> Map BlankCount [Strip]
+allLineStripsForLengthByBlanks rows size =
+  let strips = allLineStripsForLength rows size
+  in MiscUtil.mapFromValueList blanks strips
+
+allLineStripsByLengthByBlanks :: [String] -> ByteCount -> Map ByteCount (Map BlankCount [Strip])
+allLineStripsByLengthByBlanks rows maxSize =
+  let byBlankMaker = allLineStripsForLengthByBlanks rows
+      keyValueMaker size = (size, byBlankMaker size)
+      keyValueList = keyValueMaker <$> [2 .. maxSize] -- word needs at least 2 letters
+  in Map.fromList keyValueList
 
 
 
