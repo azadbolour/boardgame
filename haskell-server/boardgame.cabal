@@ -229,10 +229,12 @@ test-suite infocus
     , aeson
     , logging-effect >= 1.1
     , containers
+    , bytestring
   other-modules:
       Bolour.Util.SpecUtil
       BoardGame.Util.TestUtil
       BoardGame.Server.Domain.StripMatcherSpec
+      BoardGame.Server.Domain.IndexedDictionarySpec
   default-language: Haskell2010
 
 executable uuid

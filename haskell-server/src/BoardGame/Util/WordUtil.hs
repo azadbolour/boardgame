@@ -12,7 +12,7 @@ module BoardGame.Util.WordUtil (
   , BlankCount
   , mkLetterCombo
   , mergeLetterCombos
-  , lookupWordIndex
+  -- , lookupWordIndex
   , computeCombos
   , computeCombosGroupedByLength
   ) where
@@ -48,9 +48,9 @@ mkLetterCombo permutation = BS.sort permutation
 mergeLetterCombos :: LetterCombo -> LetterCombo -> LetterCombo
 mergeLetterCombos combo1 combo2 = BS.sort $ BS.append combo1 combo2
 
--- | Look up the words that are permutations of a given combination of letters.
-lookupWordIndex :: LetterCombo -> WordIndex -> [DictWord]
-lookupWordIndex letters wordIndex = Maybe.fromMaybe [] (Map.lookup letters wordIndex)
+-- -- | Look up the words that are permutations of a given combination of letters.
+-- lookupWordIndex :: LetterCombo -> WordIndex -> [DictWord]
+-- lookupWordIndex letters wordIndex = Maybe.fromMaybe [] (Map.lookup letters wordIndex)
 
 -- TODO. Eliminate duplicates for maximum performance.
 

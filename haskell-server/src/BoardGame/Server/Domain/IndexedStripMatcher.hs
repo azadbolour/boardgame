@@ -8,6 +8,8 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module BoardGame.Server.Domain.IndexedStripMatcher (
+    wordFitsContent
+  , findFittingWord
   ) where
 
 import Data.Map (Map)
@@ -29,8 +31,8 @@ blank = Piece.noPieceValue
 -- | We know that the word and the strip have the same length.
 --   So just check that the word matches the non-blank positions of the strip.
 --   TODO. Inner loop. Should be made as efficient as possible.
-checkWordForStripContent :: ByteString -> DictWord -> Bool
-checkWordForStripContent stripContent word
+wordFitsContent :: ByteString -> DictWord -> Bool
+wordFitsContent stripContent word
   | BS.null stripContent && BS.null word = True
   | BS.null stripContent || BS.null word = False -- TODO. This case should not be necessary. Assert equal length.
   | otherwise =
@@ -38,11 +40,11 @@ checkWordForStripContent stripContent word
          stripTail = BS.tail stripContent
          wordHead = BS.head word
          wordTail = BS.tail word
-     in (stripHead == blank || stripHead == wordHead) && checkWordForStripContent stripTail wordTail
+     in (stripHead == blank || stripHead == wordHead) && wordFitsContent stripTail wordTail
      -- TODO. Does the compiler optimize this to tail-recursive? Otherwise use explicit if-then-else.
 
 -- | Find a best word match (if any) for a given strip.
-findOptimalStripMatch ::
+findFittingWord ::
      IndexedLanguageDictionary  -- ^ the word dictionary to use
   -> BlankCount
   -> Strip                      -- ^ the strip
@@ -51,13 +53,13 @@ findOptimalStripMatch ::
 
 -- TODO. should lookup word index as a function of the dictionary module.
 
-findOptimalStripMatch dictionary numBlanks strip [] = Nothing
-findOptimalStripMatch (dictionary @ IndexedLanguageDictionary.IndexedLanguageDictionary {index}) numBlanks (strip @ Strip {letters, content}) (combo : combos) =
+findFittingWord dictionary numBlanks strip [] = Nothing
+findFittingWord dictionary numBlanks (strip @ Strip {letters, content}) (combo : combos) =
   let completeWordCombo = WordUtil.mergeLetterCombos letters combo
-      words = WordUtil.lookupWordIndex completeWordCombo index
-      fittingWords = filter (checkWordForStripContent content) words
+      words = IndexedLanguageDictionary.getWordPermutations dictionary completeWordCombo
+      fittingWords = filter (wordFitsContent content) words
    in case fittingWords of
-      [] -> findOptimalStripMatch dictionary numBlanks strip combos
+      [] -> findFittingWord dictionary numBlanks strip combos
       first : rest -> Just (strip, first)
 
 matchFittingCombos ::
@@ -69,7 +71,7 @@ matchFittingCombos ::
 
 matchFittingCombos dictionary numBlanks [] combos = Nothing
 matchFittingCombos dictionary numBlanks (strip : strips) combos =
-  let maybeMatch = findOptimalStripMatch dictionary numBlanks strip combos
+  let maybeMatch = findFittingWord dictionary numBlanks strip combos
   in case maybeMatch of
      Nothing -> matchFittingCombos dictionary numBlanks strips combos
      Just match -> maybeMatch

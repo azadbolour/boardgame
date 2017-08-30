@@ -178,12 +178,11 @@ computePlayableStrips (board @ Board {width = dimension}) trayCapacity =
       blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
       filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
       playableStrips = filterPlayableBlanks <$> allStrips
-      dummy = Util.debug ("XXXXXXX" ++ show playableStrips) 1
       hasAnchor strip @ Strip { letters } = BS.length letters > 0
       filterStripsForAnchor = filter hasAnchor -- :: [Strip] -> [Strip]
       filterStripsByBlankForAnchor = (filterStripsForAnchor <$>) -- :: Map BlankCount [Strip] -> Map BlankCount [Strip]
       playableStrips' = filterStripsByBlankForAnchor <$> playableStrips
-  in Util.debug ("XXXXXXX" ++ show allStrips) playableStrips'
+  in playableStrips'
 
 
 

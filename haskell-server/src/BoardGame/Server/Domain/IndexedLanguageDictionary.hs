@@ -15,11 +15,14 @@ module BoardGame.Server.Domain.IndexedLanguageDictionary (
   , validateWord
   , defaultLanguageCode
   , mkDummyDictionary
+  , isWord
+  , getWordPermutations
   ) where
 
 import Data.Bool (bool)
 import Data.Set (Set)
 import qualified Data.Set as Set
+import qualified Data.Maybe as Maybe
 import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.Map as Map
@@ -27,10 +30,10 @@ import qualified Data.Map as Map
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..), throwError)
 
-
 import BoardGame.Server.Domain.GameError
 import BoardGame.Util.WordUtil (WordIndex, DictWord)
 import qualified BoardGame.Util.WordUtil as WordUtil
+import BoardGame.Util.WordUtil (LetterCombo, DictWord)
 import qualified Bolour.Util.MiscUtil as MiscUtil
 
 english :: String
@@ -55,19 +58,26 @@ mkWordIndex words = MiscUtil.mapFromValueList WordUtil.mkLetterCombo words
 mkDummyDictionary :: String -> IndexedLanguageDictionary
 mkDummyDictionary languageCode = mkDictionary languageCode []
 
-isWord :: IndexedLanguageDictionary -> String -> Bool
-isWord (IndexedLanguageDictionary {words}) word = BS.pack word `Set.member` words
+isWord :: IndexedLanguageDictionary -> ByteString -> Bool
+isWord (IndexedLanguageDictionary {words}) word = word `Set.member` words
 
 -- TODO. This is a hack.
 instance Show IndexedLanguageDictionary where
   show = languageCode
 
 -- | Word exists in the the dictionary.
-validateWord :: (MonadError GameError m, MonadIO m) => IndexedLanguageDictionary -> String -> m String
+validateWord :: (MonadError GameError m, MonadIO m) => IndexedLanguageDictionary -> ByteString -> m ByteString
 validateWord languageDictionary word = do
   let valid = isWord languageDictionary word
-  bool (throwError $ InvalidWordError word) (return word) valid
+  bool (throwError $ InvalidWordError $ BS.unpack word) (return word) valid
 
+-- | Look up the words that are permutations of a given combination of letters.
+getWordPermutations ::
+     IndexedLanguageDictionary -- ^ The dictionary.
+  -> LetterCombo -- ^ Combinations of letters represented as a SORTED byte string.
+  -> [DictWord]  -- ^ Permutations of the given combination that are in the dictionary.
+getWordPermutations (dictionary @ IndexedLanguageDictionary {index}) combo =
+  Maybe.fromMaybe [] (Map.lookup combo index)
 
 
 
