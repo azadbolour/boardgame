@@ -28,6 +28,9 @@ import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
 import BoardGame.Server.Domain.Board (Board(Board))
 import qualified BoardGame.Server.Domain.Board as Board
 import qualified BoardGame.Server.Domain.IndexedStripMatcher as Matcher
+import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
+import qualified BoardGame.Util.WordUtil as WordUtil
+import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 
 pce :: Char -> Maybe Piece
 pce s = Just $ Piece s "" -- Ignore id.
@@ -53,7 +56,15 @@ testBoard = Board 6 6 testGrid
 blank = Piece.noPieceValue
 
 trayCapacity :: Int
-trayCapacity = 4
+trayCapacity = 5
+
+stringWords :: [String]
+stringWords = ["FAN", "PICK", "PACKER", "SCREEN", "POTENT"]
+byteWords = BS.pack <$> stringWords
+dictionary = Dict.mkDictionary "en" byteWords
+
+mkCombo :: String -> ByteString
+mkCombo string = WordUtil.mkLetterCombo $ BS.pack string
 
 spec :: Spec
 spec = do
@@ -62,6 +73,7 @@ spec = do
       let groupedStrips = Board.computePlayableStrips testBoard trayCapacity
           groupedStripsLength3 = Maybe.fromJust $ Map.lookup 3 groupedStrips
       groupedStripsLength3 `shouldSatisfy` (not . Map.null)
+
   describe "check word against strip" $ do
     it "matching word" $ do
       let content = BS.pack ['A', 'B', blank, blank, 'N', 'D']
@@ -72,4 +84,12 @@ spec = do
           word = BS.pack "ARK"
       Matcher.wordFitsContent content word `shouldBe` False
 
+  describe "find fitting word given combinations of letters" $ do
+    it "finds fitting word" $ do
+      let blankCount = 5
+          wordLength = 6
+          groupedStrips = Board.computePlayableStrips testBoard trayCapacity
+          strips = Maybe.fromJust $ Map.lookup blankCount $ Maybe.fromJust $ Map.lookup wordLength groupedStrips
+          combos = [mkCombo "AXJQW", mkCombo "PCKER"]
+      Matcher.matchFittingCombos dictionary blankCount strips combos `shouldSatisfy` Maybe.isJust
 

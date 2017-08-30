@@ -10,6 +10,7 @@
 module BoardGame.Server.Domain.IndexedStripMatcher (
     wordFitsContent
   , findFittingWord
+  , matchFittingCombos
   ) where
 
 import Data.Map (Map)
@@ -43,15 +44,16 @@ wordFitsContent stripContent word
      in (stripHead == blank || stripHead == wordHead) && wordFitsContent stripTail wordTail
      -- TODO. Does the compiler optimize this to tail-recursive? Otherwise use explicit if-then-else.
 
--- | Find a best word match (if any) for a given strip.
+-- | Find a match (if any) for a given strip.
+--   Any match would do since our optimality measure is the total length
+--   which is the length of the given strip. The combinations to try
+--   are all of the right length to cover the strip's blanks.
 findFittingWord ::
      IndexedLanguageDictionary  -- ^ the word dictionary to use
   -> BlankCount
   -> Strip                      -- ^ the strip
   -> [LetterCombo]              -- ^ combinations of letters to try on the strip's blanks
   -> Maybe (Strip, DictWord)    -- ^ longest word found if any
-
--- TODO. should lookup word index as a function of the dictionary module.
 
 findFittingWord dictionary numBlanks strip [] = Nothing
 findFittingWord dictionary numBlanks (strip @ Strip {letters, content}) (combo : combos) =
