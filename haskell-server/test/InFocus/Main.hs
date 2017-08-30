@@ -20,7 +20,7 @@ import Test.Hspec
 
 import qualified BoardGame.Server.Domain.StripMatcherSpec as Test1
 import qualified BoardGame.Server.Domain.IndexedDictionarySpec as Test2
-
+import qualified BoardGame.Server.Domain.DictionaryCacheSpec as Test3
 
 main :: IO ()
 main = do
@@ -31,3 +31,4 @@ spec :: Spec
 spec = do
   describe "Test1" Test1.spec
   describe "Test2" Test2.spec
+  describe "Test3" Test3.spec

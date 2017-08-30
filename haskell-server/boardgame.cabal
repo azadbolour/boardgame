@@ -83,6 +83,7 @@ library
       BoardGame.Server.Domain.IndexedLanguageDictionary
       BoardGame.Server.Domain.GameCache
       BoardGame.Server.Domain.GameEnv
+      BoardGame.Server.Domain.DictionaryCache
       BoardGame.Server.Web.GameEndPoint
       BoardGame.Server.Web.Converters
       BoardGame.Server.Service.GameTransformerStack
@@ -235,6 +236,7 @@ test-suite infocus
       BoardGame.Util.TestUtil
       BoardGame.Server.Domain.StripMatcherSpec
       BoardGame.Server.Domain.IndexedDictionarySpec
+      BoardGame.Server.Domain.DictionaryCacheSpec
   default-language: Haskell2010
 
 executable uuid

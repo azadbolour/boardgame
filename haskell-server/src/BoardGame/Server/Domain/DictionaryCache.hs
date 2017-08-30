@@ -4,8 +4,12 @@
 --   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
 --
 
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE RecordWildCards #-}
+
 module BoardGame.Server.Domain.DictionaryCache (
-    DictionaryCache
+    DictionaryCache(..)
   , mkCache
   , getDictionary
   , getDefaultDictionary
@@ -13,17 +17,19 @@ module BoardGame.Server.Domain.DictionaryCache (
 ) where
 
 import qualified Data.Char as Char
+import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as BS
 
 -- import Control.Monad (join)
 import Control.Exception (SomeException)
 import Control.Exception.Enclosed (catchAny)
 import Control.Monad.Except (ExceptT(ExceptT), MonadError(..))
+import Control.Monad.IO.Class (liftIO)
 import Bolour.Util.Cache (Cache(Cache))
 import qualified Bolour.Util.Cache as Cache
 import Bolour.Util.MiscUtil (IOEither, IOExceptT)
 import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
-import Qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 
 import Paths_boardgame
 
@@ -42,10 +48,10 @@ mkCache dictionaryDirectory capacity = do
 
 getDictionary :: DictionaryCache -> LanguageCode -> IOExceptT String IndexedLanguageDictionary
 getDictionary (dictionaryCache @ DictionaryCache {dictionaryDirectory, cache}) languageCode = do
-  let code = if null languageCode then defaultLanguageCode else languageCode
+  let code = if null languageCode then Dict.defaultLanguageCode else languageCode
   Cache.findItem cache code `catchError` (\_ -> readDictionaryFile dictionaryCache code)
 
-getDefaultDictionary :: DictionaryCache -> IOExceptT IndexedLanguageDictionary
+getDefaultDictionary :: DictionaryCache -> IOExceptT String IndexedLanguageDictionary
 getDefaultDictionary cache = getDictionary cache Dict.defaultLanguageCode
 
 -- TODO. Check non-existent dictionary.
@@ -54,7 +60,7 @@ readDictionaryFile :: DictionaryCache -> String -> IOExceptT String IndexedLangu
 readDictionaryFile DictionaryCache {dictionaryDirectory, cache} languageCode = do
   path <- liftIO $ mkDictionaryPath dictionaryDirectory languageCode
   lines <- ExceptT $ catchAny (readDictionaryInternal path) showException
-  let words =  BS.map Char.toUpper lines
+  let words = BS.map Char.toUpper <$> lines
       dictionary = Dict.mkDictionary languageCode words
   Cache.putItem cache languageCode dictionary
   return dictionary
@@ -75,7 +81,7 @@ mkDictionaryPath dictionaryDirectory languageCode = do
   let fileName = languageCode ++ "-words.txt"
   return $ directory ++ "/" ++ fileName
 
-showException :: SomeException -> IOEither String [String]
+showException :: SomeException -> IOEither String [ByteString]
 showException someExc = return $ Left $ show someExc
 
 
