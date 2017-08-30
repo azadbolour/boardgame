@@ -25,7 +25,7 @@ import BoardGame.Server.Domain.Tray as Tray
 import qualified BoardGame.Common.Domain.Player as Player
 import qualified BoardGame.Server.Domain.Game(Game(..))
 
-import qualified BoardGame.Server.Domain.LanguageDictionary as LanguageDictionary
+-- import qualified BoardGame.Server.Domain.LanguageDictionary as LanguageDictionary
 -- import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary, LanguageDictionary(LanguageDictionary))
 
 dummyDay :: Day
@@ -46,7 +46,7 @@ instance Converter Game GameDto.GameDto where
   -- TODO. Using dummy playNumber, playTurn, and score. Fix later.
   toEntity dto = Game
     gameId
-    (LanguageDictionary.mkDummyDictionary languageCode)
+    languageCode
     (mkBoardFromGridPieces height width gridPieces)
     [(Tray trayCapacity trayPieces), dummyMachineTray]
     playerName
@@ -59,8 +59,7 @@ instance Converter Game GameDto.GameDto where
       GameDto {gameId, languageCode, height, width, trayCapacity, gridPieces, trayPieces, playerName} = dto
       dummyMachineTray = Tray 0 [] -- TODO. This is a hack. toEntity should be disallowed.
   toDto entity = GameDto gameId languageCode (Board.height board) (Board.width board) (Tray.capacity userTray) (Board.getGridPieces board) (Tray.pieces userTray) playerName where
-      Game {gameId, dictionary, board, trays, playerName} = entity
-      LanguageDictionary.LanguageDictionary { languageCode } = dictionary
+      Game {gameId, languageCode, board, trays, playerName} = entity
       userTray = trays !! Player.userIndex
 
 

@@ -39,8 +39,9 @@ import BoardGame.Server.Domain.GameCache as GameCache
 import BoardGame.Server.Service.GameDao (cleanupDb)
 import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
 import BoardGame.Server.Web.GameEndPoint (addPlayerHandler, startGameHandler)
-import qualified BoardGame.Server.Domain.LanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 import qualified Bolour.Util.StaticTextFileCache as FileCache
+import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 
 makePlayer :: GameEnv -> String -> IO ()
 makePlayer env name = do
@@ -75,5 +76,6 @@ initTest = do
   cfg <- Config.mkConfig serverParameters thePool
   cleanupDb cfg
   cache <- GameCache.mkGameCache maxActiveGames
-  dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
+  -- dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
+  dictionaryCache <- DictCache.mkCache "" 100
   return $ GameEnv cfg cache dictionaryCache

@@ -54,6 +54,7 @@ import BoardGame.Server.Web.WebTestFixtures (
     , params
     , centerGridPiece
   )
+import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 
 initTest :: IO GameEnv -- TODO. Should be MonadIO m.
 initTest = do
@@ -64,7 +65,8 @@ initTest = do
   config <- Config.mkConfig serverParameters thePool
   cleanupDb config
   cache <- GameCache.mkGameCache maxActiveGames
-  dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
+  -- dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
+  dictionaryCache <- DictCache.mkCache "" 100
   return $ GameEnv config cache dictionaryCache
 
 

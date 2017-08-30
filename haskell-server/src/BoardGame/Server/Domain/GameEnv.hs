@@ -10,13 +10,13 @@ module BoardGame.Server.Domain.GameEnv (
 where
 
 import BoardGame.Server.Domain.GameConfig (Config)
-import Bolour.Util.StaticTextFileCache (TextFileCacheType)
 import BoardGame.Server.Domain.GameCache (GameCache)
+import BoardGame.Server.Domain.DictionaryCache (DictionaryCache)
 
 data GameEnv = GameEnv {
   config :: Config,
-  cache :: GameCache,
-  dictionaryCache :: TextFileCacheType
+  gameCache :: GameCache,
+  dictionaryCache :: DictionaryCache
 }
 
 

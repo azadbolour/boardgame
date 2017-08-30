@@ -22,15 +22,15 @@ import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary, LanguageD
 
 spec :: Spec
 
-dictionary :: LanguageDictionary
-dictionary = LanguageDictionary "en" [] (const True)
+-- dictionary :: LanguageDictionary
+-- dictionary = LanguageDictionary "en" [] (const True)
 
 name = "You"
 params :: GameParams
 params = GameParams 9 9 12 Dict.defaultLanguageCode name
 
 game :: IO Game
-game = SpecUtil.satisfiesRight =<< runExceptT (Game.mkInitialGame params [] [] [] name dictionary)
+game = SpecUtil.satisfiesRight =<< runExceptT (Game.mkInitialGame params [] [] [] name)
 
 spec = do
   describe "json for game params" $ do

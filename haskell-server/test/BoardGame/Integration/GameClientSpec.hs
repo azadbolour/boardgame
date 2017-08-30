@@ -44,9 +44,10 @@ import BoardGame.Server.Domain.GameEnv (GameEnv(GameEnv))
 import Bolour.Util.WaiUtil
 import qualified Bolour.Util.DbUtil as DbUtil
 import qualified BoardGame.Client.GameClient as Client
-import qualified BoardGame.Server.Domain.LanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified Bolour.Util.StaticTextFileCache as FileCache
+import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 
 -- TODO. Start the server within the test - just copy main and test against it.
 -- TODO. Need to shut down the server.
@@ -71,7 +72,8 @@ startApp = do
   let serverParameters = Config.defaultServerParameters
       ServerParameters.ServerParameters {maxActiveGames} = serverParameters
   cache <- GameCache.mkGameCache maxActiveGames
-  dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
+  -- dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
+  dictionaryCache <- DictCache.mkCache "" 100
   conf <- config
   let gameEnv = GameEnv conf cache dictionaryCache
   let gameApp = GameEndPoint.mkGameApp gameEnv

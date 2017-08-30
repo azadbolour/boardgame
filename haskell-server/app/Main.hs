@@ -27,6 +27,7 @@ import Bolour.Util.DbUtil (makePool)
 import qualified BoardGame.Server.Domain.GameConfig as Config
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import qualified Bolour.Util.StaticTextFileCache as FileCache
+import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 import qualified BoardGame.Server.Domain.GameConfig as ServerParameters
 import BoardGame.Server.Web.GameEndPoint (mkGameApp)
 import qualified BoardGame.Server.Domain.GameCache as GameCache
@@ -58,13 +59,14 @@ main = do
     args <- getArgs
     let maybeConfigPath = if null args then Nothing else Just $ head args
     serverParameters <- Config.getServerParameters maybeConfigPath
-    let ServerParameters.ServerParameters {deployEnv, serverPort, maxActiveGames} = serverParameters
+    let ServerParameters.ServerParameters {deployEnv, serverPort, maxActiveGames, dictionaryDir} = serverParameters
     myPool <- makePool serverParameters
     print [iTrim|running Warp server on port '${serverPort}' for env '${deployEnv}'|]
     config <- Config.mkConfig serverParameters myPool
     cache <- GameCache.mkGameCache maxActiveGames
     let logger = mkMiddlewareLogger deployEnv
-    dictionaryCache <- FileCache.mkCache maxDictionaries (toUpper <$>)
+    -- dictionaryCache <- FileCache.mkCache maxDictionaries (toUpper <$>)
+    dictionaryCache <- DictCache.mkCache dictionaryDir maxDictionaries
     let gameEnv = GameEnv config cache dictionaryCache
     gameApp <- mkGameApp gameEnv
     forkIO $ longRunningGamesHarvester gameEnv

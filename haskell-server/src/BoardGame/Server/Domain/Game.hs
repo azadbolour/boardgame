@@ -50,13 +50,13 @@ import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.GameError
-import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary)
+-- import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary)
 
 -- TODO. Share dictionaries between games. No need for a game to have its own.
 -- There can only be a few dictionaries in play.
 data Game = Game {
     gameId :: String
-  , dictionary :: LanguageDictionary
+  , languageCode :: String
   , board :: Board
   , trays :: [Tray.Tray] -- ^ Indexed by Player.playerTypeIndex UserPlayer or MachinePlayer. User 0, Machine 1.
   , playerName :: Player.PlayerName
@@ -105,11 +105,10 @@ mkInitialGame :: (MonadError GameError m, MonadIO m) =>
   -> [Piece]
   -> [Piece]
   -> Player.PlayerName
-  -> LanguageDictionary
   -> m Game
 
 -- TODO. Fix duplicated player name.
-mkInitialGame gameParams initGridPieces initUserPieces initMachinePieces playerName dictionary = do
+mkInitialGame gameParams initGridPieces initUserPieces initMachinePieces playerName = do
   let GameParams.GameParams { height, width, trayCapacity, languageCode } = gameParams
   gameId <- Util.mkUuid
   board <- Board.mkBoard height width
@@ -117,7 +116,7 @@ mkInitialGame gameParams initGridPieces initUserPieces initMachinePieces playerN
   now <- liftIO getCurrentTime
   let emptyTray = Tray trayCapacity []
       emptyTrays = [emptyTray, emptyTray]
-      game = Game gameId dictionary board' emptyTrays playerName 0 Player.UserPlayer 1 initScores now
+      game = Game gameId languageCode board' emptyTrays playerName 0 Player.UserPlayer 1 initScores now
   game' <- initTray game Player.UserPlayer initUserPieces
   initTray game' Player.MachinePlayer initMachinePieces
 

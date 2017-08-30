@@ -17,6 +17,8 @@ module BoardGame.Server.Domain.IndexedLanguageDictionary (
   , mkDummyDictionary
   , isWord
   , getWordPermutations
+  , getAllWords
+  , getAllWordsAsString
   ) where
 
 import Data.Bool (bool)
@@ -57,6 +59,14 @@ mkWordIndex words = MiscUtil.mapFromValueList WordUtil.mkLetterCombo words
 
 mkDummyDictionary :: String -> IndexedLanguageDictionary
 mkDummyDictionary languageCode = mkDictionary languageCode []
+
+getAllWords :: IndexedLanguageDictionary -> Set ByteString
+getAllWords IndexedLanguageDictionary {words} = words
+
+-- TODO. Temporary function during refactoring. Remove.
+getAllWordsAsString :: IndexedLanguageDictionary -> [String]
+getAllWordsAsString IndexedLanguageDictionary {words} = BS.unpack <$> Set.toList words
+
 
 isWord :: IndexedLanguageDictionary -> ByteString -> Bool
 isWord (IndexedLanguageDictionary {words}) word = word `Set.member` words
