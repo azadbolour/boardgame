@@ -20,11 +20,14 @@ module Bolour.Util.MiscUtil (
   , IOEither
   , IOExceptT
   , mapFromValueList
+  , zipMaps
 ) where
 
 import Data.Char (isAlphaNum)
 import Data.Map (Map)
 import qualified Data.Map as Map
+import qualified Data.List as List
+import qualified Data.Maybe as Maybe
 import Debug.Trace
 import Data.UUID
 import Data.UUID.V4
@@ -91,6 +94,18 @@ mapFromValueList keyMaker values =
   let pairMaker value = (keyMaker value, [value])
       pairs = pairMaker <$> values
   in Map.fromListWith (++) pairs
+
+lookupJust :: (Ord key) => key -> Map key value -> value
+lookupJust key map = Maybe.fromJust $ Map.lookup key map
+
+zipMaps :: (Ord key) => Map key value1 -> Map key value2 -> Map key (value1, value2)
+zipMaps map1 map2 =
+  let keys1 = Map.keys map1
+      keys2 = Map.keys map2
+      commonKeys = List.intersect keys1 keys2
+      zipper key = (key, (lookupJust key map1, lookupJust key map2))
+  in Map.fromList $ zipper <$> commonKeys
+
 
 
 

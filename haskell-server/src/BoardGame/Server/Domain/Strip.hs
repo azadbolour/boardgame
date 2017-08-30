@@ -60,7 +60,7 @@ matchWordsToStrip :: Strip -> [DictWord] -> Maybe (Strip, DictWord)
 
 matchWordsToStrip strip words = Nothing
 
-blank = Piece.value Piece.noPiece
+blank = Piece.noPieceValue
 
 numBlanks :: ByteString -> Int
 numBlanks string = BS.length $ BS.filter (== blank) string

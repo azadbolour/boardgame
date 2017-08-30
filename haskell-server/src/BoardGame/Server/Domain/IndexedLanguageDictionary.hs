@@ -52,9 +52,6 @@ mkDictionary languageCode words = IndexedLanguageDictionary languageCode (Set.fr
 mkWordIndex :: [DictWord] -> WordIndex
 mkWordIndex words = MiscUtil.mapFromValueList WordUtil.mkLetterCombo words
 
---   let keyValue word = (WordUtil.mkLetterCombo word, [word])
---   in Map.fromListWith (++) $ keyValue <$> words
-
 mkDummyDictionary :: String -> IndexedLanguageDictionary
 mkDummyDictionary languageCode = mkDictionary languageCode []
 

@@ -13,13 +13,17 @@ module BoardGame.Util.WordUtil (
   , mkLetterCombo
   , mergeLetterCombos
   , lookupWordIndex
+  , computeCombos
   , computeCombosGroupedByLength
   ) where
 
-import Data.ByteString.Char8 (ByteString)
-import qualified Data.ByteString.Char8 as ByteString
+import Data.ByteString.Char8
+import qualified Data.ByteString.Char8 as BS
 import Data.Map (Map)
 import qualified Data.Map as Map
+import qualified Data.Maybe as Maybe
+
+import qualified Bolour.Util.MiscUtil as MiscUtil
 
 -- | Combinations of letters (with repetition) sorted in a byte string.
 type LetterCombo = ByteString
@@ -38,24 +42,35 @@ type BlankCount = Int
 -- | Make a permutation of some letters, create the corresponding combination of those letters.
 --   In our representation just sort the letters.
 mkLetterCombo :: ByteString -> LetterCombo
-
--- TODO. Implement.
-mkLetterCombo permutation = ByteString.empty
+mkLetterCombo permutation = BS.sort permutation
 
 -- | Merge two combinations of letters.
 mergeLetterCombos :: LetterCombo -> LetterCombo -> LetterCombo
-
--- TODO. Implement.
-mergeLetterCombos combo1 combo2 = ByteString.empty
+mergeLetterCombos combo1 combo2 = BS.sort $ BS.append combo1 combo2
 
 -- | Look up the words that are permutations of a given combination of letters.
-lookupWordIndex :: WordIndex -> LetterCombo -> [DictWord]
+lookupWordIndex :: LetterCombo -> WordIndex -> [DictWord]
+lookupWordIndex letters wordIndex = Maybe.fromMaybe [] (Map.lookup letters wordIndex)
 
--- TODO. Implement.
-lookupWordIndex index combo = []
+-- TODO. Eliminate duplicates for maximum performance.
 
 -- | Compute all combinations of a set of letters and group them by length.
 computeCombosGroupedByLength :: ByteString -> Map ByteCount [LetterCombo]
+computeCombosGroupedByLength bytes =
+  let combos = computeCombos bytes
+  in MiscUtil.mapFromValueList BS.length combos
 
--- TODO. Implement.
-computeCombosGroupedByLength bytes = Map.empty
+computeCombos :: ByteString -> [LetterCombo]
+computeCombos bytes = BS.sort <$> computeCombosUnsorted bytes
+
+computeCombosUnsorted :: ByteString -> [ByteString]
+computeCombosUnsorted bytes
+  | BS.null bytes = [BS.empty]
+  | otherwise =
+      let h = BS.head bytes
+          t = BS.tail bytes
+          tailCombos = computeCombosUnsorted t
+          combosWithHead = BS.cons h <$> tailCombos
+      in tailCombos ++ combosWithHead
+
+

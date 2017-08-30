@@ -12,6 +12,7 @@ module BoardGame.Common.Domain.Piece (
   , mkPiece
   , isPiece
   , noPiece
+  , noPieceValue
   , isNoPiece
   , mkRandomPiece
   , mkRandomPieces
@@ -45,11 +46,13 @@ instance ToJSON Piece
 -- |A game cell. Nothing means there is no piece at the cell.
 -- type Cell = Maybe Piece
 
-noPiece = Piece '\0' "-1"
+noPieceValue = '\0'
+noPiece = Piece noPieceValue "-1"
 isNoPiece :: Piece -> Bool
 isNoPiece = (== noPiece)
 isPiece :: Piece -> Bool
 isPiece = (/= noPiece)
+
 
 asciiA :: Int
 asciiA = ord 'A'
