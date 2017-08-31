@@ -11,10 +11,11 @@
 module BoardGame.Server.Domain.DictionaryCache (
     DictionaryCache
   , mkCache
-  , lookupDictionary
-  , getDefaultDictionary
+  , lookup
+  , lookupDefault
 ) where
 
+import Prelude hiding (lookup)
 import qualified Data.Char as Char
 import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as BS
@@ -44,14 +45,14 @@ mkCache dictionaryDirectory capacity = do
   return $ DictionaryCache dictionaryDirectory theCache
 
 -- Look up a dictionary by language code.
-lookupDictionary :: DictionaryCache -> String -> IOExceptT String IndexedLanguageDictionary
-lookupDictionary (dictionaryCache @ DictionaryCache {dictionaryDirectory, cache}) languageCode = do
+lookup :: String -> DictionaryCache -> IOExceptT String IndexedLanguageDictionary
+lookup languageCode (dictionaryCache @ DictionaryCache {dictionaryDirectory, cache}) = do
   let code = if null languageCode then Dict.defaultLanguageCode else languageCode
   Cache.lookup code cache `catchError` (\_ -> readDictionaryFile dictionaryCache code)
 
 -- Get the dictionary for the default language (defined in IndexedLanguageDictionary).
-getDefaultDictionary :: DictionaryCache -> IOExceptT String IndexedLanguageDictionary
-getDefaultDictionary cache = lookupDictionary cache Dict.defaultLanguageCode
+lookupDefault :: DictionaryCache -> IOExceptT String IndexedLanguageDictionary
+lookupDefault = lookup Dict.defaultLanguageCode
 
 -- Private functions.
 

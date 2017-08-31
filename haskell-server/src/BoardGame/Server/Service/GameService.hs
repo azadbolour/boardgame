@@ -74,6 +74,7 @@ import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictionaryCache
 -- import qualified BoardGame.Server.Domain.LanguageDictionary as LanguageDictionary
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
 import BoardGame.Server.Domain.PlayInfo (PlayInfo, PlayInfo(PlayInfo))
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack, liftGameExceptToStack)
@@ -130,6 +131,11 @@ stringExceptLifter except =
       exceptGame = errorMapper `withExceptT` except
   in lift (lift exceptGame)
 
+lookupDictionary :: String -> GameTransformerStack IndexedLanguageDictionary
+lookupDictionary languageCode = do
+  GameEnv {dictionaryCache} <- ask
+  stringExceptLifter $ DictionaryCache.lookup languageCode dictionaryCache
+
 -- | Service function to create and start a new game.
 startGameService ::
      GameParams
@@ -140,11 +146,10 @@ startGameService ::
 
 startGameService gameParams gridPieces initUserPieces initMachinePieces = do
   params @ GameParams.GameParams {languageCode} <- Game.validateGameParams gameParams
-  GameEnv { config, gameCache, dictionaryCache } <- ask
-  let ServerParameters.ServerParameters {dictionaryDir} = Config.serverParameters config
+  GameEnv { config, gameCache } <- ask
   let playerName = GameParams.playerName params
   playerRowId <- GameDao.findExistingPlayerRowIdByName playerName
-  dictionary <- stringExceptLifter $ DictionaryCache.lookupDictionary dictionaryCache languageCode
+  dictionary <- lookupDictionary languageCode
   game <- Game.mkInitialGame params gridPieces initUserPieces initMachinePieces playerName
   GameDao.addGame $ gameToRow playerRowId game
   GameCache.cachePutGame gameCache game gameIOEitherLifter
@@ -159,10 +164,10 @@ commitPlayService ::
   -> GameTransformerStack [Piece]
 
 commitPlayService gmId playPieces = do
-  GameEnv { config, gameCache, dictionaryCache } <- ask
+  GameEnv { config, gameCache } <- ask
   game @ Game {languageCode} <- GameCache.cacheFindGame gameCache gmId gameIOEitherLifter
   let playWord = PlayPiece.playPiecesToWord playPieces
-  dictionary <- stringExceptLifter $ DictionaryCache.lookupDictionary dictionaryCache languageCode
+  dictionary <- lookupDictionary languageCode
   Dict.validateWord dictionary (BS.pack playWord)
   (game' @ Game {playNumber}, refills)
     <- Game.reflectPlayOnGame game UserPlayer playPieces
@@ -177,9 +182,9 @@ commitPlayService gmId playPieces = do
 --   If no match is found, then the machine exchanges a piece.
 machinePlayService :: String -> GameTransformerStack [PlayPiece]
 machinePlayService gameId = do
-  GameEnv { config, gameCache, dictionaryCache } <- ask
+  GameEnv { config, gameCache } <- ask
   (game @ Game {gameId, languageCode, board, trays}) <- GameCache.cacheFindGame gameCache gameId gameIOEitherLifter
-  dictionary <- stringExceptLifter $ DictionaryCache.lookupDictionary dictionaryCache languageCode
+  dictionary <- lookupDictionary languageCode
   let machineTray @ Tray {pieces} = trays !! Player.machineIndex
       trayChars = Piece.value <$> pieces
       gridRows = Board.charRows board
@@ -197,26 +202,6 @@ machinePlayService gameId = do
   GameCache.cachePutGame gameCache game' gameIOEitherLifter
   return machinePlayPieces
 
--- machinePlayService gameId = do
---   gameCache <- asks GameEnv.gameCache
---   dictionaryCache <- asks GameEnv.dictionaryCache
---   (game @ Game {gameId, languageCode, board, trays}) <- GameCache.cacheFindGame gameCache gameId gameIOEitherLifter
---   dictionary <- stringExceptLifter $ DictionaryCache.lookupDictionary dictionaryCache languageCode
---   let words = Dict.getAllWordsAsString dictionary
---       machineTray = trays !! Player.machineIndex
---       matches = BoardStripMatcher.findMatchesOnBoard words board machineTray
---       maybeMatch = optimalMatch matches
---   (game', machinePlayPieces) <- case maybeMatch of
---     Nothing -> do
---       gm <- exchangeMachinePiece game
---       return (gm, []) -- If no pieces were used - we know it was a swap.
---     Just Play.Play { playPieces } -> do
---       (gm @ Game {playNumber}, refills) <- Game.reflectPlayOnGame game MachinePlayer playPieces
---       saveWordPlay gameId playNumber MachinePlayer playPieces refills
---       return (gm, playPieces)
---   GameCache.cachePutGame gameCache game' gameIOEitherLifter
---   return machinePlayPieces
-
 -- TODO. Save the new game data in the database.
 -- TODO. Would this be simpler with a stack of ExceptT May IO??
 -- | Service function to swap a user piece for another.
@@ -232,10 +217,6 @@ swapPieceService gameId (piece @ (Piece {pieceId})) = do
   saveSwap gameId playNumber UserPlayer swappedPiece newPiece
   GameCache.cachePutGame gameCache game' gameIOEitherLifter
   return newPiece
-
--- TODO. Must clear cache of abandoned games. As opposed to suspended games.
--- TODO. Need timeout for arrival of requests. Abandoned game should be resumable.
--- TODO. Implement suspension and resumption of games.
 
 endGameService :: String -> GameTransformerStack ()
 endGameService gameId = do
