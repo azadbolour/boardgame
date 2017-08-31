@@ -313,7 +313,6 @@ playRowToPlayInfo PlayRow {playRowNumber, playRowTurn, playRowIsPlay, playRowDet
   let maybePlayDetails = PlayDetails.decode playRowDetails
   in PlayInfo playRowNumber (read playRowTurn) (fromJust maybePlayDetails)
 
-
 stripPoint :: Strip -> Int -> Point
 stripPoint (strip @ Strip {axis, lineNumber, begin}) offset =
   case axis of
@@ -321,7 +320,7 @@ stripPoint (strip @ Strip {axis, lineNumber, begin}) offset =
     Axis.Y -> Point (begin + offset) lineNumber
 
 -- | Effect of a strip match in terms of play pieces.
-stripMatchAsPlay :: (MonadError GameError m) => Board -> Tray -> Strip -> DictWord -> m ([PlayPiece], Tray)
+stripMatchAsPlay :: (MonadError GameError m, MonadIO m) => Board -> Tray -> Strip -> DictWord -> m ([PlayPiece], Tray)
 
 stripMatchAsPlay (board @ Board {grid}) tray strip word = do
   let playPiecePeeler [] position (playPieces, tray) = return (playPieces, tray)
@@ -332,7 +331,7 @@ stripMatchAsPlay (board @ Board {grid}) tray strip word = do
         (piece', tray') <- if not moved then return (piece, tray)
                              else Tray.removePieceByValue tray wordHead
         let playPiece = PlayPiece piece' point moved
-        return (playPiece : playPieces, tray')
+        playPiecePeeler wordTail (position + 1) (playPiece : playPieces, tray')
   (reversePlayPieces, depletedTray) <- playPiecePeeler (BS.unpack word) 0 ([], tray)
   return (reverse reversePlayPieces, depletedTray)
 

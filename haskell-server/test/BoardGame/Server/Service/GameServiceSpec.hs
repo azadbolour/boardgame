@@ -128,6 +128,8 @@ spec = do
           wordPlayPieces <- machinePlayService gameId
           let word = Play.playToWord $ Play wordPlayPieces
           return word
+        print word
+        print "XXXXXXXXXXXXXXXXXXX"
         length word `shouldSatisfy` (> 1)
 
   describe "swap a piece" $

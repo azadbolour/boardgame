@@ -203,6 +203,8 @@ test-suite spec
       BoardGame.Server.Domain.CommonSpec
       BoardGame.Server.Domain.WordMatcherSpec
       BoardGame.Server.Domain.StripMatcherSpec
+      BoardGame.Server.Domain.IndexedDictionarySpec
+      BoardGame.Server.Domain.DictionaryCacheSpec
       BoardGame.Server.Domain.EnglishDictionarySpec
       BoardGame.Server.Domain.ServerParametersSpec
       BoardGame.Server.Service.GameServiceSpec
@@ -237,6 +239,7 @@ test-suite infocus
       BoardGame.Server.Domain.StripMatcherSpec
       BoardGame.Server.Domain.IndexedDictionarySpec
       BoardGame.Server.Domain.DictionaryCacheSpec
+      BoardGame.Server.Service.GameServiceSpec
   default-language: Haskell2010
 
 executable uuid
