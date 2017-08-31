@@ -107,7 +107,7 @@ timeoutLongRunningGames = do
   let games = foldl' (++) [] $ (: []) <$> gamesMap
       agedGameIds = let aged = ((maxGameMinutes * 60) <) . Game.gameAgeSeconds utcNow
                      in Game.gameId <$> aged `filter` games
-  GameCache.cacheRemoveGames gameCache agedGameIds gameIOEitherLifter
+  GameCache.deleteItems agedGameIds gameCache gameIOEitherLifter
 
 -- | Service function to add a player to the system.
 addPlayerService :: Player.Player -> GameTransformerStack ()
@@ -152,7 +152,7 @@ startGameService gameParams gridPieces initUserPieces initMachinePieces = do
   dictionary <- lookupDictionary languageCode
   game <- Game.mkInitialGame params gridPieces initUserPieces initMachinePieces playerName
   GameDao.addGame $ gameToRow playerRowId game
-  GameCache.cachePutGame gameCache game gameIOEitherLifter
+  GameCache.insert game gameCache gameIOEitherLifter
   return game
 
 -- | Service function to commit a user play - reflecting it on the
@@ -165,14 +165,14 @@ commitPlayService ::
 
 commitPlayService gmId playPieces = do
   GameEnv { config, gameCache } <- ask
-  game @ Game {languageCode} <- GameCache.cacheFindGame gameCache gmId gameIOEitherLifter
+  game @ Game {languageCode} <- GameCache.lookup gmId gameCache gameIOEitherLifter
   let playWord = PlayPiece.playPiecesToWord playPieces
   dictionary <- lookupDictionary languageCode
   Dict.validateWord dictionary (BS.pack playWord)
   (game' @ Game {playNumber}, refills)
     <- Game.reflectPlayOnGame game UserPlayer playPieces
   saveWordPlay gmId playNumber UserPlayer playPieces refills
-  GameCache.cachePutGame gameCache game' gameIOEitherLifter
+  GameCache.insert game' gameCache gameIOEitherLifter
   return refills
 
 -- TODO. Save the replacement pieces in the database.
@@ -183,7 +183,7 @@ commitPlayService gmId playPieces = do
 machinePlayService :: String -> GameTransformerStack [PlayPiece]
 machinePlayService gameId = do
   GameEnv { config, gameCache } <- ask
-  (game @ Game {gameId, languageCode, board, trays}) <- GameCache.cacheFindGame gameCache gameId gameIOEitherLifter
+  (game @ Game {gameId, languageCode, board, trays}) <- GameCache.lookup gameId gameCache gameIOEitherLifter
   dictionary <- lookupDictionary languageCode
   let machineTray @ Tray {pieces} = trays !! Player.machineIndex
       trayChars = Piece.value <$> pieces
@@ -199,7 +199,7 @@ machinePlayService gameId = do
       (gm @ Game {playNumber}, refills) <- Game.reflectPlayOnGame game MachinePlayer playPieces
       saveWordPlay gameId playNumber MachinePlayer playPieces refills
       return (gm, playPieces)
-  GameCache.cachePutGame gameCache game' gameIOEitherLifter
+  GameCache.insert game' gameCache gameIOEitherLifter
   return machinePlayPieces
 
 -- TODO. Save the new game data in the database.
@@ -209,19 +209,19 @@ swapPieceService :: String -> Piece -> GameTransformerStack Piece
 
 swapPieceService gameId (piece @ (Piece {pieceId})) = do
   gameCache <- asks GameEnv.gameCache
-  (game @ Game {gameId, board, trays}) <- GameCache.cacheFindGame gameCache gameId gameIOEitherLifter
+  (game @ Game {gameId, board, trays}) <- GameCache.lookup gameId gameCache gameIOEitherLifter
   let (userTray @ (Tray {pieces})) = trays !! Player.userIndex
   index <- Tray.findPieceIndexById userTray pieceId
   let swappedPiece = pieces !! index
   (game' @ Game {playNumber}, newPiece) <- Game.doExchange game UserPlayer index
   saveSwap gameId playNumber UserPlayer swappedPiece newPiece
-  GameCache.cachePutGame gameCache game' gameIOEitherLifter
+  GameCache.insert game' gameCache gameIOEitherLifter
   return newPiece
 
 endGameService :: String -> GameTransformerStack ()
 endGameService gameId = do
   gameCache <- asks GameEnv.gameCache
-  GameCache.cacheRemoveGame gameCache gameId gameIOEitherLifter
+  GameCache.delete gameId gameCache gameIOEitherLifter
   -- TODO. Tell the database that the game has ended - as opposed to suspended.
 
 
