@@ -16,6 +16,8 @@ module BoardGame.Server.Domain.Tray (
   , replacePiece
   , replacePieces
   , findPieceIndexById
+  , findPieceIndexByValue
+  , removePieceByValue
 )
 where
 
@@ -53,8 +55,23 @@ findPieceIndexById (Tray {pieces}) pieceId =
        Nothing -> throwError $ PieceIdNotFoundError pieceId
        Just index -> return index
 
+findPieceIndexByValue :: (MonadError GameError m) => Tray -> Char -> m Int
+findPieceIndexByValue (Tray {pieces}) pieceValue =
+  let maybeIndex = findIndex ((== pieceValue) . Piece.value) pieces
+  in case maybeIndex of
+       Nothing -> throwError $ PieceValueNotFoundError pieceValue
+       Just index -> return index
+
 replacePiece :: Tray -> Int -> Piece -> Tray
 replacePiece (tray @ Tray {pieces}) index piece =
   let pieces' = setListElement pieces index piece
   in tray {pieces = pieces'}
+
+removePieceByValue :: (MonadError GameError m) => Tray -> Char -> m (Piece, Tray)
+removePieceByValue tray @ Tray {capacity, pieces} letter = do
+  index <- findPieceIndexByValue tray letter
+  let piece = pieces !! index
+      remainingPieces = piece `delete` pieces
+      tray' = Tray capacity remainingPieces
+  return (piece, tray')
 

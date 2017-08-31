@@ -11,6 +11,8 @@ module BoardGame.Server.Domain.IndexedStripMatcher (
     wordFitsContent
   , findFittingWord
   , matchFittingCombos
+  , findOptimalMatch
+  , computePlayableStrips
   ) where
 
 import Data.Map (Map)
@@ -136,12 +138,38 @@ findOptimalMatchForStripsOfLimitedLength dictionary limit groupedStrips combosBy
             Just found -> return found
 
 findOptimalMatch ::
-     IndexedLanguageDictionary
-  -> ByteCount
-  -> GroupedStrips
-  -> Map ByteCount [LetterCombo]
+     IndexedLanguageDictionary -- ^ the dictionary of available words to match
+  -> [String]   -- ^ the rows of the grid containing letters or blank (Piece.noPieceValue)
+  -> String     -- ^ available characters that can be played
   -> Maybe (Strip, DictWord)
 
-findOptimalMatch = findOptimalMatchForStripsOfLimitedLength
+findOptimalMatch dictionary rows trayContent =
+  let dimension = length rows
+      trayLength = length trayContent
+      playableStrips = computePlayableStrips rows trayLength
+      trayBytes = BS.pack trayContent
+      playableCombos = WordUtil.computeCombosGroupedByLength trayBytes
+  in findOptimalMatchForStripsOfLimitedLength dictionary dimension playableStrips playableCombos
+
+-- | Get the strips of a two-dimensional grid of characters that can potentially house a word.
+--   A strip is playable iff it has at least 1 anchor letter,
+--   and at most c blanks, where c is the capacity of the tray.
+computePlayableStrips ::
+     [String]     -- ^ rows or characters - upper-case letters or blank (Piece.noPieceValue)
+  -> Int          -- ^ tray capacity - maximum number of blanks in a play strip
+  -> Map ByteCount (Map BlankCount [Strip])
+
+computePlayableStrips rows trayCapacity =
+  let dimension = length rows
+      allStrips = Strip.allStripsByLengthByBlanks rows dimension
+      blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
+      filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
+      playableStrips = filterPlayableBlanks <$> allStrips
+      hasAnchor strip @ Strip { letters } = BS.length letters > 0
+      filterStripsForAnchor = filter hasAnchor -- :: [Strip] -> [Strip]
+      filterStripsByBlankForAnchor = (filterStripsForAnchor <$>) -- :: Map BlankCount [Strip] -> Map BlankCount [Strip]
+      playableStrips' = filterStripsByBlankForAnchor <$> playableStrips
+  in playableStrips'
+
 
 

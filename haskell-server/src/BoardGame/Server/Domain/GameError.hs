@@ -55,6 +55,10 @@ data GameError =
       pieceId :: String
   }
   |
+  PieceValueNotFoundError {
+      value :: Char
+  }
+  |
   MissingPlayerError {
       playerName :: String
   }

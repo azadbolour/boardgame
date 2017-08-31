@@ -47,8 +47,14 @@ import BoardGame.Common.Domain.Player (Player(Player), PlayerType(..))
 import qualified BoardGame.Common.Domain.Player as Player
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
+import BoardGame.Common.Domain.Point (Point, Point(Point))
+import qualified BoardGame.Common.Domain.Point as Point
+import BoardGame.Common.Domain.Point (Axis)
+import qualified BoardGame.Common.Domain.Point as Axis
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import BoardGame.Common.Domain.PlayPiece (PlayPiece)
+import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
+import qualified BoardGame.Common.Domain.GridValue as GridValue
+import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameParams (GameParams)
 import qualified BoardGame.Common.Domain.GameParams as GameParams (GameParams(..))
@@ -60,7 +66,9 @@ import BoardGame.Server.Domain.Play (Play)
 import qualified BoardGame.Server.Domain.Play as Play
 import BoardGame.Server.Domain.Tray (Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
+import qualified BoardGame.Server.Domain.Grid as Grid
 import qualified BoardGame.Server.Domain.Board as Board
+import BoardGame.Server.Domain.Board (Board, Board(Board))
 import qualified BoardGame.Server.Domain.BoardStripMatcher as BoardStripMatcher
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictionaryCache
@@ -81,6 +89,10 @@ import qualified BoardGame.Server.Domain.PlayDetails as PlayDetails
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv (GameEnv(..))
 import qualified BoardGame.Server.Domain.GameConfig as Config
 import qualified BoardGame.Server.Domain.GameConfig as ServerParameters
+import qualified BoardGame.Server.Domain.IndexedStripMatcher as Matcher
+import qualified BoardGame.Server.Domain.Strip as Strip
+import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
+import BoardGame.Util.WordUtil (DictWord)
 
 timeoutLongRunningGames :: GameTransformerStack ()
 timeoutLongRunningGames = do
@@ -165,24 +177,45 @@ commitPlayService gmId playPieces = do
 --   If no match is found, then the machine exchanges a piece.
 machinePlayService :: String -> GameTransformerStack [PlayPiece]
 machinePlayService gameId = do
-  gameCache <- asks GameEnv.gameCache
-  dictionaryCache <- asks GameEnv.dictionaryCache
+  GameEnv { config, gameCache, dictionaryCache } <- ask
   (game @ Game {gameId, languageCode, board, trays}) <- GameCache.cacheFindGame gameCache gameId gameIOEitherLifter
   dictionary <- stringExceptLifter $ DictionaryCache.getDictionary dictionaryCache languageCode
-  let words = Dict.getAllWordsAsString dictionary
-      machineTray = trays !! Player.machineIndex
-      matches = BoardStripMatcher.findMatchesOnBoard words board machineTray
-      maybeMatch = optimalMatch matches
+  let machineTray @ Tray {pieces} = trays !! Player.machineIndex
+      trayChars = Piece.value <$> pieces
+      gridRows = Board.charRows board
+      maybeMatch = Matcher.findOptimalMatch dictionary gridRows trayChars
+      -- yields Maybe (Strip, DictWord)
   (game', machinePlayPieces) <- case maybeMatch of
     Nothing -> do
       gm <- exchangeMachinePiece game
       return (gm, []) -- If no pieces were used - we know it was a swap.
-    Just Play.Play { playPieces } -> do
+    Just (strip, word) -> do
+      (playPieces, depletedTray) <- stripMatchAsPlay board machineTray strip word
       (gm @ Game {playNumber}, refills) <- Game.reflectPlayOnGame game MachinePlayer playPieces
       saveWordPlay gameId playNumber MachinePlayer playPieces refills
       return (gm, playPieces)
   GameCache.cachePutGame gameCache game' gameIOEitherLifter
   return machinePlayPieces
+
+-- machinePlayService gameId = do
+--   gameCache <- asks GameEnv.gameCache
+--   dictionaryCache <- asks GameEnv.dictionaryCache
+--   (game @ Game {gameId, languageCode, board, trays}) <- GameCache.cacheFindGame gameCache gameId gameIOEitherLifter
+--   dictionary <- stringExceptLifter $ DictionaryCache.getDictionary dictionaryCache languageCode
+--   let words = Dict.getAllWordsAsString dictionary
+--       machineTray = trays !! Player.machineIndex
+--       matches = BoardStripMatcher.findMatchesOnBoard words board machineTray
+--       maybeMatch = optimalMatch matches
+--   (game', machinePlayPieces) <- case maybeMatch of
+--     Nothing -> do
+--       gm <- exchangeMachinePiece game
+--       return (gm, []) -- If no pieces were used - we know it was a swap.
+--     Just Play.Play { playPieces } -> do
+--       (gm @ Game {playNumber}, refills) <- Game.reflectPlayOnGame game MachinePlayer playPieces
+--       saveWordPlay gameId playNumber MachinePlayer playPieces refills
+--       return (gm, playPieces)
+--   GameCache.cachePutGame gameCache game' gameIOEitherLifter
+--   return machinePlayPieces
 
 -- TODO. Save the new game data in the database.
 -- TODO. Would this be simpler with a stack of ExceptT May IO??
@@ -279,4 +312,32 @@ playRowToPlayInfo :: PlayRow -> PlayInfo
 playRowToPlayInfo PlayRow {playRowNumber, playRowTurn, playRowIsPlay, playRowDetails} =
   let maybePlayDetails = PlayDetails.decode playRowDetails
   in PlayInfo playRowNumber (read playRowTurn) (fromJust maybePlayDetails)
+
+
+stripPoint :: Strip -> Int -> Point
+stripPoint (strip @ Strip {axis, lineNumber, begin}) offset =
+  case axis of
+    Axis.X -> Point lineNumber (begin + offset)
+    Axis.Y -> Point (begin + offset) lineNumber
+
+-- | Effect of a strip match in terms of play pieces.
+stripMatchAsPlay :: (MonadError GameError m) => Board -> Tray -> Strip -> DictWord -> m ([PlayPiece], Tray)
+
+stripMatchAsPlay (board @ Board {grid}) tray strip word = do
+  let playPiecePeeler [] position (playPieces, tray) = return (playPieces, tray)
+      playPiecePeeler (wordHead : wordTail) position (playPieces, tray) = do
+        let point @ Point {row, col} = stripPoint strip position
+            gridPiece @ GridValue {value = piece} = Grid.getValue grid row col
+            moved = Piece.isNoPiece piece
+        (piece', tray') <- if not moved then return (piece, tray)
+                             else Tray.removePieceByValue tray wordHead
+        let playPiece = PlayPiece piece' point moved
+        return (playPiece : playPieces, tray')
+  (reversePlayPieces, depletedTray) <- playPiecePeeler (BS.unpack word) 0 ([], tray)
+  return (reverse reversePlayPieces, depletedTray)
+
+
+
+
+
 

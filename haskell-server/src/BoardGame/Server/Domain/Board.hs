@@ -25,7 +25,7 @@ module BoardGame.Server.Domain.Board (
   , validPositionIsFree
   , validPositionIsTaken
   , pointHasNoLineNeighbors
-  , computePlayableStrips
+  , charRows
 )
 where
 
@@ -162,27 +162,26 @@ gridPiecesOfPoints :: Grid GridPiece -> [Point] -> [GridPiece]
 gridPiecesOfPoints Grid {cells} points =
   filter (\GridValue {point} -> elem point points) (getGridPiecesOfCells cells)
 
-
 charRows :: Board -> [[Char]]
 charRows Board {grid} = Grid.cells $ GridPiece.gridLetter <$> grid
 
--- | A strip is playable iff it has at least 1 anchor letter,
---   and at most c blanks, where c is the capacity of the tray.
-computePlayableStrips :: Board -> Int -> GroupedStrips
-
+-- -- | A strip is playable iff it has at least 1 anchor letter,
+-- --   and at most c blanks, where c is the capacity of the tray.
+-- computePlayableStrips :: Board -> Int -> GroupedStrips
+--
 -- TODO. Board should just have a dimension.
-
-computePlayableStrips (board @ Board {width = dimension}) trayCapacity =
-  let allStrips = let rows = charRows board
-                  in Strip.allStripsByLengthByBlanks rows dimension
-      blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
-      filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
-      playableStrips = filterPlayableBlanks <$> allStrips
-      hasAnchor strip @ Strip { letters } = BS.length letters > 0
-      filterStripsForAnchor = filter hasAnchor -- :: [Strip] -> [Strip]
-      filterStripsByBlankForAnchor = (filterStripsForAnchor <$>) -- :: Map BlankCount [Strip] -> Map BlankCount [Strip]
-      playableStrips' = filterStripsByBlankForAnchor <$> playableStrips
-  in playableStrips'
+--
+-- computePlayableStrips (board @ Board {width = dimension}) trayCapacity =
+--   let allStrips = let rows = charRows board
+--                   in Strip.allStripsByLengthByBlanks rows dimension
+--       blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
+--       filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
+--       playableStrips = filterPlayableBlanks <$> allStrips
+--       hasAnchor strip @ Strip { letters } = BS.length letters > 0
+--       filterStripsForAnchor = filter hasAnchor -- :: [Strip] -> [Strip]
+--       filterStripsByBlankForAnchor = (filterStripsForAnchor <$>) -- :: Map BlankCount [Strip] -> Map BlankCount [Strip]
+--       playableStrips' = filterStripsByBlankForAnchor <$> playableStrips
+--   in playableStrips'
 
 
 
