@@ -6,7 +6,8 @@
 
 {-# LANGUAGE FlexibleContexts #-}
 
-module BoardGame.Server.Domain.LanguageDictionary (
+module BoardGame.Server.Domain.LanguageDictionary
+  {-# DEPRECATED "use IndexedLanguageDictionary" #-} (
     LanguageDictionary(..)
   , defaultLanguageCode
   , validateWord
@@ -14,6 +15,7 @@ module BoardGame.Server.Domain.LanguageDictionary (
   , getDefaultDictionary
   , getLanguageDictionary
   ) where
+
 
 import Data.Char (toUpper)
 import Data.Bool (bool)

@@ -144,7 +144,7 @@ startGameService gameParams gridPieces initUserPieces initMachinePieces = do
   let ServerParameters.ServerParameters {dictionaryDir} = Config.serverParameters config
   let playerName = GameParams.playerName params
   playerRowId <- GameDao.findExistingPlayerRowIdByName playerName
-  dictionary <- stringExceptLifter $ DictionaryCache.getDictionary dictionaryCache languageCode
+  dictionary <- stringExceptLifter $ DictionaryCache.lookupDictionary dictionaryCache languageCode
   game <- Game.mkInitialGame params gridPieces initUserPieces initMachinePieces playerName
   GameDao.addGame $ gameToRow playerRowId game
   GameCache.cachePutGame gameCache game gameIOEitherLifter
@@ -162,7 +162,7 @@ commitPlayService gmId playPieces = do
   GameEnv { config, gameCache, dictionaryCache } <- ask
   game @ Game {languageCode} <- GameCache.cacheFindGame gameCache gmId gameIOEitherLifter
   let playWord = PlayPiece.playPiecesToWord playPieces
-  dictionary <- stringExceptLifter $ DictionaryCache.getDictionary dictionaryCache languageCode
+  dictionary <- stringExceptLifter $ DictionaryCache.lookupDictionary dictionaryCache languageCode
   Dict.validateWord dictionary (BS.pack playWord)
   (game' @ Game {playNumber}, refills)
     <- Game.reflectPlayOnGame game UserPlayer playPieces
@@ -179,7 +179,7 @@ machinePlayService :: String -> GameTransformerStack [PlayPiece]
 machinePlayService gameId = do
   GameEnv { config, gameCache, dictionaryCache } <- ask
   (game @ Game {gameId, languageCode, board, trays}) <- GameCache.cacheFindGame gameCache gameId gameIOEitherLifter
-  dictionary <- stringExceptLifter $ DictionaryCache.getDictionary dictionaryCache languageCode
+  dictionary <- stringExceptLifter $ DictionaryCache.lookupDictionary dictionaryCache languageCode
   let machineTray @ Tray {pieces} = trays !! Player.machineIndex
       trayChars = Piece.value <$> pieces
       gridRows = Board.charRows board
@@ -201,7 +201,7 @@ machinePlayService gameId = do
 --   gameCache <- asks GameEnv.gameCache
 --   dictionaryCache <- asks GameEnv.dictionaryCache
 --   (game @ Game {gameId, languageCode, board, trays}) <- GameCache.cacheFindGame gameCache gameId gameIOEitherLifter
---   dictionary <- stringExceptLifter $ DictionaryCache.getDictionary dictionaryCache languageCode
+--   dictionary <- stringExceptLifter $ DictionaryCache.lookupDictionary dictionaryCache languageCode
 --   let words = Dict.getAllWordsAsString dictionary
 --       machineTray = trays !! Player.machineIndex
 --       matches = BoardStripMatcher.findMatchesOnBoard words board machineTray

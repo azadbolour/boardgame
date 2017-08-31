@@ -10,7 +10,8 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
 
-module BoardGame.Server.Domain.BoardStripMatcher (
+module BoardGame.Server.Domain.BoardStripMatcher
+  {-# DEPRECATED "use IndexedStripMatcher" #-} (
     wordMatcher
   , matchWordToStripsOfSameLength
   , findMatchesOnBoard

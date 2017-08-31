@@ -10,15 +10,14 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module BoardGame.Server.Domain.IndexedLanguageDictionary (
-    IndexedLanguageDictionary(..)
+    IndexedLanguageDictionary
+  , IndexedLanguageDictionary(IndexedLanguageDictionary, languageCode)
   , mkDictionary
   , validateWord
   , defaultLanguageCode
-  , mkDummyDictionary
   , isWord
   , getWordPermutations
   , getAllWords
-  , getAllWordsAsString
   ) where
 
 import Data.Bool (bool)
@@ -44,38 +43,25 @@ english = "en"
 defaultLanguageCode :: String
 defaultLanguageCode = english
 
--- | A dictionary of words in a given language.
+-- | A dictionary of words in a given language (identified by language code).
 data IndexedLanguageDictionary = IndexedLanguageDictionary {
-    languageCode :: String
-  , words :: Set ByteString
-  , index :: WordIndex
+    languageCode :: String  -- ^ public
+  , words :: Set ByteString -- ^ private
+  , index :: WordIndex      -- ^ private
 }
 
 mkDictionary :: String -> [DictWord] -> IndexedLanguageDictionary
 mkDictionary languageCode words = IndexedLanguageDictionary languageCode (Set.fromList words) (mkWordIndex words)
 
-mkWordIndex :: [DictWord] -> WordIndex
-mkWordIndex words = MiscUtil.mapFromValueList WordUtil.mkLetterCombo words
-
-mkDummyDictionary :: String -> IndexedLanguageDictionary
-mkDummyDictionary languageCode = mkDictionary languageCode []
-
+-- | Return all words of the dictionary as a set.
 getAllWords :: IndexedLanguageDictionary -> Set ByteString
 getAllWords IndexedLanguageDictionary {words} = words
 
--- TODO. Temporary function during refactoring. Remove.
-getAllWordsAsString :: IndexedLanguageDictionary -> [String]
-getAllWordsAsString IndexedLanguageDictionary {words} = BS.unpack <$> Set.toList words
-
-
+-- | True iff given string represents a word.
 isWord :: IndexedLanguageDictionary -> ByteString -> Bool
 isWord (IndexedLanguageDictionary {words}) word = word `Set.member` words
 
--- TODO. This is a hack.
-instance Show IndexedLanguageDictionary where
-  show = languageCode
-
--- | Word exists in the the dictionary.
+-- | Right iff given string represents a word.
 validateWord :: (MonadError GameError m, MonadIO m) => IndexedLanguageDictionary -> ByteString -> m ByteString
 validateWord languageDictionary word = do
   let valid = isWord languageDictionary word
@@ -88,6 +74,11 @@ getWordPermutations ::
   -> [DictWord]  -- ^ Permutations of the given combination that are in the dictionary.
 getWordPermutations (dictionary @ IndexedLanguageDictionary {index}) combo =
   Maybe.fromMaybe [] (Map.lookup combo index)
+
+-- Private functions.
+
+mkWordIndex :: [DictWord] -> WordIndex
+mkWordIndex words = MiscUtil.mapFromValueList WordUtil.mkLetterCombo words
 
 
 

@@ -9,18 +9,16 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module BoardGame.Server.Domain.DictionaryCache (
-    DictionaryCache(..)
+    DictionaryCache
   , mkCache
-  , getDictionary
+  , lookupDictionary
   , getDefaultDictionary
-  , LinesExceptT
 ) where
 
 import qualified Data.Char as Char
 import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as BS
 
--- import Control.Monad (join)
 import Control.Exception (SomeException)
 import Control.Exception.Enclosed (catchAny)
 import Control.Monad.Except (ExceptT(ExceptT), MonadError(..))
@@ -31,30 +29,31 @@ import Bolour.Util.MiscUtil (IOEither, IOExceptT)
 import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 
-import Paths_boardgame
+import qualified Paths_boardgame as ResourcePaths
 
-type LinesExceptT = IOExceptT String [String]
-type LanguageCode = String -- TODO. Move to Util.
-
-data DictionaryCache = DictionaryCache {
-    dictionaryDirectory :: String
-  , cache :: Cache String IndexedLanguageDictionary
+-- | Cache of language dictionaries identified by language code.
+data DictionaryCache = DictionaryCache { -- private constructor
+    dictionaryDirectory :: String -- private
+  , cache :: Cache String IndexedLanguageDictionary -- private
 }
 
+-- | Factory function (constructor is private).
 mkCache :: String -> Int -> IO DictionaryCache
 mkCache dictionaryDirectory capacity = do
   theCache <- Cache.mkCache capacity
   return $ DictionaryCache dictionaryDirectory theCache
 
-getDictionary :: DictionaryCache -> LanguageCode -> IOExceptT String IndexedLanguageDictionary
-getDictionary (dictionaryCache @ DictionaryCache {dictionaryDirectory, cache}) languageCode = do
+-- Look up a dictionary by language code.
+lookupDictionary :: DictionaryCache -> String -> IOExceptT String IndexedLanguageDictionary
+lookupDictionary (dictionaryCache @ DictionaryCache {dictionaryDirectory, cache}) languageCode = do
   let code = if null languageCode then Dict.defaultLanguageCode else languageCode
   Cache.findItem cache code `catchError` (\_ -> readDictionaryFile dictionaryCache code)
 
+-- Get the dictionary for the default language (defined in IndexedLanguageDictionary).
 getDefaultDictionary :: DictionaryCache -> IOExceptT String IndexedLanguageDictionary
-getDefaultDictionary cache = getDictionary cache Dict.defaultLanguageCode
+getDefaultDictionary cache = lookupDictionary cache Dict.defaultLanguageCode
 
--- TODO. Check non-existent dictionary.
+-- Private functions.
 
 readDictionaryFile :: DictionaryCache -> String -> IOExceptT String IndexedLanguageDictionary
 readDictionaryFile DictionaryCache {dictionaryDirectory, cache} languageCode = do
@@ -67,7 +66,7 @@ readDictionaryFile DictionaryCache {dictionaryDirectory, cache} languageCode = d
 
 readDictionaryInternal :: String -> IOEither String [ByteString]
 readDictionaryInternal path = do
-  print $ "reading file: " ++ path
+  -- print $ "reading file: " ++ path
   contents <- BS.readFile path
   return $ Right $ BS.lines contents
 
@@ -75,7 +74,10 @@ mkDictionaryPath :: String -> String -> IO String
 mkDictionaryPath dictionaryDirectory languageCode = do
   directory <- if null dictionaryDirectory
     then do
-          dataDir <- getDataDir
+          -- no explicit dictionary path provided
+          -- default to look up dictionaries as program resources
+          -- in the resources 'data' directory
+          dataDir <- ResourcePaths.getDataDir
           return $ dataDir ++ "/data"
     else return dictionaryDirectory
   let fileName = languageCode ++ "-words.txt"

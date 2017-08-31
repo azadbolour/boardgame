@@ -22,7 +22,7 @@ import BoardGame.Server.Domain.IndexedLanguageDictionary (
   , IndexedLanguageDictionary(IndexedLanguageDictionary)
   )
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
-import BoardGame.Server.Domain.DictionaryCache (DictionaryCache, DictionaryCache(DictionaryCache))
+import BoardGame.Server.Domain.DictionaryCache (DictionaryCache)
 import qualified BoardGame.Server.Domain.DictionaryCache as Cache
 
 spec :: Spec
@@ -30,7 +30,7 @@ spec = do
   describe "test reading dictionary" $
     it "read english dictionary" $ do
       cache <- Cache.mkCache "" 20
-      eitherDictionary <- runExceptT $ Cache.getDictionary cache ""
+      eitherDictionary <- runExceptT $ Cache.lookupDictionary cache ""
       let dictionary = head $ Either.rights [eitherDictionary]
       Dict.isWord dictionary (BS.pack "TEST") `shouldBe` True
 

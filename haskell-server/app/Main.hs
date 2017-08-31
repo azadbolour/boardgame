@@ -11,73 +11,75 @@
 module Main where
 
 import System.Environment (getArgs)
-import Data.Char (toUpper)
 import Data.String.Here.Interpolated (iTrim)
 import Control.Monad (forever)
 import Control.Concurrent (forkIO, threadDelay)
 import Control.Monad.Except (ExceptT(ExceptT))
 import Network.Wai (Middleware)
-import Network.Wai.Handler.Warp (run)
+import qualified Network.Wai.Handler.Warp as Warp (run)
 import Network.Wai.Middleware.Cors
 
+import qualified Bolour.Util.DbUtil as DbUtil (makePool)
 import qualified Bolour.Util.HttpUtil as HttpUtil
-import Bolour.Util.Middleware (optionsHandler, mkMiddlewareLogger, gameCorsMiddleware)
-import Bolour.Util.DbUtil (makePool)
+import qualified Bolour.Util.Middleware as MyMiddleware
 
 import qualified BoardGame.Server.Domain.GameConfig as Config
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
-import qualified Bolour.Util.StaticTextFileCache as FileCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 import qualified BoardGame.Server.Domain.GameConfig as ServerParameters
-import BoardGame.Server.Web.GameEndPoint (mkGameApp)
+import BoardGame.Server.Domain.GameConfig (ServerParameters, ServerParameters(ServerParameters))
+import qualified BoardGame.Server.Web.GameEndPoint as GameEndPoint (mkGameApp)
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Service.GameTransformerStack as TransformerStack
 import qualified BoardGame.Server.Service.GameService as GameService
 
--- TODO. Use server parameter.
-
+-- | Timer interval for harvesting long-running games (considered abandoned).
 harvestInterval :: Int
 harvestInterval = 1000000 * 60 * 5 -- micros - reduce for testing
 -- harvestInterval = 1000000 * 2 -- micros - increase for production
 
--- Note. The term environment has two different meanings. It can
--- designate the deployment context of the application,
--- as in DEV, TEST, PROD. Or it can designate the context in which
--- the reader monad (or more generally our monad transformer stack, which
--- includes a reader monad) is being run. To disambiguate we use the
--- term 'deployment environment' for the 'name' of the environment
--- in which the entire application is being run, and the term
--- 'game environment' for the context of the reader monad and its
--- derived monad transformers. The latter is represented in the GameEnv type.
+-- Terminology. The term 'environment' may mean a deployment environment
+-- (DEV, TEST, PROD), or a reader monad environment. We use the
+-- terms 'deployment environment' for the former and 'game environment'
+-- (GameEnv) for the latter.
 
--- TODO. Use getOpt. from System.Console.GetOpt.
-
+-- | Maximum number of language dictionaries (different language codes that can be used).
 maxDictionaries = 100
 
 main :: IO ()
 main = do
+    serverParameters <- getParameters
+    let ServerParameters {deployEnv, serverPort} = serverParameters
+    gameEnv <- mkGameEnv serverParameters
+    gameApp <- GameEndPoint.mkGameApp gameEnv
+    forkIO $ longRunningGamesHarvester gameEnv
+    print [iTrim|running Warp server on port '${serverPort}' for env '${deployEnv}'|]
+    let logger = MyMiddleware.mkMiddlewareLogger deployEnv
+    Warp.run serverPort $ logger $ myOptionsHandler $ simpleCors gameApp
+
+-- Could not get this to work:
+-- Warp.run serverPort $ logger $ MyMiddleware.gameCorsMiddleware $ simpleCors gameApp
+-- TODO. simpleCors is a security risk. Fix.
+
+getParameters :: IO ServerParameters
+getParameters = do
+    -- TODO. Use getOpt. from System.Console.GetOpt.
     args <- getArgs
     let maybeConfigPath = if null args then Nothing else Just $ head args
-    serverParameters <- Config.getServerParameters maybeConfigPath
-    let ServerParameters.ServerParameters {deployEnv, serverPort, maxActiveGames, dictionaryDir} = serverParameters
-    myPool <- makePool serverParameters
-    print [iTrim|running Warp server on port '${serverPort}' for env '${deployEnv}'|]
+    Config.getServerParameters maybeConfigPath
+
+mkGameEnv :: ServerParameters -> IO GameEnv
+mkGameEnv serverParameters = do
+    let ServerParameters {maxActiveGames, dictionaryDir} = serverParameters
+    myPool <- DbUtil.makePool serverParameters
     config <- Config.mkConfig serverParameters myPool
-    cache <- GameCache.mkGameCache maxActiveGames
-    let logger = mkMiddlewareLogger deployEnv
-    -- dictionaryCache <- FileCache.mkCache maxDictionaries (toUpper <$>)
+    gameCache <- GameCache.mkGameCache maxActiveGames
     dictionaryCache <- DictCache.mkCache dictionaryDir maxDictionaries
-    let gameEnv = GameEnv config cache dictionaryCache
-    gameApp <- mkGameApp gameEnv
-    forkIO $ longRunningGamesHarvester gameEnv
-    run serverPort $ logger $ myOptionsHandler $ simpleCors gameApp
-    -- run serverPort $ logger $ gameCorsMiddleware $ simpleCors gameApp -- could nt get this to work
+    return $ GameEnv config gameCache dictionaryCache
 
--- TODO. simpleCors is a security risk.
--- It was the simplest way to get going in development.
-
+-- | Interceptor for HTTP OPTIONS methods.
 myOptionsHandler :: Middleware
-myOptionsHandler = optionsHandler HttpUtil.defaultOptionsHeaders
+myOptionsHandler = MyMiddleware.optionsHandler HttpUtil.defaultOptionsHeaders
 
 longRunningGamesHarvester :: GameEnv -> IO ()
 longRunningGamesHarvester env =
@@ -85,6 +87,7 @@ longRunningGamesHarvester env =
     threadDelay harvestInterval
     let ExceptT ioEither = TransformerStack.runDefault env GameService.timeoutLongRunningGames
     leftOrRight <- ioEither
-    print "havest of aged games completed" -- TODO. Remove once tested - don't clutter the log.
+    -- print "harvest of aged games completed"
+    return ()
 
 
