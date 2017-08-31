@@ -47,7 +47,7 @@ mkCache dictionaryDirectory capacity = do
 lookupDictionary :: DictionaryCache -> String -> IOExceptT String IndexedLanguageDictionary
 lookupDictionary (dictionaryCache @ DictionaryCache {dictionaryDirectory, cache}) languageCode = do
   let code = if null languageCode then Dict.defaultLanguageCode else languageCode
-  Cache.findItem cache code `catchError` (\_ -> readDictionaryFile dictionaryCache code)
+  Cache.lookup code cache `catchError` (\_ -> readDictionaryFile dictionaryCache code)
 
 -- Get the dictionary for the default language (defined in IndexedLanguageDictionary).
 getDefaultDictionary :: DictionaryCache -> IOExceptT String IndexedLanguageDictionary
@@ -61,7 +61,7 @@ readDictionaryFile DictionaryCache {dictionaryDirectory, cache} languageCode = d
   lines <- ExceptT $ catchAny (readDictionaryInternal path) showException
   let words = BS.map Char.toUpper <$> lines
       dictionary = Dict.mkDictionary languageCode words
-  Cache.putItem cache languageCode dictionary
+  Cache.insert languageCode dictionary cache
   return dictionary
 
 readDictionaryInternal :: String -> IOEither String [ByteString]

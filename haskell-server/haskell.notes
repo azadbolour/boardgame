@@ -102,3 +102,5 @@
   composed, so that if you follow one with another the inputs
   and outputs are passed, and returned by the framework.
 
+- Exporting Cache (capacity) exports the data type and its field
+  but not the data constructor.

@@ -32,13 +32,13 @@ mkCache capacity lineTransformer = do
 get :: TextFileCacheType -> String -> LinesExceptT
 -- get cache path = return $ Right [] -- TODO. Implement get.
 -- TODO. Check capacity.
-get (cache @ (innerCache, transformer)) path = Cache.findItem innerCache path `catchError` (\_ -> readTextFile innerCache path transformer)
+get (cache @ (innerCache, transformer)) path = Cache.lookup path innerCache `catchError` (\_ -> readTextFile innerCache path transformer)
 
 readTextFile :: Cache String [String] -> String -> (String -> String) -> LinesExceptT
 readTextFile cache path transformer = do
   lines <- ExceptT $ catchAny (readTextInternal path) showException
   let transformedLines = transformer <$> lines
-  Cache.putItem cache path transformedLines
+  Cache.insert path transformedLines cache
   return transformedLines
 
 readTextInternal :: String -> IOEither String [String]
