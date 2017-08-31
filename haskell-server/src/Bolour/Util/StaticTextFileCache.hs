@@ -15,7 +15,7 @@ module Bolour.Util.StaticTextFileCache (
 import Control.Exception (SomeException)
 import Control.Exception.Enclosed (catchAny)
 import Control.Monad.Except (ExceptT(ExceptT), MonadError(..))
-import Bolour.Util.Cache (Cache(Cache))
+import Bolour.Util.Cache (Cache)
 import qualified Bolour.Util.Cache as Cache
 import Bolour.Util.MiscUtil (IOEither, IOExceptT)
 

@@ -10,13 +10,14 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Bolour.Util.Cache (
-    mkCache
+    Cache
+  , Cache (capacity)
+  , mkCache
   , getMap
   , putItem
   , findItem
   , removeItem
   , removeItems
-  , Cache(..)
   ) where
 
 import Data.Maybe (isJust)
@@ -33,24 +34,27 @@ import Bolour.Util.MiscUtil (IOEither, IOExceptT)
 -- TODO. Implement LRU as an option.
 -- For expedience temporarily clients have to set a high enough capacity.
 
-data Cache key value = Cache {
-    capacity :: Int
-  , lock :: MVar ()
-  , itemMapRef :: IORef (Map.Map key value)
+-- | Cache of items - managed explicitly by clients.
+--   If full errors out on additions. For now cache functions use Strings
+--   as errors in Left. TODO. Provide data errors for cache.
+data Cache key value = Cache { -- private constructor
+    capacity :: Int     -- ^ public
+  , lock :: MVar ()     -- ^ private
+  , itemMapRef :: IORef (Map.Map key value) -- ^ private
 }
 
 itemMap :: Map.Map key value
 itemMap = Map.empty
 
+-- | Factory function (constructor is private).
 mkCache :: (Ord key) => Int -> IO (Cache key value)
 mkCache capacity = do
   ref <- newIORef itemMap
   lock <- newMVar ()
   return $ Cache capacity lock ref
 
--- type IOEither substrate = IO (Either String substrate)
--- type CacheExceptT substrate = ExceptT String IO substrate
-
+-- | Put an item into the cache. If the key exists, the value is replaced.
+--   If the key does not exist and the cache if full an error is returned in Left.
 putItem :: (Ord key, Show key) => Cache key value -> key -> value -> IOExceptT String ()
 putItem (cache @ (Cache {lock})) key value =
   let ioEither = bracket_ (takeMVar lock) (putMVar lock ()) (putItemInternal cache key value)
@@ -66,6 +70,7 @@ putItemInternal (Cache {capacity, itemMapRef}) key value = do
       return $ Right res
     else return $ Left $ "cache is full at capacity: " ++ show capacity
 
+-- | Lookup a function in the cache.
 findItem :: (Ord key, Show key) => Cache key value -> key -> IOExceptT String value
 findItem (cache @ (Cache {lock})) key =
   let ioEither = bracket_ (takeMVar lock) (putMVar lock ()) (findItemInternal cache key)
@@ -79,6 +84,7 @@ findItemInternal (Cache {itemMapRef}) key = do
     Nothing -> return $ Left $ "no item for this key in cache: " ++ show key
     Just value -> return $ Right value
 
+-- | Remove an item from teh cache. Returns an error if not found.
 removeItem :: (Ord key, Show key) => Cache key value -> key -> IOExceptT String ()
 removeItem (cache @ (Cache {lock})) key =
   let ioEither = bracket_ (takeMVar lock) (putMVar lock ()) (removeItemInternal cache key)
@@ -101,6 +107,7 @@ removeItemIfExistsInternal (Cache {itemMapRef}) key = do
   when (isJust maybeValue) (modifyIORef itemMapRef (Map.delete key))
   return $ Right ()
 
+-- | Remove a set of items from the cache.
 removeItems :: (Ord key) => Cache key value -> [key] -> IOExceptT String ()
 removeItems (cache @ Cache {lock}) keys =
   let ioEither = bracket_ (takeMVar lock) (putMVar lock ()) (removeItemsInternal cache keys)
@@ -111,6 +118,7 @@ removeItemsInternal cache keys =
   let dummy = removeItemIfExistsInternal cache <$> keys
   in return $ Right ()
 
+-- | Get the key-value map of the items in the cache.
 getMap :: (Ord key) => Cache key value -> IOExceptT String (Map.Map key value)
 getMap Cache {itemMapRef, lock} =
   let ioMap = bracket_ (takeMVar lock) (putMVar lock ()) $ readIORef itemMapRef
