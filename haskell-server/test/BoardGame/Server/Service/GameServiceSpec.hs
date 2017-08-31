@@ -48,7 +48,7 @@ import BoardGame.Server.Service.GameService (
   )
 -- TODO. Should not depend on higher level module.
 import BoardGame.Util.TestUtil (mkInitialPlayPieces)
-import qualified Bolour.Util.StaticTextFileCache as FileCache
+-- import qualified Bolour.Util.StaticTextFileCache as FileCache
 import BoardGame.Server.Web.WebTestFixtures (
       thePlayer
     , params
@@ -129,7 +129,6 @@ spec = do
           let word = Play.playToWord $ Play wordPlayPieces
           return word
         print word
-        print "XXXXXXXXXXXXXXXXXXX"
         length word `shouldSatisfy` (> 1)
 
   describe "swap a piece" $

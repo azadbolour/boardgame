@@ -33,7 +33,7 @@ import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Server.Domain.BoardStripMatcher
 import qualified BoardGame.Server.Domain.BoardStripMatcher as BoardStripMatcher
-import qualified BoardGame.Server.Domain.LanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 
 pce :: Char -> Maybe Piece
 pce s = Just $ Piece s "" -- Ignore id.
@@ -146,13 +146,6 @@ spec = do
        print $ length matches
        print $ Play.playToWord <$> matches
        length matches `shouldSatisfy` ((<) 1)
-    it "finds matches in dictionary" $ do
-       Dict.LanguageDictionary { words } <- Dict.getDefaultDictionary
-       let matches = findMatchesOnBoard words testBoard testTray
-       -- sequence_ $ (print . shortPlayPieces) <$> (Play.playPieces <$> matches)
-       -- sequence_ $ (print . Play.playToWord) <$> matches
-       print $ length matches
-       length matches `shouldSatisfy` ((<) 60)
 
 shortPlayPiece :: PlayPiece -> (Char, Int, Int, Bool)
 shortPlayPiece pp =

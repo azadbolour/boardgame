@@ -40,7 +40,7 @@ import BoardGame.Server.Service.GameDao (cleanupDb)
 import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
 import BoardGame.Server.Web.GameEndPoint (addPlayerHandler, startGameHandler)
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
-import qualified Bolour.Util.StaticTextFileCache as FileCache
+-- import qualified Bolour.Util.StaticTextFileCache as FileCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 
 makePlayer :: GameEnv -> String -> IO ()

@@ -36,7 +36,7 @@ import qualified BoardGame.Server.Service.GameService as GameService
 import qualified BoardGame.Server.Domain.GameError as GameError
 import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
 import BoardGame.Server.Service.GameTransformerStack
-import qualified Bolour.Util.StaticTextFileCache as FileCache
+-- import qualified Bolour.Util.StaticTextFileCache as FileCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 
 -- TODO. Should not depend on higher level module.

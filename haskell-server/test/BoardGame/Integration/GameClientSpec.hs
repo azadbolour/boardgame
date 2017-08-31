@@ -46,7 +46,7 @@ import qualified Bolour.Util.DbUtil as DbUtil
 import qualified BoardGame.Client.GameClient as Client
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 import qualified BoardGame.Server.Domain.GameCache as GameCache
-import qualified Bolour.Util.StaticTextFileCache as FileCache
+-- import qualified Bolour.Util.StaticTextFileCache as FileCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 
 -- TODO. Start the server within the test - just copy main and test against it.
