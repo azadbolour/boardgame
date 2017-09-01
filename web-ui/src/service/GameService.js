@@ -74,10 +74,10 @@ class GameService {
       return response;
     });
   }
-
-  exchange(gameId, piece) {
+  
+  swap(gameId, piece) {
     let jsonPiece = PieceConverter.toJson(piece);
-    let promise = this.api.exchange(gameId, jsonPiece);
+    let promise = this.api.swap(gameId, jsonPiece);
     return promise.then(dtoResponse => {
       if (!dtoResponse.ok) {
         return dtoResponse; // TODO. Convert dto message to application message;.

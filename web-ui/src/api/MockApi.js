@@ -57,9 +57,9 @@ class MockApi {
     return promise(impl.selectFirstPlayer());
   }
 
-  exchange(gameId, piece) {
+  swap(gameId, piece) {
     let impl = this.getImpl(gameId);
-    return promise(impl.exchange(piece));
+    return promise(impl.swap(piece));
   }
 
   commitPlay(gameId, playPieces) {

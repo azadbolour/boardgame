@@ -57,7 +57,7 @@ class MockGameImpl {
 
   // Begin Api.
 
-  exchange(piece) {
+  swap(piece) {
     return this.getPiece();
   }
 

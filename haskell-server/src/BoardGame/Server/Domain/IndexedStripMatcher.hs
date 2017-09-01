@@ -175,19 +175,10 @@ computePlayableStrips (board @ Board {height}) trayCapacity =
       blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
       filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
       playableStrips = filterPlayableBlanks <$> allStrips
-
-      hasAnchor strip @ Strip { letters } = BS.length letters > 0
-      playableStrips' = allStripsFilter hasAnchor allStrips
-
---       filterStripsForAnchor = filter hasAnchor -- :: [Strip] -> [Strip]
---       filterStripsByBlankForAnchor = (filterStripsForAnchor <$>) -- :: Map BlankCount [Strip] -> Map BlankCount [Strip]
---       playableStrips' = filterStripsByBlankForAnchor <$> playableStrips
-
+      playableStrips' = allStripsFilter Strip.hasAnchor allStrips
       playableStrips'' = allStripsFilter (stripBlanksAreFreeCrosswise board) playableStrips'
---       filterStripsForNoCrossWords = filter (stripBlanksAreFreeCrosswise board)
---       filterStripsByBlankForNoCrossWords = (filterStripsForNoCrossWords <$>)
---       playableStrips'' = filterStripsByBlankForNoCrossWords <$> playableStrips'
-  in playableStrips''
+      playableStrips''' = allStripsFilter (stripIsDisconnectedInLine board) playableStrips'
+  in playableStrips'''
 
 -- GroupedStrips is doubly-nested map of strips.
 allStripsFilter :: (Strip -> Bool) -> GroupedStrips -> GroupedStrips

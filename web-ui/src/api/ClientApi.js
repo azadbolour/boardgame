@@ -47,10 +47,10 @@ class ClientApi {
     return promise;
   }
 
-  exchange(gameId, piece) {
+  swap(gameId, piece) {
     let body = JSON.stringify(piece);
     let request = restManager.mkPostRequest(body);
-    let requestPath = '/game/exchange-piece/' + gameId;
+    let requestPath = '/game/swap-piece/' + gameId;
     let promise = restManager.send(request, this.gameServerUrl, requestPath);
     return promise;
   }

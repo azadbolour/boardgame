@@ -275,7 +275,7 @@ export const mkGameEventHandler = function(gameService) {
 
     handleSwapInternal: function (piece) {
       if (noGame()) { logNoGame(); return; }
-      let promise = _gameService.exchange(_game.gameId, piece);
+      let promise = _gameService.swap(_game.gameId, piece);
       let processedPromise = promise.then(response => {
         if (response.ok) {
           let newPiece = response.json;

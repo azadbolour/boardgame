@@ -14,6 +14,7 @@ module BoardGame.Server.Domain.Strip (
   , allStripsByLengthByBlanks
   , stripPoint
   , blankPoints
+  , hasAnchor
   ) where
 
 import qualified Data.List as List
@@ -123,3 +124,5 @@ blankPoints strip @ Strip {content} =
       blankIndexes = fst <$> ((Piece.charIsBlank . snd) `filter` indexedContent)
   in stripPoint strip <$> blankIndexes
 
+hasAnchor :: Strip -> Bool
+hasAnchor strip @ Strip { letters } = BS.length letters > 0
