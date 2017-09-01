@@ -175,11 +175,23 @@ computePlayableStrips (board @ Board {height}) trayCapacity =
       blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
       filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
       playableStrips = filterPlayableBlanks <$> allStrips
+
       hasAnchor strip @ Strip { letters } = BS.length letters > 0
-      filterStripsForAnchor = filter hasAnchor -- :: [Strip] -> [Strip]
-      filterStripsByBlankForAnchor = (filterStripsForAnchor <$>) -- :: Map BlankCount [Strip] -> Map BlankCount [Strip]
-      playableStrips' = filterStripsByBlankForAnchor <$> playableStrips
-  in playableStrips'
+      playableStrips' = allStripsFilter hasAnchor allStrips
+
+--       filterStripsForAnchor = filter hasAnchor -- :: [Strip] -> [Strip]
+--       filterStripsByBlankForAnchor = (filterStripsForAnchor <$>) -- :: Map BlankCount [Strip] -> Map BlankCount [Strip]
+--       playableStrips' = filterStripsByBlankForAnchor <$> playableStrips
+
+      playableStrips'' = allStripsFilter (stripBlanksAreFreeCrosswise board) playableStrips'
+--       filterStripsForNoCrossWords = filter (stripBlanksAreFreeCrosswise board)
+--       filterStripsByBlankForNoCrossWords = (filterStripsForNoCrossWords <$>)
+--       playableStrips'' = filterStripsByBlankForNoCrossWords <$> playableStrips'
+  in playableStrips''
+
+-- GroupedStrips is doubly-nested map of strips.
+allStripsFilter :: (Strip -> Bool) -> GroupedStrips -> GroupedStrips
+allStripsFilter stripFilter = (fmap . fmap) (filter stripFilter)
 
 
 -- | The blanks of this strip that are supposed to be filled
@@ -189,7 +201,8 @@ computePlayableStrips (board @ Board {height}) trayCapacity =
 stripBlanksAreFreeCrosswise :: Board -> Strip -> Bool
 stripBlanksAreFreeCrosswise board (strip @ Strip {axis}) =
   let blankPoints = Strip.blankPoints strip
-  in all (\point -> Board.pointHasNoLineNeighbors board point axis) blankPoints
+      crossAxis = Axis.crossAxis axis
+  in all (\point -> Board.pointHasNoLineNeighbors board point crossAxis) blankPoints
 
 -- | Check that a strip has no neighbors on either side - is disconnected
 --   from the rest of its line. If it is has neighbors, it is not playable

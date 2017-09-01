@@ -17,6 +17,7 @@ shared with the web interface layer and with clients.
 -}
 module BoardGame.Common.Domain.Point (
     Axis(..)
+  , crossAxis
   , Coordinate
   , Height
   , Width
@@ -33,6 +34,10 @@ data Axis = Y | X
 
 instance FromJSON Axis
 instance ToJSON Axis
+
+crossAxis :: Axis -> Axis
+crossAxis X = Y
+crossAxis Y = X
 
 -- | A value of a board coordinate.
 type Coordinate = Int
