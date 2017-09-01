@@ -12,6 +12,8 @@ module BoardGame.Server.Domain.Strip (
     Strip(..)
   , GroupedStrips
   , allStripsByLengthByBlanks
+  , stripPoint
+  , blankPoints
   ) where
 
 import qualified Data.List as List
@@ -23,7 +25,7 @@ import qualified Data.Map as Map
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil
 import qualified Bolour.Util.MiscUtil as MiscUtil
-import BoardGame.Common.Domain.Point (Axis, Coordinate)
+import BoardGame.Common.Domain.Point (Point, Point(Point), Axis, Coordinate)
 import qualified BoardGame.Common.Domain.Point as Axis
 import qualified BoardGame.Common.Domain.Piece as Piece
 
@@ -107,7 +109,17 @@ allStripsByLengthByBlanks rows maxSize =
       keyValueList = keyValueMaker <$> [2 .. maxSize] -- word needs at least 2 letters
   in Map.fromList keyValueList
 
+stripPoint :: Strip -> Coordinate -> Point
+stripPoint (Strip {axis, lineNumber, begin}) offset =
+  case axis of
+  Axis.X -> Point lineNumber (begin + offset)
+  Axis.Y -> Point (begin + offset) lineNumber
 
+-- TODO. For better performance consider including blank points in Strip data structure.
 
-
+blankPoints :: Strip -> [Point]
+blankPoints strip @ Strip {content} =
+  let indexedContent = [0 .. BS.length content] `zip` BS.unpack content
+      blankIndexes = fst <$> ((Piece.charIsBlank . snd) `filter` indexedContent)
+  in stripPoint strip <$> blankIndexes
 

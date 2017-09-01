@@ -71,7 +71,7 @@ spec :: Spec
 spec = do
   describe "make strips from board" $ do
     it "make strips from board" $ do
-      let groupedStrips = Matcher.computePlayableStrips gridRows trayCapacity
+      let groupedStrips = Matcher.computePlayableStrips testBoard trayCapacity
           groupedStripsLength3 = Maybe.fromJust $ Map.lookup 3 groupedStrips
       groupedStripsLength3 `shouldSatisfy` (not . Map.null)
 
@@ -89,7 +89,7 @@ spec = do
     it "finds fitting word" $ do
       let blankCount = 5
           wordLength = 6
-          groupedStrips = Matcher.computePlayableStrips gridRows trayCapacity
+          groupedStrips = Matcher.computePlayableStrips testBoard trayCapacity
           strips = Maybe.fromJust $ Map.lookup blankCount $ Maybe.fromJust $ Map.lookup wordLength groupedStrips
           combos = [mkCombo "AXJQW", mkCombo "PCKER"]
       Matcher.matchFittingCombos dictionary blankCount strips combos `shouldSatisfy` Maybe.isJust
@@ -97,7 +97,7 @@ spec = do
   describe "find optimal match" $ do
     it "find optimal match" $ do
       let trayContents = "PCKER"
-          optimal = Maybe.fromJust $ Matcher.findOptimalMatch dictionary gridRows trayContents
+          optimal = Maybe.fromJust $ Matcher.findOptimalMatch dictionary testBoard trayContents
       snd optimal `shouldBe` BS.pack "PACKER"
 
 

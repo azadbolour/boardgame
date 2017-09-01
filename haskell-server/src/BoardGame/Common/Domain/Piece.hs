@@ -20,6 +20,7 @@ module BoardGame.Common.Domain.Piece (
   , leastFrequentLetter
   , randomLetter
   , mkRandomPieceForId
+  , charIsBlank
 ) where
 
 import System.Random
@@ -43,9 +44,6 @@ data Piece = Piece {
 instance FromJSON Piece
 instance ToJSON Piece
 
--- |A game cell. Nothing means there is no piece at the cell.
--- type Cell = Maybe Piece
-
 noPieceValue = '\0'
 noPiece = Piece noPieceValue "-1"
 isNoPiece :: Piece -> Bool
@@ -53,6 +51,8 @@ isNoPiece = (== noPiece)
 isPiece :: Piece -> Bool
 isPiece = (/= noPiece)
 
+charIsBlank :: Char -> Bool
+charIsBlank = (== noPieceValue)
 
 asciiA :: Int
 asciiA = ord 'A'

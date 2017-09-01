@@ -187,8 +187,8 @@ machinePlayService gameId = do
   dictionary <- lookupDictionary languageCode
   let machineTray @ Tray {pieces} = trays !! Player.machineIndex
       trayChars = Piece.value <$> pieces
-      gridRows = Board.charRows board
-      maybeMatch = Matcher.findOptimalMatch dictionary gridRows trayChars
+      -- gridRows = Board.charRows board
+      maybeMatch = Matcher.findOptimalMatch dictionary board trayChars
       -- yields Maybe (Strip, DictWord)
   (game', machinePlayPieces) <- case maybeMatch of
     Nothing -> do

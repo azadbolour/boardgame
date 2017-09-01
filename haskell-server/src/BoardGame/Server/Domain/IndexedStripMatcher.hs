@@ -21,8 +21,17 @@ import qualified Data.ByteString.Char8 as BS
 import Data.ByteString.Char8 (ByteString)
 
 import qualified BoardGame.Common.Domain.Piece as Piece
+import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
+import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
+import qualified BoardGame.Common.Domain.GridValue as GridValue
+import BoardGame.Common.Domain.GridPiece (GridPiece)
+import qualified BoardGame.Common.Domain.Point as Axis
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil
+import BoardGame.Server.Domain.Board (Board, Board(Board))
+import qualified BoardGame.Server.Domain.Board as Board
+import qualified BoardGame.Server.Domain.Grid as Grid
+import BoardGame.Server.Domain.Grid (Grid, Grid(Grid))
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary, IndexedLanguageDictionary(IndexedLanguageDictionary))
@@ -139,14 +148,14 @@ findOptimalMatchForStripsOfLimitedLength dictionary limit groupedStrips combosBy
 
 findOptimalMatch ::
      IndexedLanguageDictionary -- ^ the dictionary of available words to match
-  -> [String]   -- ^ the rows of the grid containing letters or blank (Piece.noPieceValue)
+  -> Board      -- ^ the board
   -> String     -- ^ available characters that can be played
   -> Maybe (Strip, DictWord)
 
-findOptimalMatch dictionary rows trayContent =
-  let dimension = length rows
+findOptimalMatch dictionary (board @ Board {height}) trayContent =
+  let dimension = height -- TODO. Assume for now that height and width are the same. Fix.
       trayLength = length trayContent
-      playableStrips = computePlayableStrips rows trayLength
+      playableStrips = computePlayableStrips board trayLength
       trayBytes = BS.pack trayContent
       playableCombos = WordUtil.computeCombosGroupedByLength trayBytes
   in findOptimalMatchForStripsOfLimitedLength dictionary dimension playableStrips playableCombos
@@ -155,12 +164,13 @@ findOptimalMatch dictionary rows trayContent =
 --   A strip is playable iff it has at least 1 anchor letter,
 --   and at most c blanks, where c is the capacity of the tray.
 computePlayableStrips ::
-     [String]     -- ^ rows or characters - upper-case letters or blank (Piece.noPieceValue)
+     Board        -- ^ the board
   -> Int          -- ^ tray capacity - maximum number of blanks in a play strip
   -> Map ByteCount (Map BlankCount [Strip])
 
-computePlayableStrips rows trayCapacity =
-  let dimension = length rows
+computePlayableStrips (board @ Board {height}) trayCapacity =
+  let dimension = height -- TODO. Assume for now that height and width are the same. Fix.
+      rows = Board.charRows board
       allStrips = Strip.allStripsByLengthByBlanks rows dimension
       blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
       filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
@@ -172,4 +182,33 @@ computePlayableStrips rows trayCapacity =
   in playableStrips'
 
 
+-- | The blanks of this strip that are supposed to be filled
+--   do not have neighbors in the cross direction.
+--   Hence we don't have to bother checking for any newly-created cross words.
+--   Simplifies the search initially.
+stripBlanksAreFreeCrosswise :: Board -> Strip -> Bool
+stripBlanksAreFreeCrosswise board (strip @ Strip {axis}) =
+  let blankPoints = Strip.blankPoints strip
+  in all (\point -> Board.pointHasNoLineNeighbors board point axis) blankPoints
+
+-- | Check that a strip has no neighbors on either side - is disconnected
+--   from the rest of its line. If it is has neighbors, it is not playable
+--   since a matching word will run into the neighbors. However, a containing
+--   strip will be playable and so we can forget about this strip.
+stripIsDisconnectedInLine :: Board -> Strip -> Bool
+stripIsDisconnectedInLine (Board {height, width, grid}) (strip @ Strip {axis, begin, end, content})
+  | (BS.null content) = False
+  | otherwise =
+      let f = Strip.stripPoint strip 0
+          l = Strip.stripPoint strip (end - begin)
+          limit = case axis of
+           Axis.X -> width
+           Axis.Y -> height
+          maybePrevGridPiece = Grid.prevValue grid f axis limit
+          maybeNextGridPiece = Grid.nextValue grid l axis limit
+          isSeparator maybeGridPiece =
+            case maybeGridPiece of
+              Nothing -> True
+              Just (GridValue.GridValue {value = piece}) -> Piece.isNoPiece piece
+      in isSeparator maybePrevGridPiece && isSeparator maybeNextGridPiece
 
