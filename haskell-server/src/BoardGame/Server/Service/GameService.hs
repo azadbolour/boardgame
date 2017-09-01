@@ -9,6 +9,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RankNTypes #-}
 
 {-|
 The service layer of the game application. This layer is independent of
@@ -26,6 +27,7 @@ module BoardGame.Server.Service.GameService (
   )
   where
 
+import Data.Bool (bool)
 import Data.Ord
 import Data.List
 import Data.Maybe (fromJust)
@@ -73,8 +75,8 @@ import qualified BoardGame.Server.Domain.BoardStripMatcher as BoardStripMatcher
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictionaryCache
 -- import qualified BoardGame.Server.Domain.LanguageDictionary as LanguageDictionary
-import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
-import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
+import qualified BoardGame.Server.Domain.LanguageDictionary as Dict
+import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary)
 import BoardGame.Server.Domain.PlayInfo (PlayInfo, PlayInfo(PlayInfo))
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack, liftGameExceptToStack)
@@ -95,7 +97,8 @@ import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import BoardGame.Util.WordUtil (DictWord)
 
-timeoutLongRunningGames :: GameTransformerStack ()
+timeoutLongRunningGames :: (LanguageDictionary dictionary) =>
+  GameTransformerStack dictionary ()
 timeoutLongRunningGames = do
   gameCache <- asks GameEnv.gameCache
   config <- asks GameEnv.config
@@ -110,65 +113,74 @@ timeoutLongRunningGames = do
   GameCache.deleteItems agedGameIds gameCache gameIOEitherLifter
 
 -- | Service function to add a player to the system.
-addPlayerService :: Player.Player -> GameTransformerStack ()
+addPlayerService :: (LanguageDictionary dictionary) =>
+     Player.Player
+  -> GameTransformerStack dictionary ()
 addPlayerService player = do
+  cfg <- asks GameEnv.config
   let Player { name } = player
   if not (isAlphaNumString name) then
     throwError $ InvalidPlayerNameError name
   else do
-    GameDao.addPlayer (playerToRow player)
+    GameDao.addPlayer cfg (playerToRow player)
     return ()
 
 -- TODO. Move to GameError.
 type GameIOEither a = IO (Either GameError a)
 
-gameIOEitherLifter :: GameIOEither a -> GameTransformerStack a
+gameIOEitherLifter :: (LanguageDictionary dictionary) =>
+     GameIOEither a
+  -> GameTransformerStack dictionary a
 gameIOEitherLifter ioEither = liftGameExceptToStack $ ExceptT ioEither
 
-stringExceptLifter :: ExceptT String IO a -> GameTransformerStack a
+stringExceptLifter :: (LanguageDictionary dictionary) =>
+     ExceptT String IO a
+  -> GameTransformerStack dictionary a
 stringExceptLifter except =
   let errorMapper = InternalError
       exceptGame = errorMapper `withExceptT` except
   in lift (lift exceptGame)
 
-lookupDictionary :: String -> GameTransformerStack IndexedLanguageDictionary
+lookupDictionary :: LanguageDictionary dictionary =>
+     String
+  -> GameTransformerStack dictionary dictionary
 lookupDictionary languageCode = do
   GameEnv {dictionaryCache} <- ask
   stringExceptLifter $ DictionaryCache.lookup languageCode dictionaryCache
 
 -- | Service function to create and start a new game.
-startGameService ::
+startGameService :: LanguageDictionary dictionary =>
      GameParams
   -> [GridPiece]
   -> [Piece]
   -> [Piece]
-  -> GameTransformerStack Game
+  -> GameTransformerStack dictionary Game
 
 startGameService gameParams gridPieces initUserPieces initMachinePieces = do
   params @ GameParams.GameParams {languageCode} <- Game.validateGameParams gameParams
   GameEnv { config, gameCache } <- ask
   let playerName = GameParams.playerName params
-  playerRowId <- GameDao.findExistingPlayerRowIdByName playerName
+  playerRowId <- GameDao.findExistingPlayerRowIdByName config playerName
   dictionary <- lookupDictionary languageCode
   game <- Game.mkInitialGame params gridPieces initUserPieces initMachinePieces playerName
-  GameDao.addGame $ gameToRow playerRowId game
+  GameDao.addGame config $ gameToRow playerRowId game
   GameCache.insert game gameCache gameIOEitherLifter
   return game
 
 -- | Service function to commit a user play - reflecting it on the
 --   game's board, and and refilling the user tray.
 --   Return the newly added replenishment pieces to the user tray.
-commitPlayService ::
+commitPlayService :: LanguageDictionary dictionary =>
      String
   -> [PlayPiece]
-  -> GameTransformerStack [Piece]
+  -> GameTransformerStack dictionary [Piece]
 
 commitPlayService gmId playPieces = do
   GameEnv { config, gameCache } <- ask
   game @ Game {languageCode} <- GameCache.lookup gmId gameCache gameIOEitherLifter
   let playWord = PlayPiece.playPiecesToWord playPieces
   dictionary <- lookupDictionary languageCode
-  Dict.validateWord dictionary (BS.pack playWord)
+  validateWord dictionary (BS.pack playWord)
   (game' @ Game {playNumber}, refills)
     <- Game.reflectPlayOnGame game UserPlayer playPieces
   saveWordPlay gmId playNumber UserPlayer playPieces refills
@@ -180,7 +192,9 @@ commitPlayService gmId playPieces = do
 
 -- | Service function to obtain the next machine play.
 --   If no match is found, then the machine exchanges a piece.
-machinePlayService :: String -> GameTransformerStack [PlayPiece]
+machinePlayService :: LanguageDictionary dictionary =>
+     String
+  -> GameTransformerStack dictionary [PlayPiece]
 machinePlayService gameId = do
   GameEnv { config, gameCache } <- ask
   (game @ Game {gameId, languageCode, board, trays}) <- GameCache.lookup gameId gameCache gameIOEitherLifter
@@ -205,7 +219,10 @@ machinePlayService gameId = do
 -- TODO. Save the new game data in the database.
 -- TODO. Would this be simpler with a stack of ExceptT May IO??
 -- | Service function to swap a user piece for another.
-swapPieceService :: String -> Piece -> GameTransformerStack Piece
+swapPieceService :: LanguageDictionary dictionary =>
+     String
+  -> Piece
+  -> GameTransformerStack dictionary Piece
 
 swapPieceService gameId (piece @ (Piece {pieceId})) = do
   gameCache <- asks GameEnv.gameCache
@@ -218,18 +235,21 @@ swapPieceService gameId (piece @ (Piece {pieceId})) = do
   GameCache.insert game' gameCache gameIOEitherLifter
   return newPiece
 
-endGameService :: String -> GameTransformerStack ()
+endGameService :: LanguageDictionary dictionary =>
+     String
+  -> GameTransformerStack dictionary ()
 endGameService gameId = do
   gameCache <- asks GameEnv.gameCache
   GameCache.delete gameId gameCache gameIOEitherLifter
   -- TODO. Tell the database that the game has ended - as opposed to suspended.
 
-
 -- TODO. A swap is also a play and should increment the playNumber. For both machine and user.
 -- TODO. play number needs to be updated at the right time.
 
 -- | No matches available for machine - do a swap instead.
-exchangeMachinePiece :: Game -> GameTransformerStack Game
+exchangeMachinePiece :: LanguageDictionary dictionary =>
+     Game
+  -> GameTransformerStack dictionary Game
 exchangeMachinePiece (game @ Game.Game {gameId, board, trays, playNumber, ..}) = do
   piece <- liftIO Piece.mkRandomPiece -- TODO. Must get the piece from the game.
   let (machineTray @ Tray {pieces}) = trays !! Player.machineIndex
@@ -240,31 +260,42 @@ exchangeMachinePiece (game @ Game.Game {gameId, board, trays, playNumber, ..}) =
   saveSwap gameId playNumber UserPlayer swappedPiece piece
   return $ Game.setPlayerTray game MachinePlayer tray'
 
-saveWordPlay :: String -> Int -> PlayerType -> [PlayPiece] -> [Piece]
-  -> GameTransformerStack EntityId
+saveWordPlay :: LanguageDictionary dictionary =>
+     String
+  -> Int
+  -> PlayerType
+  -> [PlayPiece]
+  -> [Piece]
+  -> GameTransformerStack dictionary EntityId
 saveWordPlay gameId playNumber playerType playPieces replacementPieces =
   let playDetails = WordPlayDetails playPieces replacementPieces
       detailsJson = PlayDetails.encode playDetails
   in savePlay gameId playNumber playerType True detailsJson
 
-saveSwap :: String -> Int -> PlayerType -> Piece -> Piece
-  -> GameTransformerStack EntityId
+saveSwap :: LanguageDictionary dictionary =>
+     String
+  -> Int
+  -> PlayerType
+  -> Piece
+  -> Piece
+  -> GameTransformerStack dictionary EntityId
 saveSwap gameId playNumber playerType swappedPiece replacementPiece =
   let swapDetails = SwapPlayDetails swappedPiece replacementPiece
       detailsJson = PlayDetails.encode swapDetails
   in savePlay gameId playNumber playerType False detailsJson
 
-savePlay ::
+savePlay :: LanguageDictionary dictionary =>
      String
   -> Int
   -> PlayerType
   -> Bool
   -> String
-  -> GameTransformerStack EntityId
+  -> GameTransformerStack dictionary EntityId
 savePlay gameId playNumber playerType isPlay details = do
-  gameRowId <- GameDao.findExistingGameRowIdByGameId gameId
+  cfg <- asks GameEnv.config
+  gameRowId <- GameDao.findExistingGameRowIdByGameId cfg gameId
   let playRow = PlayRow gameRowId playNumber (show playerType) isPlay details
-  GameDao.addPlay playRow
+  GameDao.addPlay cfg playRow
 
 -- TODO. More intelligent optimal match based on values of moved pieces.
 optimalMatch :: [Play] -> Maybe Play
@@ -282,9 +313,12 @@ gameToRow playerId game =
 playerToRow :: Player.Player -> PlayerRow
 playerToRow player = PlayerRow $ Player.name player -- TODO. Clean this up.
 
-getGamePlayDetailsService :: String -> GameTransformerStack [PlayInfo]
+getGamePlayDetailsService :: LanguageDictionary dictionary =>
+     String
+  -> GameTransformerStack dictionary [PlayInfo]
 getGamePlayDetailsService gameId = do
-  playRows <- GameDao.getGamePlays gameId
+  cfg <- asks GameEnv.config
+  playRows <- GameDao.getGamePlays cfg gameId
   return $ playRowToPlayInfo <$> playRows
 
 -- TODO. Check for decode returning Nothing - error in decoding.
@@ -317,6 +351,14 @@ stripMatchAsPlay (board @ Board {grid}) tray strip word = do
   return (reverse reversePlayPieces, depletedTray)
 
 
+-- | Right iff given string represents a word.
+validateWord :: (LanguageDictionary dictionary, MonadError GameError m, MonadIO m) =>
+     dictionary
+  -> ByteString
+  -> m ByteString
+validateWord dictionary word = do
+  let valid = Dict.isWord dictionary word
+  bool (throwError $ InvalidWordError $ BS.unpack word) (return word) valid
 
 
 

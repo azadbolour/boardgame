@@ -78,6 +78,7 @@ library
       BoardGame.Server.Domain.PlayDetails
       BoardGame.Server.Domain.BoardStripMatcher
       BoardGame.Server.Domain.IndexedStripMatcher
+      BoardGame.Server.Domain.LanguageDictionary
       BoardGame.Server.Domain.IndexedLanguageDictionary
       BoardGame.Server.Domain.GameCache
       BoardGame.Server.Domain.GameEnv

@@ -27,11 +27,7 @@ import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Web.Converters
 import Bolour.Util.SpecUtil (satisfiesRight)
-import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
--- import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary, LanguageDictionary(LanguageDictionary))
-
--- dictionary :: LanguageDictionary
--- dictionary = LanguageDictionary "en" [] (const True)
+import qualified BoardGame.Server.Domain.LanguageDictionary as Dict
 
 spec :: Spec
 spec = do

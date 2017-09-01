@@ -7,6 +7,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module BoardGame.Integration.GameClientSpec (
     spec
@@ -41,13 +42,15 @@ import BoardGame.Server.Domain.GameConfig (Config(Config))
 import qualified BoardGame.Server.Domain.GameConfig as Config
 import qualified BoardGame.Server.Domain.GameConfig as ServerParameters
 import BoardGame.Server.Domain.GameEnv (GameEnv(GameEnv))
+import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
 import Bolour.Util.WaiUtil
 import qualified Bolour.Util.DbUtil as DbUtil
 import qualified BoardGame.Client.GameClient as Client
-import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.LanguageDictionary as Dict
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 -- import qualified Bolour.Util.StaticTextFileCache as FileCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
+import BoardGame.Server.Domain.DictionaryCache (DictionaryCache)
 
 -- TODO. Start the server within the test - just copy main and test against it.
 -- TODO. Need to shut down the server.
@@ -73,7 +76,7 @@ startApp = do
       ServerParameters.ServerParameters {maxActiveGames} = serverParameters
   cache <- GameCache.mkGameCache maxActiveGames
   -- dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
-  dictionaryCache <- DictCache.mkCache "" 100
+  (dictionaryCache :: DictionaryCache IndexedLanguageDictionary) <- DictCache.mkCache "" 100
   conf <- config
   let gameEnv = GameEnv conf cache dictionaryCache
   let gameApp = GameEndPoint.mkGameApp gameEnv

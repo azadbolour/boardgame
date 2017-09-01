@@ -7,6 +7,8 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RankNTypes #-}
 
 module BoardGame.Server.Service.NegativeGameServiceSpec (
     spec
@@ -38,6 +40,7 @@ import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
 import BoardGame.Server.Service.GameTransformerStack
 -- import qualified Bolour.Util.StaticTextFileCache as FileCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
+import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
 
 -- TODO. Should not depend on higher level module.
 import BoardGame.Server.Web.WebTestFixtures (
@@ -51,7 +54,7 @@ printx s = do
   return ()
 
 -- TODO. Duplicate code - see GameServiceSpec. Factor out.
-initTest :: IO GameEnv -- TODO. Should be MonadIO m.
+initTest :: IO (GameEnv IndexedLanguageDictionary) -- TODO. Should be MonadIO m.
 initTest = do
   let serverParameters = Config.defaultServerParameters -- TODO. Change to use test server parameters.
       ServerParameters.ServerParameters {maxActiveGames} = serverParameters
@@ -63,25 +66,25 @@ initTest = do
   dictionaryCache <- DictCache.mkCache "" 100
   return $ GameEnv config cache dictionaryCache
 
-runner :: GameEnv -> GameTransformerStack a -> IO (Either GameError a)
+runner :: GameEnv IndexedLanguageDictionary -> GameTransformerStack IndexedLanguageDictionary a -> IO (Either GameError a)
 runner env stack = runExceptT $ flip runLoggingT printx $ runReaderT stack env
 
-runR :: GameEnv -> GameTransformerStack a -> IO a
+runR :: GameEnv IndexedLanguageDictionary -> GameTransformerStack IndexedLanguageDictionary a -> IO a
 runR env stack = do
   Right val <- runner env stack
   return val
 
-runL :: GameEnv -> GameTransformerStack a -> IO GameError
+runL :: GameEnv IndexedLanguageDictionary -> GameTransformerStack IndexedLanguageDictionary a -> IO GameError
 runL env stack = do
   Left error <- runner env stack
   return error
 
-runR' :: GameTransformerStack a -> IO a
+runR' :: GameTransformerStack IndexedLanguageDictionary a -> IO a
 runR' stack = do
   env <- initTest
   runR env stack
 
-runL' :: GameTransformerStack a -> IO GameError
+runL' :: GameTransformerStack IndexedLanguageDictionary a -> IO GameError
 runL' stack = do
   env <- initTest
   runL env stack

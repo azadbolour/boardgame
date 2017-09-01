@@ -12,11 +12,12 @@ where
 import BoardGame.Server.Domain.GameConfig (Config)
 import BoardGame.Server.Domain.GameCache (GameCache)
 import BoardGame.Server.Domain.DictionaryCache (DictionaryCache)
+import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary)
 
-data GameEnv = GameEnv {
+data LanguageDictionary dictionary => GameEnv dictionary = GameEnv {
   config :: Config,
   gameCache :: GameCache,
-  dictionaryCache :: DictionaryCache
+  dictionaryCache :: DictionaryCache dictionary
 }
 
 

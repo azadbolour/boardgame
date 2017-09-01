@@ -29,34 +29,49 @@ import qualified Bolour.Util.Cache as Cache
 import Bolour.Util.MiscUtil (IOEither, IOExceptT)
 import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.LanguageDictionary as DictClass
+import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary)
 
 import qualified Paths_boardgame as ResourcePaths
 
--- | Cache of language dictionaries identified by language code.
-data DictionaryCache = DictionaryCache { -- private constructor
+-- | Cache of efficient language dictionaries identified by language code
+--   and stored as files in a given directory.
+data (LanguageDictionary dictionary) => DictionaryCache dictionary =
+  DictionaryCache { -- private constructor
     dictionaryDirectory :: String -- private
-  , cache :: Cache String IndexedLanguageDictionary -- private
+  , cache :: Cache String dictionary -- private
 }
 
 -- | Factory function (constructor is private).
-mkCache :: String -> Int -> IO DictionaryCache
+mkCache :: LanguageDictionary dictionary =>
+     String
+  -> Int
+  -> IO (DictionaryCache dictionary)
 mkCache dictionaryDirectory capacity = do
   theCache <- Cache.mkCache capacity
   return $ DictionaryCache dictionaryDirectory theCache
 
 -- Look up a dictionary by language code.
-lookup :: String -> DictionaryCache -> IOExceptT String IndexedLanguageDictionary
+lookup :: LanguageDictionary dictionary =>
+     String
+  -> DictionaryCache dictionary
+  -> IOExceptT String dictionary
 lookup languageCode (dictionaryCache @ DictionaryCache {dictionaryDirectory, cache}) = do
-  let code = if null languageCode then Dict.defaultLanguageCode else languageCode
+  let code = if null languageCode then DictClass.defaultLanguageCode else languageCode
   Cache.lookup code cache `catchError` (\_ -> readDictionaryFile dictionaryCache code)
 
 -- Get the dictionary for the default language (defined in IndexedLanguageDictionary).
-lookupDefault :: DictionaryCache -> IOExceptT String IndexedLanguageDictionary
-lookupDefault = lookup Dict.defaultLanguageCode
+lookupDefault :: LanguageDictionary dictionary =>
+     DictionaryCache dictionary
+  -> IOExceptT String dictionary
+lookupDefault = lookup DictClass.defaultLanguageCode
 
 -- Private functions.
 
-readDictionaryFile :: DictionaryCache -> String -> IOExceptT String IndexedLanguageDictionary
+readDictionaryFile :: LanguageDictionary dictionary =>
+     DictionaryCache dictionary
+  -> String
+  -> IOExceptT String dictionary
 readDictionaryFile DictionaryCache {dictionaryDirectory, cache} languageCode = do
   path <- liftIO $ mkDictionaryPath dictionaryDirectory languageCode
   lines <- ExceptT $ catchAny (readDictionaryInternal path) showException

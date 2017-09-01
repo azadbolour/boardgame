@@ -7,6 +7,8 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RankNTypes #-}
 
 module BoardGame.Server.Service.GameServiceSpec (
     spec
@@ -32,6 +34,8 @@ import BoardGame.Server.Domain.Game (Game(Game))
 import BoardGame.Server.Domain.Play (Play(Play))
 import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
 import BoardGame.Server.Service.GameTransformerStack
+import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary)
+import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
 
 import qualified BoardGame.Server.Domain.Play as Play (playToWord)
 import qualified BoardGame.Common.Domain.Piece as Piece
@@ -56,7 +60,8 @@ import BoardGame.Server.Web.WebTestFixtures (
   )
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 
-initTest :: IO GameEnv -- TODO. Should be MonadIO m.
+initTest :: -- LanguageDictionary dictionary =>
+  IO (GameEnv IndexedLanguageDictionary) -- TODO. Should be MonadIO m.
 initTest = do
   -- TODO. Use getServerParameters and provide a config file for test.
   let serverParameters = Config.defaultServerParameters
@@ -80,7 +85,10 @@ printx s = do
 
 -- TODO. Test with games of dimension 1 as a boundary case.
 
-runner :: GameEnv -> GameTransformerStack a -> IO (Either GameError a)
+runner :: LanguageDictionary dictionary =>
+     GameEnv dictionary
+  -> GameTransformerStack dictionary a
+  -> IO (Either GameError a)
 runner env stack = runExceptT $ flip runLoggingT printx $ runReaderT stack env
 
 -- TODO. How to catch Left - print error and return gracefully.
@@ -88,7 +96,8 @@ runner' env stack = do
   Right val <- runner env stack
   return val
 
-runner'' :: GameTransformerStack a -> IO a
+runner'' :: -- LanguageDictionary dictionary =>
+  GameTransformerStack IndexedLanguageDictionary a -> IO a
 runner'' stack = do
   env <- initTest
   runner' env stack

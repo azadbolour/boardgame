@@ -34,8 +34,8 @@ import qualified BoardGame.Server.Domain.Grid as Grid
 import BoardGame.Server.Domain.Grid (Grid, Grid(Grid))
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
 import qualified BoardGame.Server.Domain.Strip as Strip
-import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary, IndexedLanguageDictionary(IndexedLanguageDictionary))
-import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as IndexedLanguageDictionary
+import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary)
+import qualified BoardGame.Server.Domain.LanguageDictionary as LanguageDictionary
 import Bolour.Util.MiscUtil as MiscUtil
 
 blank = Piece.noPieceValue
@@ -59,8 +59,8 @@ wordFitsContent stripContent word
 --   Any match would do since our optimality measure is the total length
 --   which is the length of the given strip. The combinations to try
 --   are all of the right length to cover the strip's blanks.
-findFittingWord ::
-     IndexedLanguageDictionary  -- ^ the word dictionary to use
+findFittingWord :: LanguageDictionary dictionary =>
+     dictionary                 -- ^ the word dictionary to use
   -> BlankCount
   -> Strip                      -- ^ the strip
   -> [LetterCombo]              -- ^ combinations of letters to try on the strip's blanks
@@ -69,14 +69,14 @@ findFittingWord ::
 findFittingWord dictionary numBlanks strip [] = Nothing
 findFittingWord dictionary numBlanks (strip @ Strip {letters, content}) (combo : combos) =
   let completeWordCombo = WordUtil.mergeLetterCombos letters combo
-      words = IndexedLanguageDictionary.getWordPermutations dictionary completeWordCombo
+      words = LanguageDictionary.getWordPermutations dictionary completeWordCombo
       fittingWords = filter (wordFitsContent content) words
    in case fittingWords of
       [] -> findFittingWord dictionary numBlanks strip combos
       first : rest -> Just (strip, first)
 
-matchFittingCombos ::
-     IndexedLanguageDictionary
+matchFittingCombos :: LanguageDictionary dictionary =>
+     dictionary
   -> BlankCount
   -> [Strip]
   -> [LetterCombo]
@@ -92,8 +92,8 @@ matchFittingCombos dictionary numBlanks (strip : strips) combos =
 -- | The fitting combos appears in descending order.
 --   Each combo has exactly the same number of letters as needed to complete the corresponding strips.
 --   TODO. Recurse on the list.
-findOptimalMatchForFittingCombos ::
-     IndexedLanguageDictionary
+findOptimalMatchForFittingCombos :: LanguageDictionary dictionary =>
+     dictionary
   -> [(BlankCount, ([Strip], [LetterCombo]))]
   -> Maybe (Strip, DictWord)
 
@@ -105,8 +105,8 @@ findOptimalMatchForFittingCombos dictionary ((count, (strips, combos)) : tail) =
      Just match -> maybeMatch
 
 -- | Find a best match (if any) for strips of a given length.
-findOptimalMatchForStripsByLength ::
-     IndexedLanguageDictionary
+findOptimalMatchForStripsByLength :: LanguageDictionary dictionary =>
+     dictionary
   -> Map BlankCount [Strip]         -- ^ strips of a given length grouped by number of blanks
   -> Map ByteCount [LetterCombo]    -- ^ combinations of letters grouped by count
   -> Maybe (Strip, DictWord)
@@ -124,8 +124,8 @@ findOptimalMatchForStripsByLength dictionary stripsByBlanks combosByLength =
 --   Recursive on the length limit.
 --   Recursion allows us to break out as soon as we find a match at the limit.
 --   Recursive matches will all be shorter and therefore inferior.
-findOptimalMatchForStripsOfLimitedLength ::
-     IndexedLanguageDictionary
+findOptimalMatchForStripsOfLimitedLength :: LanguageDictionary dictionary =>
+     dictionary
   -> ByteCount
   -> GroupedStrips
   -> Map ByteCount [LetterCombo]
@@ -146,8 +146,8 @@ findOptimalMatchForStripsOfLimitedLength dictionary limit groupedStrips combosBy
             Nothing -> findOptimalMatchForStripsOfLimitedLength dictionary (limit - 1) groupedStrips combosByLength
             Just found -> return found
 
-findOptimalMatch ::
-     IndexedLanguageDictionary -- ^ the dictionary of available words to match
+findOptimalMatch :: LanguageDictionary dictionary =>
+     dictionary -- ^ the dictionary of available words to match
   -> Board      -- ^ the board
   -> String     -- ^ available characters that can be played
   -> Maybe (Strip, DictWord)

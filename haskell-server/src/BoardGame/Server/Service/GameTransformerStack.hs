@@ -6,6 +6,9 @@
 
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LiberalTypeSynonyms #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module BoardGame.Server.Service.GameTransformerStack (
     GameTransformerStack
@@ -25,6 +28,8 @@ import Control.Exception.Enclosed (catchAnyDeep)
 import Control.DeepSeq (NFData)
 
 import BoardGame.Server.Domain.GameEnv (GameEnv)
+import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
+import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary)
 import BoardGame.Server.Domain.GameError (GameError, ExceptGame, GameError(InternalError))
 
 -- TODO. It would be instructive to figure out how each type class instance is derived.
@@ -32,7 +37,7 @@ import BoardGame.Server.Domain.GameError (GameError, ExceptGame, GameError(Inter
 
 -- | The monad transformer stack used in the higher layers of the game application.
 --   Composes the effects of reader, logger, error, with IO.
-type GameTransformerStack result = ReaderT GameEnv (LoggingT String (ExceptT GameError IO)) result
+type GameTransformerStack dictionary result = LanguageDictionary dictionary => ReaderT (GameEnv dictionary) (LoggingT String (ExceptT GameError IO)) result
 
 -- | Sample logging function used with the logging monad.
 logger :: String -> ExceptGame ()
@@ -43,7 +48,9 @@ logger s = do
 -- | Build a game transformer stack from a low-level stack: result of
 --   low-level function calls packaged in ExceptGame representing both
 --   either and IO effects.
-liftGameExceptToStack :: ExceptGame result -> GameTransformerStack result
+liftGameExceptToStack :: (LanguageDictionary dictionary) =>
+     ExceptGame result
+  -> GameTransformerStack dictionary result
 liftGameExceptToStack exceptGame = lift $ lift exceptGame
 
 -- TODO. Low-level functions doing IO should return ExceptGame rather than just IO.
@@ -51,24 +58,28 @@ liftGameExceptToStack exceptGame = lift $ lift exceptGame
 
 -- | Execute a game transformer stack, providing its logger with
 --   a logging function, and its reader with an environment.
-run :: (NFData result) =>
+run :: (LanguageDictionary dictionary, NFData result) =>
      (String -> ExceptGame ())        -- ^ The logging function to be used by the stack's logging monad.
-  -> GameEnv                          -- ^ The environment to be used by the stack's reader monad.
-  -> GameTransformerStack result      -- ^ The stack to execute.
+  -> GameEnv dictionary               -- ^ The environment to be used by the stack's reader monad.
+  -> GameTransformerStack dictionary result -- ^ The stack to execute.
   -> ExceptGame result                -- ^ The result of execution upon resolution of the logger and reader.
 
 run logger env stack =
   flip runLoggingT logger $ runReaderT (catcher stack) env
 
 -- | Execute a game transformer stack with default logging.
-runDefault :: (NFData result) => GameEnv -> GameTransformerStack result -> ExceptGame result
+runDefault :: (LanguageDictionary dictionary, NFData result) =>
+     GameEnv dictionary
+  -> GameTransformerStack dictionary result -> ExceptGame result
 runDefault = run logger
 
 -- Note: catchAnyDeep forces the evaluation of the result (a)
 -- making sure all exceptions surface.
 -- But it means polluting the code with 'deriving (NFData)'
 -- for any actual parameters of the transformer stack.
-catcher :: (NFData a) => GameTransformerStack a -> GameTransformerStack a
+catcher :: (NFData result, LanguageDictionary dictionary) =>
+     GameTransformerStack dictionary result
+  -> GameTransformerStack dictionary result
 catcher stack =
   catchAnyDeep stack (liftGameExceptToStack . exceptionToGameExcept)
 

@@ -22,6 +22,8 @@ import BoardGame.Server.Domain.Play (Play, Play(Play))
 import qualified BoardGame.Server.Domain.Play as Play
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
+import BoardGame.Server.Domain.GameEnv (GameEnv)
+import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
 import BoardGame.Server.Web.GameEndPoint (
     commitPlayHandler
   , machinePlayHandler
@@ -42,12 +44,15 @@ import BoardGame.Server.Web.WebTestFixtures (
 
 -- TODO. Test with games of dimension 1 as a boundary case.
 
+initMe :: IO (GameEnv IndexedLanguageDictionary)
+initMe = initTest
+
 spec :: Spec
 spec = do
   describe "start a game" $
     it "starts game" $
       do
-        env <- initTest
+        env <- initMe
         makePlayer env thePlayer
         gameDto <- makeGame env params [] [] []
         length (GameDto.trayPieces gameDto) `shouldSatisfy` (== 12)
@@ -55,7 +60,7 @@ spec = do
   describe "commits a play" $
     it "commit a play" $
       do
-        env <- initTest
+        env <- initMe
         makePlayer env thePlayer
         gridPiece <- centerGridPiece 'E'
         includeUserPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'T'] -- Allow the word 'BET'
@@ -69,7 +74,7 @@ spec = do
   describe "make machine play" $
     it "make machine play" $
       do
-        env <- initTest
+        env <- initMe
         makePlayer env thePlayer
         gameDto <- makeGame env params [] [] []
         wordPlayPieces <- satisfiesRight
@@ -79,7 +84,7 @@ spec = do
   describe "swap a piece" $
     it "swap a piece" $
       do
-        env <- initTest
+        env <- initMe
         makePlayer env thePlayer
         (GameDto {gameId, trayPieces}) <- makeGame env params [] [] []
         let piece = head trayPieces
