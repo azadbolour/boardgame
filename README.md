@@ -3,7 +3,8 @@
 
 ## Version
 
-Version 0.1 - August 2017 (Alpha 1).
+Work in progress for version 0.2 mainly performance enhancements.
+Currently incomplete and buggy.
 
 ## The Board Game
 
