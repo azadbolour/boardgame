@@ -28,6 +28,7 @@ import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
 import BoardGame.Server.Domain.Board (Board(Board))
 import qualified BoardGame.Server.Domain.Board as Board
 import qualified BoardGame.Server.Domain.IndexedStripMatcher as Matcher
+import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
@@ -99,5 +100,11 @@ spec = do
       let trayContents = "PCKER"
           optimal = Maybe.fromJust $ Matcher.findOptimalMatch dictionary testBoard trayContents
       snd optimal `shouldBe` BS.pack "PACKER"
+
+  describe "compute playable strips" $ do
+    it "get playable strips" $ do
+      let playableStrips = Matcher.computePlayableStrips testBoard trayCapacity
+      print $ (fmap . fmap) (Strip.content <$>) playableStrips
+      -- TODO. Add assertion for getting only playable strips.
 
 

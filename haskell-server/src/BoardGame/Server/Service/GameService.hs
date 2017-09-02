@@ -112,11 +112,12 @@ timeoutLongRunningGames = do
 -- | Service function to add a player to the system.
 addPlayerService :: Player.Player -> GameTransformerStack ()
 addPlayerService player = do
+  cfg <- asks GameEnv.config
   let Player { name } = player
   if not (isAlphaNumString name) then
     throwError $ InvalidPlayerNameError name
   else do
-    GameDao.addPlayer (playerToRow player)
+    GameDao.addPlayer cfg (playerToRow player)
     return ()
 
 -- TODO. Move to GameError.
@@ -148,10 +149,10 @@ startGameService gameParams gridPieces initUserPieces initMachinePieces = do
   params @ GameParams.GameParams {languageCode} <- Game.validateGameParams gameParams
   GameEnv { config, gameCache } <- ask
   let playerName = GameParams.playerName params
-  playerRowId <- GameDao.findExistingPlayerRowIdByName playerName
+  playerRowId <- GameDao.findExistingPlayerRowIdByName config playerName
   dictionary <- lookupDictionary languageCode
   game <- Game.mkInitialGame params gridPieces initUserPieces initMachinePieces playerName
-  GameDao.addGame $ gameToRow playerRowId game
+  GameDao.addGame config $ gameToRow playerRowId game
   GameCache.insert game gameCache gameIOEitherLifter
   return game
 
@@ -262,9 +263,10 @@ savePlay ::
   -> String
   -> GameTransformerStack EntityId
 savePlay gameId playNumber playerType isPlay details = do
-  gameRowId <- GameDao.findExistingGameRowIdByGameId gameId
+  cfg <- asks GameEnv.config
+  gameRowId <- GameDao.findExistingGameRowIdByGameId cfg gameId
   let playRow = PlayRow gameRowId playNumber (show playerType) isPlay details
-  GameDao.addPlay playRow
+  GameDao.addPlay cfg playRow
 
 -- TODO. More intelligent optimal match based on values of moved pieces.
 optimalMatch :: [Play] -> Maybe Play
@@ -284,7 +286,8 @@ playerToRow player = PlayerRow $ Player.name player -- TODO. Clean this up.
 
 getGamePlayDetailsService :: String -> GameTransformerStack [PlayInfo]
 getGamePlayDetailsService gameId = do
-  playRows <- GameDao.getGamePlays gameId
+  cfg <- asks GameEnv.config
+  playRows <- GameDao.getGamePlays cfg gameId
   return $ playRowToPlayInfo <$> playRows
 
 -- TODO. Check for decode returning Nothing - error in decoding.

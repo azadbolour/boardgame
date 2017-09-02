@@ -39,7 +39,7 @@ module BoardGame.Server.Service.GameDao (
 ) where
 
 import Control.Monad.Reader (asks)
-import Control.Monad.IO.Class (liftIO)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Except (MonadError(..))
 
 import Database.Persist.Postgresql (ConnectionPool)
@@ -66,14 +66,16 @@ import Database.Persist.Postgresql (
   , SqlPersistT
   )
 import Database.Persist.TH
-import BoardGame.Server.Domain.GameConfig
+-- import BoardGame.Server.Domain.Config
 import Bolour.Util.DbUtil (SqlBackendReader, queryInIO)
 import BoardGame.Server.Domain.Core(EntityId)
 import BoardGame.Server.Domain.GameError(GameError(..))
 import BoardGame.Common.Domain.Point(Coordinate)
 import BoardGame.Common.Domain.Player (PlayerName)
-import BoardGame.Server.Service.GameTransformerStack(GameTransformerStack)
+-- import BoardGame.Server.Service.GameTransformerStack(GameTransformerStack)
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv(GameEnv(..))
+import BoardGame.Server.Domain.GameConfig (Config) -- TODO. Should only use a DBConfig.
+-- import qualified BoardGame.Server.Domain.GameConfig (Config)
 
 {-
   To see generated code:
@@ -138,32 +140,44 @@ deleteAllPlaysReader =
 
 -- TODO. Should catch and translate any exceptions from persistent.
 
-addPlayer :: PlayerRow -> GameTransformerStack EntityId
-addPlayer player = do
-  cfg <- asks GameEnv.config
+addPlayer :: (MonadError GameError m, MonadIO m) =>
+     Config
+  -> PlayerRow
+  -> m EntityId
+addPlayer cfg player = do
+  -- cfg <- asks GameEnv.config
   liftIO $ queryInIO cfg (addPlayerReader player)
 
 addPlayerReader :: PlayerRow -> SqlBackendReader EntityId
 addPlayerReader player = fromSqlKey <$> insert player
 
-addGame :: GameRow -> GameTransformerStack EntityId
-addGame game = do
-  cfg <- asks GameEnv.config
+addGame :: (MonadError GameError m, MonadIO m) =>
+     Config
+  -> GameRow
+  -> m EntityId
+addGame cfg game = do
+  -- cfg <- asks GameEnv.config
   liftIO $ queryInIO cfg (addGameReader game)
 
 addGameReader :: GameRow -> SqlBackendReader EntityId
 addGameReader game = fromSqlKey <$> insert game
 
-findExistingPlayerRowIdByName :: PlayerName -> GameTransformerStack PlayerRowId
-findExistingPlayerRowIdByName playerName = do
-  maybeRowId <- findPlayerRowIdByName playerName
+findExistingPlayerRowIdByName :: (MonadError GameError m, MonadIO m) =>
+     Config
+  -> PlayerName
+  -> m PlayerRowId
+findExistingPlayerRowIdByName cfg playerName = do
+  maybeRowId <- findPlayerRowIdByName cfg playerName
   case maybeRowId of
     Nothing -> throwError $ MissingPlayerError playerName
     Just rowId -> return rowId
 
-findPlayerRowIdByName :: String -> GameTransformerStack (Maybe PlayerRowId)
-findPlayerRowIdByName playerName = do
-  cfg <- asks GameEnv.config
+findPlayerRowIdByName :: (MonadError GameError m, MonadIO m) =>
+     Config
+  -> String
+  -> m (Maybe PlayerRowId)
+findPlayerRowIdByName cfg playerName = do
+  -- cfg <- asks GameEnv.config
   liftIO $ queryInIO cfg (findPlayerRowIdByNameReader playerName)
 
 findPlayerRowIdByNameReader :: String -> SqlBackendReader (Maybe PlayerRowId)
@@ -176,24 +190,33 @@ findPlayerRowIdByNameReader playerName = do
     [] -> return Nothing
     Entity k _ : _ -> return $ Just $ k
 
-addPlay :: PlayRow -> GameTransformerStack EntityId
-addPlay play = do
-  cfg <- asks GameEnv.config
+addPlay :: (MonadError GameError m, MonadIO m) =>
+     Config
+  -> PlayRow
+  -> m EntityId
+addPlay cfg play = do
+  -- cfg <- asks GameEnv.config
   liftIO $ queryInIO cfg (addPlayReader play)
 
 addPlayReader :: PlayRow -> SqlBackendReader EntityId
 addPlayReader play = fromSqlKey <$> insert play
 
-findExistingGameRowIdByGameId :: String -> GameTransformerStack GameRowId
-findExistingGameRowIdByGameId gameId = do
-  maybeRowId <- findGameRowIdById gameId
+findExistingGameRowIdByGameId :: (MonadError GameError m, MonadIO m) =>
+     Config
+  -> String
+  -> m GameRowId
+findExistingGameRowIdByGameId cfg gameId = do
+  maybeRowId <- findGameRowIdById cfg gameId
   case maybeRowId of
     Nothing -> throwError $ MissingGameError gameId
     Just rowId -> return rowId
 
-findGameRowIdById :: String -> GameTransformerStack (Maybe GameRowId)
-findGameRowIdById gameUid = do
-  cfg <- asks GameEnv.config
+findGameRowIdById :: (MonadError GameError m, MonadIO m) =>
+     Config
+  -> String
+  -> m (Maybe GameRowId)
+findGameRowIdById cfg gameUid = do
+  -- cfg <- asks GameEnv.config
   liftIO $ queryInIO cfg (findGameRowIdByIdReader gameUid)
 
 findGameRowIdByIdReader :: String -> SqlBackendReader (Maybe GameRowId)
@@ -206,13 +229,16 @@ findGameRowIdByIdReader gameUid = do
     [] -> return Nothing
     Entity k _ : _ -> return $ Just $ k
 
-getGamePlays :: String -> GameTransformerStack [PlayRow]
-getGamePlays gameUid = do
-  maybeGameRowId <- findGameRowIdById gameUid
+getGamePlays :: (MonadError GameError m, MonadIO m) =>
+     Config
+  -> String
+  -> m [PlayRow]
+getGamePlays cfg gameUid = do
+  maybeGameRowId <- findGameRowIdById cfg gameUid
   case maybeGameRowId of
     Nothing -> throwError $ MissingGameError gameUid
     Just gameRowId -> do
-      cfg <- asks GameEnv.config
+      -- cfg <- asks GameEnv.config
       liftIO $ queryInIO cfg (getGamePlaysReader gameRowId)
 
 getGamePlaysReader :: GameRowId -> SqlBackendReader [PlayRow]

@@ -175,7 +175,7 @@ computePlayableStrips (board @ Board {height}) trayCapacity =
       blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
       filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
       playableStrips = filterPlayableBlanks <$> allStrips
-      playableStrips' = allStripsFilter Strip.hasAnchor allStrips
+      playableStrips' = allStripsFilter Strip.hasAnchor playableStrips
       playableStrips'' = allStripsFilter (stripBlanksAreFreeCrosswise board) playableStrips'
       playableStrips''' = allStripsFilter (stripIsDisconnectedInLine board) playableStrips'
   in playableStrips'''
