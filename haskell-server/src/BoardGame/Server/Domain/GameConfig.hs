@@ -46,7 +46,6 @@ defaultMaxActiveGames = 100
 defaultMaxGameMinutes = 30
 defaultDictionaryDir = "" -- Default is computed in dictionary module.
 
--- TODO. Rename to GameConfig.
 -- | Complete configuration of the application.
 data Config = Config {
     serverParameters :: ServerParameters

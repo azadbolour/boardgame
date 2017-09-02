@@ -16,26 +16,25 @@ import qualified Data.List as List
 import qualified Data.ByteString.Char8 as BS
 import Data.ByteString.Char8 (ByteString)
 
-import qualified BoardGame.Server.Domain.LanguageDictionary as LangDict
+import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary, IndexedLanguageDictionary(IndexedLanguageDictionary))
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 
 stringWords :: [String]
 stringWords = ["GLASS", "TABLE", "SCREEN", "NO", "ON"]
 byteWords = BS.pack <$> stringWords
-dictionary :: Dict.IndexedLanguageDictionary
 dictionary = Dict.mkDictionary "en" byteWords
 
 spec :: Spec
 spec = do
   describe "test finding word in dictionary" $ do
     it "check existing word" $ do
-      LangDict.isWord dictionary (BS.pack "GLASS") `shouldBe` True
+      Dict.isWord dictionary (BS.pack "GLASS") `shouldBe` True
     it "check non-existent word" $ do
-      LangDict.isWord dictionary (BS.pack "GLAS") `shouldBe` False
+      Dict.isWord dictionary (BS.pack "GLAS") `shouldBe` False
   describe "test finding word permutations" $ do
     it "find existing word permutation" $ do
-      LangDict.getWordPermutations dictionary (BS.pack "ABELT") `shouldBe` [BS.pack "TABLE"]
+      Dict.getWordPermutations dictionary (BS.pack "ABELT") `shouldBe` [BS.pack "TABLE"]
     it "no word permutations" $ do
-      LangDict.getWordPermutations dictionary (BS.pack "ABEL") `shouldBe` []
+      Dict.getWordPermutations dictionary (BS.pack "ABEL") `shouldBe` []
     it "2 word permutations" $ do
-      (List.sort $ LangDict.getWordPermutations dictionary (BS.pack "NO")) `shouldBe` [BS.pack "NO", BS.pack "ON"]
+      (List.sort $ Dict.getWordPermutations dictionary (BS.pack "NO")) `shouldBe` [BS.pack "NO", BS.pack "ON"]

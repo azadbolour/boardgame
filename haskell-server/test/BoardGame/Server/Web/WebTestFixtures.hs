@@ -39,22 +39,17 @@ import BoardGame.Server.Domain.GameCache as GameCache
 import BoardGame.Server.Service.GameDao (cleanupDb)
 import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
 import BoardGame.Server.Web.GameEndPoint (addPlayerHandler, startGameHandler)
-import qualified BoardGame.Server.Domain.LanguageDictionary as Dict
-import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary)
+import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 -- import qualified Bolour.Util.StaticTextFileCache as FileCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 
-makePlayer :: LanguageDictionary dictionary =>
-     GameEnv dictionary
-  -> String
-  -> IO ()
+makePlayer :: GameEnv -> String -> IO ()
 makePlayer env name = do
     let player = Player name
     eitherUnit <- runExceptT $ addPlayerHandler env player
     satisfiesRight eitherUnit
 
-makeGame :: LanguageDictionary dictionary =>
-  GameEnv dictionary -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO GameDto
+makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO GameDto
 makeGame env params initialGridPieces userTrayStartsWith machineTrayStartsWith =
   satisfiesRight
     =<< runExceptT (startGameHandler env (params, initialGridPieces, userTrayStartsWith, machineTrayStartsWith))
@@ -71,8 +66,7 @@ centerGridPiece value = do
   piece <- Piece.mkPiece value
   return $ GridValue piece centerGridPoint
 
-initTest :: LanguageDictionary dictionary =>
-  IO (GameEnv dictionary)
+initTest :: IO GameEnv
 initTest = do
   -- TODO. Use getServerParameters and provide a config file for test.
   let serverParameters = Config.defaultServerParameters

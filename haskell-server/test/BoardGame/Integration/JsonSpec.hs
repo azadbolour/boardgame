@@ -17,7 +17,7 @@ import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Server.Domain.Game (Game, Game(Game))
 import qualified BoardGame.Server.Domain.Game as Game
 import qualified Bolour.Util.SpecUtil as SpecUtil
-import qualified BoardGame.Server.Domain.LanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 
 spec :: Spec
 

@@ -7,7 +7,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE RankNTypes #-}
 
 {-|
 
@@ -66,7 +65,6 @@ import BoardGame.Common.Domain.GameParams (GameParams(..))
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 import BoardGame.Common.Message.GameDto (GameDto)
 import BoardGame.Server.Domain.GameError (GameError(..), ExceptGame)
-import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary)
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack)
 import qualified BoardGame.Server.Service.GameTransformerStack as TransformerStack
@@ -75,15 +73,11 @@ import qualified BoardGame.Server.Service.GameService as GameService
 
 -- TODO. Simplify the api implementation by using the Servant 'enter' function.
 
-mkGameApp :: LanguageDictionary dictionary =>
-     GameEnv dictionary
-  -> IO Application
+mkGameApp :: GameEnv -> IO Application
 mkGameApp env = return $ Servant.serve gameApi' $ mkServer' env
 
 -- | The application server factory for the game api - based on the game environment.
-mkServer :: LanguageDictionary dictionary =>
-     GameEnv dictionary
-  -> Servant.Server GameApi
+mkServer :: GameEnv -> Servant.Server GameApi
 mkServer env =
        addPlayerHandler env
   :<|> startGameHandler env
@@ -94,8 +88,7 @@ mkServer env =
 
 -- Note - In later versions of Servant this has changed - use ServantStatic.serveDirectoryFileServer "static".
 -- Note also that the static handler has to be the last one in the list.
-mkServer' :: LanguageDictionary dictionary =>
-     GameEnv dictionary -> Servant.Server GameApi'
+mkServer' :: GameEnv -> Servant.Server GameApi'
 mkServer' env = mkServer env
                :<|> ServantStatic.serveDirectory "static"
 
@@ -127,8 +120,7 @@ gameErrorToServantErr gameError = debug (show gameError) $ Servant.ServantErr
 --   a fixed logging function, and resolving its reader monad
 --   with a given environment, and returning a servant ExceptT as required
 --   by Servant.
-gameTransformerStackHandler :: (LanguageDictionary dictionary, NFData result) =>
-  GameEnv dictionary -> GameTransformerStack dictionary result -> ExceptServant result
+gameTransformerStackHandler :: (NFData result) => GameEnv -> GameTransformerStack result -> ExceptServant result
 gameTransformerStackHandler env stack = exceptTAdapter $ TransformerStack.runDefault env stack
 
 -- TODO. Pretty-printed logging for all requests and responses.
@@ -139,8 +131,7 @@ gameTransformerStackHandler env stack = exceptTAdapter $ TransformerStack.runDef
 --
 
 -- | API handler to register a new player.
-addPlayerHandler :: LanguageDictionary dictionary =>
-    GameEnv dictionary -> Player -> ExceptServant ()
+addPlayerHandler :: GameEnv -> Player -> ExceptServant ()
 addPlayerHandler env player =
   gameTransformerStackHandler env $ do -- GameTransformerStack
     result <- GameService.addPlayerService player
@@ -150,41 +141,36 @@ addPlayerHandler env player =
 -- gameTransformerStackHandler env $ GameService.addPlayerService player
 
 -- | API handler to create and start a new game.
-startGameHandler :: LanguageDictionary dictionary =>
-     GameEnv dictionary -> (GameParams, [GridPiece], [Piece], [Piece]) -> ExceptServant GameDto
+startGameHandler :: GameEnv -> (GameParams, [GridPiece], [Piece], [Piece]) -> ExceptServant GameDto
 startGameHandler env (params, gridPieces, initUserPieces, initMachinePieces) =
   gameTransformerStackHandler env $ do -- GameTransformerStack
     gameDto <- startGameServiceWrapper params gridPieces initUserPieces initMachinePieces
     -- logMessage (show gameDto) -- TODO. Could not prettify it - tried groom and pretty-show. No good.
     return gameDto
 
-startGameServiceWrapper :: LanguageDictionary dictionary =>
+startGameServiceWrapper ::
      GameParams
   -> [GridPiece]
   -> [Piece]
   -> [Piece]
-  -> GameTransformerStack dictionary GameDto
+  -> GameTransformerStack GameDto
 startGameServiceWrapper params gridPieces initUserPieces initMachinePieces = do
   game <- GameService.startGameService params gridPieces initUserPieces initMachinePieces
   return $ toDto game
 
 -- | API handler to commit a new play by the player side of the game.
-commitPlayHandler :: LanguageDictionary dictionary =>
-  GameEnv dictionary -> String -> [PlayPiece] -> ExceptServant [Piece]
+commitPlayHandler :: GameEnv -> String -> [PlayPiece] -> ExceptServant [Piece]
 commitPlayHandler env gameId playPieces = gameTransformerStackHandler env $ GameService.commitPlayService gameId playPieces
 
 -- | API handler to make a machine play.
-machinePlayHandler :: LanguageDictionary dictionary =>
-  GameEnv dictionary -> String -> ExceptServant [PlayPiece]
+machinePlayHandler :: GameEnv -> String -> ExceptServant [PlayPiece]
 machinePlayHandler env gameId = gameTransformerStackHandler env $ GameService.machinePlayService gameId
 
 -- | API handler to swap a piece.
-swapPieceHandler :: LanguageDictionary dictionary =>
-  GameEnv dictionary -> String -> Piece -> ExceptServant Piece
+swapPieceHandler :: GameEnv -> String -> Piece -> ExceptServant Piece
 swapPieceHandler env gameId piece = gameTransformerStackHandler env $ GameService.swapPieceService gameId piece
 
-endGameHandler :: LanguageDictionary dictionary =>
-  GameEnv dictionary -> String -> ExceptServant ()
+endGameHandler :: GameEnv -> String -> ExceptServant ()
 endGameHandler env gameId = gameTransformerStackHandler env $ GameService.endGameService gameId
 
 -- | Convert an unknown exception that may be thrown by the Haskell

@@ -26,8 +26,6 @@ import qualified Bolour.Util.Middleware as MyMiddleware
 import qualified BoardGame.Server.Domain.GameConfig as Config
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
-import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary)
-import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
 import qualified BoardGame.Server.Domain.GameConfig as ServerParameters
 import BoardGame.Server.Domain.GameConfig (ServerParameters, ServerParameters(ServerParameters))
 import qualified BoardGame.Server.Web.GameEndPoint as GameEndPoint (mkGameApp)
@@ -70,8 +68,7 @@ getParameters = do
     let maybeConfigPath = if null args then Nothing else Just $ head args
     Config.getServerParameters maybeConfigPath
 
-mkGameEnv ::
-  ServerParameters -> IO (GameEnv IndexedLanguageDictionary)
+mkGameEnv :: ServerParameters -> IO GameEnv
 mkGameEnv serverParameters = do
     let ServerParameters {maxActiveGames, dictionaryDir} = serverParameters
     myPool <- DbUtil.makePool serverParameters
@@ -84,8 +81,7 @@ mkGameEnv serverParameters = do
 myOptionsHandler :: Middleware
 myOptionsHandler = MyMiddleware.optionsHandler HttpUtil.defaultOptionsHeaders
 
-longRunningGamesHarvester :: LanguageDictionary dictionary =>
-  GameEnv dictionary -> IO ()
+longRunningGamesHarvester :: GameEnv -> IO ()
 longRunningGamesHarvester env =
   forever $ do
     threadDelay harvestInterval

@@ -30,8 +30,7 @@ import qualified BoardGame.Server.Domain.Board as Board
 import qualified BoardGame.Server.Domain.IndexedStripMatcher as Matcher
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil
-import qualified BoardGame.Server.Domain.LanguageDictionary as Dict
-import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
+import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 
 pce :: Char -> Maybe Piece
 pce s = Just $ Piece s "" -- Ignore id.
@@ -63,7 +62,6 @@ trayCapacity = 5
 stringWords :: [String]
 stringWords = ["FAN", "PICK", "PACKER", "SCREEN", "POTENT"]
 byteWords = BS.pack <$> stringWords
-dictionary :: IndexedLanguageDictionary
 dictionary = Dict.mkDictionary "en" byteWords
 
 mkCombo :: String -> ByteString
