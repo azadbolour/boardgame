@@ -104,3 +104,89 @@
 
 - Exporting Cache (capacity) exports the data type and its field
   but not the data constructor.
+
+- Ad-hoc polymorphism for fields of a data structure.
+
+  The standard Haskell mechanism for using a type class field
+  in a data structure looks requires the data type to be 
+  parameterized by a type variable:
+
+  ```
+  data PieceGenerator pieceGenerator => Game pieceGenerator = Game {
+    ...
+    generator :: pieceGenerator 
+    ....
+  }
+  ```
+
+  But this representation is problematic as it forces every use of the type Game
+  anywhere in the code base to have a pieceGenerator type parameter. 
+  
+  Refactoring a conceretely-typed field to an ad-hoc polymorphic field then can
+  become a nightmare as even other data structures that have Game as a field
+  will need the type variable added. 
+  
+  More importantly, the piece generator may be a private field of Game, or in
+  general be of no concern to a client of Game.  And adding in a then
+  meaningless type parameter to Game in these clients just pollutes the code
+  base.
+
+  The solution is to use the GHC extension ExistentialQuantification.  With this
+  extension in scope, the data definition can avoid using an explicit type
+  parameter for the generic type of a field by using the following syntax:
+
+  ```
+  data Game = forall PieceGenerator . pieceGenerator => Game = Game {
+    ...
+    generator :: pieceGenerator 
+    ....
+  }
+  ```
+
+  and the data type remains unparameterized. 
+  
+  The use of the universal quantifier 'forall' for something that is called
+  'existential quantification' is confusing to me. The way I understand it is
+  that for every 'existing' type that satisfies the constraint [i.e., ad-hoc
+  polymorphic instance of type class] the compiler generates a different
+  concrete type.  
+  
+  On the other hand, by default, the [implicit] 'forall' apply to the entire
+  data definition and defines a type-level function [parameterically polymorphic
+  data structure that works on every type] whose every use must provide actual
+  type parameters.
+
+  See https://wiki.haskell.org/Existential_type and 
+  https://wiki.haskell.org/OOP_vs_type_classes.
+
+- How far down to push the main monad transformer?
+
+  To keep lower-level code as general as possible, it is better not to make it
+  dependent on the particular monad transformer stack used by a given main
+  program. Rather, figure out which monad interfaces a particular function
+  actually needs, and use a monad type parameter that is constrained by the type
+  classes of just those interfaces.
+
+  That way the lower-level functions become re-usable by different transformer
+  stack, as long as the stack implements the given interfaces.
+  
+  Here is an example from my DAO layer.
+
+  ```
+  addPlay :: (MonadError GameError m, MonadIO m) =>
+       Config
+    -> PlayRow
+    -> m EntityId
+  ```
+
+  My main transformer stack includes a reader and a logger. But I decided to 
+  do the 'reading' at a higher level and just pass down the part of the 
+  environment that is relevant to the DAO layer (namely Config), and otherwise
+  just use a monad type parameter that only knows about the IO and the Either 
+  effects. 
+
+- Public versus private fields. 
+
+  Decide what fields of a data structure are public and only export those.
+
+
