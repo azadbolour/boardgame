@@ -27,12 +27,13 @@ import qualified Data.Map.Strict as Map
 
 import Control.Exception (bracket_)
 import Control.Monad.IO.Class (MonadIO(..))
-import Control.Monad.Except (MonadError(..))
+import Control.Monad.Except (ExceptT(ExceptT), MonadError(..))
 import Control.Concurrent (MVar, newMVar, takeMVar, putMVar)
 
 import BoardGame.Server.Domain.Game(Game)
 import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.GameError
+import Bolour.Util.MiscUtil (IOEither, IOExceptT)
 
 -- | Cache of active games.
 data GameCache = GameCache {
@@ -50,37 +51,18 @@ mkGameCache capacity = do
   lock <- newMVar ()
   return $ GameCache capacity lock ref
 
--- TODO. Move to GameError.
-type GameIOEither a = IO (Either GameError a)
+-- type GameIOEither a = IO (Either GameError a)
 
 -- TODO. Just use generic Cache for game cache.
 
-{-
-   Note. The 'lifter function' parameter in cache functions.
-   TODO. Should do the lifting to the transformer stack in the callers.
-   This would leave the cache api simple based only on IO and Either.
-   But for the moment, the lifting is done in the cache api
+-- TODO. Don't know how to use bracket with constraints MonadIO m, MonadError GameError m to return an m.
 
-   To manipulate the cache, it is sufficient to just run in the IO monad.
-   Therefore, we use 'bracket_', which runs in the IO monad to lock and unlock the cache
-   before and after operations on the cache.
-
-   However, cache functions are invoked in the game transformer monad.
-   So the results of cache operations need to be lifter to the game transformer monad.
-
-   The lifter has to be passed in since it is dependent on teh game transformer
-   stack, and implementing it here in the cache module would cause a circular
-   dependency between the cache and the game transformer stack (which happens to
-   be dependent on teh cache).
-
--}
-
-insert :: (MonadIO m, MonadError GameError m) => Game -> GameCache -> (GameIOEither () -> m ()) -> m ()
-insert game (cache @ (GameCache {lock})) lifter = do
+insert :: Game -> GameCache -> IOExceptT GameError ()
+insert game (cache @ (GameCache {lock})) =
   let ioEither = bracket_ (takeMVar lock) (putMVar lock ()) (insertInternal game cache)
-  lifter ioEither
+  in ExceptT ioEither
 
-insertInternal :: Game -> GameCache -> GameIOEither ()
+insertInternal :: Game -> GameCache -> IOEither GameError ()
 insertInternal (game @ Game.Game {gameId}) (GameCache {gameMapRef}) = do
   map <- readIORef gameMapRef
   let numGames = Map.size map
@@ -94,12 +76,12 @@ insertInternal (game @ Game.Game {gameId}) (GameCache {gameMapRef}) = do
 -- Differentiate timed-out games from non-existent games.
 -- For now assume that the game existed and was timed out and ejected from the cache.
 
-lookup :: (MonadError GameError m, MonadIO m) => String -> GameCache -> (GameIOEither Game -> m Game) -> m Game
-lookup game (cache @ (GameCache {lock})) lifter = do
+lookup :: String -> GameCache -> IOExceptT GameError Game
+lookup game (cache @ (GameCache {lock})) =
   let ioEither = bracket_ (takeMVar lock) (putMVar lock ()) (lookupInternal game cache)
-  lifter ioEither
+  in ExceptT ioEither
 
-lookupInternal :: String -> GameCache -> IO (Either GameError Game) -- TODO. GameIOEither Game.
+lookupInternal :: String -> GameCache -> IOEither GameError Game
 lookupInternal gameId (GameCache {gameMapRef}) = do
   map <- readIORef gameMapRef
   let maybeGame = Map.lookup gameId map
@@ -107,12 +89,12 @@ lookupInternal gameId (GameCache {gameMapRef}) = do
     Nothing -> return $ Left $ GameTimeoutError gameId
     Just game -> return $ Right game
 
-delete :: (MonadError GameError m, MonadIO m) => String -> GameCache -> (GameIOEither () -> m ()) -> m ()
-delete gameId (cache @ (GameCache {lock})) lifter = do
+delete :: String -> GameCache -> IOExceptT GameError ()
+delete gameId (cache @ (GameCache {lock})) =
   let ioEither = bracket_ (takeMVar lock) (putMVar lock ()) (deleteInternal gameId cache)
-  lifter ioEither
+  in ExceptT ioEither
 
-deleteInternal :: String -> GameCache -> IO (Either GameError ()) -- TODO. GameIOEither ().
+deleteInternal :: String -> GameCache -> IOEither GameError ()
 deleteInternal gameId (GameCache {gameMapRef}) = do
   map <- readIORef gameMapRef
   let maybeGame = Map.lookup gameId map
@@ -130,12 +112,12 @@ deleteInternalIfExists gameId (GameCache {gameMapRef}) = do
     Nothing -> return ()
     Just game -> modifyIORef gameMapRef (Map.delete gameId)
 
-deleteItems :: (MonadError GameError m, MonadIO m) => [String] -> GameCache -> (GameIOEither () -> m ()) -> m ()
-deleteItems gameIds (cache @ GameCache {lock}) lifter = do
+deleteItems :: [String] -> GameCache -> IOExceptT GameError ()
+deleteItems gameIds (cache @ GameCache {lock}) =
   let ioEither = bracket_ (takeMVar lock) (putMVar lock ()) (deleteItemsInternal gameIds cache)
-  lifter ioEither
+  in ExceptT ioEither
 
-deleteItemsInternal :: [String] -> GameCache -> GameIOEither ()
+deleteItemsInternal :: [String] -> GameCache -> IOEither GameError ()
 deleteItemsInternal gameIds cache =
   let dummy = flip deleteInternalIfExists cache <$> gameIds
   in return $ Right ()
