@@ -30,13 +30,13 @@ import Data.Ord
 import Data.List
 import Data.Maybe (fromJust)
 import Data.Time (getCurrentTime)
-import Data.ByteString.Char8 (ByteString)
+-- import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as BS
 
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..), withExceptT)
 import Control.Monad.Reader (MonadReader(..), asks, ask)
-import Control.Monad.Trans.Except (ExceptT, ExceptT(ExceptT))
+import Control.Monad.Trans.Except (ExceptT(ExceptT))
 import Control.Monad.Trans.Class (lift)
 
 import Bolour.Util.MiscUtil (
@@ -48,8 +48,8 @@ import qualified BoardGame.Common.Domain.Player as Player
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.Point (Point, Point(Point))
-import qualified BoardGame.Common.Domain.Point as Point
-import BoardGame.Common.Domain.Point (Axis)
+-- import qualified BoardGame.Common.Domain.Point as Point
+-- import BoardGame.Common.Domain.Point (Axis)
 import qualified BoardGame.Common.Domain.Point as Axis
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
@@ -69,7 +69,7 @@ import qualified BoardGame.Server.Domain.Tray as Tray
 import qualified BoardGame.Server.Domain.Grid as Grid
 import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Board (Board, Board(Board))
-import qualified BoardGame.Server.Domain.BoardStripMatcher as BoardStripMatcher
+-- import qualified BoardGame.Server.Domain.BoardStripMatcher as BoardStripMatcher
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictionaryCache
 -- import qualified BoardGame.Server.Domain.LanguageDictionary as LanguageDictionary

@@ -10,8 +10,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module BoardGame.Server.Domain.IndexedLanguageDictionary (
-    IndexedLanguageDictionary
-  , IndexedLanguageDictionary(IndexedLanguageDictionary, languageCode)
+    IndexedLanguageDictionary(IndexedLanguageDictionary, languageCode)
   , mkDictionary
   , validateWord
   , defaultLanguageCode
@@ -32,9 +31,8 @@ import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..), throwError)
 
 import BoardGame.Server.Domain.GameError
-import BoardGame.Util.WordUtil (WordIndex, DictWord)
+import BoardGame.Util.WordUtil (LetterCombo, WordIndex, DictWord)
 import qualified BoardGame.Util.WordUtil as WordUtil
-import BoardGame.Util.WordUtil (LetterCombo, DictWord)
 import qualified Bolour.Util.MiscUtil as MiscUtil
 
 english :: String

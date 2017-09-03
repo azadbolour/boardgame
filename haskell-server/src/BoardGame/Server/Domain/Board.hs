@@ -30,8 +30,8 @@ module BoardGame.Server.Domain.Board (
 where
 
 import Data.List
-import qualified Data.Map as Map
-import qualified Data.Set as Set
+-- import qualified Data.Map as Map
+-- import qualified Data.Set as Set
 import qualified Data.ByteString.Char8 as BS
 
 import Control.Monad.Except (MonadError(..))
@@ -46,8 +46,8 @@ import BoardGame.Common.Domain.Point (Coordinate, Height, Width, Axis(..), Point
 import qualified BoardGame.Common.Domain.Point as Point
 import BoardGame.Server.Domain.Grid (Grid, Grid(Grid))
 import qualified BoardGame.Server.Domain.Grid as Grid
-import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
-import qualified BoardGame.Server.Domain.Strip as Strip
+-- import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
+-- import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
 

@@ -24,7 +24,7 @@ import BoardGame.Server.Domain.Tray as Tray
 
 import qualified BoardGame.Common.Domain.Player as Player
 import qualified BoardGame.Server.Domain.Game as Game
-import BoardGame.Server.Domain.Game (Game, Game(Game))
+-- import BoardGame.Server.Domain.Game (Game, Game(Game))
 import qualified BoardGame.Server.Domain.RandomPieceGenerator as RandomPieceGenerator
 
 -- import qualified BoardGame.Server.Domain.LanguageDictionary as LanguageDictionary
