@@ -101,42 +101,21 @@ Note. The benchmark code uses Java 8.
 
 ### Performance
 
-Following are some preliminary results of benchmarking on my MAC development
-laptop.
+Following is a benchmark result after performance improvements.
 
 ```
-dictionary: 60K words
-users: 10
-average think time: 2.5 seconds
-
-resulting average latency of a machine move: 2.6 seconds
-```
-
-```
+machine: MAC-Book Pro i7 2.8GHz 4-core
 dictionary: 235K words
-users: 10
+users: 50
 average think time: 15 seconds
 
-resulting average latency of a machine move: 5.8 seconds
+resulting average latency of a machine move: 20 milliseconds
 ```
 
-On an amazon m3-xlarge 4-CPU 2.5 MHz ssd machine:
+CPUs were only 10% busy. 
 
-```
-dictionary: 90K words
-users: 10
-average think time: 15 seconds
-
-resulting average latency of a machine move: 4 seconds
-```
-
-Note that in version 0.1, the algorithm to find the best match against the board
-by the machine does an exhaustive search of the dictionary, which is clearly far
-from optimal in performance.
-
-To have reasonable performance in version 0.1, use the smaller test doctionary.
-
-Improving performance algorithmically is an area of active work. 
+Scalability to large numbers of concurrent users is beyond the initial scope of this 
+project. 
 
 ## Github Site
 
