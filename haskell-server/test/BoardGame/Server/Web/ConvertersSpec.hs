@@ -28,6 +28,7 @@ import BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Web.Converters
 import Bolour.Util.SpecUtil (satisfiesRight)
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.PieceGenerator as PieceGenerator
 -- import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary, LanguageDictionary(LanguageDictionary))
 
 -- dictionary :: LanguageDictionary
@@ -39,7 +40,8 @@ spec = do
     it "game to dto" $ do
       let playerName = "You"
       let params = GameParams 9 9 12 Dict.defaultLanguageCode playerName
-      game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params [] [] [] playerName)
+          pieceGenerator = PieceGenerator.mkCyclicPieceGenerator "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params pieceGenerator [] [] [] playerName)
       let dto = toDto game
       let brd = Game.board game
       GameDto.height dto `shouldBe` Board.height brd

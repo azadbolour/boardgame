@@ -23,7 +23,9 @@ import BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Tray as Tray
 
 import qualified BoardGame.Common.Domain.Player as Player
-import qualified BoardGame.Server.Domain.Game(Game(..))
+import qualified BoardGame.Server.Domain.Game as Game
+import BoardGame.Server.Domain.Game (Game, Game(Game))
+import qualified BoardGame.Server.Domain.RandomPieceGenerator as RandomPieceGenerator
 
 -- import qualified BoardGame.Server.Domain.LanguageDictionary as LanguageDictionary
 -- import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary, LanguageDictionary(LanguageDictionary))
@@ -52,14 +54,19 @@ instance Converter Game GameDto.GameDto where
     playerName
     0
     Player.UserPlayer
-    1
+    RandomPieceGenerator.mkRandomPieceGenerator
     [0, 0]
     dummyUTCTime
     where
       GameDto {gameId, languageCode, height, width, trayCapacity, gridPieces, trayPieces, playerName} = dto
       dummyMachineTray = Tray 0 [] -- TODO. This is a hack. toEntity should be disallowed.
   toDto entity = GameDto gameId languageCode (Board.height board) (Board.width board) (Tray.capacity userTray) (Board.getGridPieces board) (Tray.pieces userTray) playerName where
-      Game {gameId, languageCode, board, trays, playerName} = entity
+      gameId = Game.gameId entity
+      languageCode = Game.languageCode entity
+      board = Game.board entity
+      trays = Game.trays entity
+      playerName = Game.playerName entity
+      -- Game {gameId, languageCode, board, trays, playerName} = entity -- no can do with existentially-quantified data
       userTray = trays !! Player.userIndex
 
 

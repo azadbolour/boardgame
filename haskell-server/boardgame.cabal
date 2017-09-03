@@ -76,6 +76,8 @@ library
       BoardGame.Server.Domain.Tray
       BoardGame.Server.Domain.PlayInfo
       BoardGame.Server.Domain.PlayDetails
+      BoardGame.Server.Domain.PieceGenerator
+      BoardGame.Server.Domain.RandomPieceGenerator
       BoardGame.Server.Domain.BoardStripMatcher
       BoardGame.Server.Domain.IndexedStripMatcher
       BoardGame.Server.Domain.IndexedLanguageDictionary

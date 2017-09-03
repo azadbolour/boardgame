@@ -93,6 +93,7 @@ import qualified BoardGame.Server.Domain.GameConfig as ServerParameters
 import qualified BoardGame.Server.Domain.IndexedStripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
+import qualified BoardGame.Server.Domain.RandomPieceGenerator as RandomPieceGenerator
 import BoardGame.Util.WordUtil (DictWord)
 
 timeoutLongRunningGames :: GameTransformerStack ()
@@ -151,7 +152,8 @@ startGameService gameParams gridPieces initUserPieces initMachinePieces = do
   let playerName = GameParams.playerName params
   playerRowId <- GameDao.findExistingPlayerRowIdByName config playerName
   dictionary <- lookupDictionary languageCode
-  game <- Game.mkInitialGame params gridPieces initUserPieces initMachinePieces playerName
+  let pieceGenerator = RandomPieceGenerator.mkRandomPieceGenerator
+  game <- Game.mkInitialGame params pieceGenerator gridPieces initUserPieces initMachinePieces playerName
   GameDao.addGame config $ gameToRow playerRowId game
   GameCache.insert game gameCache gameIOEitherLifter
   return game
@@ -278,7 +280,13 @@ optimalMatch matches =
 gameToRow :: PlayerRowId -> Game -> GameRow
 gameToRow playerId game =
   GameRow gameId playerId (Board.height board) (Board.width board) trayCapacity
-    where Game {gameId, board , trays, playerName} = game
+    where gameId = Game.gameId game
+          languageCode = Game.languageCode game -- TODO. Add language code to the table.
+          board = Game.board game
+          trays = Game.trays game
+          playerName = Game.playerName game -- TODO. Ditto.
+          userTray = trays !! Player.userIndex
+          -- Game {gameId, board , trays, playerName} = game -- no can do with existentially-quantified data
           trayCapacity = length $ Tray.pieces (trays !! Player.userIndex) -- TODO. Just use tray capacity.
 
 playerToRow :: Player.Player -> PlayerRow

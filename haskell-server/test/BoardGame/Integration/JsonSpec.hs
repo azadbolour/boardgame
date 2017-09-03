@@ -18,18 +18,18 @@ import BoardGame.Server.Domain.Game (Game, Game(Game))
 import qualified BoardGame.Server.Domain.Game as Game
 import qualified Bolour.Util.SpecUtil as SpecUtil
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.PieceGenerator as PieceGenerator
 
 spec :: Spec
-
--- dictionary :: LanguageDictionary
--- dictionary = LanguageDictionary "en" [] (const True)
 
 name = "You"
 params :: GameParams
 params = GameParams 9 9 12 Dict.defaultLanguageCode name
 
 game :: IO Game
-game = SpecUtil.satisfiesRight =<< runExceptT (Game.mkInitialGame params [] [] [] name)
+game = do
+  let pieceGenerator = PieceGenerator.mkCyclicPieceGenerator "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  SpecUtil.satisfiesRight =<< runExceptT (Game.mkInitialGame params pieceGenerator [] [] [] name)
 
 spec = do
   describe "json for game params" $ do

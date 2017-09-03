@@ -9,6 +9,7 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ExistentialQuantification #-}
 
 module BoardGame.Server.Domain.Game (
     Game(..)
@@ -50,11 +51,19 @@ import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.GameError
--- import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary)
+import BoardGame.Server.Domain.PieceGenerator
+import qualified BoardGame.Server.Domain.PieceGenerator as PieceGenerator
 
--- TODO. Share dictionaries between games. No need for a game to have its own.
--- There can only be a few dictionaries in play.
-data Game = Game {
+-- We use existential quantification for the piece generator field of Game
+-- which is abstract (whose type is the type class PieceGenerator).
+-- This is done in order to avoid being forced to parameterize Game by the type
+-- of the piece generator, which is necessary without existential quantification.
+-- Without existential quantification, every use of Game in a function anywhere in
+-- the code base would have to provide a type parameter to game for the piece generator.
+-- This would pollute the code with a type parameter that in most cases is not and
+-- should not be of concern to a function using Game as a parameter.
+
+data Game = forall pieceGenerator . PieceGenerator pieceGenerator => Game {
     gameId :: String
   , languageCode :: String
   , board :: Board
@@ -62,11 +71,16 @@ data Game = Game {
   , playerName :: Player.PlayerName
   , playNumber :: Int
   , playTurn :: PlayerType
-  , nextPieceId :: Int
+  , pieceGenerator :: pieceGenerator
   , score :: [Int]
   , startTime :: UTCTime
 }
-  deriving (Show)
+
+-- Can't do deriving on Game because it has existential constraint.
+
+-- TODO. Complete show of game if needed.
+instance Show Game where
+  show game @ Game {board} = "Game {" ++ "board" ++ show board ++ "}"
 
 maxDimension = 120
 maxTraySize = 26
@@ -80,11 +94,22 @@ initTray (game @ Game { trays }) playerType initPieces = do
       game'' = setPlayerTray game' playerType tray
   return game''
 
+updatePieceGenerator :: PieceGenerator pieceGenerator =>
+  Game -> pieceGenerator -> Game
+
+-- | Explicit record update for fieldGenerator.
+--   Cannot do normal update: game {pieceGenerator = nextGen} gets compiler error:
+--   Record update for insufficiently polymorphic field: pieceGenerator.
+updatePieceGenerator
+  Game {gameId, languageCode, board, trays, playerName, playNumber, playTurn, pieceGenerator, score, startTime} generator =
+    Game gameId languageCode board trays playerName playNumber playTurn generator score startTime
+
 mkPiece :: MonadIO m => Game -> m (Game, Piece)
-mkPiece (game @ Game {nextPieceId}) = do
-  let pieceId = nextPieceId
-      game' = game { nextPieceId = pieceId + 1}
-  piece <- liftIO $ Piece.mkRandomPieceForId (show pieceId)
+mkPiece (game @ Game {pieceGenerator}) = do
+  (piece, nextGen) <- liftIO $ PieceGenerator.next pieceGenerator
+  let game' = updatePieceGenerator game nextGen
+  -- let game' = game { pieceGenerator = nextGen}
+  -- piece <- liftIO $ Piece.mkRandomPieceForId (show pieceId)
   return (game', piece)
 
 mkPieces' :: MonadIO m => Int -> (Game, [Piece]) -> m (Game, [Piece])
@@ -99,8 +124,9 @@ mkPieces num game = mkPieces' num (game, [])
 initScores = [0, 0]
 
 -- | Note. Validation of player name does not happen here.
-mkInitialGame :: (MonadError GameError m, MonadIO m) =>
+mkInitialGame :: (PieceGenerator pieceGenerator, MonadError GameError m, MonadIO m) =>
   GameParams
+  -> pieceGenerator
   -> [GridPiece]
   -> [Piece]
   -> [Piece]
@@ -108,7 +134,7 @@ mkInitialGame :: (MonadError GameError m, MonadIO m) =>
   -> m Game
 
 -- TODO. Fix duplicated player name.
-mkInitialGame gameParams initGridPieces initUserPieces initMachinePieces playerName = do
+mkInitialGame gameParams pieceGenerator initGridPieces initUserPieces initMachinePieces playerName = do
   let GameParams.GameParams { height, width, trayCapacity, languageCode } = gameParams
   gameId <- Util.mkUuid
   board <- Board.mkBoard height width
@@ -116,7 +142,7 @@ mkInitialGame gameParams initGridPieces initUserPieces initMachinePieces playerN
   now <- liftIO getCurrentTime
   let emptyTray = Tray trayCapacity []
       emptyTrays = [emptyTray, emptyTray]
-      game = Game gameId languageCode board' emptyTrays playerName 0 Player.UserPlayer 1 initScores now
+      game = Game gameId languageCode board' emptyTrays playerName 0 Player.UserPlayer pieceGenerator initScores now
   game' <- initTray game Player.UserPlayer initUserPieces
   initTray game' Player.MachinePlayer initMachinePieces
 
