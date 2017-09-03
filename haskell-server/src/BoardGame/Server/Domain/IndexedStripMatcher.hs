@@ -13,6 +13,7 @@ module BoardGame.Server.Domain.IndexedStripMatcher (
   , matchFittingCombos
   , findOptimalMatch
   , computePlayableStrips
+  , stripBlanksAreFreeCrosswise
   ) where
 
 import Data.Map (Map)
@@ -177,7 +178,7 @@ computePlayableStrips (board @ Board {height}) trayCapacity =
       playableStrips = filterPlayableBlanks <$> allStrips
       playableStrips' = allStripsFilter Strip.hasAnchor playableStrips
       playableStrips'' = allStripsFilter (stripBlanksAreFreeCrosswise board) playableStrips'
-      playableStrips''' = allStripsFilter (stripIsDisconnectedInLine board) playableStrips'
+      playableStrips''' = allStripsFilter (stripIsDisconnectedInLine board) playableStrips''
   in playableStrips'''
 
 -- GroupedStrips is doubly-nested map of strips.

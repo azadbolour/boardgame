@@ -14,6 +14,7 @@ import Test.Hspec
 
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
+import qualified Data.List as List
 import qualified Data.ByteString.Char8 as BS
 import Data.ByteString.Char8 (ByteString)
 
@@ -47,6 +48,26 @@ baseTestGrid = Grid [
     , [Nothing, Nothing, Nothing, pce 'I', Nothing, Nothing] -- 5
   ]
 
+baseTestGrid1 :: Grid (Maybe Piece)
+baseTestGrid1 = Grid [
+--        0        1        2        3        4        5        6
+      [pce 'A', pce 'S', pce 'Q', pce 'U', pce 'A', pce 'R', pce 'E'] -- 0
+    , [pce 'X', Nothing, Nothing, pce 'N', Nothing, Nothing, Nothing] -- 1
+    , [pce 'T', Nothing, Nothing, pce 'M', Nothing, Nothing, pce 'M'] -- 2
+    , [pce 'R', Nothing, Nothing, pce 'E', Nothing, Nothing, pce 'E'] -- 3
+    , [pce 'E', pce 'H', pce 'U', pce 'S', pce 'H', pce 'E', pce 'L'] -- 4
+    , [pce 'E', Nothing, Nothing, pce 'H', Nothing, Nothing, pce 'E'] -- 5
+    , [Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, pce 'E'] -- 6
+  ]
+
+testGrid1 :: Grid GridPiece
+testGrid1 =
+  let cellMaker r c = Maybe.fromMaybe Piece.noPiece (Grid.getValue baseTestGrid1 r c)
+  in Grid.mkPointedGrid cellMaker 7 7
+
+testBoard1 = Board 7 7 testGrid1
+gridRows1 = Board.charRows testBoard1
+
 testGrid :: Grid GridPiece
 testGrid =
   let cellMaker r c = Maybe.fromMaybe Piece.noPiece (Grid.getValue baseTestGrid r c)
@@ -59,6 +80,8 @@ blank = Piece.noPieceValue
 
 trayCapacity :: Int
 trayCapacity = 5
+
+trayCapacity1 = 7
 
 stringWords :: [String]
 stringWords = ["FAN", "PICK", "PACKER", "SCREEN", "POTENT"]
@@ -103,8 +126,61 @@ spec = do
 
   describe "compute playable strips" $ do
     it "get playable strips" $ do
-      let playableStrips = Matcher.computePlayableStrips testBoard trayCapacity
-      print $ (fmap . fmap) (Strip.content <$>) playableStrips
-      -- TODO. Add assertion for getting only playable strips.
+      let playableStrips = Matcher.computePlayableStrips testBoard1 trayCapacity1
+      -- print $ (fmap . fmap) ((\s -> (Strip.content s, Strip.blankPoints s)) <$>) playableStrips
+          stripsLength5Blanks4 = Maybe.fromJust $ Map.lookup 4 (Maybe.fromJust $ Map.lookup 5 playableStrips)
+      mapM_ print stripsLength5Blanks4
+      stripsLength5Blanks4 `shouldBe` []
 
+    it "gets strip with blank cross-neighbors" $ do
+      let lineNumber = 5
+          row = 2
+          size = 5
+          strip = Strip.lineStrip Point.Y lineNumber (List.transpose gridRows1 !! lineNumber) row size
+      print strip
+      Matcher.stripBlanksAreFreeCrosswise testBoard1 strip `shouldBe` False
 
+  describe "check line neighbours" $ do
+    it "has X neighbors" $ do
+      Board.pointHasNoLineNeighbors testBoard (Point 3 2) Point.X `shouldBe` False
+      Board.pointHasNoLineNeighbors testBoard (Point 3 2) Point.X `shouldBe` False
+    it "has no X neighbors" $ do
+      Board.pointHasNoLineNeighbors testBoard (Point 3 1) Point.X `shouldBe` True
+
+    it "has Y neighbors" $ do
+      Board.pointHasNoLineNeighbors testBoard (Point 4 5) Point.Y `shouldBe` False
+    it "has no Y neighbors" $ do
+      Board.pointHasNoLineNeighbors testBoard (Point 0 5) Point.Y `shouldBe` True
+      Board.pointHasNoLineNeighbors testBoard (Point 3 2) Point.Y `shouldBe` True
+
+  describe "make strip point" $ do
+    it "X strip has correct strip point" $ do
+      let lineNumber = 1
+          col = 1
+          size = 3
+          strip = Strip.lineStrip Point.X lineNumber (gridRows !! lineNumber) col size
+          offset = 2
+          point = Strip.stripPoint strip offset
+      point `shouldBe` Point lineNumber (col + offset)
+    it "Y strip has correct strip point" $ do
+      let lineNumber = 1
+          row = 2
+          size = 1
+          strip = Strip.lineStrip Point.Y lineNumber (List.transpose gridRows !! lineNumber) row size
+          offset = 0
+          point = Strip.stripPoint strip offset
+      point `shouldBe` Point (row + offset) lineNumber
+
+  describe "strip blanks are not free cross-wise" $ do
+    it "not free" $ do
+      let lineNumber = 2
+          row = 1
+          size = 4
+          strip = Strip.lineStrip Point.Y lineNumber (List.transpose gridRows !! lineNumber) row size
+      Matcher.stripBlanksAreFreeCrosswise testBoard strip `shouldBe` False
+    it "not free" $ do
+      let lineNumber = 4
+          col = 3
+          size = 3
+          strip = Strip.lineStrip Point.X lineNumber (gridRows !! lineNumber) col size
+      Matcher.stripBlanksAreFreeCrosswise testBoard strip `shouldBe` False

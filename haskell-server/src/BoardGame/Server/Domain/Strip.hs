@@ -13,6 +13,7 @@ module BoardGame.Server.Domain.Strip (
   , GroupedStrips
   , allStripsByLengthByBlanks
   , stripPoint
+  , lineStrip
   , blankPoints
   , hasAnchor
   ) where
@@ -73,9 +74,21 @@ nonBlankCombo string =
   let nonBlanks = BS.filter (/= blank) string
   in WordUtil.mkLetterCombo nonBlanks
 
+lineStrip :: Axis -> Coordinate -> String -> Int -> ByteCount -> Strip
+lineStrip axis lineNumber line offset size =
+  Strip
+    axis
+    lineNumber
+    offset
+    (offset + size - 1)
+    content
+    (nonBlankCombo content)
+    (numBlanks content)
+      where content = BS.pack $ (take size . drop offset) line
+
 lineStripsForLength :: Axis -> Int -> String -> ByteCount -> [Strip]
 lineStripsForLength axis lineNumber line size =
-  let mkStrip from = Strip
+  let mkStrip from = Strip -- TODO. Use lineStrip.
                         axis
                         lineNumber
                         from
