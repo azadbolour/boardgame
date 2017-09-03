@@ -28,7 +28,15 @@ import GHC.Generics (Generic)
 import Control.DeepSeq (NFData)
 import Data.Aeson (FromJSON, ToJSON)
 
--- | One of the axes of the board - Y for height (row), X for width (col).
+-- | One of the axes of the board.
+--   X designates a horizontal line of the board.
+--   An index value associated with X is a column number. A size is the width.
+--   Y designates a vertical line of the board.
+--   An index value associated with Y is a row number. A size the height.
+--
+--   Note however that the first coordinate of a Point is a row, and its second
+--   coordinate is a column. That is probably a mistake since it is inconsistent
+--   with the use of axes. But for historical reasons still remains in the code base.
 data Axis = Y | X
   deriving (Eq, Show, Generic)
 
@@ -49,6 +57,8 @@ type Height = Coordinate
 type Width = Coordinate
 
 -- | The coordinates of a square on a board.
+--   TODO. Refactor to use x and y as coordinates consistent with axes X and Y.
+--   BEWARE! That would reverse the roles of the coordinates.
 data Point = Point {
     row :: Height     -- ^ The row index - top-down.
   , col :: Width      -- ^ The column index - left-to-right.
