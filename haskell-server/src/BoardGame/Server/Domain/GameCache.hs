@@ -53,7 +53,11 @@ mkGameCache capacity = do
 
 -- type GameIOEither a = IO (Either GameError a)
 
--- TODO. Just use generic Cache for game cache.
+-- TODO. Just use generic Cache for game cache. Most of this code is duplicated in Cache.
+-- But generic cache uses String for errors not GameError used here.
+-- Generic cache should use a generic error class.
+-- That class will need to get translated to GameError in clients of Cache.do
+-- This module can then be removed.
 
 -- TODO. Don't know how to use bracket with constraints MonadIO m, MonadError GameError m to return an m.
 

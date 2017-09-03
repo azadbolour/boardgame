@@ -28,9 +28,6 @@
 
 ## Known Issues
 
-- With a 6-letter tray the machine responded using 7 new letters.
-  FERNLIKE - where K was on the board. 
-
 - Security. CORS. Generally cross origin requests are disallowed. 
 
   But in doing web development, we use the webpack server at localhost:3000 for
@@ -91,6 +88,11 @@
   to Linux.
 
 ## Technical Debt
+
+- For all data structures decide what fields are pubic and only export those.
+
+- Code duplication for caching in GameCache. Should just use Cache for Game. See TODO
+  comment of GameCache.
 
 - Publish the github site for boardgame.
 
