@@ -26,10 +26,6 @@ module.exports = {
     {
       test: /\.json$/,
       use: "json-loader"
-    },
-    {
-      test: /\.css$/,
-      use: ['css-loader', 'style-loader']
     }
     ]
   }

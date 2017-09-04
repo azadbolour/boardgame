@@ -171,10 +171,10 @@ Note that in order to build a React application we are using an older version
 of Webpack (2.x). Trying to use the latest Webbpack (version 3.4.1) led to version 
 dependency hell with other packages, and was abandoned. 
 
-Note, however, that at this time (Jult 2017) all the official React samples I
+Note, however, that at this time (July 2017) all the official React samples I
 have seem use Webpack 1.x. We moved to 2.x in order to be able to easily use the
 webpack plugins for minification and uglification in production. Did not see
-how  (if?) one can use these plugins with webpack 1.x.
+how (if?) one can use these plugins with webpack 1.x.
 
 Note also, that the standard for package management for React has now moved on
 to use Yarn. But this project has not taken that leap yet.

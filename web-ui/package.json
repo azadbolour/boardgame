@@ -27,9 +27,7 @@
     "webpack-dev-server": "^2.6.1",
     "clean-webpack-plugin":"^0.1.16",
     "jest": "*",
-    "json-loader": "*",
-    "css-loader": "*",
-    "style-loader": "*"
+    "json-loader": "*"
   },
   "dependencies": {
     "basic-authorization-header": "^0.2.7",
@@ -41,7 +39,7 @@
     "node-fetch": "*",
     "react-addons-test-utils": "^15.4.0",
     "react-dnd-test-backend": "^2.4.0",
-    "react-bootstrap-table": "*",
+    "react-list": "*",
     "valid-url": "*"
   }
 }

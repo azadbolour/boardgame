@@ -5,12 +5,10 @@
  */
 
 /** @module Game */
-// TODO. Will css from node_modules be bundled for production?
-const css = require("!style-loader!css-loader!../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css");
 const DragDropContext = require('react-dnd').DragDropContext;
 const HTML5Backend = require('react-dnd-html5-backend');
 import React from 'react';
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
+import ReactList from 'react-list';
 import * as Game from '../domain/Game';
 import TrayComponent from './TrayComponent';
 import BoardComponent from './BoardComponent';
@@ -137,21 +135,32 @@ const GameComponent = React.createClass({
     actions.end();
   },
 
+  renderWord: function(index, key) {
+    let words = this.props.auxGameData.wordsPlayed;
+    let l = words.length
+    let word = words[index].word;
+    let color = index === l - 1 ? 'FireBrick' : 'Chocolate';
+    return <div key={key}
+                style={{
+                  color: color,
+                  padding: '3px'
+                  }}>{word}</div>;
+  },
+
+  scrollToLastWord: function() {
+    this.wordReactListComponent.scrollTo(this.props.auxGameData.wordsPlayed.length - 1);
+  },
+
+  componentDidMount: function() {
+    this.scrollToLastWord();
+  },
+
+  componentDidUpdate: function(prevPros, prevState) {
+    this.scrollToLastWord();
+  },
+
   render: function () {
     let game = this.props.game;
-    let wordsPlayed = this.props.auxGameData.wordsPlayed;
-    // console.log(stringify(wordsPlayed));
-    let indexes = [];
-    for (let i = 0; i < wordsPlayed.length; i++)
-      indexes.push(i);
-    let numberedWordsPlayed = indexes.map(function(i) {
-      return {
-        number: i + 1,
-        word: wordsPlayed[i].word,
-        playerName: wordsPlayed[i].playerName
-      }
-    });
-    // console.log(stringify(numberedWordsPlayed));
     let running = game.running();
     let hasUncommittedPieces = game.numPiecesInPlay() > 0;
     let canMovePiece = game.canMovePiece.bind(game);
@@ -169,13 +178,6 @@ const GameComponent = React.createClass({
     let enableStart = !running && !isError;
     let enableCommit = running && hasUncommittedPieces;
     let enableRevert = running && hasUncommittedPieces;
-    let tableHeight=75;
-    let columnWidth='150';
-    const tableOptions = {
-      // noDataText: ' '
-      withoutNoDataText: true
-    };
-    // TODO. Some attribute of bootstrap table for words are not taking, e.g., striped.
 
     // TODO. Use individual function components where possible.
     // TODO. Break up game component structure into modular pieces.
@@ -291,12 +293,27 @@ const GameComponent = React.createClass({
             </div>
             <pre> </pre>
             <div>
-              <BootstrapTable
-                data={numberedWordsPlayed} height={tableHeight} bordered={true} scrollTop={'Bottom'}
-                options={tableOptions} striped={ true } hover={ true } condensed={ true }>
-                <TableHeaderColumn dataField='number' isKey={true} hidden={true}></TableHeaderColumn>
-                <TableHeaderColumn dataField='word' width={columnWidth} editable={false}></TableHeaderColumn>
-              </BootstrapTable>
+
+
+              <div style={{
+                overflow: 'auto',
+                maxHeight: 100,
+                borderStyle: 'solid',
+                borderWidth: '3px',
+                borderColor: 'DarkGrey',
+                backgroundColor: 'Khaki',
+                padding: '4px'
+                }}>
+                <ReactList
+                  ref={c => this.wordReactListComponent = c}
+                  itemRenderer={this.renderWord}
+                  length={this.props.auxGameData.wordsPlayed.length}
+                  type='uniform'
+                />
+              </div>
+
+
+
             </div>
           </div>
         </div>

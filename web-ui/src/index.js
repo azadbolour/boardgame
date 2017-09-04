@@ -8,7 +8,6 @@
    Without it the board is not displayed! Why? */
 import React from 'react';
 import ReactDOM from 'react-dom';
-
 import GameComponent from './component/GameComponent';
 import {queryParams} from './util/UrlUtil';
 import GameParams from './domain/GameParams';
@@ -135,8 +134,9 @@ if (gameParams.appParams.envType === 'prod')
 const rootEl = document.getElementById('root');
 
 const renderGame = function(game, status, auxGameData, changeStage) {
+  let gameSpec = <GameComponent game={game} status={status} auxGameData={auxGameData}/>;
   ReactDOM.render(
-    <GameComponent game={game} status={status} auxGameData={auxGameData}/>,
+    gameSpec,
     rootEl
   );
 };
