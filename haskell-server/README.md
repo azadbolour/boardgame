@@ -1,8 +1,7 @@
 
 # Haskell Server
 
-This sub-project includes an implementartion of the game server in Haskell.  The
-game server exposes a game API, and uses a game end point to listen for client
+The game server exposes a game API, and uses a game end point to listen for client
 requests used in playing the board game.
 
 ## Game API

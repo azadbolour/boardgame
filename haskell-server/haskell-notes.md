@@ -3,9 +3,7 @@
   called from a test and its behavior is leading to a test failure,
   copy the implementaiton of that function from the module under test
   to the test itself, so that you can easily add print statements
-  without affecting the module under test itself.
-
-- Add list comprehensions to your repertoire. 
+  without affecting the module under test itself. 
 
 - Named constructor parameters.
 
@@ -16,12 +14,13 @@
 
 - Avoiding qualification of field names by using pattern matching:
 
+  ```
   {-# LANGUAGE NamedFieldPuns #-}
   {-# LANGUAGE DisambiguateRecordFields #-}
   {-# LANGUAGE RecordWildCards #-}
-    
-    import qualified BoardGame.Common.Domain.GridPiece as GridPiece
-    setGridPiece grid (GridPiece.GridPiece {piece, gridPoint}) = setGridCell grid gridPoint (Just piece)
+  import qualified BoardGame.Common.Domain.GridPiece as GridPiece
+  setGridPiece grid (GridPiece.GridPiece {piece, gridPoint}) = setGridCell grid gridPoint (Just piece)
+  ```
 
   Need DisambigauteRecordFields for this. Not sure why you have to qualify the data constructor.
   But you do. NamedFieldPuns means that you don't have to have both the field name and a 
