@@ -8,19 +8,14 @@
 - Convert to gradle. util and benchmark converted. java-client,
   and boardgame-benchmark should be easy: gradle init.
 
-- Already added output from maven for boardgame/benchmark build. 
-  Unsure whether this is an issue.
+- Already added warnings from maven for boardgame/benchmark build. 
+  Unsure whether this is an issue. Will go away once converted to gradle.
 
 - Prepare project web site.
 
 - Refer to API documentation from the index.html of the project site.
 
-- Maybe obsolete. Trying to convert to gradle.
-  publish util and benchmark jars - should not be snapshot - include manifest
-
-  http://maven.apache.org/maven-release/maven-release-plugin/examples/prepare-release.html
-
-  for the maven projects
+- publish util and benchmark jars - should not be snapshot - include manifest
 
 - Create release branch.
 
@@ -56,20 +51,13 @@
 
 - Check that all cross words are legit on recieving a commit play.
 
-- Provide clickable item to get the meaning of a word. Can you highlight 
-  a word easily on the board itself. Or maybe just put the last word 
-  on a separate clickable href or button.
+- Provide a way of getting the meaning of a word played by the machine.
+  Out of scope of version 1. Use the provided list view of played words to 
+  copy and paste into Google or dictionary site.
 
 - Disallow all URL parameters to avoid issues with bad URL.
   Create a preference page where you can set parameters.
   Save preferences in the database.
-
-- Show the last machine play somehow - perhaps fading it after a 
-  few seconds. Maybe React animation can be used:
-
-    https://facebook.github.io/react/docs/animation.html
-
-  Maybe just thicker borders for the word cells?
 
 - In some circumstances, the change of color to green/yellow for legal move
   remains in place, and in some it gets triggered everywhere where it is allowed
@@ -86,7 +74,7 @@
 
 ## Technical Debt
 
-- For all data structures decide what fields are public and only export those.
+- For all Haskell data structures decide what fields are public and only export those.
 
 - Code duplication for caching in GameCache. Should just use Cache for Game. See TODO
   comment of GameCache.
