@@ -17,6 +17,7 @@ import GameService from "./service/GameService"
 import {mkGameEventHandler} from './event/GameEventHandler';
 import {gameDispatcher} from './event/GameDispatcher';
 import {mkEmptyGame} from './domain/Game';
+import {emptyAuxGameData} from './domain/AuxGameData';
 
 let params = queryParams(window.location);
 
@@ -133,15 +134,15 @@ if (gameParams.appParams.envType === 'prod')
 
 const rootEl = document.getElementById('root');
 
-const renderGame = function(game, status, changeStage) {
+const renderGame = function(game, status, auxGameData, changeStage) {
   ReactDOM.render(
-    <GameComponent game={game} status={status}/>,
+    <GameComponent game={game} status={status} auxGameData={auxGameData}/>,
     rootEl
   );
 };
 
-const gameChangeObserver = function(changeStage, game, status) {
-  renderGame(game, status, changeStage);
+const gameChangeObserver = function(changeStage, game, status, auxGameData) {
+  renderGame(game, status, auxGameData, changeStage);
 };
 
 let gameService = new GameService(gameParams);
@@ -154,7 +155,7 @@ console.log(`game params: ${JSON.stringify(gameParams)}`);
 
 let status = initialState.error ? initialState.status : "OK"
 let emptyGame = mkEmptyGame(gameParams);
-renderGame(emptyGame, status);
+renderGame(emptyGame, status, emptyAuxGameData());
 
 
 

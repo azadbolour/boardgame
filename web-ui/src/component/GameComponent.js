@@ -5,9 +5,12 @@
  */
 
 /** @module Game */
+// TODO. Will css from node_modules be bundled for production?
+const css = require("!style-loader!css-loader!../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css");
 const DragDropContext = require('react-dnd').DragDropContext;
 const HTML5Backend = require('react-dnd-html5-backend');
 import React from 'react';
+import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import * as Game from '../domain/Game';
 import TrayComponent from './TrayComponent';
 import BoardComponent from './BoardComponent';
@@ -97,7 +100,8 @@ const GameComponent = React.createClass({
      * The contents of the grid. It is a 2-dimensional array of strings.
      */
     game: PropTypes.object.isRequired,
-    status: PropTypes.string
+    status: PropTypes.string,
+    auxGameData: PropTypes.object.isRequired
   },
 
   tipOn(tipButton) {
@@ -135,6 +139,19 @@ const GameComponent = React.createClass({
 
   render: function () {
     let game = this.props.game;
+    let wordsPlayed = this.props.auxGameData.wordsPlayed;
+    // console.log(stringify(wordsPlayed));
+    let indexes = [];
+    for (let i = 0; i < wordsPlayed.length; i++)
+      indexes.push(i);
+    let numberedWordsPlayed = indexes.map(function(i) {
+      return {
+        number: i + 1,
+        word: wordsPlayed[i].word,
+        playerName: wordsPlayed[i].playerName
+      }
+    });
+    // console.log(stringify(numberedWordsPlayed));
     let running = game.running();
     let hasUncommittedPieces = game.numPiecesInPlay() > 0;
     let canMovePiece = game.canMovePiece.bind(game);
@@ -152,6 +169,13 @@ const GameComponent = React.createClass({
     let enableStart = !running && !isError;
     let enableCommit = running && hasUncommittedPieces;
     let enableRevert = running && hasUncommittedPieces;
+    let tableHeight=75;
+    let columnWidth='150';
+    const tableOptions = {
+      // noDataText: ' '
+      withoutNoDataText: true
+    };
+    // TODO. Some attribute of bootstrap table for words are not taking, e.g., striped.
 
     // TODO. Use individual function components where possible.
     // TODO. Break up game component structure into modular pieces.
@@ -261,9 +285,18 @@ const GameComponent = React.createClass({
             />
           </div>
           <pre>  </pre>
-          <div>
+          <div style={{display: 'flex', flexDirection: 'column'}}>
             <div style={paddingStyle}>
               <SwapBinComponent isTrayPiece={isTrayPiece} enabled={running} />
+            </div>
+            <pre> </pre>
+            <div>
+              <BootstrapTable
+                data={numberedWordsPlayed} height={tableHeight} bordered={true} scrollTop={'Bottom'}
+                options={tableOptions} striped={ true } hover={ true } condensed={ true }>
+                <TableHeaderColumn dataField='number' isKey={true} hidden={true}></TableHeaderColumn>
+                <TableHeaderColumn dataField='word' width={columnWidth}></TableHeaderColumn>
+              </BootstrapTable>
             </div>
           </div>
         </div>

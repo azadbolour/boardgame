@@ -31,7 +31,7 @@ test('generate events to exercise game transitions', done => {
   let moveDest = mkPoint(mid - 1, mid);
   let movingPiece = undefined;
 
-  let endCallback = function(stage, game, status) {
+  let endCallback = function(stage, game, status, auxGameData) {
     console.log("end callback");
     // This gets more complicated than it is worth for now.
     // Since committing also internally involves getting machine play.
@@ -43,7 +43,7 @@ test('generate events to exercise game transitions', done => {
     done(); // Tell jest it can now exit.
   };
 
-  let moveCallback = function(stage, game, status) {
+  let moveCallback = function(stage, game, status, auxGameData) {
     let playPieces = game.getUserMovePlayPieces();
     expect(playPieces.length).toBe(1);
     setTimeout(function() {
@@ -54,7 +54,7 @@ test('generate events to exercise game transitions', done => {
     }, 20);
   };
 
-  let startCallback = function(stage, game, status) {
+  let startCallback = function(stage, game, status, auxGameData) {
     setTimeout(function() {
       console.log("start callback");
       handler.unregisterChangeObserver(startCallback);

@@ -10,6 +10,9 @@ import ActionTypes from './GameActionTypes';
 import ActionStages from './GameActionStages';
 import {mkEmptyGame} from '../domain/Game';
 import GameParams from '../domain/GameParams';
+import {playPiecesWord} from '../domain/PlayPiece';
+import {emptyAuxGameData} from '../domain/AuxGameData';
+
 
 /**
  * Factory function for handler of events raised by game actions
@@ -42,6 +45,7 @@ export const mkGameEventHandler = function(gameService) {
   let _gameService = gameService;
   let _game = undefined;
   let _status = undefined;
+  let _auxGameData = emptyAuxGameData();
   let _changeObservers = [];
 
   const OK = "OK";
@@ -58,7 +62,7 @@ export const mkGameEventHandler = function(gameService) {
     if (index === -1)
       return;
     _changeObservers.splice(index, 1);
-  }
+  };
 
   /**
    * For now we will not distinguish between different changes.
@@ -69,7 +73,7 @@ export const mkGameEventHandler = function(gameService) {
   const emitChange = function(changeStage) {
     _changeObservers.forEach(
       function (observer) {
-        observer(changeStage, _game, _status);
+        observer(changeStage, _game, _status, _auxGameData);
       }
     );
   };
@@ -99,6 +103,7 @@ export const mkGameEventHandler = function(gameService) {
     let stableParams = revertParamsToDefault(gameParams);
     _game = mkEmptyGame(stableParams);
     _status = unrecoverableErrorMessage + message;
+    _auxGameData = emptyAuxGameData();
   };
 
   /**
@@ -115,11 +120,13 @@ export const mkGameEventHandler = function(gameService) {
     get game() { return _game; },
     
     handleStart: function(gameParams) {
+      console.log("handle start");
       let promise = _gameService.start([], [], []);
       promise.then(response => {
         if (response.ok) {
           _game = response.json;
           _status = OK;
+          _auxGameData = emptyAuxGameData();
         }
         else {
           blankOutGame(gameParams, errorText(response));
@@ -183,6 +190,7 @@ export const mkGameEventHandler = function(gameService) {
           let refillPieces = response.json;
           _game = _game.commitUserMoves(refillPieces);
           _status = OK;
+          _auxGameData.pushWordPlayed(playPiecesWord(committedPlayPieces), "You"); // TODO. Use player name.
         }
         else if (isUserError(response)) {
           _status = "error: " + errorText(response);
@@ -210,6 +218,7 @@ export const mkGameEventHandler = function(gameService) {
           let moveGridPieces = play.moves();
           _game = _game.commitMachineMoves(moveGridPieces);
           _status = moveGridPieces.length > 0 ? OK : "bot took a pass";
+          _auxGameData.pushWordPlayed(playPiecesWord(play.playPieces), "Bot"); // TODO. Constant.
         }
         else {
           killGame(errorText(response));
