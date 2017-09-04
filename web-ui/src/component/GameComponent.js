@@ -295,7 +295,7 @@ const GameComponent = React.createClass({
                 data={numberedWordsPlayed} height={tableHeight} bordered={true} scrollTop={'Bottom'}
                 options={tableOptions} striped={ true } hover={ true } condensed={ true }>
                 <TableHeaderColumn dataField='number' isKey={true} hidden={true}></TableHeaderColumn>
-                <TableHeaderColumn dataField='word' width={columnWidth}></TableHeaderColumn>
+                <TableHeaderColumn dataField='word' width={columnWidth} editable={false}></TableHeaderColumn>
               </BootstrapTable>
             </div>
           </div>
