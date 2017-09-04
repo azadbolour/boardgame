@@ -92,7 +92,6 @@ matchFittingCombos dictionary numBlanks (strip : strips) combos =
 
 -- | The fitting combos appears in descending order.
 --   Each combo has exactly the same number of letters as needed to complete the corresponding strips.
---   TODO. Recurse on the list.
 findOptimalMatchForFittingCombos ::
      IndexedLanguageDictionary
   -> [(BlankCount, ([Strip], [LetterCombo]))]

@@ -71,9 +71,6 @@
 
   Maybe just thicker borders for the word cells?
 
-- Improve latency of machine moves. Use 50 concurrent users with a large 
-  dictionary.
-
 - In some circumstances, the change of color to green/yellow for legal move
   remains in place, and in some it gets triggered everywhere where it is allowed
   without the cursor actually traversing all thos locations. 
@@ -89,7 +86,7 @@
 
 ## Technical Debt
 
-- For all data structures decide what fields are pubic and only export those.
+- For all data structures decide what fields are public and only export those.
 
 - Code duplication for caching in GameCache. Should just use Cache for Game. See TODO
   comment of GameCache.
@@ -211,9 +208,6 @@
   the highest level.
 
 - Performance of large databases. Indexing. 
-
-- Use set from Haskell container package rather than list, for exact 
-  matching.
 
 - Use JSHint for Javascript code.
 
