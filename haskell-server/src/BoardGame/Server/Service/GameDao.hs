@@ -42,7 +42,7 @@ import Control.Monad.Reader (asks)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Except (MonadError(..))
 
-import Database.Persist.Postgresql (ConnectionPool)
+-- import Database.Persist.Postgresql (ConnectionPool)
 
 import Database.Esqueleto (
     Entity(..)
@@ -58,13 +58,20 @@ import Database.Esqueleto (
   , (==.)
   , (^.)
   )
-import Database.Persist.Postgresql (
-    runSqlPool
+
+import Database.Persist.Sql (
+    ConnectionPool
+  , SqlPersistT
   , fromSqlKey
   , runMigration
-  -- , entityVal
-  , SqlPersistT
+  , runSqlPool
   )
+-- import Database.Persist.Postgresql (
+--     -- runSqlPool
+--     -- , entityVal
+--    SqlPersistT
+--   )
+
 import Database.Persist.TH
 -- import BoardGame.Server.Domain.Config
 import Bolour.Util.DbUtil (SqlBackendReader, queryInIO)

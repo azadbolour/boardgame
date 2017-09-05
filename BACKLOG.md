@@ -154,6 +154,9 @@
   to insert or update data. For now it assumes postgres on current machine 
   and no password.
 
+- Allow access to SQLite database to make it easier to host the application
+  on hosting services. No database installation necessary.
+
 - In production mode need to have obscure postgres user. Best practices for security
   to postgres in production mode? Needs to be set in the production deployment
   script. Best practices for password protection. Make sure postgres port is 

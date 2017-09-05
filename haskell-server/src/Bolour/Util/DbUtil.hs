@@ -31,13 +31,17 @@ import Control.Monad.Logger (
 -- import Control.Monad.Trans.Maybe (MaybeT (..), runMaybeT)
 import Control.Monad.Trans.Reader (ReaderT)
 import Control.Monad.Trans.Resource (ResourceT)
-import Database.Persist.Sql (SqlBackend)
-import Database.Persist.Postgresql (
+import Database.Persist.Sql (
     ConnectionPool
-  , ConnectionString
-  , createPostgresqlPool
+  , SqlBackend
   , runSqlPersistMPool
   )
+
+import Database.Persist.Postgresql (
+    ConnectionString -- Confirmed - it is postgres-specific.
+  , createPostgresqlPool
+  )
+
 import BoardGame.Server.Domain.GameConfig (Config, DeployEnv)
 import BoardGame.Server.Domain.GameConfig (ServerParameters(ServerParameters))
 import qualified BoardGame.Server.Domain.GameConfig as Config
