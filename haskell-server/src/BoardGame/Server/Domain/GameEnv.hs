@@ -4,19 +4,24 @@
 --   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
 --
 
+{-# LANGUAGE RankNTypes #-}
+
 module BoardGame.Server.Domain.GameEnv (
     GameEnv(..)
  )
 where
 
-import BoardGame.Server.Domain.GameConfig (Config)
+
+import Bolour.Util.PersistRunner (ConnectionProvider)
+import BoardGame.Server.Domain.ServerConfig (ServerConfig)
 import BoardGame.Server.Domain.GameCache (GameCache)
 import BoardGame.Server.Domain.DictionaryCache (DictionaryCache)
 
 data GameEnv = GameEnv {
-  config :: Config,
-  gameCache :: GameCache,
-  dictionaryCache :: DictionaryCache
+    serverConfig :: ServerConfig
+  , connectionProvider :: ConnectionProvider
+  , gameCache :: GameCache
+  , dictionaryCache :: DictionaryCache
 }
 
 

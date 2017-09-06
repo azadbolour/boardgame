@@ -44,7 +44,7 @@ defaultDbUser = "postgres"
 defaultDbPassword = "postgres"
 defaultMaxActiveGames = 100
 defaultMaxGameMinutes = 30
-defaultDictionaryDir = "" -- Default is computed in dictionary module.
+defaultDictionaryDir = ""
 
 -- | Complete configuration of the application.
 data Config = Config {

@@ -9,6 +9,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RankNTypes #-}
 
 {-|
 The service layer of the game application. This layer is independent of
@@ -88,20 +89,20 @@ import qualified BoardGame.Server.Service.GameDao as GameDao
 import BoardGame.Server.Domain.PlayDetails (PlayDetails(WordPlayDetails), PlayDetails(SwapPlayDetails))
 import qualified BoardGame.Server.Domain.PlayDetails as PlayDetails
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv (GameEnv(..))
-import qualified BoardGame.Server.Domain.GameConfig as Config
-import qualified BoardGame.Server.Domain.GameConfig as ServerParameters
+import BoardGame.Server.Domain.ServerConfig as ServerConfig
+import qualified BoardGame.Server.Domain.ServerConfig as ServerParameters
 import qualified BoardGame.Server.Domain.IndexedStripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import qualified BoardGame.Server.Domain.RandomPieceGenerator as RandomPieceGenerator
 import BoardGame.Util.WordUtil (DictWord)
+-- import Bolour.Util.PersistRunner
 
 timeoutLongRunningGames :: GameTransformerStack ()
 timeoutLongRunningGames = do
   gameCache <- asks GameEnv.gameCache
-  config <- asks GameEnv.config
-  let Config.Config {serverParameters} = config
-      ServerParameters.ServerParameters {maxGameMinutes} = serverParameters
+  serverConfig <- asks GameEnv.serverConfig
+  let ServerConfig {maxGameMinutes} = serverConfig
   gamesMap <- GameCache.cacheGetGamesMap gameCache
   utcNow <- liftIO getCurrentTime
   -- TODO. Direct function to get map's keys?
@@ -109,16 +110,17 @@ timeoutLongRunningGames = do
       agedGameIds = let aged = ((maxGameMinutes * 60) <) . Game.gameAgeSeconds utcNow
                      in Game.gameId <$> aged `filter` games
   liftGameExceptToStack $ GameCache.deleteItems agedGameIds gameCache
+  -- TODO. End the games in the database with a timed out indication.
 
 -- | Service function to add a player to the system.
 addPlayerService :: Player.Player -> GameTransformerStack ()
 addPlayerService player = do
-  cfg <- asks GameEnv.config
+  connectionProvider <- asks GameEnv.connectionProvider
   let Player { name } = player
   if not (isAlphaNumString name) then
     throwError $ InvalidPlayerNameError name
   else do
-    GameDao.addPlayer cfg (playerToRow player)
+    GameDao.addPlayer connectionProvider (playerToRow player)
     return ()
 
 -- TODO. Move to GameError.
@@ -148,13 +150,13 @@ startGameService ::
 
 startGameService gameParams gridPieces initUserPieces initMachinePieces = do
   params @ GameParams.GameParams {languageCode} <- Game.validateGameParams gameParams
-  GameEnv { config, gameCache } <- ask
+  GameEnv { connectionProvider, gameCache } <- ask
   let playerName = GameParams.playerName params
-  playerRowId <- GameDao.findExistingPlayerRowIdByName config playerName
+  playerRowId <- GameDao.findExistingPlayerRowIdByName connectionProvider playerName
   dictionary <- lookupDictionary languageCode
   let pieceGenerator = RandomPieceGenerator.mkRandomPieceGenerator
   game <- Game.mkInitialGame params pieceGenerator gridPieces initUserPieces initMachinePieces playerName
-  GameDao.addGame config $ gameToRow playerRowId game
+  GameDao.addGame connectionProvider $ gameToRow playerRowId game
   liftGameExceptToStack $ GameCache.insert game gameCache
   return game
 
@@ -167,7 +169,7 @@ commitPlayService ::
   -> GameTransformerStack [Piece]
 
 commitPlayService gmId playPieces = do
-  GameEnv { config, gameCache } <- ask
+  GameEnv { gameCache } <- ask
   game @ Game {languageCode} <- liftGameExceptToStack $ GameCache.lookup gmId gameCache
   let playWord = PlayPiece.playPiecesToWord playPieces
   dictionary <- lookupDictionary languageCode
@@ -185,7 +187,7 @@ commitPlayService gmId playPieces = do
 --   If no match is found, then the machine exchanges a piece.
 machinePlayService :: String -> GameTransformerStack [PlayPiece]
 machinePlayService gameId = do
-  GameEnv { config, gameCache } <- ask
+  GameEnv { gameCache } <- ask
   (game @ Game {gameId, languageCode, board, trays}) <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
   dictionary <- lookupDictionary languageCode
   let machineTray @ Tray {pieces} = trays !! Player.machineIndex
@@ -265,10 +267,10 @@ savePlay ::
   -> String
   -> GameTransformerStack EntityId
 savePlay gameId playNumber playerType isPlay details = do
-  cfg <- asks GameEnv.config
-  gameRowId <- GameDao.findExistingGameRowIdByGameId cfg gameId
+  connectionProvider <- asks GameEnv.connectionProvider
+  gameRowId <- GameDao.findExistingGameRowIdByGameId connectionProvider gameId
   let playRow = PlayRow gameRowId playNumber (show playerType) isPlay details
-  GameDao.addPlay cfg playRow
+  GameDao.addPlay connectionProvider playRow
 
 -- TODO. More intelligent optimal match based on values of moved pieces.
 optimalMatch :: [Play] -> Maybe Play
@@ -294,8 +296,8 @@ playerToRow player = PlayerRow $ Player.name player -- TODO. Clean this up.
 
 getGamePlayDetailsService :: String -> GameTransformerStack [PlayInfo]
 getGamePlayDetailsService gameId = do
-  cfg <- asks GameEnv.config
-  playRows <- GameDao.getGamePlays cfg gameId
+  connectionProvider <- asks GameEnv.connectionProvider
+  playRows <- GameDao.getGamePlays connectionProvider gameId
   return $ playRowToPlayInfo <$> playRows
 
 -- TODO. Check for decode returning Nothing - error in decoding.

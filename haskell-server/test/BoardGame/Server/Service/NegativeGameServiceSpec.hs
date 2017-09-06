@@ -23,10 +23,9 @@ import BoardGame.Common.Domain.Player (Player, Player(Player))
 import BoardGame.Common.Domain.GameParams (GameParams(..))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 import qualified BoardGame.Common.Domain.Point as Point (Axis(..))
-import Bolour.Util.DbUtil (makePool)
-import BoardGame.Server.Domain.GameConfig (Config(..), DeployEnv(..))
-import qualified BoardGame.Server.Domain.GameConfig as Config
-import qualified BoardGame.Server.Domain.GameConfig as ServerParameters
+import qualified Bolour.Util.PersistRunner as PersistRunner
+import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
+import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import BoardGame.Server.Service.GameDao (cleanupDb)
 import BoardGame.Server.Domain.GameCache as GameCache
 import BoardGame.Server.Domain.GameError (GameError)
@@ -53,15 +52,14 @@ printx s = do
 -- TODO. Duplicate code - see GameServiceSpec. Factor out.
 initTest :: IO GameEnv -- TODO. Should be MonadIO m.
 initTest = do
-  let serverParameters = Config.defaultServerParameters -- TODO. Change to use test server parameters.
-      ServerParameters.ServerParameters {maxActiveGames} = serverParameters
-  thePool <- makePool serverParameters
-  config <- Config.mkConfig serverParameters thePool
-  cleanupDb config
+  let serverConfig = ServerConfig.defaultServerConfig
+      ServerConfig {maxActiveGames, dbConfig} = serverConfig
+  connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
+  cleanupDb connectionProvider
   cache <- GameCache.mkGameCache maxActiveGames
   -- dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
   dictionaryCache <- DictCache.mkCache "" 100
-  return $ GameEnv config cache dictionaryCache
+  return $ GameEnv serverConfig connectionProvider cache dictionaryCache
 
 runner :: GameEnv -> GameTransformerStack a -> IO (Either GameError a)
 runner env stack = runExceptT $ flip runLoggingT printx $ runReaderT stack env

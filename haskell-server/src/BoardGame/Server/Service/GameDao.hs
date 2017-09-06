@@ -17,6 +17,8 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ExistentialQuantification #-}
 
 {-|
 The data access layer for the board game application.
@@ -26,7 +28,6 @@ module BoardGame.Server.Service.GameDao (
   , PlayerRow(..)
   , PlayerRowId
   , PlayRow(..)
-  , migrateDatabase
   , addGame
   , findGameRowIdById
   , findExistingGameRowIdByGameId
@@ -36,13 +37,12 @@ module BoardGame.Server.Service.GameDao (
   , addPlay
   , getGamePlays
   , cleanupDb
+  , migration
 ) where
 
 import Control.Monad.Reader (asks)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Except (MonadError(..))
-
--- import Database.Persist.Postgresql (ConnectionPool)
 
 import Database.Esqueleto (
     Entity(..)
@@ -62,8 +62,8 @@ import Database.Esqueleto (
 import Database.Persist.Sql (
     ConnectionPool
   , SqlPersistT
+  , SqlPersistM
   , fromSqlKey
-  , runMigration
   , runSqlPool
   )
 -- import Database.Persist.Postgresql (
@@ -73,16 +73,14 @@ import Database.Persist.Sql (
 --   )
 
 import Database.Persist.TH
--- import BoardGame.Server.Domain.Config
-import Bolour.Util.DbUtil (SqlBackendReader, queryInIO)
 import BoardGame.Server.Domain.Core(EntityId)
 import BoardGame.Server.Domain.GameError(GameError(..))
 import BoardGame.Common.Domain.Point(Coordinate)
 import BoardGame.Common.Domain.Player (PlayerName)
--- import BoardGame.Server.Service.GameTransformerStack(GameTransformerStack)
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv(GameEnv(..))
-import BoardGame.Server.Domain.GameConfig (Config) -- TODO. Should only use a DBConfig.
--- import qualified BoardGame.Server.Domain.GameConfig (Config)
+
+import Bolour.Util.PersistRunner (ConnectionProvider)
+import qualified Bolour.Util.PersistRunner as PersistRunner
 
 {-
   To see generated code:
@@ -112,34 +110,31 @@ PlayRow sql=play
     deriving Show Eq
 |]
 
--- Move generic part of this to DbUtil.
+migration = migrateAll -- Generated.
 
-migrateDatabase :: ConnectionPool -> IO ()
-migrateDatabase pool = runSqlPool doMigrations pool
+-- migrator :: SqlPersistT IO ()
+-- migrator = runMigration migrateAll
 
-doMigrations :: SqlPersistT IO ()
-doMigrations = runMigration migrateAll
-
-cleanupDb :: Config -> IO ()
-cleanupDb config = do
-  queryInIO config deleteAllPlaysReader
-  queryInIO config deleteAllGamesReader
-  queryInIO config deleteAllPlayersReader
+cleanupDb :: ConnectionProvider -> IO ()
+cleanupDb provider = do
+  PersistRunner.runQuery provider deleteAllPlaysReader
+  PersistRunner.runQuery provider deleteAllGamesReader
+  PersistRunner.runQuery provider deleteAllPlayersReader
 
 -- TODO. Generic delete function??
-deleteAllGamesReader :: SqlBackendReader ()
+deleteAllGamesReader :: SqlPersistM ()
 deleteAllGamesReader =
   delete $
     from $ \(game :: SqlExpr (Entity GameRow)) ->
     return ()
 
-deleteAllPlayersReader :: SqlBackendReader ()
+deleteAllPlayersReader :: SqlPersistM ()
 deleteAllPlayersReader =
   delete $
     from $ \(player :: SqlExpr (Entity PlayerRow)) ->
     return ()
 
-deleteAllPlaysReader :: SqlBackendReader ()
+deleteAllPlaysReader :: SqlPersistM ()
 deleteAllPlaysReader =
   delete $
     from $ \(play :: SqlExpr (Entity PlayRow)) ->
@@ -148,46 +143,45 @@ deleteAllPlaysReader =
 -- TODO. Should catch and translate any exceptions from persistent.
 
 addPlayer :: (MonadError GameError m, MonadIO m) =>
-     Config
+     ConnectionProvider
   -> PlayerRow
   -> m EntityId
-addPlayer cfg player = do
-  -- cfg <- asks GameEnv.config
-  liftIO $ queryInIO cfg (addPlayerReader player)
+addPlayer provider player = do
+  liftIO $ PersistRunner.runQuery provider (addPlayerReader player)
 
-addPlayerReader :: PlayerRow -> SqlBackendReader EntityId
+addPlayerReader :: PlayerRow -> SqlPersistM EntityId
 addPlayerReader player = fromSqlKey <$> insert player
 
 addGame :: (MonadError GameError m, MonadIO m) =>
-     Config
+     ConnectionProvider
   -> GameRow
   -> m EntityId
-addGame cfg game = do
+addGame provider game = do
   -- cfg <- asks GameEnv.config
-  liftIO $ queryInIO cfg (addGameReader game)
+  liftIO $ PersistRunner.runQuery provider (addGameReader game)
 
-addGameReader :: GameRow -> SqlBackendReader EntityId
+addGameReader :: GameRow -> SqlPersistM EntityId
 addGameReader game = fromSqlKey <$> insert game
 
 findExistingPlayerRowIdByName :: (MonadError GameError m, MonadIO m) =>
-     Config
+     ConnectionProvider
   -> PlayerName
   -> m PlayerRowId
-findExistingPlayerRowIdByName cfg playerName = do
-  maybeRowId <- findPlayerRowIdByName cfg playerName
+findExistingPlayerRowIdByName provider playerName = do
+  maybeRowId <- findPlayerRowIdByName provider playerName
   case maybeRowId of
     Nothing -> throwError $ MissingPlayerError playerName
     Just rowId -> return rowId
 
 findPlayerRowIdByName :: (MonadError GameError m, MonadIO m) =>
-     Config
+     ConnectionProvider
   -> String
   -> m (Maybe PlayerRowId)
-findPlayerRowIdByName cfg playerName = do
+findPlayerRowIdByName provider playerName = do
   -- cfg <- asks GameEnv.config
-  liftIO $ queryInIO cfg (findPlayerRowIdByNameReader playerName)
+  liftIO $ PersistRunner.runQuery provider (findPlayerRowIdByNameReader playerName)
 
-findPlayerRowIdByNameReader :: String -> SqlBackendReader (Maybe PlayerRowId)
+findPlayerRowIdByNameReader :: String -> SqlPersistM (Maybe PlayerRowId)
 findPlayerRowIdByNameReader playerName = do
   selectedEntityList <- select $
     from $ \player -> do
@@ -198,35 +192,35 @@ findPlayerRowIdByNameReader playerName = do
     Entity k _ : _ -> return $ Just $ k
 
 addPlay :: (MonadError GameError m, MonadIO m) =>
-     Config
+     ConnectionProvider
   -> PlayRow
   -> m EntityId
-addPlay cfg play = do
+addPlay provider play = do
   -- cfg <- asks GameEnv.config
-  liftIO $ queryInIO cfg (addPlayReader play)
+  liftIO $ PersistRunner.runQuery provider (addPlayReader play)
 
-addPlayReader :: PlayRow -> SqlBackendReader EntityId
+addPlayReader :: PlayRow -> SqlPersistM EntityId
 addPlayReader play = fromSqlKey <$> insert play
 
 findExistingGameRowIdByGameId :: (MonadError GameError m, MonadIO m) =>
-     Config
+     ConnectionProvider
   -> String
   -> m GameRowId
-findExistingGameRowIdByGameId cfg gameId = do
-  maybeRowId <- findGameRowIdById cfg gameId
+findExistingGameRowIdByGameId provider gameId = do
+  maybeRowId <- findGameRowIdById provider gameId
   case maybeRowId of
     Nothing -> throwError $ MissingGameError gameId
     Just rowId -> return rowId
 
 findGameRowIdById :: (MonadError GameError m, MonadIO m) =>
-     Config
+     ConnectionProvider
   -> String
   -> m (Maybe GameRowId)
-findGameRowIdById cfg gameUid = do
+findGameRowIdById provider gameUid = do
   -- cfg <- asks GameEnv.config
-  liftIO $ queryInIO cfg (findGameRowIdByIdReader gameUid)
+  liftIO $ PersistRunner.runQuery provider (findGameRowIdByIdReader gameUid)
 
-findGameRowIdByIdReader :: String -> SqlBackendReader (Maybe GameRowId)
+findGameRowIdByIdReader :: String -> SqlPersistM (Maybe GameRowId)
 findGameRowIdByIdReader gameUid = do
   selectedEntityList <- select $
     from $ \game -> do
@@ -237,18 +231,18 @@ findGameRowIdByIdReader gameUid = do
     Entity k _ : _ -> return $ Just $ k
 
 getGamePlays :: (MonadError GameError m, MonadIO m) =>
-     Config
+     ConnectionProvider
   -> String
   -> m [PlayRow]
-getGamePlays cfg gameUid = do
-  maybeGameRowId <- findGameRowIdById cfg gameUid
+getGamePlays provider gameUid = do
+  maybeGameRowId <- findGameRowIdById provider gameUid
   case maybeGameRowId of
     Nothing -> throwError $ MissingGameError gameUid
     Just gameRowId -> do
       -- cfg <- asks GameEnv.config
-      liftIO $ queryInIO cfg (getGamePlaysReader gameRowId)
+      liftIO $ PersistRunner.runQuery provider (getGamePlaysReader gameRowId)
 
-getGamePlaysReader :: GameRowId -> SqlBackendReader [PlayRow]
+getGamePlaysReader :: GameRowId -> SqlPersistM [PlayRow]
 getGamePlaysReader gameRowId = do
   selectedEntityList <-
       select $

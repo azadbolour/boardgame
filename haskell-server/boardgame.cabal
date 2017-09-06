@@ -49,8 +49,8 @@ library
   exposed-modules:
       -- TODO. Separate out util, common, client, and server into different packages.
       Bolour.Util.Cache
-      BoardGame.Server.Domain.GameConfig
-      Bolour.Util.DbUtil
+      Bolour.Util.DbConfig
+      Bolour.Util.PersistRunner
       Bolour.Util.EnvUtil
       Bolour.Util.MiscUtil
       Bolour.Util.Middleware
@@ -58,6 +58,7 @@ library
       Bolour.Util.WaiUtil
       Bolour.Util.FileUtil
       BoardGame.Common.GameApi
+      BoardGame.Server.Domain.ServerConfig
       BoardGame.Common.Domain.Player
       BoardGame.Common.Domain.Piece
       BoardGame.Common.Domain.Point
@@ -234,6 +235,7 @@ test-suite infocus
   other-modules:
       Bolour.Util.SpecUtil
       BoardGame.Util.TestUtil
+      BoardGame.Server.Web.WebTestFixtures
       BoardGame.Server.Domain.StripMatcherSpec
       BoardGame.Server.Domain.IndexedDictionarySpec
       BoardGame.Server.Domain.DictionaryCacheSpec

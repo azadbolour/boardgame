@@ -36,13 +36,15 @@ import qualified BoardGame.Server.Service.GameDao as GameDao
 import qualified BoardGame.Server.Web.GameEndPoint as GameEndPoint
 import qualified BoardGame.Util.TestUtil as TestUtil
 import qualified Bolour.Util.SpecUtil as SpecUtil
-import BoardGame.Server.Domain.GameConfig (Config(Config))
--- import qualified BoardGame.Server.Domain.GameConfig as Env
-import qualified BoardGame.Server.Domain.GameConfig as Config
-import qualified BoardGame.Server.Domain.GameConfig as ServerParameters
+import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
+import qualified BoardGame.Server.Domain.GameEnv as GameEnv
+
+import qualified Bolour.Util.PersistRunner as PersistRunner
+import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
+import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
+
 import BoardGame.Server.Domain.GameEnv (GameEnv(GameEnv))
 import Bolour.Util.WaiUtil
-import qualified Bolour.Util.DbUtil as DbUtil
 import qualified BoardGame.Client.GameClient as Client
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 import qualified BoardGame.Server.Domain.GameCache as GameCache
@@ -57,25 +59,20 @@ import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 
 -- TODO. How to access the values returned by beforeAll within the test.
 
-config :: IO Config
-config = do
+getGameEnv :: IO GameEnv
+getGameEnv = do
   -- TODO. Use getServerParameters and provide a config file for test.
-  let serverParameters = Config.defaultServerParameters
-      ServerParameters.ServerParameters {maxActiveGames} = serverParameters
-  thePool <- DbUtil.makePool serverParameters
-  Config.mkConfig serverParameters thePool
-
-  -- Config.mkConfig Env.Test thePool
+  let serverConfig = ServerConfig.defaultServerConfig
+      ServerConfig {maxActiveGames, dbConfig} = serverConfig
+  connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
+  GameDao.cleanupDb connectionProvider
+  cache <- GameCache.mkGameCache maxActiveGames
+  dictionaryCache <- DictCache.mkCache "" 100
+  return $ GameEnv serverConfig connectionProvider cache dictionaryCache
 
 startApp :: IO (ThreadId, BaseUrl)
 startApp = do
-  let serverParameters = Config.defaultServerParameters
-      ServerParameters.ServerParameters {maxActiveGames} = serverParameters
-  cache <- GameCache.mkGameCache maxActiveGames
-  -- dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
-  dictionaryCache <- DictCache.mkCache "" 100
-  conf <- config
-  let gameEnv = GameEnv conf cache dictionaryCache
+  gameEnv <- getGameEnv
   let gameApp = GameEndPoint.mkGameApp gameEnv
   startWaiApp gameApp
 
@@ -122,8 +119,8 @@ spec = beforeAll startApp $ afterAll endWaiApp $
 
 initTest :: IO ()
 initTest = do
-  cfg <- config
-  GameDao.cleanupDb cfg
+  gameEnv @ GameEnv {connectionProvider} <- getGameEnv
+  GameDao.cleanupDb connectionProvider
   return ()
 
 mkManager :: IO Manager

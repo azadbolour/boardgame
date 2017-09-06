@@ -12,12 +12,12 @@ module BoardGame.Server.Domain.ServerParametersSpec where
 
 import Test.Hspec
 
-import BoardGame.Server.Domain.GameConfig (ServerParameters)
-import qualified BoardGame.Server.Domain.GameConfig as Config (getServerParameters)
+import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
+import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 
 spec :: Spec
 spec = do
   describe "read properties" $ do
     it "read properties" $ do
-        serverParameters <- Config.getServerParameters $ Just "test-data/test-config.yml"
+        serverParameters <- ServerConfig.getServerConfig $ Just "test-data/test-config.yml"
         print serverParameters

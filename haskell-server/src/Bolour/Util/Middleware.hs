@@ -20,8 +20,8 @@ import Network.Wai.Middleware.Cors as Cors
 import qualified Network.Wai as Wai
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 
-import BoardGame.Server.Domain.GameConfig (DeployEnv)
-import qualified BoardGame.Server.Domain.GameConfig as Env
+import BoardGame.Server.Domain.ServerConfig (DeployEnv)
+import qualified BoardGame.Server.Domain.ServerConfig as Env
 
 -- | Intercept options responses to send the correct status and headers.
 optionsHandler :: ResponseHeaders -> Middleware

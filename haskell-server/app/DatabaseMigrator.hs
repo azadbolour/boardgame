@@ -10,10 +10,10 @@
 module Main where
 
 import System.Environment (getArgs)
-import qualified BoardGame.Server.Domain.GameConfig as Config
-import Bolour.Util.DbUtil (makePool)
-import BoardGame.Server.Service.GameDao (migrateDatabase)
-import qualified BoardGame.Server.Domain.GameConfig as ServerParameters
+import qualified Bolour.Util.PersistRunner as PersistRunner
+import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig))
+import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
+import qualified BoardGame.Server.Service.GameDao as GameDao
 
 main :: IO ()
 
@@ -22,9 +22,8 @@ main :: IO ()
 main = do
     args <- getArgs
     let maybeConfigPath = if null args then Nothing else Just $ head args
-    serverParameters <- Config.getServerParameters maybeConfigPath
-    let ServerParameters.ServerParameters {deployEnv} = serverParameters
-    myPool <- makePool serverParameters
-    config <- Config.mkConfig serverParameters myPool
-    migrateDatabase myPool
+    serverConfig <- ServerConfig.getServerConfig maybeConfigPath
+    let ServerConfig {dbConfig} = serverConfig
+    connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
+    PersistRunner.migrateDatabase connectionProvider GameDao.migration
 

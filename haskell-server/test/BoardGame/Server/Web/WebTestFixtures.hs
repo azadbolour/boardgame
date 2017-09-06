@@ -20,10 +20,8 @@ module BoardGame.Server.Web.WebTestFixtures (
 import Data.Char (toUpper)
 import Control.Monad (forever)
 import Control.Monad.Trans.Except (runExceptT)
-import Bolour.Util.DbUtil (makePool)
-import BoardGame.Server.Domain.GameConfig (Config(..), DeployEnv(..))
-import qualified BoardGame.Server.Domain.GameConfig as Config
-import qualified BoardGame.Server.Domain.GameConfig as ServerParameters
+import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
+import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import Bolour.Util.SpecUtil (satisfiesRight) -- satisfiesJust
 import BoardGame.Common.Domain.Player (Player, Player(Player))
 import BoardGame.Common.Domain.Piece (Piece)
@@ -42,6 +40,7 @@ import BoardGame.Server.Web.GameEndPoint (addPlayerHandler, startGameHandler)
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 -- import qualified Bolour.Util.StaticTextFileCache as FileCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
+import qualified Bolour.Util.PersistRunner as PersistRunner
 
 makePlayer :: GameEnv -> String -> IO ()
 makePlayer env name = do
@@ -69,13 +68,10 @@ centerGridPiece value = do
 initTest :: IO GameEnv
 initTest = do
   -- TODO. Use getServerParameters and provide a config file for test.
-  let serverParameters = Config.defaultServerParameters
-      ServerParameters.ServerParameters {maxActiveGames} = serverParameters
-  thePool <- makePool serverParameters
-  -- let cfg = Config thePool Test
-  cfg <- Config.mkConfig serverParameters thePool
-  cleanupDb cfg
+  let serverConfig = ServerConfig.defaultServerConfig
+      ServerConfig {maxActiveGames, dbConfig} = serverConfig
+  connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
+  cleanupDb connectionProvider
   cache <- GameCache.mkGameCache maxActiveGames
-  -- dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
   dictionaryCache <- DictCache.mkCache "" 100
-  return $ GameEnv cfg cache dictionaryCache
+  return $ GameEnv serverConfig connectionProvider cache dictionaryCache

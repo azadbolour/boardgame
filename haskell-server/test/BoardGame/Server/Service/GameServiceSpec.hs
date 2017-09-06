@@ -19,10 +19,9 @@ import Control.Monad.Reader (runReaderT)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Log (runLoggingT)
 
-import Bolour.Util.DbUtil (makePool)
-import BoardGame.Server.Domain.GameConfig (Config(..), DeployEnv(..))
-import qualified BoardGame.Server.Domain.GameConfig as Config
-import qualified BoardGame.Server.Domain.GameConfig as ServerParameters
+import qualified Bolour.Util.PersistRunner as PersistRunner
+import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
+import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import BoardGame.Common.Domain.Player(Player, Player(Player))
 import BoardGame.Common.Domain.Piece (Piece(Piece))
 import BoardGame.Server.Domain.GameCache as GameCache
@@ -59,16 +58,15 @@ import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 initTest :: IO GameEnv -- TODO. Should be MonadIO m.
 initTest = do
   -- TODO. Use getServerParameters and provide a config file for test.
-  let serverParameters = Config.defaultServerParameters
-      ServerParameters.ServerParameters {maxActiveGames} = serverParameters
-  thePool <- makePool serverParameters
-  config <- Config.mkConfig serverParameters thePool
-  cleanupDb config
+
+  let serverConfig = ServerConfig.defaultServerConfig
+      ServerConfig {maxActiveGames, dbConfig} = serverConfig
+  connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
+  cleanupDb connectionProvider
   cache <- GameCache.mkGameCache maxActiveGames
   -- dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
   dictionaryCache <- DictCache.mkCache "" 100
-  return $ GameEnv config cache dictionaryCache
-
+  return $ GameEnv serverConfig connectionProvider cache dictionaryCache
 
 printx :: String -> ExceptT GameError IO ()
 printx s = do

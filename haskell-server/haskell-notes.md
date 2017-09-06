@@ -155,8 +155,8 @@
   data structure that works on every type] whose every use must provide actual
   type parameters.
 
-  See https://wiki.haskell.org/Existential_type and 
-  https://wiki.haskell.org/OOP_vs_type_classes.
+  See https://wiki.haskell.org/Existential\_type and 
+  https://wiki.haskell.org/OOP\_vs\_type\_classes.
 
 - How far down to push the main monad transformer?
 
