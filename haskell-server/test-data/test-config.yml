@@ -1,7 +1,31 @@
-deployEnv: Test
-serverPort: 2345
-dbUser: defaultDbUser
-dbPassword: defaultDbPassword
-activeGames: 20
-# gameMinutes: 1
-dictionaryLocation: dictionaries
+#
+# Configuration parameters for the game server.
+#
+
+# Deployment environment. Dev, Test, Prod - case-sensitive.
+deployEnv: Dev
+
+# The port on which the server listens for API calls.
+serverPort: 6587
+
+dbConfig:
+  # Type of database system.
+  dbmsType: Postgres
+  # The database server host.
+  dbHost: localHost
+  # The database server port.
+  dbPort: 5432
+  # The database user.
+  dbUser: postgrestest
+  # The database password. TODO. Security for db password.
+  dbPassword: postgrestest
+
+# Maximum number of active game.
+maxActiveGames: 100
+
+# Minutes after which game will be timed out.
+maxGameMinutes: 30
+
+# Path to the dictionary directory.
+# Defaults to the data directory of the Haskell application is used.
+dictionaryDir: 'dict'
