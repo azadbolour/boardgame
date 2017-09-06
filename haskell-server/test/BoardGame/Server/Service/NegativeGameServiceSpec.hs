@@ -35,31 +35,14 @@ import qualified BoardGame.Server.Service.GameService as GameService
 import qualified BoardGame.Server.Domain.GameError as GameError
 import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
 import BoardGame.Server.Service.GameTransformerStack
--- import qualified Bolour.Util.StaticTextFileCache as FileCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 
--- TODO. Should not depend on higher level module.
-import BoardGame.Server.Web.WebTestFixtures (
-      thePlayer
-    , params
-  )
+import qualified BoardGame.Server.Service.ServiceTestFixtures as Fixtures
 
 printx :: String -> ExceptT GameError IO ()
 printx s = do
   liftIO $ print s
   return ()
-
--- TODO. Duplicate code - see GameServiceSpec. Factor out.
-initTest :: IO GameEnv -- TODO. Should be MonadIO m.
-initTest = do
-  let serverConfig = ServerConfig.defaultServerConfig
-      ServerConfig {maxActiveGames, dbConfig} = serverConfig
-  connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
-  cleanupDb connectionProvider
-  cache <- GameCache.mkGameCache maxActiveGames
-  -- dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
-  dictionaryCache <- DictCache.mkCache "" 100
-  return $ GameEnv serverConfig connectionProvider cache dictionaryCache
 
 runner :: GameEnv -> GameTransformerStack a -> IO (Either GameError a)
 runner env stack = runExceptT $ flip runLoggingT printx $ runReaderT stack env
@@ -76,28 +59,27 @@ runL env stack = do
 
 runR' :: GameTransformerStack a -> IO a
 runR' stack = do
-  env <- initTest
+  env <- Fixtures.initTest
   runR env stack
 
 runL' :: GameTransformerStack a -> IO GameError
 runL' stack = do
-  env <- initTest
+  env <- Fixtures.initTest
   runL env stack
-
 
 
 -- TODO. Annotate spec do statements with the demystified type of their monad.
 -- TODO. Factor out common test functions to a base type class.
 
 nonExistentPlayerName = "Mary"
-paramsBadPlayer = params {playerName = nonExistentPlayerName}
+paramsBadPlayer = Fixtures.gameParams {playerName = nonExistentPlayerName}
 nonAlphaNumPlayerName = "Mary-?"
-paramsNonAlphaNumPlayer = params {playerName = nonAlphaNumPlayerName}
+paramsNonAlphaNumPlayer = Fixtures.gameParams {playerName = nonAlphaNumPlayerName}
 badDimension = -1
-paramsBadDimension = params {height = badDimension}
-paramsZeroWidth = params {width = 0}
+paramsBadDimension = Fixtures.gameParams {height = badDimension}
+paramsZeroWidth = Fixtures.gameParams {width = 0}
 badTrayCapacity = 0
-paramsBadTrayCapacity = params {trayCapacity = badTrayCapacity}
+paramsBadTrayCapacity = Fixtures.gameParams {trayCapacity = badTrayCapacity}
 -- TODO. 0 and 1 are also bad sizes.
 
 spec :: Spec
@@ -110,25 +92,25 @@ spec = do
 
     it "guards against non-existent player" $
       do
-        runR' $ GameService.addPlayerService $ Player thePlayer
+        runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
         error <- runL' $ GameService.startGameService paramsBadPlayer [] [] []
         error `shouldBe` GameError.MissingPlayerError nonExistentPlayerName
 
     it "disallows negative board dimensions" $
       do
-        runR' $ GameService.addPlayerService $ Player thePlayer
+        runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
         error <- runL' $ GameService.startGameService paramsBadDimension [] [] []
         error `shouldBe` GameError.InvalidDimensionError Point.Y badDimension
 
     it "disallows 0 board dimensions" $
       do
-        runR' $ GameService.addPlayerService $ Player thePlayer
+        runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
         error <- runL' $ GameService.startGameService paramsZeroWidth [] [] []
         error `shouldBe` GameError.InvalidDimensionError Point.X 0
 
     it "disallows trays with 0 capacity" $
       do
-        runR' $ GameService.addPlayerService $ Player thePlayer
+        runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
         error <- runL' $ GameService.startGameService paramsBadTrayCapacity [] [] []
         error `shouldBe` GameError.InvalidTrayCapacityError badTrayCapacity
 

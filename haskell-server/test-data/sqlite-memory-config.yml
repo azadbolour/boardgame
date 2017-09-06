@@ -10,15 +10,15 @@ serverPort: 6587
 
 dbConfig:
   # Type of database system.
-  dbmsType: Postgres
+  dbmsType: SqliteMemory
   # The database server host.
-  dbHost: localHost
+  dbHost: 
   # The database server port.
   dbPort: 5432
   # The database user.
-  dbUser: postgres
+  dbUser: 
   # The database password. TODO. Security for db password.
-  dbPassword: postgres
+  dbPassword: 
 
 # Maximum number of active game.
 maxActiveGames: 100

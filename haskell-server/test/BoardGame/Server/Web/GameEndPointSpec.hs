@@ -28,11 +28,11 @@ import BoardGame.Server.Web.GameEndPoint (
   , swapPieceHandler
   )
 import BoardGame.Util.TestUtil (mkInitialPlayPieces)
-import BoardGame.Server.Web.WebTestFixtures (
+import qualified BoardGame.Server.Web.WebTestFixtures as Fixtures (
       makePlayer
     , makeGame
     , thePlayer
-    , params
+    , gameParams
     , initTest
     , centerGridPiece
   )
@@ -47,20 +47,20 @@ spec = do
   describe "start a game" $
     it "starts game" $
       do
-        env <- initTest
-        makePlayer env thePlayer
-        gameDto <- makeGame env params [] [] []
+        env <- Fixtures.initTest
+        Fixtures.makePlayer env Fixtures.thePlayer
+        gameDto <- Fixtures.makeGame env Fixtures.gameParams [] [] []
         length (GameDto.trayPieces gameDto) `shouldSatisfy` (== 12)
 
   describe "commits a play" $
     it "commit a play" $
       do
-        env <- initTest
-        makePlayer env thePlayer
-        gridPiece <- centerGridPiece 'E'
+        env <- Fixtures.initTest
+        Fixtures.makePlayer env Fixtures.thePlayer
+        gridPiece <- Fixtures.centerGridPiece 'E'
         includeUserPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'T'] -- Allow the word 'BET'
         GameDto {gameId, height, width, trayCapacity, gridPieces, trayPieces}
-          <- makeGame env params [gridPiece] includeUserPieces []
+          <- Fixtures.makeGame env Fixtures.gameParams [gridPiece] includeUserPieces []
         let playPieces = mkInitialPlayPieces (head gridPieces) trayPieces
         replacements <- satisfiesRight
           =<< runExceptT (commitPlayHandler env gameId playPieces)
@@ -69,9 +69,9 @@ spec = do
   describe "make machine play" $
     it "make machine play" $
       do
-        env <- initTest
-        makePlayer env thePlayer
-        gameDto <- makeGame env params [] [] []
+        env <- Fixtures.initTest
+        Fixtures.makePlayer env Fixtures.thePlayer
+        gameDto <- Fixtures.makeGame env Fixtures.gameParams [] [] []
         wordPlayPieces <- satisfiesRight
           =<< runExceptT (machinePlayHandler env (GameDto.gameId gameDto))
         let word = Play.playToWord $ Play wordPlayPieces
@@ -79,9 +79,9 @@ spec = do
   describe "swap a piece" $
     it "swap a piece" $
       do
-        env <- initTest
-        makePlayer env thePlayer
-        (GameDto {gameId, trayPieces}) <- makeGame env params [] [] []
+        env <- Fixtures.initTest
+        Fixtures.makePlayer env Fixtures.thePlayer
+        (GameDto {gameId, trayPieces}) <- Fixtures.makeGame env Fixtures.gameParams [] [] []
         let piece = head trayPieces
         (Piece {value}) <- satisfiesRight
           =<< runExceptT (swapPieceHandler env gameId piece)

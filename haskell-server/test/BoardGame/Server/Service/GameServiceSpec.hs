@@ -47,26 +47,8 @@ import BoardGame.Server.Service.GameService (
   )
 -- TODO. Should not depend on higher level module.
 import BoardGame.Util.TestUtil (mkInitialPlayPieces)
--- import qualified Bolour.Util.StaticTextFileCache as FileCache
-import BoardGame.Server.Web.WebTestFixtures (
-      thePlayer
-    , params
-    , centerGridPiece
-  )
+import qualified BoardGame.Server.Service.ServiceTestFixtures as Fixtures
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
-
-initTest :: IO GameEnv -- TODO. Should be MonadIO m.
-initTest = do
-  -- TODO. Use getServerParameters and provide a config file for test.
-
-  let serverConfig = ServerConfig.defaultServerConfig
-      ServerConfig {maxActiveGames, dbConfig} = serverConfig
-  connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
-  cleanupDb connectionProvider
-  cache <- GameCache.mkGameCache maxActiveGames
-  -- dictionaryCache <- FileCache.mkCache 100 (toUpper <$>)
-  dictionaryCache <- DictCache.mkCache "" 100
-  return $ GameEnv serverConfig connectionProvider cache dictionaryCache
 
 printx :: String -> ExceptT GameError IO ()
 printx s = do
@@ -88,7 +70,7 @@ runner' env stack = do
 
 runner'' :: GameTransformerStack a -> IO a
 runner'' stack = do
-  env <- initTest
+  env <- Fixtures.initTest
   runner' env stack
 
 spec :: Spec
@@ -97,19 +79,19 @@ spec = do
     it "starts game" $
       do -- IO
         userTray <- runner'' $ do -- GameTransformerStack
-          addPlayerService $ Player thePlayer
-          Game {trays} <- startGameService params [] [] []
+          addPlayerService $ Player Fixtures.thePlayer
+          Game {trays} <- startGameService Fixtures.gameParams [] [] []
           return $ trays !! 0
         length (Tray.pieces userTray) `shouldSatisfy` (== 12)
 
   describe "commits a play" $
     it "commit a play" $
       do -- IO
-        gridPiece <- liftIO $ centerGridPiece 'E'
+        gridPiece <- liftIO $ Fixtures.centerGridPiece 'E'
         includeUserPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'T'] -- Allow the word 'BET'
         refills <- runner'' $ do -- GameTransformerStack
-          addPlayerService $ Player thePlayer
-          Game {gameId, board, trays} <- startGameService params [gridPiece] includeUserPieces []
+          addPlayerService $ Player Fixtures.thePlayer
+          Game {gameId, board, trays} <- startGameService Fixtures.gameParams [gridPiece] includeUserPieces []
           let trayPieces = Tray.pieces (trays !! 0)
               theOnlyGridPiece = head $ Board.getGridPieces board
               playPieces = mkInitialPlayPieces theOnlyGridPiece trayPieces
@@ -121,8 +103,8 @@ spec = do
     it "make machine play" $
       do -- IO
         word <- runner'' $ do
-          addPlayerService $ Player thePlayer
-          Game {gameId} <- startGameService params [] [] []
+          addPlayerService $ Player Fixtures.thePlayer
+          Game {gameId} <- startGameService Fixtures.gameParams [] [] []
           wordPlayPieces <- machinePlayService gameId
           let word = Play.playToWord $ Play wordPlayPieces
           return word
@@ -133,8 +115,8 @@ spec = do
     it "swap a piece" $
       do
         value <- runner'' $ do
-          addPlayerService $ Player thePlayer
-          Game {gameId, trays} <- startGameService params [] [] []
+          addPlayerService $ Player Fixtures.thePlayer
+          Game {gameId, trays} <- startGameService Fixtures.gameParams [] [] []
           let userTray = trays !! 0
               piece = head (Tray.pieces userTray)
           -- TODO satisfiesRight
@@ -145,13 +127,13 @@ spec = do
   describe "get play details for a game" $
     it "get play details for a game" $
       do
-        env <- initTest
-        gridPiece <- liftIO $ centerGridPiece 'E'
+        env <- Fixtures.initTest
+        gridPiece <- liftIO $ Fixtures.centerGridPiece 'E'
         includeUserPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'T'] -- Allow the word 'BET'
 
         eitherPlayInfoList <- runner env $ do
-          addPlayerService $ Player thePlayer
-          Game {gameId, board, trays} <- startGameService params [gridPiece] includeUserPieces []
+          addPlayerService $ Player Fixtures.thePlayer
+          Game {gameId, board, trays} <- startGameService Fixtures.gameParams [gridPiece] includeUserPieces []
 
           let trayPieces = Tray.pieces (trays !! 0)
               theOnlyGridPiece = head $ Board.getGridPieces board

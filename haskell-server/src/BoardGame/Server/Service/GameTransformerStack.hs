@@ -12,6 +12,8 @@ module BoardGame.Server.Service.GameTransformerStack (
   , liftGameExceptToStack
   , run
   , runDefault
+  , runUnprotected
+  , runDefaultUnprotected
   , logger
 ) where
 
@@ -63,6 +65,18 @@ run logger env stack =
 -- | Execute a game transformer stack with default logging.
 runDefault :: (NFData result) => GameEnv -> GameTransformerStack result -> ExceptGame result
 runDefault = run logger
+
+runUnprotected ::
+     (String -> ExceptGame ())        -- ^ The logging function to be used by the stack's logging monad.
+  -> GameEnv                          -- ^ The environment to be used by the stack's reader monad.
+  -> GameTransformerStack result      -- ^ The stack to execute.
+  -> ExceptGame result                -- ^ The result of execution upon resolution of the logger and reader.
+
+runUnprotected logger env stack =
+  flip runLoggingT logger $ runReaderT stack env
+
+runDefaultUnprotected :: GameEnv -> GameTransformerStack result -> ExceptGame result
+runDefaultUnprotected = runUnprotected logger
 
 -- Note: catchAnyDeep forces the evaluation of the result (a)
 -- making sure all exceptions surface.

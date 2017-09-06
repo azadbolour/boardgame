@@ -7,7 +7,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 
-module BoardGame.Server.Web.WebTestFixtures (
+module BoardGame.Server.Service.ServiceTestFixtures (
     module BoardGame.Server.Service.BaseServiceFixtures
   , makePlayer
   , makeGame
@@ -19,20 +19,25 @@ import BoardGame.Common.Domain.Player (Player(Player))
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.GameParams (GameParams)
-import BoardGame.Common.Message.GameDto (GameDto)
+import BoardGame.Server.Domain.Game (Game)
 import BoardGame.Server.Domain.GameEnv (GameEnv)
-import BoardGame.Server.Web.GameEndPoint (addPlayerHandler, startGameHandler)
+import qualified BoardGame.Server.Service.GameTransformerStack as TransformerStack
 import BoardGame.Server.Service.BaseServiceFixtures
+import qualified BoardGame.Server.Service.GameService as GameService
 
 makePlayer :: GameEnv -> String -> IO ()
 makePlayer env name = do
     let player = Player name
-    eitherUnit <- runExceptT $ addPlayerHandler env player
+    eitherUnit <- runExceptT $ TransformerStack.runDefaultUnprotected env $ GameService.addPlayerService player
     satisfiesRight eitherUnit
 
-makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO GameDto
-makeGame env gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith =
-  satisfiesRight
-    =<< runExceptT (startGameHandler env (gameParams, initialGridPieces, userTrayStartsWith, machineTrayStartsWith))
+makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO Game
+makeGame env gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith = do
+  eitherGame <- runExceptT $ TransformerStack.runDefaultUnprotected env $ GameService.startGameService
+    gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith
+  satisfiesRight eitherGame
+
+--   satisfiesRight
+--     =<< runExceptT (startGameHandler env (gameParams, initialGridPieces, userTrayStartsWith, machineTrayStartsWith))
 
 -- runExceptT $ TransformerStack.runDefault gameEnv GameService.prepareDb

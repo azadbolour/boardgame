@@ -66,11 +66,6 @@ import Database.Persist.Sql (
   , fromSqlKey
   , runSqlPool
   )
--- import Database.Persist.Postgresql (
---     -- runSqlPool
---     -- , entityVal
---    SqlPersistT
---   )
 
 import Database.Persist.TH
 import BoardGame.Server.Domain.Core(EntityId)

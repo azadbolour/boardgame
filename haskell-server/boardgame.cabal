@@ -206,6 +206,8 @@ test-suite spec
       BoardGame.Server.Domain.IndexedDictionarySpec
       BoardGame.Server.Domain.DictionaryCacheSpec
       BoardGame.Server.Domain.ServerParametersSpec
+      BoardGame.Server.Service.BaseServiceFixtures
+      BoardGame.Server.Service.ServiceTestFixtures
       BoardGame.Server.Service.GameServiceSpec
       BoardGame.Server.Service.NegativeGameServiceSpec
       BoardGame.Server.Web.GameEndPointSpec
