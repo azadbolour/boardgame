@@ -10,11 +10,13 @@
 
 module Main where
 
+import Data.Either (isLeft)
 import System.Environment (getArgs)
 import Data.String.Here.Interpolated (iTrim)
 import Control.Monad (forever)
 import Control.Concurrent (forkIO, threadDelay)
-import Control.Monad.Except (ExceptT(ExceptT))
+import Control.Monad (when)
+import Control.Monad.Except (ExceptT(ExceptT), runExceptT)
 import Network.Wai (Middleware)
 import qualified Network.Wai.Handler.Warp as Warp (run)
 import Network.Wai.Middleware.Cors
@@ -22,11 +24,13 @@ import Network.Wai.Middleware.Cors
 import qualified Bolour.Util.PersistRunner as PersistRunner
 import qualified Bolour.Util.HttpUtil as HttpUtil
 import qualified Bolour.Util.Middleware as MyMiddleware
+import Bolour.Util.MiscUtil (IOEither)
 
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig))
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
+import BoardGame.Server.Domain.GameError (GameError)
 import qualified BoardGame.Server.Web.GameEndPoint as GameEndPoint (mkGameApp)
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Service.GameTransformerStack as TransformerStack
@@ -47,9 +51,13 @@ maxDictionaries = 100
 
 main :: IO ()
 main = do
-    serverParameters <- getParameters
-    let ServerConfig {deployEnv, serverPort} = serverParameters
-    gameEnv <- mkGameEnv serverParameters
+    serverConfig <- getServerConfig
+    let ServerConfig {deployEnv, serverPort} = serverConfig
+    gameEnv <- mkGameEnv serverConfig
+    okEither <- prepareDb gameEnv
+    when (isLeft okEither) $ do
+      print $ show okEither
+      return ()
     gameApp <- GameEndPoint.mkGameApp gameEnv
     forkIO $ longRunningGamesHarvester gameEnv
     print [iTrim|running Warp server on port '${serverPort}' for env '${deployEnv}'|]
@@ -60,12 +68,18 @@ main = do
 -- Warp.run serverPort $ logger $ MyMiddleware.gameCorsMiddleware $ simpleCors gameApp
 -- TODO. simpleCors is a security risk. Fix.
 
-getParameters :: IO ServerConfig
-getParameters = do
+getServerConfig :: IO ServerConfig
+getServerConfig = do
     -- TODO. Use getOpt. from System.Console.GetOpt.
     args <- getArgs
     let maybeConfigPath = if null args then Nothing else Just $ head args
     ServerConfig.getServerConfig maybeConfigPath
+
+prepareDb :: GameEnv -> IOEither GameError ()
+prepareDb gameEnv = runExceptT $ TransformerStack.runDefault gameEnv GameService.prepareDb
+
+-- TransformerStack.runDefault env stack
+
 
 mkGameEnv :: ServerConfig -> IO GameEnv
 mkGameEnv serverConfig = do

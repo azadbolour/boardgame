@@ -25,5 +25,6 @@ main = do
     serverConfig <- ServerConfig.getServerConfig maybeConfigPath
     let ServerConfig {dbConfig} = serverConfig
     connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
-    PersistRunner.migrateDatabase connectionProvider GameDao.migration
+    GameDao.migrateDb connectionProvider
+    -- PersistRunner.migrateDatabase connectionProvider GameDao.migration
 

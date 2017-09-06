@@ -6,12 +6,17 @@
 --
 
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Bolour.Util.DbConfig (
     DbmsType(..)
   , DbConfig(..)
   , defaultDbConfig
   , defaultPostgresDbConfig
+  , isInMemoryType
+  , isInMemory
   ) where
 
 import Data.Aeson (FromJSON, ToJSON)
@@ -52,9 +57,13 @@ defaultPostgresDbConfig = DbConfig
   defaultPostgresDbUser
   defaultPostgresDbPassword
 
-
-
 -- TODO. Default db name, user, and password should be independent of database.
 
+isInMemoryType :: DbmsType -> Bool
+isInMemoryType dbmsType =
+  case dbmsType of
+  SqliteMemory -> True
+  Postgres -> False
 
-
+isInMemory :: DbConfig -> Bool
+isInMemory DbConfig {dbmsType} = isInMemoryType dbmsType

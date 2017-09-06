@@ -37,7 +37,7 @@ module BoardGame.Server.Service.GameDao (
   , addPlay
   , getGamePlays
   , cleanupDb
-  , migration
+  , migrateDb
 ) where
 
 import Control.Monad.Reader (asks)
@@ -112,8 +112,8 @@ PlayRow sql=play
 
 migration = migrateAll -- Generated.
 
--- migrator :: SqlPersistT IO ()
--- migrator = runMigration migrateAll
+migrateDb :: ConnectionProvider -> IO ()
+migrateDb provider = PersistRunner.migrateDatabase provider migration
 
 cleanupDb :: ConnectionProvider -> IO ()
 cleanupDb provider = do

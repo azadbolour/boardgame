@@ -12,11 +12,3 @@ else
   stack exec boardgame-database-migrator 
 fi
 
-#
-# TODO. Insertion/update of initial data should be part of the migration
-# procedure, and use the correct user etc.
-#
-psql -U postgres -h 127.0.0.1 <<EOF
-insert into player (name) values ('You');
-EOF
-

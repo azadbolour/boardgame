@@ -24,6 +24,8 @@ module BoardGame.Server.Service.GameService (
   , endGameService
   , getGamePlayDetailsService
   , timeoutLongRunningGames
+  , prepareDb
+  , unknownPlayerName
   )
   where
 
@@ -34,6 +36,7 @@ import Data.Time (getCurrentTime)
 -- import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as BS
 
+import Control.Monad (when)
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..), withExceptT)
 import Control.Monad.Reader (MonadReader(..), asks, ask)
@@ -96,7 +99,16 @@ import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import qualified BoardGame.Server.Domain.RandomPieceGenerator as RandomPieceGenerator
 import BoardGame.Util.WordUtil (DictWord)
--- import Bolour.Util.PersistRunner
+import qualified Bolour.Util.DbConfig as DbConfig
+
+unknownPlayerName = "You"
+
+prepareDb :: GameTransformerStack ()
+prepareDb = do
+  ServerConfig {dbConfig} <- asks GameEnv.serverConfig
+  connectionProvider <- asks GameEnv.connectionProvider
+  liftIO $ GameDao.migrateDb connectionProvider
+  when (DbConfig.isInMemory dbConfig) $ addPlayerService $ Player unknownPlayerName
 
 timeoutLongRunningGames :: GameTransformerStack ()
 timeoutLongRunningGames = do

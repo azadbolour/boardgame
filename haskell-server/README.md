@@ -76,6 +76,8 @@ nature of the error, the json needs to be analyzed by clients.
   If all went well a few tables will have been created in the database, 
   and the _player_ table will include a single user.
 
+* Add initial base data: `./add-base-data.sh`.
+
 * Run the tests: `stack test`.
 
 * `./gendocs.sh` uses stack to generate documentation in the project site

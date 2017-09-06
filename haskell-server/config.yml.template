@@ -16,9 +16,9 @@ dbConfig:
   # The database server port.
   dbPort: 5432
   # The database user.
-  dbUser: postgrestest
+  dbUser: postgres
   # The database password. TODO. Security for db password.
-  dbPassword: postgrestest
+  dbPassword: postgres
 
 # Maximum number of active game.
 maxActiveGames: 100
