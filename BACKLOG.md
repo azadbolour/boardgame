@@ -5,6 +5,12 @@
 
 ### Prepare Release
 
+- Test with in-memory sqlite. Will need to do migration in main.
+  In-memory sqlite does not yet work. Since stored data is not currently
+  being used afte a game has ended, for simplicity of initial release
+  administration, we'll just use in-memory sqlite, finessing the need
+  to administer a postgres server.
+
 - Convert to gradle. util and benchmark converted. java-client,
   and boardgame-benchmark should be easy: gradle init.
 
