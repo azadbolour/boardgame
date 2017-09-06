@@ -152,7 +152,14 @@
 
 - migrate-database.sh needs to use the correct database parameters
   to insert or update data. For now it assumes postgres on current machine 
-  and no password.
+  and no password. Insertion of initial data should be done in the program.
+  
+- Not sure to what extent Persistent migration can be trusted to do the right
+  thing. Hence not migrating at every startup of the server. But we should
+  either via Persistent migration or separate scripts or both.
+
+- For in-memory sqlite database, we need to migrate and add initial data
+  in main.
 
 - Allow access to SQLite database to make it easier to host the application
   on hosting services. No database installation necessary.
