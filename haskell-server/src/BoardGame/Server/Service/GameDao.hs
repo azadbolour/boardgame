@@ -146,7 +146,7 @@ addPlayer :: (MonadError GameError m, MonadIO m) =>
      ConnectionProvider
   -> PlayerRow
   -> m EntityId
-addPlayer provider player = do
+addPlayer provider player =
   liftIO $ PersistRunner.runQuery provider (addPlayerReader player)
 
 addPlayerReader :: PlayerRow -> SqlPersistM EntityId
@@ -156,8 +156,7 @@ addGame :: (MonadError GameError m, MonadIO m) =>
      ConnectionProvider
   -> GameRow
   -> m EntityId
-addGame provider game = do
-  -- cfg <- asks GameEnv.config
+addGame provider game =
   liftIO $ PersistRunner.runQuery provider (addGameReader game)
 
 addGameReader :: GameRow -> SqlPersistM EntityId
@@ -177,8 +176,7 @@ findPlayerRowIdByName :: (MonadError GameError m, MonadIO m) =>
      ConnectionProvider
   -> String
   -> m (Maybe PlayerRowId)
-findPlayerRowIdByName provider playerName = do
-  -- cfg <- asks GameEnv.config
+findPlayerRowIdByName provider playerName =
   liftIO $ PersistRunner.runQuery provider (findPlayerRowIdByNameReader playerName)
 
 findPlayerRowIdByNameReader :: String -> SqlPersistM (Maybe PlayerRowId)
@@ -189,14 +187,13 @@ findPlayerRowIdByNameReader playerName = do
       return player
   case selectedEntityList of
     [] -> return Nothing
-    Entity k _ : _ -> return $ Just $ k
+    Entity k _ : _ -> return $ Just k
 
 addPlay :: (MonadError GameError m, MonadIO m) =>
      ConnectionProvider
   -> PlayRow
   -> m EntityId
-addPlay provider play = do
-  -- cfg <- asks GameEnv.config
+addPlay provider play =
   liftIO $ PersistRunner.runQuery provider (addPlayReader play)
 
 addPlayReader :: PlayRow -> SqlPersistM EntityId
@@ -216,8 +213,7 @@ findGameRowIdById :: (MonadError GameError m, MonadIO m) =>
      ConnectionProvider
   -> String
   -> m (Maybe GameRowId)
-findGameRowIdById provider gameUid = do
-  -- cfg <- asks GameEnv.config
+findGameRowIdById provider gameUid =
   liftIO $ PersistRunner.runQuery provider (findGameRowIdByIdReader gameUid)
 
 findGameRowIdByIdReader :: String -> SqlPersistM (Maybe GameRowId)
@@ -228,7 +224,7 @@ findGameRowIdByIdReader gameUid = do
       return game
   case selectedEntityList of
     [] -> return Nothing
-    Entity k _ : _ -> return $ Just $ k
+    Entity k _ : _ -> return $ Just k
 
 getGamePlays :: (MonadError GameError m, MonadIO m) =>
      ConnectionProvider
@@ -238,8 +234,7 @@ getGamePlays provider gameUid = do
   maybeGameRowId <- findGameRowIdById provider gameUid
   case maybeGameRowId of
     Nothing -> throwError $ MissingGameError gameUid
-    Just gameRowId -> do
-      -- cfg <- asks GameEnv.config
+    Just gameRowId ->
       liftIO $ PersistRunner.runQuery provider (getGamePlaysReader gameRowId)
 
 getGamePlaysReader :: GameRowId -> SqlPersistM [PlayRow]
