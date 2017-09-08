@@ -2,7 +2,7 @@
 
 confPath=$1
 
-if [ -z "$configPath" ]; then
+if [ -z "$confPath" ]; then
   confPath="./config.yml"
 fi
 

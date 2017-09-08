@@ -71,12 +71,20 @@ nature of the error, the json needs to be analyzed by clients.
 
 * Initialize the database with the needed tables: `./migrate-postgres.sh`.
 
-  It gets its configuraiton from the _config.yml_ file you created.
+  It gets its configuration from the _config.yml_ file you created.
 
   If all went well a few tables will have been created in the database, 
   and the _player_ table will include a single user.
 
-* Add initial base data: `./add-base-data.sh`.
+* Provide initial seed data data: `./populate-seed-data.sh`.
+
+* Set up the configuration for tests:
+
+    `cp config.yml.template test-data/test-config.yml`
+    
+  Note that there are sample configuration files for both postgres
+  and sqlite in the test-data directory. So you could run through these
+  getting started steps by using sqlite as well.
 
 * Run the tests: `stack test`.
 
@@ -87,7 +95,7 @@ nature of the error, the json needs to be analyzed by clients.
 
 * `./run.sh` - to start the server. 
 
-  It gets its configuraiton from the _config.yml_ file you created.
+  It gets its configuration from the _config.yml_ file you created.
 
 ### Running Specific Test Suites
 
@@ -115,7 +123,7 @@ database structures change).
 Tests are supposed to clear out and recreate the part of the database they need.
 In case you need to explicitly clean out all data, use:
 
-`./clear-db.sh`
+`./clear-postgres-db.sh`
 
 ### Profiling
 
@@ -129,7 +137,7 @@ Then run the application in profile statistics gathering mode:
 
 ### Configuration Parameters of the Game Server
 
-As of vesion 0.1 the game server is configured through a YAML configuration
+As of version 0.2 the game server is configured through a YAML configuration
 file. For now, the server does not support configuration through environment
 variables. But should the need arise, environment variables overriding the 
 configuration file may be easily be added. See Data.Yaml.Config for details.
@@ -167,6 +175,10 @@ The following configuration parameters are recognized:
   given time. Default 100 for version 0.1. Additional games cannot be started
   once this limit is reached, that is, until some existing games end or
   are timed out.
+  
+- `DbConfig` The configuration of the database. See the config.yml file for details.
+  Sample config files for postgres and sqlite are also provided under
+  the test-data directory. 
 
 
 

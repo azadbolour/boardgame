@@ -10,15 +10,17 @@ serverPort: 6587
 
 dbConfig:
   # Type of database system.
-  dbmsType: SqliteMemory
+  dbmsType: Sqlite
   # The database server host.
-  dbHost: 
+  dbHost: ''
   # The database server port.
-  dbPort: 5432
+  dbPort: 0
+  # The database name.
+  dbName: 'database/game-sqlite.db'
   # The database user.
-  dbUser: 
+  dbUser: ''
   # The database password. TODO. Security for db password.
-  dbPassword: 
+  dbPassword: ''
 
 # Maximum number of active game.
 maxActiveGames: 100

@@ -33,7 +33,8 @@ import Database.Persist.Sql (
   )
 
 import Database.Persist.Sqlite (
-    runSqlite
+      runSqlite
+    , createSqlitePool
   )
 
 import Database.Persist.Postgresql (
@@ -44,16 +45,17 @@ import Database.Persist.Postgresql (
 import Bolour.Util.DbConfig (DbConfig, DbConfig(DbConfig), DbmsType)
 import qualified Bolour.Util.DbConfig as DbConfig
 
-sqliteMemoryText = Text.pack ":memory"
+-- | Using a generic type name to be able to extend this type if necessary for other databases
+--   or database access packages.
+type ConnectionProvider = ConnectionPool
 
--- | Using a generic type name to be able to extend this type if necessary for other databases.
-type ConnectionProvider = Maybe ConnectionPool
+poolCapacity = 20
 
 mkConnectionProvider :: DbConfig -> IO ConnectionProvider
 mkConnectionProvider dbConfig @ DbConfig {dbmsType} =
   case dbmsType of
-  DbConfig.SqliteMemory -> return Nothing
-  DbConfig.Postgres -> Just <$> mkPostgresPool dbConfig
+  DbConfig.Sqlite -> mkSqlitePool dbConfig
+  DbConfig.Postgres -> mkPostgresPool dbConfig
 
 -- | Run a database query. TODO. Extent runQuery to include other databases.
 --   Rather than Maybe ConnectionPool may have to pass other information.
@@ -61,18 +63,15 @@ runQuery ::
   ConnectionProvider
   -> SqlPersistM result  -- ^ The query.
   -> IO result           -- ^ The query as a reader of a sql backend.
-runQuery maybePool backendReader =
-  case maybePool of
-  Nothing -> runSqlite sqliteMemoryText backendReader
-  Just pool -> runSqlPersistMPool backendReader pool
+runQuery pool backendReader = runSqlPersistMPool backendReader pool
 
 migrateDatabase :: ConnectionProvider -> Migration -> IO ()
-migrateDatabase provider migration =
-  case provider of
-  Nothing -> runSqlite sqliteMemoryText $ do
-    runMigration migration
-    return ()
-  Just pool -> runSqlPool (runMigration migration) pool
+migrateDatabase pool migration = runSqlPool (runMigration migration) pool
+
+mkSqlitePool :: DbConfig -> IO ConnectionPool
+mkSqlitePool dbConfig @ DbConfig {dbName} = do
+  let capacity = poolCapacity
+  runStdoutLoggingT $ createSqlitePool (Text.pack dbName) capacity
 
 mkPostgresPool :: DbConfig -> IO ConnectionPool
 mkPostgresPool dbConfig = do

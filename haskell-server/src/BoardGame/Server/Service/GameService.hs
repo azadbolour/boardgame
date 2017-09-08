@@ -26,6 +26,7 @@ module BoardGame.Server.Service.GameService (
   , timeoutLongRunningGames
   , prepareDb
   , unknownPlayerName
+  , unknownPlayer
   )
   where
 
@@ -102,13 +103,15 @@ import BoardGame.Util.WordUtil (DictWord)
 import qualified Bolour.Util.DbConfig as DbConfig
 
 unknownPlayerName = "You"
+unknownPlayer = Player unknownPlayerName
 
 prepareDb :: GameTransformerStack ()
 prepareDb = do
   ServerConfig {dbConfig} <- asks GameEnv.serverConfig
   connectionProvider <- asks GameEnv.connectionProvider
   liftIO $ GameDao.migrateDb connectionProvider
-  when (DbConfig.isInMemory dbConfig) $ addPlayerService $ Player unknownPlayerName
+  -- use this when you get in-memory sqlite working
+  -- when (DbConfig.isInMemory dbConfig) $ addPlayerService $ Player unknownPlayerName
 
 timeoutLongRunningGames :: GameTransformerStack ()
 timeoutLongRunningGames = do

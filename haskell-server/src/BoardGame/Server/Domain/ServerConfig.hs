@@ -12,6 +12,7 @@ module BoardGame.Server.Domain.ServerConfig (
   , defaultServerConfig
   , readServerConfig
   , getServerConfig
+  , maxDictionaries
   ) where
 
 import Data.Aeson (FromJSON, ToJSON, toJSON)
@@ -28,6 +29,10 @@ data DeployEnv = Dev | Test | Prod
 
 instance FromJSON DeployEnv
 instance ToJSON DeployEnv
+
+-- | Maximum number of language dictionaries (different language codes that can be used).
+maxDictionaries :: Int
+maxDictionaries = 100
 
 -- | Configuration parameters of the application.
 data ServerConfig = ServerConfig {

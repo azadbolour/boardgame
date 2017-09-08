@@ -104,6 +104,15 @@ executable boardgame-database-migrator
     , boardgame
   default-language: Haskell2010
 
+executable boardgame-seed-data-populator
+  main-is: app/SeedDataPopulator.hs
+  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+  build-depends:
+      base
+    , transformers
+    , boardgame
+  default-language: Haskell2010
+
 executable boardgame-server
   main-is: app/Main.hs
   ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
@@ -133,6 +142,24 @@ executable trial
     , bytestring
     , boardgame
     , containers
+  default-language: Haskell2010
+
+executable sqlite-memory-trial
+  main-is: trial/SqliteTrial.hs
+  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+  build-depends:
+      base
+    , wai
+    , aeson
+    , here
+    , http-types
+    , bytestring
+    , boardgame
+    , containers
+    , persistent
+    , persistent-template
+    , persistent-sqlite
+    , transformers
   default-language: Haskell2010
 
 executable async-sample

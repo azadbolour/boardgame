@@ -10,6 +10,7 @@
 
 module Main where
 
+import System.Exit (die)
 import Data.Either (isLeft)
 import System.Environment (getArgs)
 import Data.String.Here.Interpolated (iTrim)
@@ -29,6 +30,7 @@ import Bolour.Util.MiscUtil (IOEither)
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig))
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
+import qualified BoardGame.Server.Domain.GameEnv as GameEnv
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 import BoardGame.Server.Domain.GameError (GameError)
 import qualified BoardGame.Server.Web.GameEndPoint as GameEndPoint (mkGameApp)
@@ -46,20 +48,19 @@ harvestInterval = 1000000 * 60 * 5 -- micros - reduce for testing
 -- terms 'deployment environment' for the former and 'game environment'
 -- (GameEnv) for the latter.
 
--- | Maximum number of language dictionaries (different language codes that can be used).
-maxDictionaries = 100
 
 main :: IO ()
 main = do
     serverConfig <- getServerConfig
     let ServerConfig {deployEnv, serverPort} = serverConfig
-    gameEnv <- mkGameEnv serverConfig
+    gameEnv <- GameEnv.mkGameEnv serverConfig
     okEither <- prepareDb gameEnv
     when (isLeft okEither) $ do
       print $ show okEither
-      return ()
+      die "database initialization failure"
     gameApp <- GameEndPoint.mkGameApp gameEnv
     forkIO $ longRunningGamesHarvester gameEnv
+    print [iTrim|game server configuration ${serverConfig}|]
     print [iTrim|running Warp server on port '${serverPort}' for env '${deployEnv}'|]
     let logger = MyMiddleware.mkMiddlewareLogger deployEnv
     Warp.run serverPort $ logger $ myOptionsHandler $ simpleCors gameApp
@@ -73,21 +74,13 @@ getServerConfig = do
     -- TODO. Use getOpt. from System.Console.GetOpt.
     args <- getArgs
     let maybeConfigPath = if null args then Nothing else Just $ head args
+    print $ show maybeConfigPath
     ServerConfig.getServerConfig maybeConfigPath
 
 prepareDb :: GameEnv -> IOEither GameError ()
 prepareDb gameEnv = runExceptT $ TransformerStack.runDefault gameEnv GameService.prepareDb
 
 -- TransformerStack.runDefault env stack
-
-
-mkGameEnv :: ServerConfig -> IO GameEnv
-mkGameEnv serverConfig = do
-    let ServerConfig {maxActiveGames, dictionaryDir, dbConfig} = serverConfig
-    connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
-    gameCache <- GameCache.mkGameCache maxActiveGames
-    dictionaryCache <- DictCache.mkCache dictionaryDir maxDictionaries
-    return $ GameEnv serverConfig connectionProvider gameCache dictionaryCache
 
 -- | Interceptor for HTTP OPTIONS methods.
 myOptionsHandler :: Middleware

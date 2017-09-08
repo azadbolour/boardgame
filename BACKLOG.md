@@ -80,6 +80,11 @@
 
 ## Technical Debt
 
+- The system is easier to set up without the need for a separate database
+  server. Since the program will work with Sqlite as well as postgres, we should
+  change the initial getting started instructions to use Sqlite. Need to have
+  sqlite3 client installed.
+
 - For all Haskell data structures decide what fields are public and only export those.
 
 - Code duplication for caching in GameCache. Should just use Cache for Game. See TODO
