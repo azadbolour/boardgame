@@ -1,0 +1,96 @@
+
+#
+# Base of boardgame development as of version 0.2.
+#
+
+#
+# Begin with ubuntu version 14.04.
+#
+FROM ubuntu:trusty
+RUN whoami
+RUN apt-get update
+
+#
+# Get basic untilities.
+#
+RUN apt-get install -y apt-utils wget curl
+
+#
+# Install git.
+#
+RUN apt-get install -y git && which git
+
+#
+# Set up the base environment.
+#
+ENV WORKSPACE /home/me/dev/boardgame
+RUN mkdir -p $WORKSPACE
+WORKDIR $WORKSPACE
+RUN echo `pwd`
+ENV PATH $PATH:.
+RUN echo $PATH
+
+#
+# Install postgres.
+#
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt trusty-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+RUN apt-get update
+RUN apt-get install -y postgresql-9.6 postgresql-client-9.6 postgresql-contrib-9.6 libpq-dev postgresql-server-dev-9.6 pgadmin3
+
+#
+# Make sure the client-side postgres library needed by Haskell Persistent was installed.
+#
+RUN dpkg -L libpq-dev
+
+#
+# Install node js version 7.
+#
+RUN apt-get update
+RUN curl -sL https://raw.githubusercontent.com/nodesource/distributions/master/deb/setup_7.x | bash -
+RUN apt-get update
+RUN apt-get install -y apt-utils
+RUN apt-get install -y nodejs
+
+#
+# Install the Haskell tool stack.
+#
+RUN curl -sSL https://get.haskellstack.org/ | sh
+
+#
+# Clone the repository. TODO. Should get a specific tag!
+RUN cd .. && git clone https://github.com/azadbolour/boardgame
+
+#
+# Install the web-ui dependencies.
+#
+RUN cd web-ui && npm install -g eslint && npm install -g jsdoc
+RUN cd web-ui && npm install
+
+#
+# Bundle up the javascript.
+#
+RUN cd web-ui && ./build-prod.sh
+
+#
+# Build the Haskell server.
+#
+RUN cd haskell-server && stack setup && stack build
+
+
+# TODO. Remove this when it all works.
+RUN git pull origin master
+
+#
+# Run the test suite using the sqlite database.
+# Tests migrate the database and recreate the data they need.
+#
+RUN cd haskell-server/test-data && cp sqlite-config.yml test-config.yml
+RUN cd haskell-server && stack test
+
+#
+# Copy the web-ui bundle to the Haskell server's static files directory.
+#
+RUN cd haskell-server && ./update-ui-bundle.sh
+
+# CMD cd haskell-server && ./run.sh
