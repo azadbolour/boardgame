@@ -36,4 +36,15 @@ RUN cd web-ui && ./build-prod.sh
 
 RUN curl -sSL https://get.haskellstack.org/ | sh
 
+RUN git pull origin master
 RUN cd haskell-server && stack setup && stack build
+RUN cd haskell-server/test-data && cp sqlite-config.yml test-config.yml
+RUN cd haskell-server && stack test
+
+ENV PATH $PATH:.
+# TODO define WORKDIR in terms of workspace
+ENV WORKSPACE /home/workspace/boardgame
+RUN cd haskell-server && ./update-ui-bundle.sh
+# TODO. Do setup independently just once above.
+
+# CMD cd haskell-server && ./run.sh
