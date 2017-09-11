@@ -59,11 +59,14 @@ import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 
 -- TODO. How to access the values returned by beforeAll within the test.
 
+testConfigPath = "test-data/test-config.yml"
+
 getGameEnv :: IO GameEnv
 getGameEnv = do
-  -- TODO. Use getServerParameters and provide a config file for test.
-  let serverConfig = ServerConfig.defaultServerConfig
-      ServerConfig {maxActiveGames, dbConfig} = serverConfig
+  serverConfig <- ServerConfig.getServerConfig $ Just testConfigPath
+  let ServerConfig {maxActiveGames, dbConfig} = serverConfig
+  -- let serverConfig = ServerConfig.defaultServerConfig
+      -- ServerConfig {maxActiveGames, dbConfig} = serverConfig
   connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
   GameDao.cleanupDb connectionProvider
   cache <- GameCache.mkGameCache maxActiveGames

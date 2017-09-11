@@ -38,8 +38,7 @@ nature of the error, the json needs to be analyzed by clients.
 * Note that you do not need to separately install _cabal_ (the base Haskell 
   build manager). It is best to just let stack handle cabal under the covers.
 
-* Install the postgres RDBMS. (Currently the application is only supported on
-  postgres.) 
+* Install the postgres RDBMS. 
   
   On Ubuntu 14.04:
 
