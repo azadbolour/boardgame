@@ -68,6 +68,7 @@ getGameEnv = do
   -- let serverConfig = ServerConfig.defaultServerConfig
       -- ServerConfig {maxActiveGames, dbConfig} = serverConfig
   connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
+  GameDao.migrateDb connectionProvider
   GameDao.cleanupDb connectionProvider
   cache <- GameCache.mkGameCache maxActiveGames
   dictionaryCache <- DictCache.mkCache "" 100
