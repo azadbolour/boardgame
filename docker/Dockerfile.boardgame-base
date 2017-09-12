@@ -1,6 +1,6 @@
 
 #
-# Base of boardgame development as of version 0.2.
+# Base of boardgame development.
 #
 
 #
@@ -93,4 +93,3 @@ RUN cd haskell-server && stack test
 #
 RUN cd haskell-server && ./update-ui-bundle.sh
 
-# CMD cd haskell-server && ./run.sh

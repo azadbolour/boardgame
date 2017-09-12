@@ -1,0 +1,58 @@
+
+#
+# Runs the boardgame executable - built from the latest source.
+#
+
+#
+# Begin with latest base.
+#
+FROM azadbolour/boardgame-base
+
+#
+# Set up the base environment.
+#
+ENV WORKSPACE /home/me/dev/boardgame
+WORKDIR $WORKSPACE
+RUN echo `pwd` && ls
+ENV PATH $PATH:.
+RUN echo $PATH
+
+# 
+# Get the lastest source.
+#
+RUN git pull origin master
+
+#
+# Update web-ui node js dependencies.
+#
+RUN cd web-ui && npm install
+
+#
+# Bundle up the javascript.
+#
+RUN cd web-ui && ./build-prod.sh
+
+#
+# Build the Haskell server.
+#
+RUN cd haskell-server && stack build
+
+#
+# Run the test suite using the sqlite database.
+# Tests migrate the database and recreate the data they need.
+#
+RUN cd haskell-server/test-data && cp sqlite-config.yml test-config.yml
+RUN cd haskell-server && stack test
+
+#
+# Copy the web-ui bundle to the Haskell server's static files directory.
+#
+RUN cd haskell-server && ./update-ui-bundle.sh
+
+#
+# Expose the http port.
+# TODO. port is hard-coded - need to give it as an argument.
+#
+EXPOSE 6587
+
+ENTRYPOINT ["/home/me/dev/boardgame/haskell-server/cd-run.sh", "/home/me/dev/boardgame/haskell-server", "test-data/sqlite-config.yml"]
