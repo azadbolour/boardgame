@@ -14,4 +14,4 @@ fi
 
 dockerfile=Dockerfile.boardgame
 
-docker build --force-rm=true -f ${dockerfile} -t azadbolour/boardgame:${tag} 
+docker build --no-cache --force-rm=true -f ${dockerfile} -t azadbolour/boardgame:${tag} .

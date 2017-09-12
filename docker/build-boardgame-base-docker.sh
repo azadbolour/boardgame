@@ -15,4 +15,4 @@ fi
 
 dockerfile=Dockerfile.boardgame-base
 
-docker build --force-rm=true -f ${dockerfile} -t azadbolour/boardgame-base:${tag} 
+docker build --force-rm=true -f ${dockerfile} -t azadbolour/boardgame-base:${tag} .
