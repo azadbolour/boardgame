@@ -4,9 +4,17 @@
 #
 
 #
-# Begin with latest base.
+# Command line arguments.
 #
-FROM azadbolour/boardgame-base-v0.2
+
+# The docker tag.
+ARG tag=0.2
+#
+
+#
+# Base it on the same-tagged base.
+#
+FROM azadbolour/boardgame-base:${tag}
 
 #
 # Set up the base environment.
@@ -50,9 +58,8 @@ RUN cd haskell-server && stack test
 RUN cd haskell-server && ./update-ui-bundle.sh
 
 #
-# Expose the http port.
-# TODO. port is hard-coded - need to give it as an argument.
+# Expose the http port. Do it in the run command.
 #
-EXPOSE 6587
+# EXPOSE ${serverPort}
 
 ENTRYPOINT ["/home/me/dev/boardgame/haskell-server/cd-run.sh", "/home/me/dev/boardgame/haskell-server", "test-data/sqlite-config.yml"]

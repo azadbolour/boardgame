@@ -58,7 +58,8 @@ RUN apt-get install -y nodejs
 RUN curl -sSL https://get.haskellstack.org/ | sh
 
 #
-# Clone the repository. TODO. Should get a specific tag!
+# Clone the repository.
+#
 RUN cd .. && git clone https://github.com/azadbolour/boardgame
 
 #
@@ -77,10 +78,6 @@ RUN cd web-ui && ./build-prod.sh
 #
 RUN cd haskell-server && stack setup && stack build
 
-
-# TODO. Remove this when it all works.
-RUN git pull origin master
-
 #
 # Run the test suite using the sqlite database.
 # Tests migrate the database and recreate the data they need.
@@ -92,4 +89,13 @@ RUN cd haskell-server && stack test
 # Copy the web-ui bundle to the Haskell server's static files directory.
 #
 RUN cd haskell-server && ./update-ui-bundle.sh
+
+#
+# Install the American English dictionary (/usr/share/dict/words),
+# and link it to the application.
+#
+RUN apt-get install wamerican
+RUN mkdir haskell-server/dict
+RUN cd haskell-server/dict && ln -s /usr/share/dict/words en-words.txt
+
 
