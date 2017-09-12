@@ -1,23 +1,30 @@
 
-The base directory has a Dockerfile for creating a base image that contains
-the build, test, and run dependencies of the haskell server and the web ui
-as of a particular version. It takes a long time to create that. To build a
-new version from scratch make sure you use the "--no-cache=true" option so 
-that it will be rebuilt.
 
-The current base is named: 
+Two docker images are used for board game:
 
-        `azadbolour/boardgame-base-v0.2`
+- boardgame-base - includes all the dependencies of the system up to a
+  given tag. Because the haskell dependencies must be downloaded and compiled,
+  creating this image take a long time - 20 minutes on current crop of 
+  machines. This image does not have an explicit entry point.
 
-What takes a lot of time in building that image is that the Haskell stack
-has to downlaod sourfe and build all the dependencies of the haskell server.
+- boardgame - is based on boardgame-base but builds the system with the 
+  latest sources. It takes very little time to build because most of 
+  the dependencies are likely to exist in the base image. This image's
+  entry point starts the baordgame web application.
 
-To build from newer versions of the source code, use the docker file in the "latest"
-directory. That starts from the above base, gets the latest source and builds it.
-Because most of the haskell dependencies have already been built by stack, building
-the latest should be quick.
+The following files are are used in building and using the boardgame
+images:
 
-However, we need to make sure that the base is not rebuilt (obtained from the cache)
-but the the rest of the commands do not use the cache. I am not sure what is the 
-best way of doing that. Probably to pull a specific SHA, so that the command to pull
-will be different each time. Need to do this.
+- Dockerfile.boardgame-base - The docker file for building the base image.
+
+- build-boardgame-base-docker.sh - Builds the base image - needs a tag as 
+  parameter.
+
+- Dockerfile.boardgame - The docker file for building the latest board game.
+
+- build-boardgame-docker.sh - Builds the latest board game - needs a tag.
+  The tag should be the same as that of an already-built base.
+
+- run-docker-game.sh - Runs a docker container based on the boardgame image.
+
+
