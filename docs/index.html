@@ -28,8 +28,43 @@ Currently in version 0.2 alpha trial.
 <p>
 <a href="http://oceanpark.com:6587/boardgame">Check it out!</a>
 
+Drag and drop letters to form a word connected to an existing tile
+on the board and click <em>Commit Play</em> to play that word.
+
 <p>
 Hosting: thanks to oceanpark.com.
+
+<h2>Rules</h2>
+
+The board game is not intended to closely mimic scrabble. The rules are 
+simpler, and may evolve over time, but not necessarily in the 
+direction of scrabble. Here are a few differences.
+
+<ul>
+
+<li>
+Scoring is simplified: the score for a play is the total length of 
+the word constructed in the principle direction of the play 
+(horizonatl or vertical). 
+
+<li>
+Tiles are selected randomly <em>with replacement</em> 
+(unlike scrabble in which tiles are selected randomly <em>without
+replacement</em>). The probability distribution of tiles is not 
+necessarily that of scrabble.
+
+<li>
+Cross words are not checked - only the word in the principle direction. 
+This is a known issue.
+
+<li>
+A game needs to be explicitly ended by the user.
+
+<li>
+There is a time limit (set to 30 minutes) for games.
+Games taking longer are considered abandoned and are harvested.
+
+</ul>
 
 <div style="color: #009FFF; font-size: 20px">
 Bolour Computing.  
