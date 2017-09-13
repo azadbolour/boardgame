@@ -12,7 +12,7 @@ The board game is similar but not identical to scrabble. The detailed rules are
 different from scrabble and are subject to change over time as this application
 evolves and responds to enhancement requests. 
 
-See the project web site for the details.
+See the [project web site](http://www.bolour.com/boardgame/index.html) for details.
 
 ## Scope
 
@@ -24,10 +24,9 @@ Like Haskell, React and React DND were also new to me at the time.
 My aim in this project is to demonstrate a production-quality application in
 Haskell. But as a single developer, I can only support the application in a few
 client and server configurations. The first implementation is being developed on
-the MAC OS/X 10.9+, deployed on an Ubuntu Amazon AWS instance, and accessed
-through Chrome version 60+ on the MAC. It has been tested with 30 concurrent
-games. My goal (to be prioritized with everything else) is eventually to
-demonstrate scalability for thousands of concurrent games. 
+the MAC OS/X 10.9+, deployed on Linux Amazon EC2 instance, and accessed
+through Chrome version 60+ on the MAC. It has been tested with 50 concurrent
+games. 
 
 ## Sub-Projects
 
