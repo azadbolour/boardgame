@@ -55,21 +55,22 @@ demonstrate scalability for thousands of concurrent games.
 
 ## Getting Started in Development
 
-Initial steps:
+The steps needed to set up the development and deployment environments for the 
+application are scripted in the Dockerfiles used for deployment in the _docker_
+directory. 
 
-* clone the repository
+To get started with the development othe haskell-server and the web-ui, 
+follow the same steps listed in the Dockerfiles on your development machine.
+You may start by consulting the README.md file in the docker directory, and then 
+reviewing the Dockerfiles there.
+
+For Java development (java-client and benchmark sub-projects) you'll also 
+need to set up your Java environment. After cloning teh repository:
+
 * `cp branch.sh.template branch.sh` - this is the environment-setting script for
   development
 * edit _branch.sh_ as appropriate for your minimal environment
 * set your environment: `. branch.sh`
-
-The Haskell server implements a game API, and fields API calls from clients
-through an HTTP end point. 
-
-The client and server each have their own project directories, respectively,
-_web-ui_, and _haskell-server_. Follow the getting started section of 
-_web-ui/README.md_ file and then go though the corresponding section of 
-_haskell-server/README.md_ file.
 
 ## Working with the Client API Library
 
@@ -121,8 +122,6 @@ project.
 
 http://www.bolour.com/boardgame/index.html
 
-Currently under construction.
-
 ## General Conventions
 
 - For trivial code cleanup and unimportant changes with minimal impact to users,
@@ -131,13 +130,15 @@ Currently under construction.
 
 ## Credits
 
-Test Dictionary - http://www-personal.umich.edu/~jlawler/wordlist.html
-compiled by John Lawler and put in the public domain with no restrictions
-of use.
-
 Thanks to Eitan Chatav for advice on Haskell development.
 
 Thanks to Allen Haim for advice on Javascript development.
+
+Thanks to Dennis Allard for hosting the application at oceanpark.com.
+
+Test Dictionary - http://www-personal.umich.edu/~jlawler/wordlist.html
+compiled by John Lawler and put in the public domain with no restrictions
+of use.
 
 ## Contact
 

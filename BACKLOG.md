@@ -14,7 +14,7 @@
 
 - Create release branch.
 
-- Update READNE files to just refer to the docker files for getting started.
+- Update README files to just refer to the docker files for getting started.
   All the getting started steps are encoded in the dockerfiles.
 
 ## System Improvements
@@ -25,6 +25,19 @@
 - Provide a way of getting the meaning of a word played by the machine.
   Out of scope of version 1. Use the provided list view of played words to 
   copy and paste into Google or dictionary site.
+
+- User registration. Currently there are no registered users. Just a built-in
+  one called _You_.
+
+- Add dictionaries for other languages to the system. Allow user to 
+  choose the game's language.
+
+- Provide user preference page. Include user's preferred language.
+
+- Android UI. Current web ui does not work in Android browser.
+  Native Android UI would be preferable.
+
+- iPhone UI. Ditto.
 
 ## Known Issues
 
@@ -41,7 +54,7 @@
 
   https://www.html5rocks.com/en/tutorials/cors/
 
-- Security. User registration and basic authentication for users. 
+- Security. Basic authentication for users. 
 
   http://haskell-servant.readthedocs.io/en/stable/tutorial/Authentication.html
 

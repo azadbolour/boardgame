@@ -12,19 +12,25 @@ Two docker images are used for board game:
   the dependencies are likely to exist in the base image. This image's
   entry point starts the baordgame web application.
 
-The following files are are used in building and using the boardgame
-images:
+Resources used to build and run docker conatiners.
 
-- Dockerfile.boardgame-base - The docker file for building the base image.
+- docker file for the base image: `Dockerfile.boardgame-base`
 
-- build-boardgame-base-docker.sh - Builds the base image - needs a tag as 
-  parameter.
+- script to build the base image: 
 
-- Dockerfile.boardgame - The docker file for building the latest board game.
+  `build-boardgame-base-docker.sh registry-namespace repository-tag`
 
-- build-boardgame-docker.sh - Builds the latest board game - needs a tag.
-  The tag should be the same as that of an already-built base.
+  creates an image named: `${registry-namespace}/boardgame-base/${repository-tag}`
 
-- run-docker-game.sh - Runs a docker container based on the boardgame image.
+- docker file for building the latest board game: `Dockerfile.boardgame`
+
+- script to build the build the board game server: 
+
+  `boardgame-docker.sh registry-namespace repository-tag`
+
+  creates an image named: `${registry-namespace}/boardgame/${repository-tag}`
+
+- run a docker container based on the boardgame image: `run-docker-game.sh`
+
 
 

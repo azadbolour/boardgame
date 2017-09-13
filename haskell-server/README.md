@@ -15,86 +15,68 @@ nature of the error, the json needs to be analyzed by clients.
 
 ## Getting Started
 
-* Make sure you are in the haskell-server directory.
+See the steps in the Dockerfiles under the docker directory of the parent
+project for the complete set of steps to set up your development environment
+for development using the sqlite database. 
 
-* Install the [Haskell Tool Stack](https://docs.haskellstack.org). 
+### Noteworthy in Setup
 
-  The project uses the tool stack for managing the development process - 
-  building, testing, etc.
+The Haskell project is built by using  [Haskell Tool Stack](https://docs.haskellstack.org).
+See the file _stack.yaml_ for the Stack snapshot being used, and the file
+_boardgame.cabal_ for the build and test specifications used by stack. 
 
-  See the file _stack.yaml_ for the Stack snapshot being used, and the file
-  _boardgame.cabal_ for the build and test specifications used by stack. 
+`stack setup` will install the correct version of GHC (Glascow Haskell Compiler) in
+an isolated sandbox. The correct version is automatically selected by 
+Stack to match the stack snapshot version in _stack.yaml_. 
 
-* `stack setup`
+To see where the compiler was installed: `stack path`
 
-  This will install the correct version of GHC (Glascow Haskell Compiler) in
-  an isolated sandbox. The correct version is automatically selected by 
-  Stack to match the stack snapshot version in _stack.yaml_. 
+Note that you do not need to separately install _cabal_ (the base Haskell 
+build manager). It is best to just let stack handle cabal under the covers.
 
-* To see where the compiler was installed:
-
-  `stack path`
-
-* Note that you do not need to separately install _cabal_ (the base Haskell 
-  build manager). It is best to just let stack handle cabal under the covers.
-
-* Install the postgres RDBMS. 
+The haskell server uses a configuration file (provided as its first argument,
+default config.yml). See the provided template config.yml.template. Typically
+you copy this sample to config.yml and edit as appropriate. See the 
+Configuration Parameters section below for a description of the available
+parameters.
   
-  On Ubuntu 14.04:
+Note that config.yml is gitignored so that different developer environments may
+have specific deployment configurations without interfering with each other.
 
-  - sudo apt-get install postgresql postgresql-contrib
-  - sudo apt-get install libpq-dev
+Once you have succeeded in building the system, you use the scripts
+`migrate-database.sh` and `populate-seed-dat.sh` to create tables and 
+populate them with initial data. To sanity check, make sure that the 
+table _player_ has been created and include a single player _You_.
 
-  The library libpq-dev is the client-side driver for postgres and is
-  a dependency of the boardgame server needed to store and retrive
-  game information from the database access.
+### Switching the DBMS
 
-* Create a user called _postgres_ with _postgres_ as its password. By convention
-  in development mode, the game server connects to postgres as this user.
+In addition to Sqlite (the default database), the project also supports
+postgresql. See the docker files for installation of postgresql.
 
-* Build the software: `stack build`. This may take a while as all dependencies
-  of the game server are downloaded as source and compiled. But this is basically
-  a one-time cost as the compiled versions are cached. Grab a cup of coffee and attend
-  to the rest of your day while occasionally checking on the build's progress.
-  Initial build time about 20 minutes on a reasonably capable machine.
+You'll need to create a database, and a user and password. All default to
+_postgres_.
 
-* Set up the configuration of your development deployment environment:
+### Testing
 
-    `cp config.yml.template config.yml`
-
-    edit your config.yml as appropriate
-
-  Note that config.yml is gitignored so that different developer environments
-  may have specific deployment configurations without interfering with each
-  other.
-
-* Initialize the database with the needed tables: `./migrate-postgres.sh`.
-
-  It gets its configuration from the _config.yml_ file you created.
-
-  If all went well a few tables will have been created in the database, 
-  and the _player_ table will include a single user.
-
-* Provide initial seed data data: `./populate-seed-data.sh`.
-
-* Set up the configuration for tests:
+Tests use their own configuration file: _test-data/test-config.yml_ which may
+again be different for different users and is therefore gitignored. You may:
 
     `cp config.yml.template test-data/test-config.yml`
+
+and if necessary edit as appropriate.
     
-  Note that there are sample configuration files for both postgres
-  and sqlite in the test-data directory. So you could run through these
-  getting started steps by using sqlite as well.
+There are sample configuration files for both sqlite and postgresql
+test-data directory. 
 
-* Run the tests: `stack test`.
+### Generating Haddock
 
-* `./gendocs.sh` uses stack to generate documentation in the project site
-  (under ../docs).
+`./gendocs.sh` uses stack to generate documentation in the project site
+(under ../docs).
 
 ### Running the Game Server
 
-* `./run.sh` - to start the server. 
-
-  It gets its configuration from the _config.yml_ file you created.
+`./run.sh` starts the server - takes the configuration file as a parameters
+(default _config.yml_).
 
 ### Running Specific Test Suites
 
@@ -155,7 +137,7 @@ The following configuration parameters are recognized:
 
   By convention, the directory _dict_ is earmarked for specific dictionaries
   you may wish to use in testing, and is gitignored. To do testing with the MAC system
-  dictionary, for example, I have linked it within the _dict_ dictionary as
+  dictionary, for example, link the system dictionary as follows:
   follows:
 
     ```
@@ -163,7 +145,7 @@ The following configuration parameters are recognized:
     ln -s /usr/share/dict/words en-words.txt`
     ```
 
-  Then I use _dict_ as the dictionary directory in my config.yml file.
+  And use _dict_ as the dictionary directory in my config.yml file.
 
 - `deployEnv` _dev_, _test_, and _prod_. 
 
@@ -178,7 +160,5 @@ The following configuration parameters are recognized:
 - `DbConfig` The configuration of the database. See the config.yml file for details.
   Sample config files for postgres and sqlite are also provided under
   the test-data directory. 
-
-
 
 
