@@ -12,21 +12,7 @@ The board game is similar but not identical to scrabble. The detailed rules are
 different from scrabble and are subject to change over time as this application
 evolves and responds to enhancement requests. 
 
-Here are a few differences.
-
-- There are no bonus or special points and no wild cards.
-
-- Cross-words are not checked. As long as the main word exists in the
-  dictionary, a play is accepted even if the resultant cross words do not exist.
-  A known issue.
-
-- A game needs to be explicitly ended by the user.
-
-Other differences also exist that are easily discovered by interacting
-with the game and need not be exhaustively listed here.
-
-A game's maximum duration is 30 minutes. Games that last more than 30
-minutes are automatically timed out and ended by the system.
+See the project web site for the details.
 
 ## Scope
 
