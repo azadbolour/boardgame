@@ -50,7 +50,13 @@ You may start by consulting the README.md file in the docker directory, and then
 reviewing the Dockerfiles there.
 
 For Java development (java-client and benchmark sub-projects) you'll also 
-need to set up your Java environment. After cloning teh repository:
+need to set up your Java environment. 
+
+For postgres installation on ubuntu see: 
+
+https://www.postgresql.org/download/linux/ubuntu/
+
+After cloning the repository:
 
 * `cp branch.sh.template branch.sh` - this is the environment-setting script for
   development

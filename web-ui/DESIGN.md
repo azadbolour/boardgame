@@ -135,3 +135,7 @@ But easier with async/await. Later. Need setup in babel. See:
 
 https://facebook.github.io/jest/docs/tutorial-async.html
 
+In order to separate private from public fields of objects, we use the module
+pattern. A factory method defines private variables and then returns an object
+with public fields. The object has closed on the private variables and has
+access to them.  But they are inaccessible to its clients.

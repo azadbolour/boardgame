@@ -188,4 +188,6 @@
 
   Decide what fields of a data structure are public and only export those.
 
+- Note that the representation of objects in JSON via aeson depends on field
+  names only, and not on constructors or types.
 

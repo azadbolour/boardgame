@@ -10,6 +10,14 @@ the need for a qualifying prefix.
 
 import BoardGame.Server.Domain..Game (Game, Game(Game))
 
+Other than this special case, import everything else qualified so that 
+references to symbols will always be prefixed by the qualified names and
+be unambiguous.
+
+If some qualified function appears many times in a module, and there is 
+little chance of conflict, to reduce bulk, that function may be imported
+unqualified as an exception. 
+
 ## Name Clash Avoidance
 
 Do use the following extenstions:
@@ -44,7 +52,7 @@ but instead extract them by pattern matching:
 ### Import Blocks
 
 Use separate blocks for imports from libraries and imports from the project.
-Group imports by package name. Separated by bland lines.
+Group imports by package name. Separated by blank lines.
 
 ## Comment do Blocks
 
@@ -135,3 +143,10 @@ thread.
 
   `(arg : [])` and `(x < arg)`
 
+## Persistence
+
+Treat Persistence (upper-case 'P') row ids as the private fields of the
+representation of objects in the database. They are used to related records in
+the database.  Higher levels of the application should have their own
+application-level unique ids for set of objects. Higher level code should be be
+dependent on the implementation details of persistence (lower-case 'p').
