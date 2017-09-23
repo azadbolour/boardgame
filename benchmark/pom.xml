@@ -22,9 +22,9 @@
         </dependency>
 
         <dependency>
-          <groupId>com.bolour.benchmark</groupId>
-          <artifactId>base</artifactId>
-          <version>0.1-SNAPSHOT</version>
+          <groupId>com.bolour.util</groupId>
+          <artifactId>benchmark</artifactId>
+          <version>0.2</version>
         </dependency>
 
         <!-- dependencies on YAML and logback obtained fron base benchmark pom -->
