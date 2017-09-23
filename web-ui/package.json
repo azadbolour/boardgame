@@ -1,6 +1,6 @@
 {
   "name": "boardgame-ui",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "React client for a board game",
   "scripts": {
     "start": "node server.js",
