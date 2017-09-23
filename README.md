@@ -50,7 +50,7 @@ You may start by consulting the README.md file in the docker directory, and then
 reviewing the Dockerfiles there.
 
 For Java development (java-client and benchmark sub-projects) you'll also 
-need to set up your Java environment. 
+need to install maven set up your Java environment. 
 
 For postgres installation on ubuntu see: 
 
@@ -62,6 +62,10 @@ After cloning the repository:
   development
 * edit _branch.sh_ as appropriate for your minimal environment
 * set your environment: `. branch.sh`
+
+Utility libraries used by the Java sub-projects are hosted on _jCenter_ 
+(https://jcenter.bintray.com). Make sure your maven settings.xml in $HOME/.m2 
+configures that repository in its profiles.
 
 ## Working with the Client API Library
 

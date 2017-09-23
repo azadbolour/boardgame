@@ -3,9 +3,13 @@
 
 ## Overview
 
-See the README.md file of com.bolour.benchmark.base (
-azadbolour/benchmark on github) for information about the basic structure
-of benchmarks.
+This sub-project is dependent on the azadbolour/benchmark library hosted at
+bintray jCenter: https://jcenter.bintray.com. Make sure your maven settings.xml
+in $HOME/.m2 configures that repository in its profiles.
+
+Please refer to the [the benchmark
+library README](https://github.com/azadbolour/benchmark/blob/master/README.md) for
+information about the basic structure of benchmarks.
 
 To run a benchmark:
 
