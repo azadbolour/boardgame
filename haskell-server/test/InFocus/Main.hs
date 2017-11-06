@@ -22,7 +22,7 @@ import qualified BoardGame.Server.Domain.StripMatcherSpec as Test1
 import qualified BoardGame.Server.Domain.IndexedDictionarySpec as Test2
 import qualified BoardGame.Server.Domain.DictionaryCacheSpec as Test3
 import qualified BoardGame.Server.Service.GameServiceSpec as Test4
-import qualified BoardGame.Server.Domain.ServerParametersSpec as Test5
+import qualified BoardGame.Integration.JsonSpec as Test5
 
 main :: IO ()
 main = do

@@ -44,7 +44,7 @@ implementation in teh browser.
 
 ## Configuring the Game UI Parameters
 
-In version 0.2, game parameters are provided within the URL used to bring up
+In version 0.5, game parameters are provided within the URL used to bring up
 the application. Following are the configuration parameters.
 
 - env-type - valid values _dev_, _test_, _prod_ - default _prod_.

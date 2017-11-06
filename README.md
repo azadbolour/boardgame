@@ -3,8 +3,7 @@
 
 ## Version
 
-Work in progress for version 0.2 mainly performance enhancements.
-Currently incomplete and buggy.
+Version 0.5.0. Beta 1. Released.
 
 ## The Board Game
 
