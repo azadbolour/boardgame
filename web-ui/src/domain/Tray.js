@@ -37,24 +37,24 @@ export const mkTray = function(capacity, pieces) {
     },
 
     isTrayPiece: function(piece) {
-      let index = this.findIndexByPieceId(piece.pieceId);
+      let index = this.findIndexByPieceId(piece.id);
       let exists = index >= 0;
       return exists;
     },
 
-    findIndexByPieceId: function(pieceId) {
+    findIndexByPieceId: function(id) {
       const index = _pieces.findIndex(function(piece) {
-        return (piece.pieceId === pieceId);
+        return (piece.id === id);
       });
       return index;
     },
 
-    findExpectedIndexByPieceId: function(pieceId, message) {
-      let index = this.findIndexByPieceId(pieceId);
+    findExpectedIndexByPieceId: function(id, message) {
+      let index = this.findIndexByPieceId(id);
       if (index === -1)
         throw {
           name: "not found",
-          message: `${message} - expected piece not found - pieceId ${pieceId}`
+          message: `${message} - expected piece not found - id: ${id}`
         };
       return index;
     },
@@ -72,15 +72,15 @@ export const mkTray = function(capacity, pieces) {
       return mkTray(_capacity, concatenated);
     },
 
-    removePiece: function(pieceId) {
-      let index = this.findExpectedIndexByPieceId(pieceId, "cannot remove piece");
+    removePiece: function(id) {
+      let index = this.findExpectedIndexByPieceId(id, "cannot remove piece");
       let elements = _pieces.slice(); // Shallow copy of immutable pieces. OK.
       elements.splice(index, 1);
       return mkTray(_capacity, elements);
     },
 
-    replacePiece: function(pieceId, replacementPiece) {
-      let index = this.findExpectedIndexByPieceId(pieceId, "cannot replace piece");
+    replacePiece: function(id, replacementPiece) {
+      let index = this.findExpectedIndexByPieceId(id, "cannot replace piece");
       let elements = _pieces.slice();
       elements.splice(index, 1, replacementPiece);
       return mkTray(_capacity, elements);

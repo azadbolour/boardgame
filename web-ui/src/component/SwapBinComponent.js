@@ -52,7 +52,7 @@ function squareStyle() {
 
 let getMonitorPiece = function(monitor) {
   let pieceItem = monitor.getItem();
-  return mkPiece(pieceItem.value, pieceItem.pieceId);
+  return mkPiece(pieceItem.value, pieceItem.id);
 };
 
 const pieceDropper = {

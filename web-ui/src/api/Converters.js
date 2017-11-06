@@ -62,13 +62,13 @@ export const GameConverter = {
 
 export const PieceConverter = {
   fromJson: function(json) {
-    return mkPiece(json.value, json.pieceId);
+    return mkPiece(json.value, json.id);
   },
 
   toJson: function(piece) {
     return {
       value: piece.value,
-      pieceId: piece.pieceId
+      id: piece.id
     }
   }
 };

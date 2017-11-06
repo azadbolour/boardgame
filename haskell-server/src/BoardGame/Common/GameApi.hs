@@ -79,17 +79,17 @@ provided in the body is used to put the game in a known state for testing.
         , height: 9
         , width: 9
         , trayCapacity: 9
-        , gridPieces: [{piece: {value: \"E\", pieceId: \"0\"}, point: {row: 4, col: 4}, }]
+        , gridPieces: [{piece: {value: \"E\", id: \"0\"}, point: {row: 4, col: 4}, }]
         , trayPieces: [
-              {value: \"S\", pieceId: \"9\"}
-            , {value: \"S\", pieceId: \"8\"}
-            , {value: \"O\", pieceId: \"7\"}
-            , {value: \"N\", pieceId: \"6\"}
-            , {value: \"A\", pieceId: \"5\"}
-            , {value: \"T\", pieceId: \"4\"}
-            , {value: \"P\", pieceId: \"3\"}
-            , {value: \"K\", pieceId: \"2\"}
-            , {value: \"L\", pieceId: \"1\"}
+              {value: \"S\", id: \"9\"}
+            , {value: \"S\", id: \"8\"}
+            , {value: \"O\", id: \"7\"}
+            , {value: \"N\", id: \"6\"}
+            , {value: \"A\", id: \"5\"}
+            , {value: \"T\", id: \"4\"}
+            , {value: \"P\", id: \"3\"}
+            , {value: \"K\", id: \"2\"}
+            , {value: \"L\", id: \"1\"}
           ]
         , playerName: \"John\"
         }
@@ -120,11 +120,11 @@ See 'BoardGame.Common.Domain.PlayPiece.PlayPiece'.
     example:
       POST \/game\/commit-play\/ea9cc739-3259-42f3-b11d-eb77499f3d81
       request: [
-          {piece: {value: \"B\", pieceId: \"2\"}, point: {row: 4, col: 3}, moved: true}
-        , {piece: {value: \"E\", pieceId: \"0"}, point: {row: 4, col: 4}, moved: false}
-        , {piece: {value: \"T\", pieceId: \"1\"}, point: {row: 4, col: 5}, moved: true}
+          {piece: {value: \"B\", id: \"2\"}, point: {row: 4, col: 3}, moved: true}
+        , {piece: {value: \"E\", id: \"0"}, point: {row: 4, col: 4}, moved: false}
+        , {piece: {value: \"T\", id: \"1\"}, point: {row: 4, col: 5}, moved: true}
       ]
-      response: [{value: \"U\", pieceId: \"20\"}, {value: \"A\", pieceId: \"19\"}]
+      response: [{value: \"U\", id: \"20\"}, {value: \"A\", id: \"19\"}]
 @
 
 * Get the next machine play.
@@ -149,10 +149,10 @@ the machine play (see 'BoardGame.Common.Domain.PlayPiece.PlayPiece').
       POST \/game\/machine-play\/4c5e218d-0bd5-429f-9649-b7d949b84be2
       response:
       [
-          {piece: {value: \"C\", pieceId: \"15\"}, point: {row: 2, col: 3}, moved: true}
-        , {piece: {value: \"O\", pieceId: \"16\"}, point: {row: 3, col: 3}, moved: true}
-        , {piece: {value: \"O\", pieceId: \"20\"}, point: {row: 4, col: 3}, moved: false}
-        , {piece: {value: \"L\", pieceId: \"14\"}, point: {row: 5, col: 3}, moved: true}
+          {piece: {value: \"C\", id: \"15\"}, point: {row: 2, col: 3}, moved: true}
+        , {piece: {value: \"O\", id: \"16\"}, point: {row: 3, col: 3}, moved: true}
+        , {piece: {value: \"O\", id: \"20\"}, point: {row: 4, col: 3}, moved: false}
+        , {piece: {value: \"L\", id: \"14\"}, point: {row: 5, col: 3}, moved: true}
       ]
 
 @
@@ -170,8 +170,8 @@ The request is the piece to be swapped. The response is the new piece returned i
 
     example:
       POST \/game\/swap-piece\/4c5e218d-0bd5-429f-9649-b7d949b84be2
-      request: {value: \"Z\", pieceId: \"15\"}
-      response: {value: \"K\", pieceId: \"45\"}
+      request: {value: \"Z\", id: \"15\"}
+      response: {value: \"K\", id: \"45\"}
 @
 
 * End a game.

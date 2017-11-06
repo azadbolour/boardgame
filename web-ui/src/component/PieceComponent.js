@@ -26,7 +26,7 @@ const pieceDragger = {
     // Must return a plain object.
     let item = {
       value: piece.value,
-      pieceId: piece.pieceId,
+      id: piece.id,
     };
     return item;
   },

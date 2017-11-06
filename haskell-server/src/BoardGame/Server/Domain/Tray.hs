@@ -49,10 +49,10 @@ replacePieces (tray @ Tray {pieces = trayPieces}) originalPieces replacements =
   in mkTray (remainingPieces ++ replacements)
 
 findPieceIndexById :: (MonadError GameError m) => Tray -> String -> m Int
-findPieceIndexById (Tray {pieces}) pieceId =
-  let maybeIndex = findIndex ((== pieceId) . Piece.pieceId) pieces
+findPieceIndexById (Tray {pieces}) id =
+  let maybeIndex = findIndex ((== id) . Piece.id) pieces
   in case maybeIndex of
-       Nothing -> throwError $ PieceIdNotFoundError pieceId
+       Nothing -> throwError $ PieceIdNotFoundError id
        Just index -> return index
 
 findPieceIndexByValue :: (MonadError GameError m) => Tray -> Char -> m Int

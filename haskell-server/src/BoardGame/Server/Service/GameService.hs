@@ -227,11 +227,11 @@ machinePlayService gameId = do
 -- | Service function to swap a user piece for another.
 swapPieceService :: String -> Piece -> GameTransformerStack Piece
 
-swapPieceService gameId (piece @ (Piece {pieceId})) = do
+swapPieceService gameId (piece @ (Piece {id})) = do
   gameCache <- asks GameEnv.gameCache
   (game @ Game {gameId, board, trays}) <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
   let (userTray @ (Tray {pieces})) = trays !! Player.userIndex
-  index <- Tray.findPieceIndexById userTray pieceId
+  index <- Tray.findPieceIndexById userTray id
   let swappedPiece = pieces !! index
   (game' @ Game {playNumber}, newPiece) <- Game.doExchange game UserPlayer index
   saveSwap gameId playNumber UserPlayer swappedPiece newPiece

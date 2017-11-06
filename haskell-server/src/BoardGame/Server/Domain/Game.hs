@@ -109,7 +109,7 @@ mkPiece (game @ Game {pieceGenerator}) = do
   (piece, nextGen) <- liftIO $ PieceGenerator.next pieceGenerator
   let game' = updatePieceGenerator game nextGen
   -- let game' = game { pieceGenerator = nextGen}
-  -- piece <- liftIO $ Piece.mkRandomPieceForId (show pieceId)
+  -- piece <- liftIO $ Piece.mkRandomPieceForId (show id)
   return (game', piece)
 
 mkPieces' :: MonadIO m => Int -> (Game, [Piece]) -> m (Game, [Piece])

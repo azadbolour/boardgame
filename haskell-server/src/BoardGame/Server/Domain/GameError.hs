@@ -52,7 +52,7 @@ data GameError =
   }
   |
   PieceIdNotFoundError {
-      pieceId :: String
+      id :: String
   }
   |
   PieceValueNotFoundError {

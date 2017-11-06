@@ -5,6 +5,7 @@
 --
 
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
 
 module BoardGame.Common.Domain.GameParams (
   GameParams(..)
@@ -12,6 +13,7 @@ module BoardGame.Common.Domain.GameParams (
 
 import GHC.Generics (Generic)
 import Data.Aeson (FromJSON, ToJSON)
+import Control.DeepSeq (NFData)
 import BoardGame.Common.Domain.Point (Height, Width)
 
 -- | Parameters used in creating a new game - provided by API clients.
@@ -27,7 +29,7 @@ data GameParams = GameParams {
   , languageCode :: String -- ^ Language code for the language of the word list to use, e.g. "en".
   , playerName :: String  -- ^ Name of user initiating a game. TODO. Expedient. Not a game parameter per se. Move it out.
 }
-  deriving (Eq, Show, Generic)
+  deriving (Eq, Show, Generic, NFData)
 
 instance FromJSON GameParams
 instance ToJSON GameParams

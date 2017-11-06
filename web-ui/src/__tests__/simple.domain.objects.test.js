@@ -21,7 +21,7 @@ test('test construction', () => {
   let noPiece = Piece.NO_PIECE;
   expect(noPiece.value).toBe('');
   let clonedPiece = piece.clone();
-  expect(clonedPiece.pieceId).toBe("1");
+  expect(clonedPiece.id).toBe("1");
   let point = mkPoint(1, 1);
   expect(point.row).toBe(1);
   expect(point.col).toBe(1);

@@ -69,7 +69,7 @@ function squareStyle(pixels) {
 
 let getMonitorPiece = function(monitor) {
   let pieceItem = monitor.getItem();
-  return mkPiece(pieceItem.value, pieceItem.pieceId);
+  return mkPiece(pieceItem.value, pieceItem.id);
 };
 
 const MIN_MOVEMENT = 15;

@@ -288,7 +288,7 @@ export const mkGameEventHandler = function(gameService) {
       let processedPromise = promise.then(response => {
         if (response.ok) {
           let newPiece = response.json;
-          _game = _game.replaceTrayPiece(piece.pieceId, newPiece);
+          _game = _game.replaceTrayPiece(piece.id, newPiece);
           _status = OK;
         }
         else {

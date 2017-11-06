@@ -51,7 +51,7 @@ function checkerShade(position) {
 const pieceDropper = {
   canDrop: function (props, monitor) {
     let pieceItem = monitor.getItem();
-    let piece = mkPiece(pieceItem.value, pieceItem.pieceId);
+    let piece = mkPiece(pieceItem.value, pieceItem.id);
     let can = !props.isTrayPiece(piece);
     return can;
   },
@@ -59,7 +59,7 @@ const pieceDropper = {
   drop: function (props, monitor) {
     console.log("dropping");
     let draggedPiece = monitor.getItem();
-    let piece = mkPiece(draggedPiece.value, draggedPiece.pieceId);
+    let piece = mkPiece(draggedPiece.value, draggedPiece.id);
     actions.revertMove(piece);
   }
 };

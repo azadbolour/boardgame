@@ -59,7 +59,7 @@ spec = do
         Fixtures.makePlayer env Fixtures.thePlayer
         gridPiece <- Fixtures.centerGridPiece 'E'
         includeUserPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'T'] -- Allow the word 'BET'
-        GameDto {gameId, height, width, trayCapacity, gridPieces, trayPieces}
+        GameDto {gameId, gameParams, gridPieces, trayPieces}
           <- Fixtures.makeGame env Fixtures.gameParams [gridPiece] includeUserPieces []
         let playPieces = mkInitialPlayPieces (head gridPieces) trayPieces
         replacements <- satisfiesRight

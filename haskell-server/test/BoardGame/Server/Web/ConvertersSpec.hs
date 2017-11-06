@@ -44,7 +44,7 @@ spec = do
       game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params pieceGenerator [] [] [] playerName)
       let dto = toDto game
       let brd = Game.board game
-      GameDto.height dto `shouldBe` Board.height brd
+      -- GameDto.height dto `shouldBe` Board.height brd
       length (Board.getGridPieces brd) `shouldBe` length (GameDto.gridPieces dto)
       let GridValue.GridValue {value = piece, point} = head (GameDto.gridPieces dto)
       let Point.Point {row} = point
@@ -59,7 +59,7 @@ spec = do
           pieceD = Piece 'D' "idD"
           pieceE = Piece 'E' "idE"
           trayPieces = [pieceC, pieceD, pieceD]
-          dto = GameDto "id1" Dict.defaultLanguageCode 10 20 5 gridPieces trayPieces playerName
+          dto = GameDto "id1" (GameParams 10 20 5 Dict.defaultLanguageCode playerName) gridPieces trayPieces
           game = toEntity dto
           gameBoard = Game.board game
           Tray size gameTrayPieces = Game.trays game !! userIndex

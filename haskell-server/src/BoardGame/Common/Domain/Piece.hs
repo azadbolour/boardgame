@@ -37,7 +37,7 @@ import Bolour.Util.MiscUtil as Misc
 -- |A game piece.
 data Piece = Piece {
     value :: Char,      -- ^ The letter - an upper case alpha character.
-    pieceId :: String     -- ^ The unique id of the piece.
+    id :: String     -- ^ The unique id of the piece.
 }
   deriving (Eq, Show, Generic, NFData)
 

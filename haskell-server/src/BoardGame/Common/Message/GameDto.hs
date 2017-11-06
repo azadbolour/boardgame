@@ -16,6 +16,7 @@ import GHC.Generics (Generic)
 import Data.Aeson (FromJSON, ToJSON)
 import Control.DeepSeq (NFData)
 
+import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.Point (Height, Width)
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.GridValue (GridValue)
@@ -25,13 +26,9 @@ import BoardGame.Common.Domain.GridValue (GridValue)
 --   we don't want to reveal the machine's hand to client programs.
 data GameDto = GameDto {
     gameId :: String          -- ^ The unique identifier of the game.
-  , languageCode :: String    -- ^ Code designating the language to be used for the game.
-  , height :: Height          -- ^ Height of the board.
-  , width :: Width            -- ^ Width of the board.
-  , trayCapacity :: Int       -- ^ Capacity of the tray.
+  , gameParams :: GameParams
   , gridPieces :: [GridValue Piece]   -- ^ The pieces in play and their positions.
   , trayPieces :: [Piece]     -- ^ The pieces on the user tray.
-  , playerName :: String      -- ^ The name of the player.
 }
   deriving (Eq, Show, Generic, NFData)
 

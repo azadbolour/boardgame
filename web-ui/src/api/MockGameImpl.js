@@ -153,7 +153,7 @@ class MockGameImpl {
     this.nextPieceId += 1;
     const piece = {
       value: Piece.randomLetter(),
-      pieceId: String(this.nextPieceId)
+      id: String(this.nextPieceId)
     }
     this.numPiecesInPlay += 1;
     return piece;
@@ -174,7 +174,7 @@ class MockGameImpl {
 
   removePieceById(pieces, piece) {
     const index = pieces.findIndex (function(p) {
-      return (p.pieceId === piece.pieceId);
+      return (p.id === piece.id);
     });
     pieces.splice(index, 1);
   }

@@ -34,22 +34,22 @@ const frequencies = {
   'Z': 2
 };
 
-export const mkPiece = function(value, pieceId) {
+export const mkPiece = function(value, id) {
   let _value = value;
-  let _pieceId = pieceId;
+  let _id = id;
 
   return {
     get value() { return _value; },
-    get pieceId() { return _pieceId; },
+    get id() { return _id; },
     clone: function() {
-      return mkPiece(_value, _pieceId);
+      return mkPiece(_value, _id);
     }
   };
 };
 
 export const eq = function(piece1, piece2) {
   return piece1.value === piece2.value &&
-    piece1.pieceId === piece2.pieceId;
+    piece1.id === piece2.id;
 };
 
 // TODO. sum = distribution[25].dist.
@@ -84,7 +84,7 @@ export const randomLetter = function() {
 };
 
 export const fromJson = function(json) {
-  return mkPiece(json.value, json.pieceId);
+  return mkPiece(json.value, json.id);
 };
 
 export const NO_PIECE_VALUE = '';

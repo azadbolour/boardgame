@@ -77,7 +77,7 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
     // TODO. Move canMove function to TrayComponent and BoardComponent.
     // It is a user interaction issue and belongs to components.
     canMovePiece: function(piece) {
-      if (_tray.findIndexByPieceId(piece.pieceId) >= 0)
+      if (_tray.findIndexByPieceId(piece.id) >= 0)
         return true;
       return _board.isMovedPiece(piece);
     },
@@ -91,7 +91,7 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
         return this;
       }
 
-      const trayIndex = _tray.findIndexByPieceId(piece.pieceId);
+      const trayIndex = _tray.findIndexByPieceId(piece.id);
       const sourcePoint = _board.findPiece(piece);
 
       const isFromTray = trayIndex >= 0;
@@ -121,7 +121,7 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
     applyTrayMove: function(move) {
       const { piece, point } = move;
       let playPiece = mkMovePlayPiece(piece, point);
-      let $tray = _tray.removePiece(piece.pieceId);
+      let $tray = _tray.removePiece(piece.id);
       let $board = _board.setPlayPiece(playPiece);
       let $game = mkGame(_gameParams, _gameId, $board, $tray, _score);
       return $game;
@@ -183,7 +183,7 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
     },
 
     legalMove: function(piece, point) {
-      let onTray = _tray.findIndexByPieceId(piece.pieceId) >= 0;
+      let onTray = _tray.findIndexByPieceId(piece.id) >= 0;
       let onBoardPoint = _board.findPiece(piece);
       let onBoard = onBoardPoint !== undefined;
 

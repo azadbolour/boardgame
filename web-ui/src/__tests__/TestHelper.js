@@ -19,8 +19,8 @@ const LARGE = 1000000;
 const testUtil = {
   randomPiece: function() {
     let value = Piece.randomLetter();
-    let pieceId = String(Math.floor(Math.random() * LARGE));
-    return mkPiece(value, pieceId);
+    let id = String(Math.floor(Math.random() * LARGE));
+    return mkPiece(value, id);
   },
 
   randomPieces: function(numPieces) {

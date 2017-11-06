@@ -17,6 +17,8 @@ module BoardGame.Server.Web.Converters (
 -- TODO. How to implement generic converters in Haskell?
 
 import Data.Time
+import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
+import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Common.Message.GameDto as GameDto
 import BoardGame.Server.Domain.Game(Game, Game(Game))
 import BoardGame.Server.Domain.Board as Board
@@ -58,9 +60,11 @@ instance Converter Game GameDto.GameDto where
     [0, 0]
     dummyUTCTime
     where
-      GameDto {gameId, languageCode, height, width, trayCapacity, gridPieces, trayPieces, playerName} = dto
+      GameDto {gameId, gameParams, gridPieces, trayPieces} = dto
+      GameParams {height, width, trayCapacity, languageCode, playerName} = gameParams
+      -- GameDto {gameId, languageCode, height, width, trayCapacity, gridPieces, trayPieces, playerName} = dto
       dummyMachineTray = Tray 0 [] -- TODO. This is a hack. toEntity should be disallowed.
-  toDto entity = GameDto gameId languageCode (Board.height board) (Board.width board) (Tray.capacity userTray) (Board.getGridPieces board) (Tray.pieces userTray) playerName where
+  toDto entity = GameDto gameId (GameParams (Board.height board) (Board.width board) (Tray.capacity userTray) languageCode playerName) (Board.getGridPieces board) (Tray.pieces userTray)  where
       gameId = Game.gameId entity
       languageCode = Game.languageCode entity
       board = Game.board entity

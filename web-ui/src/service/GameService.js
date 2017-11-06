@@ -34,6 +34,7 @@ class GameService {
         return dtoResponse; // TODO. Convert dto message to application message;.
       }
       let gameDto = dtoResponse.json;
+      console.log(`game dto returned from start: ${JSON.stringify(gameDto)}`); // TODO. Remove me.
       let game = GameConverter.fromJson(gameDto, this.gameParams);
 
       let response = this.convertResponse(dtoResponse, game);
