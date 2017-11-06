@@ -25,8 +25,9 @@ NPM_PACKAGES=${HOME}/software/npm/packages
 NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
 
 MY_LOCAL=$HOME/.local
+LOCAL_GIT=/usr/local/git
 
-base_path="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/git/bin:$HOME/bin"
+base_path="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/bin"
 echo "base_path=$base_path"
 export PATH="$NPM_PACKAGES/bin:$MY_LOCAL/bin:$postgres_home/bin:$JAVA_HOME/bin:$WORKSPACE/script:$M2:$base_path:."
 echo "PATH=$PATH"
@@ -41,3 +42,6 @@ export -f idea
 
 alias sb='stack build'
 alias repl='stack repl'
+
+alias pq='psql -U postgres -h 127.0.0.1'
+
