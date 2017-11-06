@@ -1,9 +1,10 @@
 
 # Board Game Application
 
-## Version
+## Versions
 
-Version 0.5.0. Beta 1. Released.
+Version 0.2.0. Beta 1. Released.
+Version 0.5.0 development started.
 
 ## The Board Game
 
