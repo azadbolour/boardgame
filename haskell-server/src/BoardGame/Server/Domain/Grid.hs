@@ -31,6 +31,9 @@ module BoardGame.Server.Domain.Grid (
   , matrixStrips
   , matrixStripsByLength
   , setPointedGridValues
+  , filterGrid
+  , concatGrid
+  , concatFilter
 ) where
 
 import Data.List
@@ -59,6 +62,15 @@ mkRow cellMaker width = cellMaker <$> [0 .. width - 1]
 
 mkPointedGrid :: (Height -> Width -> val) -> Height -> Width -> Grid (GridValue val)
 mkPointedGrid cellMaker = mkGrid (\row col -> GridValue (cellMaker row col) (Point row col))
+
+filterGrid :: (val -> Bool) -> Grid val -> Grid val
+filterGrid predicate Grid{cells} = Grid $ filter predicate <$> cells
+
+concatGrid :: Grid val -> [val]
+concatGrid Grid{cells} = concat cells
+
+concatFilter :: (val -> Bool) -> Grid val -> [val]
+concatFilter predicate grid = concatGrid $ filterGrid predicate grid
 
 -- | Update the value of a cell on the grid.
 setGridValue ::

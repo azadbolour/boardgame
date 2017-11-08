@@ -13,6 +13,8 @@ module BoardGame.Server.Service.BaseServiceFixtures (
   , initTest
   , centerGridPoint
   , centerGridPiece
+  , testDimension
+  , testTrayCapacity
   ) where
 
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
@@ -35,7 +37,9 @@ import qualified BoardGame.Server.Service.GameDao as GameDao
 
 testConfigPath = "test-data/test-config.yml"
 thePlayer = "You"
-gameParams = GameParams 9 9 12 Dict.defaultLanguageCode thePlayer
+testDimension = 5
+testTrayCapacity = 3
+gameParams = GameParams testDimension testDimension testTrayCapacity Dict.defaultLanguageCode thePlayer
 
 centerGridPoint =
   let GameParams.GameParams {height, width, trayCapacity, languageCode, playerName} = gameParams

@@ -13,6 +13,8 @@ module BoardGame.Integration.GameClientSpec (
   ) where
 
 import Data.Char (isUpper, toUpper)
+import Data.Maybe (fromJust)
+import Data.List
 import Control.Concurrent (ThreadId, killThread)
 import Control.Monad.Except (runExceptT)
 import Test.Hspec
@@ -25,8 +27,12 @@ import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.PlayPiece (PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
+import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
+import qualified BoardGame.Common.Domain.GridValue as GridValue
+import qualified BoardGame.Common.Domain.GridPiece as GridPiece
+
 import BoardGame.Common.Domain.Point (Point(Point))
+import qualified BoardGame.Common.Domain.Point as Point
 -- import qualified BoardGame.Common.Domain.Point as Point
 import BoardGame.Common.Domain.GameParams (GameParams(GameParams))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
@@ -105,11 +111,25 @@ spec = beforeAll startApp $ afterAll endWaiApp $
       initTest
       manager <- mkManager
       eitherMaybeUnit <- runExceptT (Client.addPlayer playerJohn manager baseUrl)
-      gridPiece <- centerGridPiece 'E'
-      includeUserPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'T'] -- Allow the word 'BET'
+
+      mPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
+      uPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
+
       (GameDto.GameDto {gameId, trayPieces, gridPieces}) <- SpecUtil.satisfiesRight
-        =<< runExceptT (Client.startGame (params, [gridPiece], includeUserPieces, []) manager baseUrl)
-      let playPieces = TestUtil.mkInitialPlayPieces (head gridPieces) trayPieces
+        =<< runExceptT (Client.startGame (params, [], uPieces, mPieces) manager baseUrl)
+
+      let GridValue {value = piece, point = centerPoint} =
+            fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
+          Point {row, col} = centerPoint
+
+      let userPiece0:userPiece1:_ = uPieces
+          _:machinePiece1:_ = mPieces
+          playPieces = [
+              PlayPiece userPiece0 (Point (row - 1) col) True
+            , PlayPiece machinePiece1 (Point row col) False
+            , PlayPiece userPiece1 (Point (row + 1) col) True
+            ]
+
       replacements <- SpecUtil.satisfiesRight =<< runExceptT (Client.commitPlay gameId playPieces manager baseUrl)
       length replacements `shouldBe` 2
       wordPlayPieces <- SpecUtil.satisfiesRight

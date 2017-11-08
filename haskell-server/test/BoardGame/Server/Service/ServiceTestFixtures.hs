@@ -11,8 +11,11 @@ module BoardGame.Server.Service.ServiceTestFixtures (
     module BoardGame.Server.Service.BaseServiceFixtures
   , makePlayer
   , makeGame
+  , testDimension
+  , testTrayCapacity
   ) where
 
+import Data.Either
 import Control.Monad.Trans.Except (runExceptT)
 import Bolour.Util.SpecUtil (satisfiesRight) -- satisfiesJust
 import BoardGame.Common.Domain.Player (Player(Player))
@@ -33,11 +36,9 @@ makePlayer env name = do
 
 makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO Game
 makeGame env gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith = do
-  eitherGame <- runExceptT $ TransformerStack.runDefaultUnprotected env $ GameService.startGameService
+  eitherResult <- runExceptT $ TransformerStack.runDefaultUnprotected env $ GameService.startGameService
     gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith
-  satisfiesRight eitherGame
-
---   satisfiesRight
---     =<< runExceptT (startGameHandler env (gameParams, initialGridPieces, userTrayStartsWith, machineTrayStartsWith))
-
--- runExceptT $ TransformerStack.runDefault gameEnv GameService.prepareDb
+  satisfiesRight eitherResult
+  -- let (game, maybePlayPieces) = head $ rights [eitherResult]
+  let (Right (game, maybePlayPieces)) = eitherResult
+  return game

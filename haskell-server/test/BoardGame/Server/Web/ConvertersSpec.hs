@@ -34,21 +34,24 @@ import qualified BoardGame.Server.Domain.PieceGenerator as PieceGenerator
 -- dictionary :: LanguageDictionary
 -- dictionary = LanguageDictionary "en" [] (const True)
 
+dim = 9
+mid = dim `div` 2
+
 spec :: Spec
 spec = do
   describe "convert game to game dto and back" $
     it "game to dto" $ do
       let playerName = "You"
-      let params = GameParams 9 9 12 Dict.defaultLanguageCode playerName
+      let params = GameParams dim dim 12 Dict.defaultLanguageCode playerName
           pieceGenerator = PieceGenerator.mkCyclicPieceGenerator "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-      game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params pieceGenerator [] [] [] playerName)
+      let gridPiece = GridValue (Piece 'E' "idE") (Point mid mid)
+      game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params pieceGenerator [gridPiece] [] [] playerName)
       let dto = toDto game
       let brd = Game.board game
-      -- GameDto.height dto `shouldBe` Board.height brd
       length (Board.getGridPieces brd) `shouldBe` length (GameDto.gridPieces dto)
       let GridValue.GridValue {value = piece, point} = head (GameDto.gridPieces dto)
       let Point.Point {row} = point
-      row `shouldBe` (9 `div` 2)
+      row `shouldBe` mid
   describe "convert game dto to game" $
     it "dto to game" $ do
       let playerName = "You"

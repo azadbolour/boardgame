@@ -161,9 +161,8 @@ defaultInitialGridPieces board = do
 primeBoard :: MonadIO m => Board -> [GridPiece] -> m Board
 primeBoard board inputGridPieces = do
   defaultGridPieces <- defaultInitialGridPieces board
-  let gridPieces = if null inputGridPieces then defaultGridPieces else inputGridPieces
-      addGridPiece bd (GridValue.GridValue {value = piece, point}) = Board.setBoardValue bd point piece
-      board' = foldl' addGridPiece board gridPieces
+  let addGridPiece bd (GridValue.GridValue {value = piece, point}) = Board.setBoardValue bd point piece
+      board' = foldl' addGridPiece board inputGridPieces
   return board'
 
 setPlayerTray :: Game -> PlayerType -> Tray -> Game

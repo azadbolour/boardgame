@@ -8,6 +8,8 @@
 
 import GameParams from "../domain/GameParams";
 import {mkPiece} from "../domain/Piece";
+import {mkPoint} from "../domain/Point";
+import {mkMovePlayPiece, mkCommittedPlayPiece} from "../domain/PlayPiece";
 import GameService from "../service/GameService";
 import TestUtil from "../__tests__/TestHelper";
 import {stringify} from "../util/Logger";
@@ -16,21 +18,33 @@ import {stringify} from "../util/Logger";
 // TODO. Better use game event handler rather than game service - better error handling.
 
 test('start game and make user and machine plays', () => {
-  let gameParams = GameParams.defaultClientParams();
+  let gameParams = GameParams.defaultClientParamsSmall();
   let game = undefined;
-  let leftPiece = mkPiece('B', 'idLeft');
-  let rightPiece = mkPiece('T', 'idRight');
-  let initUserTray = [leftPiece, rightPiece];
+  let mPieces = [mkPiece('B', "1"), mkPiece('E', "2"), mkPiece('T', "3")];
+  let uPieces = [mkPiece('S', "4"), mkPiece('T', "5"), mkPiece('Z', "6")];
+  let center = gameParams.dimension/2;
+
+  // let leftPiece = mkPiece('B', 'idLeft');
+  // let rightPiece = mkPiece('T', 'idRight');
+  // let initUserTray = [leftPiece, rightPiece];
 
   let gameService = new GameService(gameParams);
-  gameService.start([], initUserTray, []).
+  gameService.start([], uPieces, mPieces).
   then(response => {
     game = response.json;
     console.log(`${stringify(game)}`);
     expect(game.tray.pieces.length).toBe(gameParams.trayCapacity);
     expect(game.board.dimension).toBe(gameParams.dimension);
-    game = TestUtil.addInitialPlayToGame(game);
-    let playPieces = game.getCompletedPlayPieces();
+    // game = TestUtil.addInitialPlayToGame(game);
+    // let playPieces = game.getCompletedPlayPieces();
+    // The started game will have a horizontal machine play of BET at the center.
+    // Make a vertical play of SET around that center E.
+    // TODO. Ideally should obtain the location of that E on the board.
+    let playPieces = [
+      mkMovePlayPiece(uPieces[0], mkPoint(center - 1, center)),
+      mkCommittedPlayPiece(mPieces[1], mkPoint(center, center)),
+      mkMovePlayPiece(uPieces[1], mkPoint(center + 1, center))
+    ];
     console.log(`playPieces: ${stringify(playPieces)}`);
     return gameService.commitUserPlay(game.gameId, playPieces);
   }).

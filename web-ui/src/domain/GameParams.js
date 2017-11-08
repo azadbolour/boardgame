@@ -73,6 +73,15 @@ class GameParams {
     clientParams.trayCapacity = 7;
     return clientParams;
   }
+
+  static defaultClientParamsSmall() {
+    let clientParams = GameParams.defaultParams();
+    clientParams.appParams.envType = 'prod'; // TODO. Constant.
+    clientParams.apiType = GameParams.CLIENT_API_TYPE;
+    clientParams.dimension = 5;
+    clientParams.trayCapacity = 3;
+    return clientParams;
+  }
 }
 
 export default GameParams;

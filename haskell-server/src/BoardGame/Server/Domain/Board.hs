@@ -26,6 +26,7 @@ module BoardGame.Server.Domain.Board (
   , validPositionIsTaken
   , pointHasNoLineNeighbors
   , charRows
+  , isEmpty
 )
 where
 
@@ -58,6 +59,9 @@ data Board = Board {
   , grid :: Grid GridPiece
 }
   deriving (Show)
+
+isEmpty :: Board -> Bool
+isEmpty Board{grid} = null $ Grid.concatFilter (\GridValue{value} -> Piece.isPiece value) grid
 
 -- Assumes valid coordinates.
 getValidGridPiece :: Board -> Point -> GridPiece

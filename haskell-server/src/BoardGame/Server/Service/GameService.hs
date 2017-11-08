@@ -161,8 +161,12 @@ startGameService ::
   -> [GridPiece]
   -> [Piece]
   -> [Piece]
-  -> GameTransformerStack Game
+  -> GameTransformerStack (Game, Maybe [PlayPiece])
 
+-- TODO. Toss a coin to see who goes first.
+-- For now we have machine always playing first - and that play is done as part of starting the game.
+-- It is a little cleaner if the coin toss is returned to the client with an start board.
+-- The client would either tell the user to start or call machine play.
 startGameService gameParams gridPieces initUserPieces initMachinePieces = do
   params @ GameParams.GameParams {languageCode} <- Game.validateGameParams gameParams
   GameEnv { connectionProvider, gameCache } <- ask
@@ -170,10 +174,13 @@ startGameService gameParams gridPieces initUserPieces initMachinePieces = do
   playerRowId <- GameDao.findExistingPlayerRowIdByName connectionProvider playerName
   dictionary <- lookupDictionary languageCode
   let pieceGenerator = RandomPieceGenerator.mkRandomPieceGenerator
-  game <- Game.mkInitialGame params pieceGenerator gridPieces initUserPieces initMachinePieces playerName
+  game @ Game{ gameId } <- Game.mkInitialGame params pieceGenerator gridPieces initUserPieces initMachinePieces playerName
   GameDao.addGame connectionProvider $ gameToRow playerRowId game
   liftGameExceptToStack $ GameCache.insert game gameCache
-  return game
+  playPieces <- machinePlayService gameId
+  -- Machine play has changed the game. Get the latest.
+  game' <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
+  return (game', Just playPieces) -- TODO. Return Nothing playPieces if user goes first.
 
 -- | Service function to commit a user play - reflecting it on the
 --   game's board, and and refilling the user tray.

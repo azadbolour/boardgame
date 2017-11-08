@@ -13,6 +13,8 @@ module BoardGame.Server.Web.GameEndPointSpec (
   ) where
 
 import Data.Char (isUpper)
+import Data.Maybe (fromJust)
+import Data.List
 import Test.Hspec
 import Control.Monad.Trans.Except (runExceptT)
 import Bolour.Util.SpecUtil (satisfiesRight)
@@ -22,6 +24,13 @@ import BoardGame.Server.Domain.Play (Play, Play(Play))
 import qualified BoardGame.Server.Domain.Play as Play
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
+import BoardGame.Common.Domain.Point (Point, Point(Point))
+import qualified BoardGame.Common.Domain.Point as Point
+import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
+import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
+import qualified BoardGame.Common.Domain.GridValue as GridValue
+import qualified BoardGame.Common.Domain.GridPiece as GridPiece
+
 import BoardGame.Server.Web.GameEndPoint (
     commitPlayHandler
   , machinePlayHandler
@@ -35,6 +44,8 @@ import qualified BoardGame.Server.Web.WebTestFixtures as Fixtures (
     , gameParams
     , initTest
     , centerGridPiece
+    , testDimension
+    , testTrayCapacity
   )
 
 -- TODO. Annotate spec do statements with the demystified type of their monad.
@@ -50,18 +61,29 @@ spec = do
         env <- Fixtures.initTest
         Fixtures.makePlayer env Fixtures.thePlayer
         gameDto <- Fixtures.makeGame env Fixtures.gameParams [] [] []
-        length (GameDto.trayPieces gameDto) `shouldSatisfy` (== 12)
+        length (GameDto.trayPieces gameDto) `shouldSatisfy` (== Fixtures.testTrayCapacity)
 
   describe "commits a play" $
     it "commit a play" $
       do
         env <- Fixtures.initTest
         Fixtures.makePlayer env Fixtures.thePlayer
-        gridPiece <- Fixtures.centerGridPiece 'E'
-        includeUserPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'T'] -- Allow the word 'BET'
+        mPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
+        uPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
         GameDto {gameId, gameParams, gridPieces, trayPieces}
-          <- Fixtures.makeGame env Fixtures.gameParams [gridPiece] includeUserPieces []
-        let playPieces = mkInitialPlayPieces (head gridPieces) trayPieces
+          <- Fixtures.makeGame env Fixtures.gameParams [] uPieces mPieces
+        let GridValue {value = piece, point = centerPoint} =
+              fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
+            Point {row, col} = centerPoint
+
+        let userPiece0:userPiece1:_ = uPieces
+            _:machinePiece1:_ = mPieces
+            playPieces = [
+                PlayPiece userPiece0 (Point (row - 1) col) True
+              , PlayPiece machinePiece1 (Point row col) False
+              , PlayPiece userPiece1 (Point (row + 1) col) True
+              ]
+
         replacements <- satisfiesRight
           =<< runExceptT (commitPlayHandler env gameId playPieces)
         length replacements `shouldBe` 2
