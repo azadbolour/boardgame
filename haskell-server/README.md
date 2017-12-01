@@ -44,7 +44,7 @@ Note that config.yml is gitignored so that different developer environments may
 have specific deployment configurations without interfering with each other.
 
 Once you have succeeded in building the system, you use the scripts
-`migrate-database.sh` and `populate-seed-dat.sh` to create tables and 
+`migrate-database.sh` and `populate-seed-data.sh` to create tables and 
 populate them with initial data. To sanity check, make sure that the 
 table _player_ has been created and include a single player _You_.
 

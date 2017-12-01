@@ -94,7 +94,8 @@ const restManager = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       mode: 'cors',
-      'Content-Length': '0'
+      'Content-Length': '0' // ,
+      // 'Access-Control-Allow-Origin': "http://localhost:3000" // Could not get this to work.
     };
   },
 

@@ -264,7 +264,7 @@ exchangeMachinePiece (game @ Game.Game {gameId, board, trays, playNumber, ..}) =
       swappedPiece = pieces !! index
       tray' = Tray.replacePiece machineTray index piece
   -- TODO. Update play number at the right place before using it here.
-  saveSwap gameId playNumber UserPlayer swappedPiece piece
+  saveSwap gameId playNumber MachinePlayer swappedPiece piece
   return $ Game.setPlayerTray game MachinePlayer tray'
 
 saveWordPlay :: String -> Int -> PlayerType -> [PlayPiece] -> [Piece]

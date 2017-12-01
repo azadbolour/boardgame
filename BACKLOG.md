@@ -1,22 +1,6 @@
 
 # Board Game Application Backlog
 
-## The Release
-
-### Prepare Release
-
-- Convert to gradle. util and benchmark converted. java-client,
-  and boardgame-benchmark should be easy: gradle init.
-
-- Refer to API documentation from the index.html of the project site.
-
-- publish util and benchmark jars - should not be snapshot - include manifest
-
-- Create release branch.
-
-- Update README files to just refer to the docker files for getting started.
-  All the getting started steps are encoded in the dockerfiles.
-
 ## System Improvements
 
 - Animate the machine's placement of tiles to the board so it is clear what

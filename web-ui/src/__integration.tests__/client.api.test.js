@@ -22,7 +22,7 @@ test('start game and make user and machine plays', () => {
   let game = undefined;
   let mPieces = [mkPiece('B', "1"), mkPiece('E', "2"), mkPiece('T', "3")];
   let uPieces = [mkPiece('S', "4"), mkPiece('T', "5"), mkPiece('Z', "6")];
-  let center = gameParams.dimension/2;
+  let center = parseInt(gameParams.dimension/2);
 
   // let leftPiece = mkPiece('B', 'idLeft');
   // let rightPiece = mkPiece('T', 'idRight');
@@ -54,7 +54,12 @@ test('start game and make user and machine plays', () => {
     return gameService.getMachinePlay(game.gameId);
     // TODO. Add replacement pieces to the tray.
     // game.clearPlay(); // TODO. Move this before return.
-  })
+  }).then(response => {
+    return gameService.end(game.gameId);
+  }).then(response => {
+    let unitResponse = response.json;
+    console.log(`end json response: ${stringify(unitResponse)}`)
+  });
 });
 
 

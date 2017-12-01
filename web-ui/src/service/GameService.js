@@ -11,6 +11,7 @@
 import {apiSelector} from '../api/ApiUtil';
 import {GameConverter, PieceConverter, PlayConverter, GameParamsConverter} from './../api/Converters';
 import Play from "../domain/Play";
+import {stringify} from "../util/Logger";
 // TODO. Should rejections be caught here and converted to just !ok??
 
 /**
@@ -51,6 +52,7 @@ class GameService {
     // TODO. Eliminate Play. Not really needed. playPieces is sufficient.
     let play = new Play(playPieces);
     let jsonPlayPieces = PlayConverter.toJson(play);
+    console.log(`json play pieces: ${stringify(jsonPlayPieces)}`);
     let promise = this.api.commitPlay(gameId, jsonPlayPieces);
     return promise.then(dtoResponse => {
       if (!dtoResponse.ok) {
