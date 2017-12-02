@@ -84,17 +84,29 @@ export const mkMatrix = function(dimension, rows) {
       return mkMatrix(_dimension, clonedRows);
     },
 
-    find(f) {
+    find(p) {
       for (let r = 0; r < _dimension; r++)
-        for (let c = 0; c < _dimension; c++)
-          if (f(_rows[r][c]))
-            return mkPoint(r, c);
+        for (let c = 0; c < _dimension; c++) {
+          let element = _rows[r][c];
+          if (p(element))
+            return element;
+        }
       return undefined;
     },
     
     reduce: function(f, init) {
       let linear = this.linearize();
       return linear.reduce(f, init);
+    },
+
+    every: function(p) {
+      let linear = this.linearize();
+      return linear.every(p);
+    },
+
+    some: function(p) {
+      let linear = this.linearize();
+      return linear.some(p);
     },
 
     linearize: function() {

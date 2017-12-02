@@ -39,8 +39,8 @@ test('move going beyond the maximum gap is disallowed', () => {
   let movingPiece = mkPiece('B', 'idB');
   let destCol = 4;
   let dest = mkPoint(1, destCol);
-  let neededTrayPieces = destCol - origCol;
   let numTrayPieces = destCol - origCol - 1;
+  let hasCommitted = $board.hasCommittedPlays();
   let legal = $board.legalMove(movingPiece, dest, numTrayPieces);
   expect(legal).toBe(false);
 });

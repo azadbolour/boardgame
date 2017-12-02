@@ -26,6 +26,7 @@ export const mkBoard = function(matrix) {
 
   let _matrix = matrix;
   let _dimension = matrix.dimension;
+  let _center = parseInt(_dimension/2);
 
   const inBounds = function(index) {
     return index >= 0 && index < _dimension;
@@ -35,8 +36,9 @@ export const mkBoard = function(matrix) {
     return array.reduce(function(sum, element) {
       return sum + element;
     }, 0);
-
   };
+
+  const centerPoint = mkPoint(_center, _center);
 
   return {
 
@@ -58,6 +60,14 @@ export const mkBoard = function(matrix) {
           num += 1;
         return num;
       }, 0);
+    },
+
+    isEmpty: function () {
+      return _matrix.every(function (playPiece) {return playPiece.isFree()});
+    },
+
+    hasCommittedPlays: function () {
+      return _matrix.some(function (playPiece) {return playPiece.isOriginal()});
     },
 
     setPlayPiece: function(playPiece) {
@@ -138,6 +148,9 @@ export const mkBoard = function(matrix) {
     legalMove: function(piece, point, numTrayPieces) {
       if (!this.isFree(point))
         return false;
+      // For now restrict the very first move to be to the center point.
+      if (this.isEmpty())
+        return Point.eq(point, centerPoint);
 
       // Move the piece to the board on a trial basis.
       let testBoard = this.setPlayPiece(mkMovePlayPiece(piece, point));
@@ -150,7 +163,7 @@ export const mkBoard = function(matrix) {
       };
       return hasUniqueLegalLine(movesInfoX) || hasUniqueLegalLine(movesInfoY);
     },
-    
+
     isCompletable(info, numTrayPieces) {
       let { axis, lineNumber, numMoves, firstMoveIndex, lastMoveIndex,
         nearestLeftNeighbor, nearestRightNeighbor, interMoveFreeSlots, hasInterMoveAnchor } = info;
@@ -159,14 +172,22 @@ export const mkBoard = function(matrix) {
         return false;
       if (hasInterMoveAnchor)
         return interMoveFreeSlots <= numTrayPieces;
+
+      let minFreeSlots = interMoveFreeSlots;
+
+      // Line of the very first play has current moves only - no other pieces.
+      // So ensure that tray pieces cover inter-move slots.
+      if (!this.hasCommittedPlays())
+        return minFreeSlots <= numTrayPieces;
+
+      // Not the very first play and no intern-move anchor.
+      // So must have an anchor to the right or to the left.
       if (nearestLeftNeighbor === undefined && nearestRightNeighbor === undefined)
         return false; // Nothing to connect to.
 
       let minSlotsToFill = function() {
         let leftSlotsToConnect = firstMoveIndex - nearestLeftNeighbor - 1; // May be NaN. OK.
         let rightSlotsToConnect = nearestRightNeighbor - lastMoveIndex - 1; // ditto
-
-        let minFreeSlots = interMoveFreeSlots;
 
         if (nearestLeftNeighbor === undefined)
           minFreeSlots += rightSlotsToConnect;

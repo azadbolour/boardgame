@@ -92,10 +92,10 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
       }
 
       const trayIndex = _tray.findIndexByPieceId(piece.id);
-      const sourcePoint = _board.findPiece(piece);
+      const sourcePlayPiece = _board.findPiece(piece);
 
       const isFromTray = trayIndex >= 0;
-      const isFromBoard = sourcePoint !== undefined;
+      const isFromBoard = sourcePlayPiece !== undefined;
 
       // console.log(`isFromTray: ${isFromTray}, isFromBoard: ${isFromBoard}`);
 
@@ -113,8 +113,8 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
 
     applyBoardMove: function(move) {
       const { piece, point } = move;
-      let sourcePoint = _board.findPiece(piece);
-      let $game = this.revertMove(piece, sourcePoint);
+      // let sourcePoint = _board.findPiece(piece);
+      let $game = this.revertMove(piece);
       return $game.applyTrayMove(move);
     },
 
@@ -170,7 +170,9 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
     },
 
     revertMove: function(piece) {
-      let point = _board.findPiece(piece);
+      let sourcePlayPiece = _board.findPiece(piece);
+      let point = sourcePlayPiece.point;
+
       if (point === undefined) {
         console.log(`attempt to revert move of piece: ${stringify(piece)} which does not belong to the board - ignored`);
         return;
@@ -184,8 +186,8 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
 
     legalMove: function(piece, point) {
       let onTray = _tray.findIndexByPieceId(piece.id) >= 0;
-      let onBoardPoint = _board.findPiece(piece);
-      let onBoard = onBoardPoint !== undefined;
+      let sourcePlayPiece = _board.findPiece(piece);
+      let onBoard = sourcePlayPiece !== undefined;
 
       if (onTray && onBoard)
         throw {
@@ -193,11 +195,15 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
           message: `piece ${stringify(piece)} on tray and on board at the same time`
         };
 
+      // Cannot move a committed piece.
+      if (onBoard && sourcePlayPiece.isOriginal())
+        return false;
+
       // Intra-board move is equivalent to a revert followed by a tray move.
 
       let testGame = this;
       if (onBoard)
-        testGame = this.revertMove(piece, onBoardPoint);
+        testGame = this.revertMove(piece);
       let testBoard = testGame.board;
       let legal = testBoard.legalMove(piece, point, testGame.tray.size());
       return legal;

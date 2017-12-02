@@ -1,11 +1,8 @@
 
 # Latest TODO
 
-- Change legality of first move in UI - does not need an anchor but must
-  be centered. 
-
-- Once the modified web tests work, try integration test on Haskell
-  and make necessary Haskell mods.
+- Changed model to start game withut any plays.
+  Try integration test on Haskell and make necessary Haskell mods.
 
 - Haskell - GameParams add pieceGeneratorName.
 

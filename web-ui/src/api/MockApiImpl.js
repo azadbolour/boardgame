@@ -75,7 +75,7 @@ class MockApiImpl {
     refills.forEach(p =>
       it.gameDto.trayPieces.push(p));
 
-    console.log(`committed game: ${JSON.stringify(this.gameDto)}`);
+    // console.log(`committed game: ${JSON.stringify(this.gameDto)}`);
     return refills;
   }
 
@@ -90,12 +90,9 @@ class MockApiImpl {
 
     // Find an anchor to start from.
     let start = this.filledPositions().find(pos => it.twoBelowEmpty(pos, this.dimension));
-    console.log(`start: ${JSON.stringify(start)}`);
     if (start === undefined) return [];
     let startPiece = this.getPieceAtGridPoint(start);
     let startPlayPiece = this.mkPlayPiece(startPiece, start, !pieceMoves);
-
-    console.log(`startPlayPiece: ${JSON.stringify(startPlayPiece)}`);
 
     // Create moves from machine tray to 2 slots below the anchor.
     if (this.machinePieces.length < 2) return [];

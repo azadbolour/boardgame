@@ -28,7 +28,8 @@ test('generate events to exercise game transitions', done => {
   let handler = mkGameEventHandler(gameService);
 
   // let moveDest = mkPoint(1, 1);
-  let moveDest = mkPoint(mid - 1, mid);
+  // let moveDest = mkPoint(mid - 1, mid);
+  let moveDest = mkPoint(mid, mid);
   let movingPiece = undefined;
 
   let endCallback = function(stage, game, status, auxGameData) {

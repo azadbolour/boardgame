@@ -11,6 +11,8 @@ import {mkPiece} from '../domain/Piece';
 import {mkPoint} from '../domain/Point';
 import {mkCommittedPlayPiece, mkMovePlayPiece, playPiecesWord} from '../domain/PlayPiece';
 
+// test.only runs the given test only.
+
 test('board set and get element', () => {
   let board = mkEmptyBoard(2);
   let point = mkPoint(0, 0);

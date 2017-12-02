@@ -21,9 +21,9 @@ import {stringify} from "../util/Logger";
 class GameService {
   constructor(gameParams) {
     this.gameParams = gameParams;
-    console.log(`game service constructor gameParams: ${JSON.stringify(this.gameParams)}`);
+    // console.log(`game service constructor gameParams: ${JSON.stringify(this.gameParams)}`);
     this.paramsDto = GameParamsConverter.toJson(gameParams);
-    console.log(`game service constructor paramsDto: ${JSON.stringify(this.paramsDto)}`);
+    // console.log(`game service constructor paramsDto: ${JSON.stringify(this.paramsDto)}`);
     this.api = apiSelector(gameParams);
   }
 
@@ -35,7 +35,7 @@ class GameService {
         return dtoResponse; // TODO. Convert dto message to application message;.
       }
       let gameDto = dtoResponse.json;
-      console.log(`game dto returned from start: ${JSON.stringify(gameDto)}`); // TODO. Remove me.
+      // console.log(`game dto returned from start: ${JSON.stringify(gameDto)}`); // TODO. Remove me.
       let game = GameConverter.fromJson(gameDto, this.gameParams);
 
       let response = this.convertResponse(dtoResponse, game);
@@ -52,7 +52,7 @@ class GameService {
     // TODO. Eliminate Play. Not really needed. playPieces is sufficient.
     let play = new Play(playPieces);
     let jsonPlayPieces = PlayConverter.toJson(play);
-    console.log(`json play pieces: ${stringify(jsonPlayPieces)}`);
+    // console.log(`json play pieces: ${stringify(jsonPlayPieces)}`);
     let promise = this.api.commitPlay(gameId, jsonPlayPieces);
     return promise.then(dtoResponse => {
       if (!dtoResponse.ok) {
