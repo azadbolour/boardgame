@@ -37,14 +37,14 @@ const testUtil = {
     return mkGame(params, 1, board, tray, [0, 0]);
   },
 
-  addInitialPlayToGame: function(game) {
-    let mid = Math.floor(game.dimension / 2);
-    let leftMove = mkGridPiece(game.tray.pieces[0], mkPoint(mid, mid - 1));
-    let $game = game.applyUserMove(leftMove);
-    let rightMove = mkGridPiece($game.tray.pieces[0], mkPoint(mid, mid + 1));
-    $game = $game.applyUserMove(rightMove);
-    return $game;
-  }
+  // addInitialPlayToGame: function(game) {
+  //   let mid = Math.floor(game.dimension / 2);
+  //   let leftMove = mkGridPiece(game.tray.pieces[0], mkPoint(mid, mid - 1));
+  //   let $game = game.applyUserMove(leftMove);
+  //   let rightMove = mkGridPiece($game.tray.pieces[0], mkPoint(mid, mid + 1));
+  //   $game = $game.applyUserMove(rightMove);
+  //   return $game;
+  // }
 };
 
 export default testUtil;

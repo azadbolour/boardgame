@@ -12,18 +12,17 @@ import * as Piece from '../domain/Piece';
 
 const pieceMoves = true;
 
-// TODO. Change name to MockApiImpl.
-
 // TODO. Take account of initialGrid and initial machine pieces.
 
-class MockGameImpl {
+class MockApiImpl {
   constructor(gameId, gameParams, initGridPieces, initUserTray, initMachineTray) {
     // TODO. Reflect initial conditions on game. Check server-side code for logic.
     this.gameParams = gameParams;
     this.nextPieceId = 0;
     this.dimension = gameParams.height;
+
     // this.machineTray = this.mkMachineTray();
-    this.machinePieces = this.getPieces(gameParams.trayCapacity);
+    // this.machinePieces = this.getPieces(gameParams.trayCapacity);
     this.moves = [];
     // this.numPiecesInPlay = this.machineTray.pieces.length; // TODO. Use method.
     this.gameId = gameId;
@@ -42,15 +41,19 @@ class MockGameImpl {
       value: piece1
     };
 
+    // TODO. Streamline tray initialization.
     const additionalTrayPieces = this.getPieces(gameParams.trayCapacity - initUserTray.length);;
     const trayPieces = initUserTray.concat(additionalTrayPieces);
+    const additionalMachinePieces = this.getPieces(gameParams.trayCapacity - initMachineTray.length);;
+    this.machinePieces = initMachineTray.concat(additionalMachinePieces);
 
     this.gameDto = {
       gameId: gameId,
       height: gameParams.height,
       width: gameParams.width,
       trayCapacity: gameParams.trayCapacity,
-      gridPieces: [midGridPiece, otherGridPiece],
+      // gridPieces: [midGridPiece, otherGridPiece],
+      gridPieces: [], // Start with an empty board.
       trayPieces: trayPieces
     };
   }
@@ -71,6 +74,8 @@ class MockGameImpl {
     let refills = this.getPieces(usedUp);
     refills.forEach(p =>
       it.gameDto.trayPieces.push(p));
+
+    console.log(`committed game: ${JSON.stringify(this.gameDto)}`);
     return refills;
   }
 
@@ -85,12 +90,12 @@ class MockGameImpl {
 
     // Find an anchor to start from.
     let start = this.filledPositions().find(pos => it.twoBelowEmpty(pos, this.dimension));
-    // console.log(`start: ${JSON.stringify(start)}`);
+    console.log(`start: ${JSON.stringify(start)}`);
     if (start === undefined) return [];
     let startPiece = this.getPieceAtGridPoint(start);
     let startPlayPiece = this.mkPlayPiece(startPiece, start, !pieceMoves);
 
-    // console.log(`startPlayPiece: ${JSON.stringify(startPlayPiece)}`);
+    console.log(`startPlayPiece: ${JSON.stringify(startPlayPiece)}`);
 
     // Create moves from machine tray to 2 slots below the anchor.
     if (this.machinePieces.length < 2) return [];
@@ -169,7 +174,7 @@ class MockGameImpl {
       let gpPoint = gp.point;
       return point.row === gpPoint.row && point.col === gpPoint.col;
     });
-    return (gridPiece !== undefined) ? gridPiece.value : undefined; // TODO. Avoid verbosity.
+    return (gridPiece !== undefined) ? gridPiece.piece : undefined; // TODO. Avoid verbosity.
   }
 
   removePieceById(pieces, piece) {
@@ -204,4 +209,4 @@ class MockGameImpl {
   }
 }
 
-export default MockGameImpl;
+export default MockApiImpl;

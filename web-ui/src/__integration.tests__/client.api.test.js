@@ -19,6 +19,8 @@ import {stringify} from "../util/Logger";
 
 test('start game and make user and machine plays', () => {
   let gameParams = GameParams.defaultClientParamsSmall();
+  // Use deterministic piece generation in tests.
+  gameParams.pieceGeneratorType = GameParams.PieceGeneratorType.cyclic;
   let game = undefined;
   let mPieces = [mkPiece('B', "1"), mkPiece('E', "2"), mkPiece('T', "3")];
   let uPieces = [mkPiece('S', "4"), mkPiece('T', "5"), mkPiece('Z', "6")];

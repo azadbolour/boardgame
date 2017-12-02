@@ -1,15 +1,15 @@
 
-- Branch dev remains for Haskell. 
-
-- Create branch dev-scala for scala.
-
-- Document branches in NOTES.
-
-- Copy to the boardgame scala branch.
-
-
-
 # Latest TODO
+
+- Change legality of first move in UI - does not need an anchor but must
+  be centered. 
+
+- Once the modified web tests work, try integration test on Haskell
+  and make necessary Haskell mods.
+
+- Haskell - GameParams add pieceGeneratorName.
+
+- Run integration test against scala application.
 
 - Add the bundle and get it to work.
 
@@ -17,24 +17,15 @@
 
 - TODO. Need a view for the page?
 
-- Copy to that branch. 
-
 - Change web ui accordingly.
 
 - Test web ui with scala server.
-
-- So we need to create a scala-server branch of the boardgame
-  so that we can change the web ui without affecting the master.
 
 - TODO. Check that rows.delete deletes everything.
 
 - PlaySpec has WsClient - how do you use it?
 
-- TODO. GameParams add pieceGeneratorName to web client.
-
 - Run application and make sure it comes up.
-
-- Run integration test against scala application.
 
 - Document seeding and migration.
 

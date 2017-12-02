@@ -123,6 +123,13 @@ http://www.bolour.com/boardgame/index.html
   add a TODO comment to at the right places in the source code. Do not clutter
   the issues list and the backlog with trivial issues.
 
+## Branches of Development
+
+- master - stable version
+- dev - development version - not necessarily stable - off master
+- scala-dev - feature branch for development of scala server - off dev
+- others - temporary feature branches
+
 ## Credits
 
 Thanks to Eitan Chatav for advice on Haskell development.

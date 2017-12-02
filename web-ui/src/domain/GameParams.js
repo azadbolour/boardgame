@@ -23,14 +23,20 @@ function getEnv(varName, defaultValue) {
 }
 
 class GameParams {
-  constructor(appParams, dimension, squarePixels, trayCapacity, apiType, gameServerUrl) {
+  constructor(appParams, dimension, squarePixels, trayCapacity, apiType, gameServerUrl, pieceGeneratorType) {
     this.appParams = appParams;
     this.dimension = dimension;
     this.squarePixels = squarePixels;
     this.trayCapacity = trayCapacity;
     this.apiType = apiType;
     this.gameServerUrl = gameServerUrl;
+    this.pieceGeneratorType = pieceGeneratorType;
   }
+
+  static PieceGeneratorType = {
+    random: "random",
+    cyclic: "cyclic"
+  };
 
   // Environment variable names.
 
@@ -45,6 +51,7 @@ class GameParams {
   static API_TYPES = [GameParams.MOCK_API_TYPE, GameParams.CLIENT_API_TYPE];
   static DEFAULT_API_TYPE = GameParams.MOCK_API_TYPE;
   static DEFAULT_GAME_SERVER_URL = 'http://localhost:6587';
+  static DEFAULT_PIECE_GENERATOR_TYPE = GameParams.PieceGeneratorType.cyclic;
 
   static validateDimension = dim => dim >= 5 && dim <= 15;
   static validateSquarePixels = pix => pix >= 15 && pix <= 60;
@@ -61,7 +68,8 @@ class GameParams {
       GameParams.DEFAULT_SQUARE_PIXELS,
       GameParams.DEFAULT_TRAY_SIZE,
       get(GameParams.ENV_API_TYPE, GameParams.DEFAULT_API_TYPE),
-      get(GameParams.ENV_GAME_SERVER_URL, GameParams.DEFAULT_GAME_SERVER_URL)
+      get(GameParams.ENV_GAME_SERVER_URL, GameParams.DEFAULT_GAME_SERVER_URL),
+      GameParams.DEFAULT_PIECE_GENERATOR_TYPE
     );
   };
 
@@ -71,13 +79,12 @@ class GameParams {
     clientParams.apiType = GameParams.CLIENT_API_TYPE;
     clientParams.dimension = 15;
     clientParams.trayCapacity = 7;
+    clientParams.pieceGeneratorType = GameParams.PieceGeneratorType.random;
     return clientParams;
   }
 
   static defaultClientParamsSmall() {
-    let clientParams = GameParams.defaultParams();
-    clientParams.appParams.envType = 'prod'; // TODO. Constant.
-    clientParams.apiType = GameParams.CLIENT_API_TYPE;
+    let clientParams = GameParams.defaultClientParams();
     clientParams.dimension = 5;
     clientParams.trayCapacity = 3;
     return clientParams;

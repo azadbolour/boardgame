@@ -90,3 +90,4 @@ export const fromJson = function(json) {
 export const NO_PIECE_VALUE = '';
 export const NO_PIECE_ID = String(-1);
 export const NO_PIECE = mkPiece(NO_PIECE_VALUE, NO_PIECE_ID);
+

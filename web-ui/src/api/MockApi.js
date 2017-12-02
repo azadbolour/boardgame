@@ -13,7 +13,7 @@
  * and not on UI domain objects. The json objects are those that go
  * on the wire, or objects supporting those that go on the wire.
  */
-import MockApiImpl from './MockGameImpl';
+import MockApiImpl from './MockApiImpl';
 import {stringify} from "../util/Logger";
 
 const promise = function(json) {
