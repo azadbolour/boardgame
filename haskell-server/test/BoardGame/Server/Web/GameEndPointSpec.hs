@@ -68,25 +68,25 @@ spec = do
       do
         env <- Fixtures.initTest
         Fixtures.makePlayer env Fixtures.thePlayer
-        mPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
-        uPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
+        uPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
+        mPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
         GameDto {gameId, gameParams, gridPieces, trayPieces}
           <- Fixtures.makeGame env Fixtures.gameParams [] uPieces mPieces
-        let GridValue {value = piece, point = centerPoint} =
-              fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
-            Point {row, col} = centerPoint
+--         let GridValue {value = piece, point = centerPoint} =
+--               fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
+--             Point {row, col} = centerPoint
 
-        let userPiece0:userPiece1:_ = uPieces
-            _:machinePiece1:_ = mPieces
+        let pc0:pc1:pc2:_ = uPieces
+            center = Fixtures.testDimension `div` 2
             playPieces = [
-                PlayPiece userPiece0 (Point (row - 1) col) True
-              , PlayPiece machinePiece1 (Point row col) False
-              , PlayPiece userPiece1 (Point (row + 1) col) True
+                PlayPiece pc0 (Point center (center - 1)) True
+              , PlayPiece pc1 (Point center center) True
+              , PlayPiece pc2 (Point center (center + 1)) True
               ]
 
         replacements <- satisfiesRight
           =<< runExceptT (commitPlayHandler env gameId playPieces)
-        length replacements `shouldBe` 2
+        length replacements `shouldBe` 3
 
   describe "make machine play" $
     it "make machine play" $

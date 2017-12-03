@@ -229,9 +229,13 @@ export const mkBoard = function(matrix) {
       let line = (axis === "X" ? this.rows() : this.cols())[lineNumber];
       let firstMoveIndex = undefined;
       let lastMoveIndex = undefined;
+      let hasCenterMove = false;
       let numMoves = 0;
+      let center = Math.floor(_dimension / 2);
       for (let i = 0; i < _dimension; i++) {
         if (line[i].moved) {
+          if (lineNumber === center && i === center)
+            hasCenterMove = true;
           if (firstMoveIndex === undefined)
             firstMoveIndex = i;
           lastMoveIndex = i;
@@ -262,7 +266,8 @@ export const mkBoard = function(matrix) {
         nearestLeftNeighbor: nearLeft,
         nearestRightNeighbor: nearRight,
         interMoveFreeSlots: interMoveFreeSlots,
-        hasInterMoveAnchor: interMoveOriginalSlots > 0
+        hasInterMoveAnchor: interMoveOriginalSlots > 0,
+        hasCenterMove: hasCenterMove
       }
     },
 
@@ -316,9 +321,9 @@ export const mkBoard = function(matrix) {
       let [axis, lineNumber] = [lineInfo.axis, lineInfo.lineNumber];
       let line = (axis === "X") ? this.rows()[lineNumber] : this.cols()[lineNumber];
 
-      // No original pieces. Should not happen. Check for good measure.
+      // No original pieces in play line - it can happen only for the first play.
       let numOriginalPieces = sum(line.map(pp => pp.isOriginal() ? 1 : 0));
-      if (numOriginalPieces === 0)
+      if (this.hasCommittedPlays() && numOriginalPieces === 0)
         return [];
 
       // Gaps remain - play is incomplete.
@@ -331,24 +336,33 @@ export const mkBoard = function(matrix) {
 
       let strip = line.slice(leftIndex, rightIndex + 1); // Slice is right-exclusive.
       numOriginalPieces = sum(strip.map(pp => pp.isOriginal() ? 1 : 0));
-      if (numOriginalPieces === 0)
+      // Not the first play and has no anchor.
+      if (this.hasCommittedPlays() && numOriginalPieces === 0)
         return [];
       return strip;
     },
 
     /**
-     * Get info on the unique play line if it exists;
-     * otherwise return undefined.
+     * Get info on possible play lines.
      */
     playLineInfo() {
-      let hasOriginalPiece = function(lineInfo) {
+      let hasAnchor = function(lineInfo) {
         return lineInfo.hasInterMoveAnchor
           || lineInfo.nearestLeftNeighbor !== undefined
           || lineInfo.nearestRightNeighbor !== undefined;
       };
 
-      let playRowsInfo = this.linesMoveInfo("X").filter(hasOriginalPiece);
-      let playColsInfo = this.linesMoveInfo("Y").filter(hasOriginalPiece);
+      let isCentered = function(lineInfo) {
+        return lineInfo.hasCenterMove;
+      };
+
+      // If it is the first play, it must have a center move which acts as an anchor.
+      let isPlayLine = this.hasCommittedPlays() ? hasAnchor : isCentered;
+
+      let playRowsInfo = this.linesMoveInfo("X")
+      playRowsInfo = playRowsInfo.filter(isPlayLine);
+      let playColsInfo = this.linesMoveInfo("Y")
+      playColsInfo = playColsInfo.filter(isPlayLine);
 
       let numPlayRows = playRowsInfo.length;
       let numPlayCols = playColsInfo.length;

@@ -1,12 +1,13 @@
 
 # Latest TODO
 
-- Changed model to start game withut any plays.
-  Try integration test on Haskell and make necessary Haskell mods.
-
-- Haskell - GameParams add pieceGeneratorName.
+- Haskell - GameParams add pieceGeneratorName. And test - integration and
+  manual.
 
 - Run integration test against scala application.
+
+- index too large error is still intermittent - added debugging prints hoping
+  to discover where it happens
 
 - Add the bundle and get it to work.
 
@@ -41,8 +42,6 @@
 
 - Create an application test.
 
-- Change the secret key to a real secret for production. Read the documentation.
-
 - Added explicit allow origin to javascript client api. 
   Remove if it does not work.
 
@@ -60,6 +59,15 @@
 - export `GAME_SERVER_URL="http://localhost:6587"` no slash at the end
 
 ## To Do
+
+- Change the secret key to a real secret for production. Read the documentation.
+
+- Bug extending a word should work constitute a legitimate play.
+
+- For now user goes first. TODO. After starting a game, toss a coin in the client 
+  to determine who goes first. If it is machine, do a machine play.
+
+  Add center square image.
 
 - Uniqueness of player name. Need an index for the database.
 

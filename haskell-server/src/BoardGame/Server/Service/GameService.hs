@@ -161,12 +161,9 @@ startGameService ::
   -> [GridPiece]
   -> [Piece]
   -> [Piece]
-  -> GameTransformerStack (Game, Maybe [PlayPiece])
+  -> GameTransformerStack Game
+  -- -> GameTransformerStack (Game, Maybe [PlayPiece])
 
--- TODO. Toss a coin to see who goes first.
--- For now we have machine always playing first - and that play is done as part of starting the game.
--- It is a little cleaner if the coin toss is returned to the client with an start board.
--- The client would either tell the user to start or call machine play.
 startGameService gameParams gridPieces initUserPieces initMachinePieces = do
   params @ GameParams.GameParams {languageCode} <- Game.validateGameParams gameParams
   GameEnv { connectionProvider, gameCache } <- ask
@@ -177,10 +174,11 @@ startGameService gameParams gridPieces initUserPieces initMachinePieces = do
   game @ Game{ gameId } <- Game.mkInitialGame params pieceGenerator gridPieces initUserPieces initMachinePieces playerName
   GameDao.addGame connectionProvider $ gameToRow playerRowId game
   liftGameExceptToStack $ GameCache.insert game gameCache
-  playPieces <- machinePlayService gameId
+  -- playPieces <- machinePlayService gameId
   -- Machine play has changed the game. Get the latest.
-  game' <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
-  return (game', Just playPieces) -- TODO. Return Nothing playPieces if user goes first.
+  -- game' <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
+  -- return (game', Just playPieces) -- TODO. Return Nothing playPieces if user goes first.
+  return game
 
 -- | Service function to commit a user play - reflecting it on the
 --   game's board, and and refilling the user tray.
@@ -217,12 +215,19 @@ machinePlayService gameId = do
       -- gridRows = Board.charRows board
       maybeMatch = Matcher.findOptimalMatch dictionary board trayChars
       -- yields Maybe (Strip, DictWord)
+  liftIO $ print "machine tray"
+  liftIO $ print $ show machineTray
   (game', machinePlayPieces) <- case maybeMatch of
     Nothing -> do
+      liftIO $ print "no machine play match"
       gm <- exchangeMachinePiece game
       return (gm, []) -- If no pieces were used - we know it was a swap.
     Just (strip, word) -> do
+      liftIO $ print "machine play match"
+      liftIO $ print $ show word
       (playPieces, depletedTray) <- stripMatchAsPlay board machineTray strip word
+      liftIO $ print "playPieces"
+      liftIO $ print $ show playPieces
       (gm @ Game {playNumber}, refills) <- Game.reflectPlayOnGame game MachinePlayer playPieces
       saveWordPlay gameId playNumber MachinePlayer playPieces refills
       return (gm, playPieces)

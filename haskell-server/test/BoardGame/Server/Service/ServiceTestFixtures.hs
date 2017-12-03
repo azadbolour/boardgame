@@ -40,5 +40,6 @@ makeGame env gameParams initialGridPieces userTrayStartsWith machineTrayStartsWi
     gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith
   satisfiesRight eitherResult
   -- let (game, maybePlayPieces) = head $ rights [eitherResult]
-  let (Right (game, maybePlayPieces)) = eitherResult
+  -- let (Right (game, maybePlayPieces)) = eitherResult
+  let (Right game) = eitherResult
   return game

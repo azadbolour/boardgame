@@ -22,13 +22,9 @@ test('start game and make user and machine plays', () => {
   // Use deterministic piece generation in tests.
   gameParams.pieceGeneratorType = GameParams.PieceGeneratorType.cyclic;
   let game = undefined;
-  let mPieces = [mkPiece('B', "1"), mkPiece('E', "2"), mkPiece('T', "3")];
-  let uPieces = [mkPiece('S', "4"), mkPiece('T', "5"), mkPiece('Z', "6")];
+  let uPieces = [mkPiece('B', "1"), mkPiece('E', "2"), mkPiece('T', "3")];
+  let mPieces = [mkPiece('S', "4"), mkPiece('T', "5"), mkPiece('Z', "6")];
   let center = parseInt(gameParams.dimension/2);
-
-  // let leftPiece = mkPiece('B', 'idLeft');
-  // let rightPiece = mkPiece('T', 'idRight');
-  // let initUserTray = [leftPiece, rightPiece];
 
   let gameService = new GameService(gameParams);
   gameService.start([], uPieces, mPieces).
@@ -39,20 +35,18 @@ test('start game and make user and machine plays', () => {
     expect(game.board.dimension).toBe(gameParams.dimension);
     // game = TestUtil.addInitialPlayToGame(game);
     // let playPieces = game.getCompletedPlayPieces();
-    // The started game will have a horizontal machine play of BET at the center.
-    // Make a vertical play of SET around that center E.
-    // TODO. Ideally should obtain the location of that E on the board.
+    // Make a horizontal play of BET.
     let playPieces = [
-      mkMovePlayPiece(uPieces[0], mkPoint(center - 1, center)),
-      mkCommittedPlayPiece(mPieces[1], mkPoint(center, center)),
-      mkMovePlayPiece(uPieces[1], mkPoint(center + 1, center))
+      mkMovePlayPiece(uPieces[0], mkPoint(center, center - 1)),
+      mkMovePlayPiece(uPieces[1], mkPoint(center, center)),
+      mkMovePlayPiece(uPieces[2], mkPoint(center, center + 1))
     ];
     console.log(`playPieces: ${stringify(playPieces)}`);
     return gameService.commitUserPlay(game.gameId, playPieces);
   }).
   then(response => {
     let refillPieces = response.json;
-    expect(refillPieces.length).toBe(2);
+    expect(refillPieces.length).toBe(3);
     return gameService.getMachinePlay(game.gameId);
     // TODO. Add replacement pieces to the tray.
     // game.clearPlay(); // TODO. Move this before return.

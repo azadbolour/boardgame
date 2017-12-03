@@ -88,39 +88,39 @@ spec = do
       do -- IO
         userTray <- runner'' $ do -- GameTransformerStack
           addPlayerService $ Player Fixtures.thePlayer
-          (Game {trays}, maybePlayPieces) <- startGameService Fixtures.gameParams [] [] []
+          Game {trays} <- startGameService Fixtures.gameParams [] [] []
           return $ trays !! 0
         length (Tray.pieces userTray) `shouldSatisfy` (== Fixtures.testTrayCapacity)
 
   describe "commits a play" $
     it "commit a play" $
       do -- IO
-        mPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
-        uPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
+        uPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
+        mPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
 
         refills <- runner'' $ do -- GameTransformerStack
           addPlayerService $ Player Fixtures.thePlayer
-          (Game {gameId, board, trays}, _) <- startGameService Fixtures.gameParams [] uPieces mPieces
-          let gridPieces = Board.getGridPieces board
-              GridValue {value = piece, point = centerPoint} =
-                fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
-              Point {row, col} = centerPoint
-          let userPiece0:userPiece1:_ = uPieces
-              _:machinePiece1:_ = mPieces
+          Game {gameId, board, trays} <- startGameService Fixtures.gameParams [] uPieces mPieces
+--           let gridPieces = Board.getGridPieces board
+--               GridValue {value = piece, point = centerPoint} =
+--                 fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
+--               Point {row, col} = centerPoint
+          let pc0:pc1:pc2:_ = uPieces
+              center = Fixtures.testDimension `div` 2
               playPieces = [
-                  PlayPiece userPiece0 (Point (row - 1) col) True
-                , PlayPiece machinePiece1 (Point row col) False
-                , PlayPiece userPiece1 (Point (row + 1) col) True
+                  PlayPiece pc0 (Point center (center - 1)) True
+                , PlayPiece pc1 (Point center center) True
+                , PlayPiece pc2 (Point center (center + 1)) True
                 ]
           commitPlayService gameId playPieces -- refills
-        length refills `shouldBe` 2
+        length refills `shouldBe` 3
 
   describe "make machine play" $
     it "make machine play" $
       do -- IO
         word <- runner'' $ do
           addPlayerService $ Player Fixtures.thePlayer
-          (Game {gameId}, _) <- startGameService Fixtures.gameParams [] [] []
+          Game {gameId} <- startGameService Fixtures.gameParams [] [] []
           wordPlayPieces <- machinePlayService gameId
           let word = Play.playToWord $ Play wordPlayPieces
           return word
@@ -132,7 +132,8 @@ spec = do
       do
         value <- runner'' $ do
           addPlayerService $ Player Fixtures.thePlayer
-          (Game {gameId, trays}, _) <- startGameService Fixtures.gameParams [] [] []
+          -- (Game {gameId, trays}, _) <- startGameService Fixtures.gameParams [] [] []
+          Game {gameId, trays} <- startGameService Fixtures.gameParams [] [] []
           let userTray = trays !! 0
               piece = head (Tray.pieces userTray)
           -- TODO satisfiesRight

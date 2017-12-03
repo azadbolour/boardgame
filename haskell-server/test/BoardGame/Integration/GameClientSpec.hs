@@ -88,8 +88,9 @@ startApp = do
 
 -- TODO. Duplicated in WebTestFixtures. Unify into single fixture module.
 
+dimension = 9
 thePlayer = "You"
-params = GameParams 9 9 12 Dict.defaultLanguageCode thePlayer
+params = GameParams dimension dimension 12 Dict.defaultLanguageCode thePlayer
 playerJohn = Player thePlayer
 
 centerGridPoint =
@@ -112,26 +113,26 @@ spec = beforeAll startApp $ afterAll endWaiApp $
       manager <- mkManager
       eitherMaybeUnit <- runExceptT (Client.addPlayer playerJohn manager baseUrl)
 
-      mPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
-      uPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
+      uPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
+      mPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
 
       (GameDto.GameDto {gameId, trayPieces, gridPieces}) <- SpecUtil.satisfiesRight
         =<< runExceptT (Client.startGame (params, [], uPieces, mPieces) manager baseUrl)
 
-      let GridValue {value = piece, point = centerPoint} =
-            fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
-          Point {row, col} = centerPoint
+--       let GridValue {value = piece, point = centerPoint} =
+--             fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
+--           Point {row, col} = centerPoint
 
-      let userPiece0:userPiece1:_ = uPieces
-          _:machinePiece1:_ = mPieces
+      let pc0:pc1:pc2:_ = uPieces
+          center = dimension `div` 2
           playPieces = [
-              PlayPiece userPiece0 (Point (row - 1) col) True
-            , PlayPiece machinePiece1 (Point row col) False
-            , PlayPiece userPiece1 (Point (row + 1) col) True
+              PlayPiece pc0 (Point center (center - 1)) True
+            , PlayPiece pc1 (Point center center) True
+            , PlayPiece pc2 (Point center (center + 1)) True
             ]
 
       replacements <- SpecUtil.satisfiesRight =<< runExceptT (Client.commitPlay gameId playPieces manager baseUrl)
-      length replacements `shouldBe` 2
+      length replacements `shouldBe` 3
       wordPlayPieces <- SpecUtil.satisfiesRight
         =<< runExceptT (Client.machinePlay gameId manager baseUrl)
       print $ PlayPiece.playPiecesToWord wordPlayPieces

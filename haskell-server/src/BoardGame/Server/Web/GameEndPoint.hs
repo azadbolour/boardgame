@@ -155,7 +155,8 @@ startGameServiceWrapper ::
   -> [Piece]
   -> GameTransformerStack GameDto
 startGameServiceWrapper params gridPieces initUserPieces initMachinePieces = do
-  (game, maybePlayPieces) <- GameService.startGameService params gridPieces initUserPieces initMachinePieces
+  -- (game, maybePlayPieces) <- GameService.startGameService params gridPieces initUserPieces initMachinePieces
+  game <- GameService.startGameService params gridPieces initUserPieces initMachinePieces
   return $ toDto game
 
 -- | API handler to commit a new play by the player side of the game.
