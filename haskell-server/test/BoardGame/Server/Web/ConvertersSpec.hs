@@ -28,7 +28,7 @@ import BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Web.Converters(gameToDto)
 import Bolour.Util.SpecUtil (satisfiesRight)
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
-import qualified BoardGame.Server.Domain.PieceGen as PieceGen
+import qualified BoardGame.Common.Domain.PieceGen as PieceGen
 import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
 
 dim = 9

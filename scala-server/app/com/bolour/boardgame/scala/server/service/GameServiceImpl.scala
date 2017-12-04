@@ -98,7 +98,6 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     initUserPieces: List[Piece],      // For testing only.
     initMachinePieces: List[Piece]    // For testing only.
   ): Try[GameState] = {
-  // ): Try[(GameState, Option[List[PlayPiece]])] = {
     if (gameCache.size >= maxActiveGames)
       return Failure(SystemOverloadedException())
 

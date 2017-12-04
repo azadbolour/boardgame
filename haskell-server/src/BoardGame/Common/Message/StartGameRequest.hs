@@ -17,7 +17,7 @@ import BoardGame.Common.Domain.GridValue (GridValue)
 
 data StartGameRequest = StartGameRequest {
     gameParams :: GameParams
-  , gridPieces :: [GridValue Piece]
+  , initGridPieces :: [GridValue Piece]
   , initUserPieces :: [Piece]
   , initMachinePieces :: [Piece]
 } deriving (Eq, Show, Generic, NFData)

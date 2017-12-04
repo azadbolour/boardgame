@@ -30,7 +30,7 @@ main = do
 
 spec :: Spec
 spec = do
-  describe "Test4" Test4.spec
+  describe "Test2" Test2.spec
   -- describe "Test2" Test2.spec
   -- describe "Test3" Test3.spec
   -- describe "Test4" Test4.spec

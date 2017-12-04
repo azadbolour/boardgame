@@ -34,8 +34,8 @@ class GameParams {
   }
 
   static PieceGeneratorType = {
-    random: "random",
-    cyclic: "cyclic"
+    random: "Random",
+    cyclic: "Cyclic"
   };
 
   // Environment variable names.

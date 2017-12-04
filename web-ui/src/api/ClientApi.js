@@ -6,6 +6,7 @@
 
 /** @module ClientApi */
 
+import {StartGameRequestConverter} from "./Converters";
 const basic = require('basic-authorization-header');
 const fetch = require('node-fetch');
 
@@ -19,7 +20,9 @@ class ClientApi {
   }
 
   startGame(gameParams, initGridPieces, initUserTray, initMachineTray) {
-    let body = JSON.stringify([gameParams, initGridPieces, initUserTray, initMachineTray]); // TODO. This should happen in converter.
+    // let body = JSON.stringify([gameParams, initGridPieces, initUserTray, initMachineTray]);
+    let startGameRequest = StartGameRequestConverter.toJson(gameParams, initGridPieces, initUserTray, initMachineTray);
+    let body = JSON.stringify(startGameRequest);
     let request = restManager.mkPostRequest(body);
     let promise = restManager.send(request, this.gameServerUrl, '/game/game');
     return promise;

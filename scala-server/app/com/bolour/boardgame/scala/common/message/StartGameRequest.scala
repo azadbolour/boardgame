@@ -9,7 +9,7 @@ import com.bolour.boardgame.scala.common.domain.{GameParams, GridPiece, Piece}
 
 case class StartGameRequest(
   gameParams: GameParams,
-  gridPieces: List[GridPiece],
+  initGridPieces: List[GridPiece],
   initUserPieces: List[Piece],
   initMachinePieces: List[Piece]
 )

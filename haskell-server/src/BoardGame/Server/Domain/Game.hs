@@ -51,8 +51,8 @@ import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.GameError
-import BoardGame.Server.Domain.PieceGen
-import qualified BoardGame.Server.Domain.PieceGen as PieceGen
+import BoardGame.Common.Domain.PieceGen
+import qualified BoardGame.Common.Domain.PieceGen as PieceGen
 
 data Game = Game {
     gameId :: String

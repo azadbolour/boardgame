@@ -13,6 +13,7 @@ import controllers.GameDtoConverters._
 import com.bolour.boardgame.scala.common.message.{PlayerDto, StartGameRequest}
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
 import com.bolour.boardgame.scala.server.service.GameService
+import org.slf4j.LoggerFactory
 import play.api.mvc._
 
 import scala.util.{Failure, Success}
@@ -27,6 +28,8 @@ import play.api.libs.json._
 // class GameController @Inject() (service: GameService) extends InjectedController {
 class GameController @Inject() (cc: ControllerComponents, service: GameService) extends AbstractController(cc) {
 
+  val logger = LoggerFactory.getLogger(this.getClass)
+
   /** Shorthand for validation errors type defined in JsError. */
   type ValidationErrors = Seq[(JsPath, Seq[JsonValidationError])]
 
@@ -34,6 +37,7 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
    * Action for adding a player taking json input.
    */
   def addPlayer = Action(parse.json) { implicit request =>
+    logger.info(s"addPlayer json request: ${request.body}")
     val maybeValidPlayerDto = validate[PlayerDto](request)
     processRequest(maybeValidPlayerDto, addPlayerValidated)
   }
@@ -43,18 +47,24 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
     * Kept public for testing.
     */
   def addPlayerValidated(dto: PlayerDto) = {
-      val player = fromPlayerDto(dto)
-      val triedUnit = service.addPlayer(player)
-      triedUnit match {
-        case Failure(ex) => unprocessable(ex)
-        case Success(_) => Ok(Json.toJson(()))
-      }
+    logger.info(s"addPlayer playerDto: ${dto}")
+    val player = fromPlayerDto(dto)
+    val triedUnit = service.addPlayer(player)
+    triedUnit match {
+      case Failure(ex) =>
+        logger.error("addPlayer failure", ex)
+        unprocessable(ex)
+      case Success(_) =>
+        logger.info("addPlayer success")
+        Ok(Json.toJson(()))
     }
+  }
 
   /**
    * Action for starting a game taking json input.
    */
   def startGame = Action(parse.json) { implicit request =>
+    logger.info(s"startGame json request: ${request.body}")
     val maybeValidStartGameRequest = validate[StartGameRequest](request)
     processRequest(maybeValidStartGameRequest, startGameValidated)
   }
@@ -64,13 +74,17 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
     * Kept public for testing.
     */
   def startGameValidated(startGameRequest: StartGameRequest) = {
+    logger.info(s"startGame startGameRequest: ${startGameRequest}")
     startGameRequest match {
       case StartGameRequest(gameParams, gridPieces, initUserPieces, initMachinePieces) => {
         val triedStart = service.startGame (gameParams, gridPieces, initUserPieces, initMachinePieces)
         triedStart match {
-          case Failure(ex) => unprocessable(ex)
+          case Failure(ex) =>
+            logger.error("startGame failure", ex)
+            unprocessable(ex)
           case Success(gameState) => {
             val gameDto = toGameDto(gameParams, gameState)
+            logger.info(s"startGame success gameDto: ${gameDto}")
             Ok(Json.toJson(gameDto))
           }
         }
@@ -78,48 +92,74 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
     }
   }
 
+  // TODO. Change all logging to debug.
+
   /**
     * Action for committing a play taking json input.
     */
   def commitPlay(gameId: String) = Action(parse.json) { implicit request =>
+    logger.info(s"commitPlay: json request: ${request.body}")
     val maybeValidPlayPieces = validate[List[PlayPiece]](request)
     processGameRequest(gameId, maybeValidPlayPieces, commitPlayValidated)
   }
 
   def commitPlayValidated(gameId: String)(playPieces: List[PlayPiece]) = {
+    logger.info(s"commitPlay play pieces: ${playPieces}")
     val triedCommit = service.commitPlay(gameId, playPieces)
     triedCommit match {
-      case Failure(ex) => unprocessable(ex)
-      case Success(replacementPieces) => Ok(Json.toJson(replacementPieces))
+      case Failure(ex) =>
+        logger.error("commitPlay failure", ex)
+        unprocessable(ex)
+      case Success(replacementPieces) =>
+        logger.info(s"commitPlay success - replacements: ${replacementPieces}")
+        Ok(Json.toJson(replacementPieces))
     }
   }
 
-  def machinePlay(gameId: String) = Action(parse.json) { implicit request =>
+  // def machinePlay(gameId: String) = Action(parse.json) { implicit request =>
+  def machinePlay(gameId: String) = Action { implicit request =>
+    logger.info(s"machinePlay")
     val triedMachinePlay = service.machinePlay(gameId)
     triedMachinePlay match {
-      case Failure(ex) => unprocessable(ex)
-      case Success(playedPieces) => Ok(Json.toJson(playedPieces))
+      case Failure(ex) =>
+        logger.info("machinePlay failure", ex)
+        unprocessable(ex)
+      case Success(playedPieces) =>
+        logger.info(s"machinePlay success - playedPieces: ${playedPieces}")
+        Ok(Json.toJson(playedPieces))
     }
   }
 
   def swapPiece(gameId: String) = Action(parse.json) { implicit request =>
+    logger.info(s"swapPiece: json request: ${request.body}")
     val maybeValidPiece = validate[Piece](request)
     processGameRequest(gameId, maybeValidPiece, swapPieceValidated)
   }
 
   def swapPieceValidated(gameId: String)(piece: Piece) = {
+    logger.info(s"swapPiece piece: ${piece}")
     val triedSwap = service.swapPiece(gameId, piece)
     triedSwap match {
-      case Failure(ex) => unprocessable(ex)
-      case Success(newPiece) => Ok(Json.toJson(newPiece))
+      case Failure(ex) =>
+        logger.error("swapPiece failure", ex)
+        unprocessable(ex)
+      case Success(newPiece) =>
+        logger.info(s"swapPiece success - new piece: ${newPiece}")
+        Ok(Json.toJson(newPiece))
     }
   }
 
-  def endGame(gameId: String) = Action(parse.json) { implicit request =>
+  // def endGame(gameId: String) = Action(parse.json) { implicit request =>
+  def endGame(gameId: String) = Action { implicit request =>
+    logger.info(s"endGame")
     val triedEnd = service.endGame(gameId)
     triedEnd match {
-      case Failure(ex) => unprocessable(ex)
-      case Success(_) => Ok(Json.toJson(()))
+      case Failure(ex) =>
+        logger.error("endGame failure", ex)
+        unprocessable(ex)
+      case Success(_) =>
+        logger.info("endGame success")
+        Ok(Json.toJson(()))
     }
 
   }

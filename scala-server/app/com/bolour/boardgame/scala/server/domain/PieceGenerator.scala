@@ -48,8 +48,8 @@ object PieceGenerator {
 
   def apply(pieceGeneratorType: PieceGeneratorType): PieceGenerator = {
     pieceGeneratorType match {
-      case `cyclic` => CyclicPieceGenerator()
-      case `random` => RandomPieceGenerator()
+      case Cyclic => CyclicPieceGenerator()
+      case Random => RandomPieceGenerator()
     }
   }
 }

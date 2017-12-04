@@ -69,6 +69,7 @@ library
       BoardGame.Common.Message.GameDto
       BoardGame.Common.Message.StartGameRequest
       BoardGame.Common.Domain.PlayPiece
+      BoardGame.Common.Domain.PieceGen
       BoardGame.Server.Domain.Grid
       BoardGame.Server.Domain.Core
       BoardGame.Server.Domain.Board
@@ -79,7 +80,6 @@ library
       BoardGame.Server.Domain.Tray
       BoardGame.Server.Domain.PlayInfo
       BoardGame.Server.Domain.PlayDetails
-      BoardGame.Server.Domain.PieceGen
       BoardGame.Server.Domain.BoardStripMatcher
       BoardGame.Server.Domain.IndexedStripMatcher
       BoardGame.Server.Domain.IndexedLanguageDictionary
@@ -112,6 +112,19 @@ executable boardgame-seed-data-populator
       base
     , transformers
     , boardgame
+  default-language: Haskell2010
+
+executable boardgame-sample-client
+  main-is: app/SampleClient.hs
+  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+  build-depends:
+      base
+    , boardgame
+    , servant-client
+    , mtl
+    , aeson
+    , wai-cors
+    , http-client
   default-language: Haskell2010
 
 executable boardgame-server

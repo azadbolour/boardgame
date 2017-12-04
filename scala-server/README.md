@@ -1,17 +1,10 @@
 
-- Web UI needs to send StartGameRequest.
+- Merge the branch.sh of scala-server and the root branch.sh and commit
+  branch,sh.template and azadbolour.
 
-- integration test
+- Haskell servant client - http://haskell-servant.readthedocs.io/en/stable/tutorial/Client.html
 
-  console.log src/__integration.tests__/client.api.test.js:33
-    {"obj":[{"msg":["error.expected.jsobject"],"args":[]}]}
-
-  The API is defined to send an array - but it needs an object.
-
-  [{"height":5,"width":5,"trayCapacity":3,"languageCode":"","playerName":"You","pieceGeneratorType":"cyclic"},[],[{"value":"B","id":"1"},{"value":"E","id":"2"},{"value":"T","id":"3"}],[{"value":"S","id":"4"},{"value":"T","id":"5"},{"value":"Z","id":"6"}]]
-
-
-- How to give http.port to sbt?
+- Haskell aeson: https://www.schoolofhaskell.com/school/starting-with-haskell/libraries-and-frameworks/text-manipulation/json
 
 - How to gve http.port to intellij. In Play2Run configuration add
   -Dhttp.port=6587. Worked.
@@ -70,6 +63,10 @@
 - export `GAME_SERVER_URL="http://localhost:6587"` no slash at the end
 
 ## To Do
+
+- Haskell. Use strategy pattern for piece generator. Define specific selector type
+  for each strategy. Calling a factory on each type returns a different
+  instance of a class. Will need to reinstate existential qualification.
 
 - Haskell - GameParams add pieceGeneratorName. And test - integration and
   manual.

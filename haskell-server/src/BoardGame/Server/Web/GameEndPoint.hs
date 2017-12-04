@@ -144,9 +144,9 @@ addPlayerHandler env player =
 
 -- | API handler to create and start a new game.
 startGameHandler :: GameEnv -> StartGameRequest -> ExceptServant GameDto
-startGameHandler env (StartGameRequest{gameParams, gridPieces, initUserPieces, initMachinePieces}) =
+startGameHandler env (StartGameRequest{gameParams, initGridPieces, initUserPieces, initMachinePieces}) =
   gameTransformerStackHandler env $ do -- GameTransformerStack
-    gameDto <- startGameServiceWrapper gameParams gridPieces initUserPieces initMachinePieces
+    gameDto <- startGameServiceWrapper gameParams initGridPieces initUserPieces initMachinePieces
     -- logMessage (show gameDto) -- TODO. Could not prettify it - tried groom and pretty-show. No good.
     return gameDto
 
@@ -156,9 +156,9 @@ startGameServiceWrapper ::
   -> [Piece]
   -> [Piece]
   -> GameTransformerStack GameDto
-startGameServiceWrapper params gridPieces initUserPieces initMachinePieces = do
+startGameServiceWrapper params initGridPieces initUserPieces initMachinePieces = do
   -- (game, maybePlayPieces) <- GameService.startGameService params gridPieces initUserPieces initMachinePieces
-  game <- GameService.startGameService params gridPieces initUserPieces initMachinePieces
+  game <- GameService.startGameService params initGridPieces initUserPieces initMachinePieces
   return $ gameToDto game
 
 -- | API handler to commit a new play by the player side of the game.

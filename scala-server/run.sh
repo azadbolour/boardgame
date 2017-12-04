@@ -2,4 +2,4 @@
 
 # Run scala server on given port.
 
-sbt "run 6597"
+sbt "run 6587"
