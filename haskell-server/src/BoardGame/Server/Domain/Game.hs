@@ -9,7 +9,7 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE ExistentialQuantification #-}
+-- {-# LANGUAGE ExistentialQuantification #-}
 
 module BoardGame.Server.Domain.Game (
     Game(..)
@@ -51,19 +51,10 @@ import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.GameError
-import BoardGame.Server.Domain.PieceGenerator
-import qualified BoardGame.Server.Domain.PieceGenerator as PieceGenerator
+import BoardGame.Server.Domain.PieceGen
+import qualified BoardGame.Server.Domain.PieceGen as PieceGen
 
--- We use existential quantification for the piece generator field of Game
--- which is abstract (whose type is the type class PieceGenerator).
--- This is done in order to avoid being forced to parameterize Game by the type
--- of the piece generator, which is necessary without existential quantification.
--- Without existential quantification, every use of Game in a function anywhere in
--- the code base would have to provide a type parameter to game for the piece generator.
--- This would pollute the code with a type parameter that in most cases is not and
--- should not be of concern to a function using Game as a parameter.
-
-data Game = forall pieceGenerator . PieceGenerator pieceGenerator => Game {
+data Game = Game {
     gameId :: String
   , languageCode :: String
   , board :: Board
@@ -71,7 +62,7 @@ data Game = forall pieceGenerator . PieceGenerator pieceGenerator => Game {
   , playerName :: Player.PlayerName
   , playNumber :: Int
   , playTurn :: PlayerType
-  , pieceGenerator :: pieceGenerator
+  , pieceGenerator :: PieceGen
   , score :: [Int]
   , startTime :: UTCTime
 }
@@ -94,8 +85,7 @@ initTray (game @ Game { trays }) playerType initPieces = do
       game'' = setPlayerTray game' playerType tray
   return game''
 
-updatePieceGenerator :: PieceGenerator pieceGenerator =>
-  Game -> pieceGenerator -> Game
+updatePieceGenerator :: Game -> PieceGen -> Game
 
 -- | Explicit record update for fieldGenerator.
 --   Cannot do normal update: game {pieceGenerator = nextGen} gets compiler error:
@@ -106,7 +96,7 @@ updatePieceGenerator
 
 mkPiece :: MonadIO m => Game -> m (Game, Piece)
 mkPiece (game @ Game {pieceGenerator}) = do
-  (piece, nextGen) <- liftIO $ PieceGenerator.next pieceGenerator
+  (piece, nextGen) <- liftIO $ PieceGen.next pieceGenerator
   let game' = updatePieceGenerator game nextGen
   -- let game' = game { pieceGenerator = nextGen}
   -- piece <- liftIO $ Piece.mkRandomPieceForId (show id)
@@ -124,9 +114,9 @@ mkPieces num game = mkPieces' num (game, [])
 initScores = [0, 0]
 
 -- | Note. Validation of player name does not happen here.
-mkInitialGame :: (PieceGenerator pieceGenerator, MonadError GameError m, MonadIO m) =>
+mkInitialGame :: (MonadError GameError m, MonadIO m) =>
   GameParams
-  -> pieceGenerator
+  -> PieceGen
   -> [GridPiece]
   -> [Piece]
   -> [Piece]

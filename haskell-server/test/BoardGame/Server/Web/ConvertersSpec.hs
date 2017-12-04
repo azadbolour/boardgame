@@ -25,52 +25,33 @@ import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.Board as Board
-import BoardGame.Server.Web.Converters
+import BoardGame.Server.Web.Converters(gameToDto)
 import Bolour.Util.SpecUtil (satisfiesRight)
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
-import qualified BoardGame.Server.Domain.PieceGenerator as PieceGenerator
--- import BoardGame.Server.Domain.LanguageDictionary (LanguageDictionary, LanguageDictionary(LanguageDictionary))
-
--- dictionary :: LanguageDictionary
--- dictionary = LanguageDictionary "en" [] (const True)
+import qualified BoardGame.Server.Domain.PieceGen as PieceGen
+import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
 
 dim = 9
 mid = dim `div` 2
+thePlayer = "You"
+
+pieceGeneratorType = PieceGeneratorType.Cyclic
+params = GameParams dim dim 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
+pieceGenerator = PieceGen.mkDefaultPieceGen PieceGeneratorType.Cyclic
 
 spec :: Spec
 spec = do
-  describe "convert game to game dto and back" $
+  describe "convert game to game dto" $
     it "game to dto" $ do
       let playerName = "You"
-      let params = GameParams dim dim 12 Dict.defaultLanguageCode playerName
-          pieceGenerator = PieceGenerator.mkCyclicPieceGenerator "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
       let gridPiece = GridValue (Piece 'E' "idE") (Point mid mid)
       game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params pieceGenerator [gridPiece] [] [] playerName)
-      let dto = toDto game
+      let dto = gameToDto game
       let brd = Game.board game
       length (Board.getGridPieces brd) `shouldBe` length (GameDto.gridPieces dto)
       let GridValue.GridValue {value = piece, point} = head (GameDto.gridPieces dto)
       let Point.Point {row} = point
       row `shouldBe` mid
-  describe "convert game dto to game" $
-    it "dto to game" $ do
-      let playerName = "You"
-          gridPieceA = GridValue (Piece 'A' "idA") (Point 4 5)
-          gridPieceB = GridValue (Piece 'B' "idB") (Point 7 8)
-          gridPieces = [gridPieceA, gridPieceB]
-          pieceC = Piece 'C' "idC"
-          pieceD = Piece 'D' "idD"
-          pieceE = Piece 'E' "idE"
-          trayPieces = [pieceC, pieceD, pieceD]
-          dto = GameDto "id1" (GameParams 10 20 5 Dict.defaultLanguageCode playerName) gridPieces trayPieces
-          game = toEntity dto
-          gameBoard = Game.board game
-          Tray size gameTrayPieces = Game.trays game !! userIndex
-      Game.gameId game `shouldBe` GameDto.gameId dto
-      length (Board.getGridPieces gameBoard) `shouldBe` length (GameDto.gridPieces dto)
-      length gameTrayPieces `shouldBe` 3
-      let Piece pieceValue pieceId = head gameTrayPieces
-      pieceValue `shouldBe` 'C'
 
 
 

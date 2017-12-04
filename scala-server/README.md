@@ -1,13 +1,24 @@
 
+- Web UI needs to send StartGameRequest.
+
+- integration test
+
+  console.log src/__integration.tests__/client.api.test.js:33
+    {"obj":[{"msg":["error.expected.jsobject"],"args":[]}]}
+
+  The API is defined to send an array - but it needs an object.
+
+  [{"height":5,"width":5,"trayCapacity":3,"languageCode":"","playerName":"You","pieceGeneratorType":"cyclic"},[],[{"value":"B","id":"1"},{"value":"E","id":"2"},{"value":"T","id":"3"}],[{"value":"S","id":"4"},{"value":"T","id":"5"},{"value":"Z","id":"6"}]]
+
+
+- How to give http.port to sbt?
+
+- How to gve http.port to intellij. In Play2Run configuration add
+  -Dhttp.port=6587. Worked.
+
 # Latest TODO
 
-- Haskell - GameParams add pieceGeneratorName. And test - integration and
-  manual.
-
 - Run integration test against scala application.
-
-- index too large error is still intermittent - added debugging prints hoping
-  to discover where it happens
 
 - Add the bundle and get it to work.
 
@@ -59,6 +70,12 @@
 - export `GAME_SERVER_URL="http://localhost:6587"` no slash at the end
 
 ## To Do
+
+- Haskell - GameParams add pieceGeneratorName. And test - integration and
+  manual.
+
+- Haskell - index too large error is still intermittent - added debugging prints hoping
+  to discover where it happens. Remove prints.
 
 - Change the secret key to a real secret for production. Read the documentation.
 

@@ -196,13 +196,14 @@ import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 import BoardGame.Common.Domain.GridValue (GridValue)
 import BoardGame.Common.Message.GameDto (GameDto)
+import BoardGame.Common.Message.StartGameRequest (StartGameRequest)
 import BoardGame.Common.Domain.Player (Player)
 import BoardGame.Common.Domain.Piece (Piece)
 
 -- | The api interface for the game as a type. All paths have a "game" prefix.
 type GameApi =
        "game" :> "player" :> ReqBody '[JSON] Player :> Post '[JSON] ()
-  :<|> "game" :> "game" :> ReqBody '[JSON] (GameParams, [GridValue Piece], [Piece], [Piece]) :> Post '[JSON] GameDto
+  :<|> "game" :> "game" :> ReqBody '[JSON] StartGameRequest :> Post '[JSON] GameDto
   :<|> "game" :> "commit-play" :> Capture "gameId" String :> ReqBody '[JSON] [PlayPiece] :> Post '[JSON] [Piece]
   :<|> "game" :> "machine-play" :> Capture "gameId" String :> Post '[JSON] [PlayPiece]
   :<|> "game" :> "swap-piece" :> Capture "gameId" String :> ReqBody '[JSON] Piece :> Post '[JSON] Piece

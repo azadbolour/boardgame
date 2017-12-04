@@ -64,11 +64,13 @@ import BoardGame.Common.Domain.Player (Player)
 import BoardGame.Common.Domain.GameParams (GameParams(..))
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 import BoardGame.Common.Message.GameDto (GameDto)
+import BoardGame.Common.Message.StartGameRequest (StartGameRequest, StartGameRequest(StartGameRequest))
+import qualified BoardGame.Common.Message.StartGameRequest as StartGameRequest
 import BoardGame.Server.Domain.GameError (GameError(..), ExceptGame)
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack)
 import qualified BoardGame.Server.Service.GameTransformerStack as TransformerStack
-import BoardGame.Server.Web.Converters (toDto)
+import BoardGame.Server.Web.Converters (gameToDto)
 import qualified BoardGame.Server.Service.GameService as GameService
 
 -- TODO. Simplify the api implementation by using the Servant 'enter' function.
@@ -141,10 +143,10 @@ addPlayerHandler env player =
 -- gameTransformerStackHandler env $ GameService.addPlayerService player
 
 -- | API handler to create and start a new game.
-startGameHandler :: GameEnv -> (GameParams, [GridPiece], [Piece], [Piece]) -> ExceptServant GameDto
-startGameHandler env (params, gridPieces, initUserPieces, initMachinePieces) =
+startGameHandler :: GameEnv -> StartGameRequest -> ExceptServant GameDto
+startGameHandler env (StartGameRequest{gameParams, gridPieces, initUserPieces, initMachinePieces}) =
   gameTransformerStackHandler env $ do -- GameTransformerStack
-    gameDto <- startGameServiceWrapper params gridPieces initUserPieces initMachinePieces
+    gameDto <- startGameServiceWrapper gameParams gridPieces initUserPieces initMachinePieces
     -- logMessage (show gameDto) -- TODO. Could not prettify it - tried groom and pretty-show. No good.
     return gameDto
 
@@ -157,7 +159,7 @@ startGameServiceWrapper ::
 startGameServiceWrapper params gridPieces initUserPieces initMachinePieces = do
   -- (game, maybePlayPieces) <- GameService.startGameService params gridPieces initUserPieces initMachinePieces
   game <- GameService.startGameService params gridPieces initUserPieces initMachinePieces
-  return $ toDto game
+  return $ gameToDto game
 
 -- | API handler to commit a new play by the player side of the game.
 commitPlayHandler :: GameEnv -> String -> [PlayPiece] -> ExceptServant [Piece]

@@ -33,9 +33,10 @@ import BoardGame.Common.Domain.GridValue (GridValue)
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.Player (Player)
 import BoardGame.Common.Message.GameDto (GameDto)
+import BoardGame.Common.Message.StartGameRequest (StartGameRequest)
 
 addPlayer :: Player -> Manager -> BaseUrl -> ClientM ()
-startGame :: (GameParams, [GridValue Piece], [Piece], [Piece]) -> Manager -> BaseUrl -> ClientM GameDto
+startGame :: StartGameRequest -> Manager -> BaseUrl -> ClientM GameDto
 commitPlay :: String -> [PlayPiece] -> Manager -> BaseUrl -> ClientM [Piece]
 machinePlay :: String -> Manager -> BaseUrl -> ClientM [PlayPiece]
 swapPiece :: String -> Piece -> Manager -> BaseUrl -> ClientM Piece

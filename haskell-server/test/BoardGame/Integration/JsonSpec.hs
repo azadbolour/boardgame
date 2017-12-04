@@ -20,17 +20,20 @@ import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.GameError
 import qualified Bolour.Util.SpecUtil as SpecUtil
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
-import qualified BoardGame.Server.Domain.PieceGenerator as PieceGenerator
+import qualified BoardGame.Server.Domain.PieceGen as PieceGen
+import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
 
 spec :: Spec
 
 name = "You"
+
+pieceGeneratorType = PieceGeneratorType.Cyclic
 params :: GameParams
-params = GameParams 9 9 12 Dict.defaultLanguageCode name
+params = GameParams 9 9 12 Dict.defaultLanguageCode name pieceGeneratorType
+pieceGenerator = PieceGen.mkDefaultPieceGen PieceGeneratorType.Cyclic
 
 game :: IO Game
 game = do
-  let pieceGenerator = PieceGenerator.mkCyclicPieceGenerator "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   SpecUtil.satisfiesRight =<< runExceptT (Game.mkInitialGame params pieceGenerator [] [] [] name)
 
 spec = do

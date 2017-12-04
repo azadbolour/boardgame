@@ -19,6 +19,7 @@ import Test.Hspec
 import Control.Monad.Trans.Except (runExceptT)
 import Bolour.Util.SpecUtil (satisfiesRight)
 import BoardGame.Common.Message.GameDto (GameDto(GameDto))
+-- import BoardGame.Common.Message.StartGameRequest (StartGameRequest(StartGameRequest))
 import qualified BoardGame.Common.Message.GameDto as GameDto(GameDto(..))
 import BoardGame.Server.Domain.Play (Play, Play(Play))
 import qualified BoardGame.Server.Domain.Play as Play

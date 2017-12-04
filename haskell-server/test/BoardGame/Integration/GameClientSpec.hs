@@ -38,6 +38,7 @@ import BoardGame.Common.Domain.GameParams (GameParams(GameParams))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Common.Domain.Player (Player(Player))
 import qualified BoardGame.Common.Message.GameDto as GameDto
+import BoardGame.Common.Message.StartGameRequest (StartGameRequest(StartGameRequest))
 import qualified BoardGame.Server.Service.GameDao as GameDao
 import qualified BoardGame.Server.Web.GameEndPoint as GameEndPoint
 import qualified BoardGame.Util.TestUtil as TestUtil
@@ -56,6 +57,8 @@ import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 -- import qualified Bolour.Util.StaticTextFileCache as FileCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
+import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
+
 
 -- TODO. Start the server within the test - just copy main and test against it.
 -- TODO. Need to shut down the server.
@@ -90,7 +93,8 @@ startApp = do
 
 dimension = 9
 thePlayer = "You"
-params = GameParams dimension dimension 12 Dict.defaultLanguageCode thePlayer
+pieceGeneratorType = PieceGeneratorType.Cyclic
+params = GameParams dimension dimension 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
 playerJohn = Player thePlayer
 
 centerGridPoint =
@@ -117,7 +121,7 @@ spec = beforeAll startApp $ afterAll endWaiApp $
       mPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
 
       (GameDto.GameDto {gameId, trayPieces, gridPieces}) <- SpecUtil.satisfiesRight
-        =<< runExceptT (Client.startGame (params, [], uPieces, mPieces) manager baseUrl)
+        =<< runExceptT (Client.startGame (StartGameRequest params [] uPieces mPieces) manager baseUrl)
 
 --       let GridValue {value = piece, point = centerPoint} =
 --             fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces

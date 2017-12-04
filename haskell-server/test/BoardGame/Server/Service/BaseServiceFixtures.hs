@@ -34,15 +34,18 @@ import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 import qualified Bolour.Util.PersistRunner as PersistRunner
 import qualified BoardGame.Server.Service.GameDao as GameDao
+import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
 
 testConfigPath = "test-data/test-config.yml"
 thePlayer = "You"
 testDimension = 5
 testTrayCapacity = 3
-gameParams = GameParams testDimension testDimension testTrayCapacity Dict.defaultLanguageCode thePlayer
+pieceGeneratorType = PieceGeneratorType.Cyclic
+
+gameParams = GameParams testDimension testDimension testTrayCapacity Dict.defaultLanguageCode thePlayer pieceGeneratorType
 
 centerGridPoint =
-  let GameParams.GameParams {height, width, trayCapacity, languageCode, playerName} = gameParams
+  let GameParams.GameParams {height, width} = gameParams
   in Point (height `div`2) (width `div` 2)
 
 centerGridPiece :: Char -> IO GridPiece

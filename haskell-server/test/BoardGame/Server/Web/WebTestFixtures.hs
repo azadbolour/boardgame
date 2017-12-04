@@ -23,6 +23,7 @@ import BoardGame.Common.Message.GameDto (GameDto)
 import BoardGame.Server.Domain.GameEnv (GameEnv)
 import BoardGame.Server.Web.GameEndPoint (addPlayerHandler, startGameHandler)
 import BoardGame.Server.Service.BaseServiceFixtures
+import BoardGame.Common.Message.StartGameRequest (StartGameRequest(StartGameRequest))
 
 makePlayer :: GameEnv -> String -> IO ()
 makePlayer env name = do
@@ -33,6 +34,6 @@ makePlayer env name = do
 makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO GameDto
 makeGame env gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith =
   satisfiesRight
-    =<< runExceptT (startGameHandler env (gameParams, initialGridPieces, userTrayStartsWith, machineTrayStartsWith))
+    =<< runExceptT (startGameHandler env (StartGameRequest gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith))
 
 -- runExceptT $ TransformerStack.runDefault gameEnv GameService.prepareDb
