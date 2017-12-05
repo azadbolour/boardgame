@@ -1,121 +1,49 @@
 
-- For the moment we get the index page at /. Later change to come from
-  /boardgame.
-
-  http://localhost:6587/boardgame 
-
-- Now getting into a csrf issue: 
-      [CSRF] Check failed because application/json for request /game/game
-  Need to read about play csrf. See the application.conf configuration of 
-  the csrf filter.
-
-  For now I am disabling that filter in the application.conf.
-
-    play.filters.disabled+=play.filters.csrf.CSRFFilter
-
-  TODO. Enable CSRF filter configure it and make code changes if/where 
-  necessary.
-
-- allowed origin 3000.  enabled cors filter document this.
-
-- How to gve http.port to intellij. In Play2Run configuration add
-  -Dhttp.port=6587. Worked.
-
-- diff -qr dir1 dir2
-
-# Latest TODO
-
-- Add the bundle and get it to work.
-
-- I think you have to put the bundle into public/javascripts. And have a GET for it.
-
-- To connect to javascript:
-  https://github.com/nouhoum/play-react-webpack/blob/master/app/views/index.scala.html
-  I am not sure this is needed. But keep until the whole thing works.
-
-- public/javascripts/main.js - add in the bundle
-
-- Merge the branch.sh of scala-server and the root branch.sh and commit
-  branch,sh.template and azadbolour.
-
-- TODO. Need a view for the page?
-
-- TODO. Production config file has secret and must be read-only to 
-  one trusted user.
-
-- Create an application test.
-
-- Added explicit allow origin to javascript client api. 
-  Remove if it does not work.
-
-- corsHeaders is a list of headers
-
-- Tests should use small data structures so the data is controllable.
-
-- turning off/on persistent logging selectively just for persistence
-  using control.monad.log - logging effects
-
-- check logs on oceanpark
-
-- export `GAME_SERVER_URL="http://localhost:6587"` no slash at the end
-
 ## To Do
 
-- TODO. Need to standardize errors. Including validation of request. Version 2.
+- Intellij - add license header for file creation.
+  Add license to recent new files.
 
-- TODO. Check that rows.delete deletes everything.
+- Check that rows.delete deletes everything.
 
-- Document seeding and migration.
+- Do we have to close a db in slick?
 
-- Haskell servant client - http://haskell-servant.readthedocs.io/en/stable/tutorial/Client.html
+- Add tests similar to the ones in the sample, then remove the sample.
 
-- Haskell aeson: https://www.schoolofhaskell.com/school/starting-with-haskell/libraries-and-frameworks/text-manipulation/json
+## Known Issues
 
-- PlaySpec has WsClient - how do you use it?
+- No checks for crosswise words yet.
 
-- Haskell. Use strategy pattern for piece generator. Define specific selector type
-  for each strategy. Calling a factory on each type returns a different
-  instance of a class. Will need to reinstate existential qualification.
-
-- Haskell - GameParams add pieceGeneratorName. And test - integration and
-  manual.
-
-- Haskell - index too large error is still intermittent - added debugging prints hoping
-  to discover where it happens. Remove prints.
-
-- Change the secret key to a real secret for production. Read the documentation.
-
-- Bug extending a word should work constitute a legitimate play.
-
-- For now user goes first. TODO. After starting a game, toss a coin in the client 
+- For now user goes first. After starting a game, toss a coin in the client 
   to determine who goes first. If it is machine, do a machine play.
 
   Add center square image.
 
+- Bug extending a word should constitute a legitimate play.
+
+## Technical Debt
+
+- API versioning - just include in URL.
+
+- Document seeding and migration.
+
+- PlaySpec has WsClient - how do you use it?
+
+- Production config file has secret and must be read-only to 
+  one trusted user.
+
+- Re-enable and configure CSRF filter. See the application.conf for configuration.
+  It is disabled there: play.filters.disabled+=play.filters.csrf.CSRFFilter
+
 - Uniqueness of player name. Need an index for the database.
 
-- Add api versioning to todo list. just add it to the beginning of the url.
-
-- Check strip is free crosswise.
-
-- Do we have to close a db in slick?
-
-- Add static content. This shows how to get static content. It is a good example to emulate for
-  converting as well. You probably want to use getFromDirectory.
-  
-  https://doc.akka.io/docs/akka-http/current/scala/http/routing-dsl/index.html#configuring-server-side-https
-
-  The implicit protocol can be json in which case marshalling/unmarshalling
-  is json.
-
-  Testing: http://blog.madhukaraphatak.com/akka-http-testing/
-          https://doc.akka.io/docs/akka-http/current/scala/http/routing-dsl/testkit.html
-
-  https://medium.com/dive-in-scala/building-rest-api-web-service-using-akka-http-showing-crud-operations-baked-with-redis-d15f4c4bf4d5
-
-## Improvements
+- Need to standardize errors. Including validation of request. Version 2.
 
 - Removing abandoned games. Does it make sense to use Akka?
+
+- Database migration. 
+
+## Improvements
 
 - Seeding should be part of migration.
 
@@ -128,15 +56,7 @@
   and less than the program. If the data database is at a higher version
   should not run the program.
 
-- Creare a scala branch and move the code over. Add license headers.
-  README - work in progress.
-
-- More specific match tests and assertions. Later.
-
-- Use the convention of no parens if there are no side effects 
-  for no-arg functions.
-
-- Add tests similar to the ones in the sample, then remove the sample.
+- More specific match tests and assertions. 
 
 - Change the board to look like a scrabble board.
 
@@ -146,42 +66,21 @@
 
 - Connect to real dictionary.
 
-- Read your for comprehension writeup and tutorial.
-
-- Describe how the route dsl actually works - what are the methods,
-  and what are implicit parameters and where do they come from.
-
-- Understand and document basic slick model of actions.
-
-- Add end paths and tests for extraneous path elements.
-
-- Database migration. Later.
+- Document basic slick model of actions.
 
 - Add play table.
-
-- tray - find a word without constraints based on tray - that is 
-  the initial play by the machine. Randomly choose who plays first.
-
-  Initial word by player is also unconstrained - except it has to be 
-  cover the center.
 
 - config db should give the default dev test and prod databases
   todo - later - best practices for config - reference vs application
 
-- Add end path to all legitimate paths so exclude extraneous trailing path segments.
-
 - Parallel execution of tests. Later.
-
-- Better API structure - all calls should return: Either[GameError, Result].
-  But needs to be done in Servant as well.
 
 - What to do with fatal exception in a web server? 
   Need to research for later. For now let the framework handle it.
   Also if any regular exception escapes the Try just let the framework handle
   it for simplicity.
 
-- Should the end point layer call on services asynchronously? Is there a
-  special way of doing that in Akka Http?
+- Should the controller call on services asynchronously? 
 
 - Linux dictionary:
 

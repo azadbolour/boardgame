@@ -191,3 +191,8 @@
 - Note that the representation of objects in JSON via aeson depends on field
   names only, and not on constructors or types.
 
+- Servant client - http://haskell-servant.readthedocs.io/en/stable/tutorial/Client.html
+
+- Aeson: https://www.schoolofhaskell.com/school/starting-with-haskell/libraries-and-frameworks/text-manipulation/json
+
+

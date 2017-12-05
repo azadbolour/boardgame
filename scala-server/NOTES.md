@@ -438,6 +438,11 @@
   - asks for project name - creates project under a directory of that name
   - creates a target directory in the root - removed that
 
+- getting types in sbt:
+
+    :t (new GameController(null, null)).addPlayer
+    play.api.mvc.Action[play.api.libs.json.JsValue]
+
 - interactive mode
 
   sbt
@@ -487,17 +492,51 @@ Global settings should be placed in /usr/local/etc/sbtopts
 - To run from inside intellij: On the main (top) menu select run/Play2Run.
   It will sart the server and bring up a new browser window on the root page.
 
-- Intellij test exits prematurely while sbt test completes.
-  Just use sbt for testing.
+- To set the server port in Intellij: In Play2Run configuration add:
+  
+    `-Dhttp.port=6587
 
+- Setup of static content. 
+
+    -- The location of the web ui bundle is public/javascripts. To get public 
+       assets such as the bundle by using the built-in assets controller, added
+       the following route to the routes file:
+
+       `GET /assets/*file controllers.Assets.versioned(path="/public", file: Asset)`
+
+    -- Created a script update-ui-bundle.sh to copy the ui bundle built by the
+       we ui project over to public/javascscript.
+
+    -- Created an index view the Play way by using a main view for the
+       surrounding html.
+       
+       The index view has an empty div called 'root' which is where React
+       renders its components. The index page just runs the bundle as a script:
+
+      `<script src="@routes.Assets.versioned("javascripts/boardgame.bundle.js")" type="text/javascript"></script>`
+
+    -- Created a trivial IndexController to get the index page.
+
+    -- In order to access the application from http://localhost:6587/boardgame
+       added the following route to the routes file:
+
+       `GET /boardgame controllers.IndexController.index`
+
+- When doing development by using npm, the javascript comes from the npm server,
+  which is by convention at localhost:3000. Since the javascript is comning from 
+  a different location as the boardgame server, we must explicitly allow scripts
+  from that location to access our boardgame server. In application.conf set:
+
+    `
+    play.filters {
+      cors {
+        allowedOrigins = ["http://localhost:3000"]
+      }
+    }
+    `
 - https://www.playframework.com/documentation/2.6.x/ScalaConfig
 
   play.api.Configuration is a wrapper on Scala's Config.
-
-- sbt console
-
-    :t (new GameController(null, null)).addPlayer
-    play.api.mvc.Action[play.api.libs.json.JsValue]
 
 - In tests, app is provided by default by the framework.
 
@@ -511,6 +550,9 @@ Global settings should be placed in /usr/local/etc/sbtopts
 
   I don't see an example of this. So best to instantiate the controller and call
   it for now. We already have web-ui integration tests.
+
+- https://www.packtpub.com/web-development/play-framework-essentials
+  2014 - maybe the best (and most recent book)
 
 - There is no main program - 
 
@@ -671,6 +713,9 @@ know about it so the problem can be diagnosed. So exceptions need to
 be caught at the highest level and logged. But then throw another
 exception so that the framework will deal with it.
 
+## Bash
 
+- diff directory structures
 
+    diff -qr dir1 dir2 
 

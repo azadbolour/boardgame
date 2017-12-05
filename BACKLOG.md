@@ -1,4 +1,5 @@
 
+
 # Board Game Application Backlog
 
 ## System Improvements
@@ -58,6 +59,10 @@
   Save preferences in the database.
 
 ## Technical Debt
+
+- Use strategy pattern for piece generator. Define specific selector type
+  for each strategy. Calling a factory on each type returns a different
+  instance of a class. Will need to reinstate existential qualification.
 
 - For all Haskell data structures decide what fields are public and only export those.
 
