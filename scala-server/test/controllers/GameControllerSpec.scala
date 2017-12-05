@@ -96,7 +96,7 @@ class GameControllerSpec extends PlaySpec with Results {
       // logger.info(s"${replacementPieces}")
 
       // TODO. How to make request with no body the PlaySpec way??
-      result = controller.machinePlay(theGameId)(mkRequest(""))
+      result = controller.machinePlay(theGameId)(FakeRequest())
       val machinePlayPieces = decodeJsonContent[List[PlayPiece]](result)
       machinePlayPieces.size must be > 2
 
@@ -105,7 +105,7 @@ class GameControllerSpec extends PlaySpec with Results {
       val newPiece = decodeJsonContent[Piece](result)
       newPiece must not be Piece.noPiece
 
-      result = controller.endGame(theGameId)(mkRequest(""))
+      result = controller.endGame(theGameId)(FakeRequest())
       val endUnit = decodeJsonContent[Unit](result)
       logger.info(s"end game result: ${endUnit}")
     }

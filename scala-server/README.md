@@ -1,42 +1,33 @@
 
-- Merge the branch.sh of scala-server and the root branch.sh and commit
-  branch,sh.template and azadbolour.
+- For the moment we get the index page at /. Later change to come from
+  /boardgame.
 
-- Haskell servant client - http://haskell-servant.readthedocs.io/en/stable/tutorial/Client.html
+  http://localhost:6587/boardgame 
 
-- Haskell aeson: https://www.schoolofhaskell.com/school/starting-with-haskell/libraries-and-frameworks/text-manipulation/json
+- Now getting into a csrf issue: 
+      [CSRF] Check failed because application/json for request /game/game
+  Need to read about play csrf. See the application.conf configuration of 
+  the csrf filter.
+
+  For now I am disabling that filter in the application.conf.
+
+    play.filters.disabled+=play.filters.csrf.CSRFFilter
+
+  TODO. Enable CSRF filter configure it and make code changes if/where 
+  necessary.
+
+- allowed origin 3000.  enabled cors filter document this.
 
 - How to gve http.port to intellij. In Play2Run configuration add
   -Dhttp.port=6587. Worked.
 
-# Latest TODO
+- diff -qr dir1 dir2
 
-- Run integration test against scala application.
+# Latest TODO
 
 - Add the bundle and get it to work.
 
-- Get CORS for development to work.
-
-- TODO. Need a view for the page?
-
-- Change web ui accordingly.
-
-- Test web ui with scala server.
-
-- TODO. Check that rows.delete deletes everything.
-
-- PlaySpec has WsClient - how do you use it?
-
-- Run application and make sure it comes up.
-
-- Document seeding and migration.
-
-- TODO. Production config file has secret and must be read-only to 
-  one trusted user.
-
 - I think you have to put the bundle into public/javascripts. And have a GET for it.
-
-- TODO. Need to standardize errors. Including validation of request. Version 2.
 
 - To connect to javascript:
   https://github.com/nouhoum/play-react-webpack/blob/master/app/views/index.scala.html
@@ -44,14 +35,20 @@
 
 - public/javascripts/main.js - add in the bundle
 
+- Merge the branch.sh of scala-server and the root branch.sh and commit
+  branch,sh.template and azadbolour.
+
+- TODO. Need a view for the page?
+
+- TODO. Production config file has secret and must be read-only to 
+  one trusted user.
+
 - Create an application test.
 
 - Added explicit allow origin to javascript client api. 
   Remove if it does not work.
 
 - corsHeaders is a list of headers
-
-- TODO. CORS.
 
 - Tests should use small data structures so the data is controllable.
 
@@ -63,6 +60,18 @@
 - export `GAME_SERVER_URL="http://localhost:6587"` no slash at the end
 
 ## To Do
+
+- TODO. Need to standardize errors. Including validation of request. Version 2.
+
+- TODO. Check that rows.delete deletes everything.
+
+- Document seeding and migration.
+
+- Haskell servant client - http://haskell-servant.readthedocs.io/en/stable/tutorial/Client.html
+
+- Haskell aeson: https://www.schoolofhaskell.com/school/starting-with-haskell/libraries-and-frameworks/text-manipulation/json
+
+- PlaySpec has WsClient - how do you use it?
 
 - Haskell. Use strategy pattern for piece generator. Define specific selector type
   for each strategy. Calling a factory on each type returns a different
