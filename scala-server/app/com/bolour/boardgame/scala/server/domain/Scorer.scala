@@ -13,7 +13,7 @@ class Scorer(val dimension: Int) {
   val centerPoint = Point(middle, middle)
 
   def scoreMultiplier(point: Point): ScoreMultiplier = {
-    logger.info(s"score multiplier point: ${point}")
+    // logger.info(s"score multiplier point: ${point}")
     val pointRelativeToCenter = translateOrigin(centerPoint)(point)
     multiplierRelativeToCenter(pointRelativeToCenter)
   }

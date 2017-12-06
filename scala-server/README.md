@@ -1,3 +1,11 @@
+
+- Removing height and width from scala.
+
+- Remove from UI.
+
+- Remove from Haskell.
+
+
 - SBT compilation for play2 is disabled by default.
 
 - The intellij play configuration is messed up and I am wasting
@@ -61,19 +69,6 @@
     K = 5 points
     J – X = 8 points
     Q – Z = 10 points
-
-- Use following weights. 
-
-  TODO. Just use the following tiles without replacement.
-
-    1: J – K – X – Q – Z
-    2: B – C – F – H – M – P – W – Y – V – Blank Tiles
-    3: G
-    4: D – L – S – U
-    6: N – R – T
-    8: O
-    9: A – I
-    10: E
 
 - TODO. Rule for ending the game is part of refactoring to use bag of letters
   without replacement.
