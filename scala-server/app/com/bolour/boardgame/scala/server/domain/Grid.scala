@@ -5,9 +5,13 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
+import com.bolour.boardgame.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain.Point
 
 case class Grid[T](height: Int, width: Int, cells: List[List[T]]) {
+
+  val dimension = height // TODO. Replace height and width with dimension.
+  val _columns = cells.transpose
 
   def flatFilter(predicate: T => Boolean): List[T] = filter(predicate).flatten
 
@@ -29,7 +33,10 @@ case class Grid[T](height: Int, width: Int, cells: List[List[T]]) {
   }
 
   def rows = cells
-  def columns = cells.transpose
+  def columns = _columns
+
+  def cell(point: Point): T = rows(point.row)(point.col)
+
 }
 
 object Grid {

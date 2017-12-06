@@ -1,4 +1,78 @@
 
+- Test failure - transpose requires rows of the same size. 
+  
+  controllers.GameControllerSpec
+  [error] 	com.bolour.boardgame.scala.server.domain.StripMatcherSpec
+
+  Check for full grid.
+
+- Make sure dimension is odd.
+
+- Add letter scores to pieces.
+
+- Get rid of height and width - just dimension.
+
+- Need an enumeration of SquareMultiplierType Letter or Word or None.
+  Need a SquareMultiplier data structure with square multiplier type 
+  and factor. Default None 1.
+
+- function row, col -> SquareMultiplier.
+
+- First in Scala - then in javascript.
+
+- For simplicity - just add the number after the letter for now.
+  Did not figure out a good way of changing font size within text.
+
+- Prototype adding score factors in React. Just absolute with some 
+  offset.
+
+- Add double triple letter and word indicators to board.
+  For now indicate 2L, 3L, 2W, 3W on one corner.
+
+  center - star - pink
+  corner - 3W - red
+  edge middles - 3W - red
+  edge quarters - 2L - light blue
+  diagonal offset 1 from center - 2L light-blue
+  diagonal offset 2 from center - 3L blue
+  diagonal - not corner - 2 or more away from center - double word - pink
+  quarter diagonal - offset 1 from edge - 3L blue
+  quarter diagonal - offset > 1 from edge <= 1/4 from edge - 2L light blue
+
+- Add value of piece to piece image. Can you use subscript
+  with smaller font?
+
+    Blank Tiles = 0 points
+    A – E – I – O – - U – L – N – R – S – T = 1 point
+    D – G = 2 points
+    B – C – M – P = 3 points
+    F – H – W – Y – V = 4 points
+    K = 5 points
+    J – X = 8 points
+    Q – Z = 10 points
+
+- Use following weights. TODO. Just use the following tiles
+  without replacement.
+
+    1: J – K – X – Q – Z
+    2: B – C – F – H – M – P – W – Y – V – Blank Tiles
+    3: G
+    4: D – L – S – U
+    6: N – R – T
+    8: O
+    9: A – I
+    10: E
+
+- Basic Scoring
+
+    Strip letter factor is 1 for originals and square latter factor for new ones.
+
+    Dot product strip letter factors with word letters. That is the basic score.
+    Then add all the word factors for new letters and multiply the basic score.
+
+    TODO. Rule for ending the game is part of refactoring to use bag of letters
+    without replacement.
+
 ## To Do
 
 - Intellij - add license header for file creation.

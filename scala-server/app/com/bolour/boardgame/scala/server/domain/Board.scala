@@ -24,6 +24,7 @@ case class Board(height: Int, width: Int, grid: Grid[GridPiece]) {
 
   // TODO. Make sure in-bounds.
   def get(point: Point): Piece = grid.rows(point.row)(point.col).value
+
 }
 
 object Board {
@@ -35,7 +36,6 @@ object Board {
 
   def apply(height: Int, width: Int) : Board = {
     def cellMaker(row: Int)(col: Int) = GridPiece(Piece.noPiece, Point(row, col))
-    // TODO. Need _ here. Why different from Grid (above)?
     Board(height, width, cellMaker _)
   }
 
