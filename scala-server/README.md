@@ -1,11 +1,4 @@
 
-- Test failure - transpose requires rows of the same size. 
-  
-  controllers.GameControllerSpec
-  [error] 	com.bolour.boardgame.scala.server.domain.StripMatcherSpec
-
-  Check for full grid.
-
 - Make sure dimension is odd.
 
 - Add letter scores to pieces.

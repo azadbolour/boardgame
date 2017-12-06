@@ -7,8 +7,17 @@ package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain.Point
+import org.slf4j.LoggerFactory
 
 case class Grid[T](height: Int, width: Int, cells: List[List[T]]) {
+
+  val logger = LoggerFactory.getLogger(this.getClass)
+
+  val sizes = cells map { _.size}
+  val rectangular = sizes.forall(_ == width)
+
+  if (!rectangular)
+    throw new IllegalArgumentException(s"attempt to create jagged grid with sizes: ${sizes}")
 
   val dimension = height // TODO. Replace height and width with dimension.
   val _columns = cells.transpose
@@ -17,9 +26,10 @@ case class Grid[T](height: Int, width: Int, cells: List[List[T]]) {
 
   def flatten: List[T] = cells.flatten
 
-  def filter(predicate: T => Boolean): Grid[T] = {
-    val filteredCells = cells map (row => row filter predicate)
-    Grid(height, width, filteredCells)
+  def filter(predicate: T => Boolean): List[List[T]] = {
+    /* val filteredCells = */
+    cells map (row => row filter predicate)
+    // Grid(height, width, filteredCells)
   }
 
   def setPoints(pointedValues: List[(T, Point)]): Grid[T] = {
