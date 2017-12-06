@@ -1,3 +1,10 @@
+- SBT compilation for play2 is disabled by default.
+
+- The intellij play configuration is messed up and I am wasting
+  too much time trying to make it right. 
+
+- Right click project, Add Framework Support in intellij to 
+  add Play support to a project.
 
 - Cannot run tests from intellij - either can't find the test
   or module is not specified. Delete the run configuration.

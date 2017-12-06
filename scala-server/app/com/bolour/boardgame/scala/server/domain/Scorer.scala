@@ -3,13 +3,17 @@ package com.bolour.boardgame.scala.server.domain
 import com.bolour.boardgame.scala.common.domain.{PlayPiece, Point, ScoreMultiplier}
 import com.bolour.boardgame.scala.common.domain.ScoreMultiplierType._
 import com.bolour.boardgame.scala.common.domain.ScoreMultiplier._
+import org.slf4j.LoggerFactory
 
 class Scorer(val dimension: Int) {
+
+  val logger = LoggerFactory.getLogger(this.getClass)
 
   val middle = dimension / 2 // TODO. Make sure dimension is odd.
   val centerPoint = Point(middle, middle)
 
   def scoreMultiplier(point: Point): ScoreMultiplier = {
+    logger.info(s"score multiplier point: ${point}")
     val pointRelativeToCenter = translateOrigin(centerPoint)(point)
     multiplierRelativeToCenter(pointRelativeToCenter)
   }
@@ -45,6 +49,8 @@ class Scorer(val dimension: Int) {
     */
   def multiplierForFirstOctantRelativeToCenter(point: Point): ScoreMultiplier = {
 
+    // logger.info(s"point on first octant: ${point}")
+
     val Point(row, col) = point
 
     def isCornerPoint: Boolean = point == Point(middle, middle)
@@ -55,7 +61,7 @@ class Scorer(val dimension: Int) {
 
     def isDiagonalPoint(centerOffset: Int): Boolean = col - row == centerOffset
 
-    def isQuarterEdgePoint: Boolean = row == middle / 2 && col == middle
+    def isQuarterEdgePoint: Boolean = row == middle/2 + 1 && col == middle
 
     if (isCenterPoint)
       noMultiplier()
@@ -74,7 +80,7 @@ class Scorer(val dimension: Int) {
     }
     else if (isDiagonalPoint(middle/2 + 1)) {
       val nextToMiddle = middle - 1
-      point.row match {
+      col match {
         case `middle` => noMultiplier()
         case `nextToMiddle` => letterMultiplier(3)
         case _ => letterMultiplier(2)
