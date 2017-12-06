@@ -4,32 +4,75 @@ import com.bolour.boardgame.scala.common.domain.{PlayPiece, Point, ScoreMultipli
 import com.bolour.boardgame.scala.common.domain.ScoreMultiplierType._
 import com.bolour.boardgame.scala.common.domain.ScoreMultiplier._
 
-class Scorer(dimension: Int) {
+class Scorer(val dimension: Int) {
 
   val middle = dimension / 2 // TODO. Make sure dimension is odd.
   val centerPoint = Point(middle, middle)
 
-  /**
-    * The score multiplier applicable to a board cell.
-    */
-  def cellScoreMultiplier(row: Int)(col: Int): ScoreMultiplier = {
-    val point = Point(row, col)
+  def scoreMultiplier(point: Point): ScoreMultiplier = {
+    val pointRelativeToCenter = translateOrigin(centerPoint)(point)
+    multiplierRelativeToCenter(pointRelativeToCenter)
+  }
 
-    if (isCenterPoint(point))
+  /**
+    * Invariant return - row, col > 0 && row <= col
+    */
+  def reflectOnFirstOctant(point: Point): Point = {
+    val p @ Point(row, col) = reflectOnPositiveQuadrant(point)
+    if (row <= col) p else Point(col, row)
+  }
+
+  def translateOrigin(origin: Point)(point: Point): Point =
+    Point(point.row - origin.row, point.col - origin.col)
+
+  def reflectOnPositiveQuadrant(point: Point): Point =
+    Point(Math.abs(point.row), Math.abs(point.col))
+
+  /**
+    * Multiplier of a point relative to center as origin: coordinates
+    * for this point vary between +/- (dimension / 2)
+    */
+  def multiplierRelativeToCenter(point: Point): ScoreMultiplier = {
+    val representative = reflectOnFirstOctant(point)
+    multiplierForFirstOctantRelativeToCenter(representative)
+  }
+
+  /**
+    * In the coordinate system having the center point as origin,
+    * get the multiplier of a point in the first octant.
+    * By symmetry the multipliers of any point p is the multiplier
+    * of its symmetry representative in the first octant.
+    */
+  def multiplierForFirstOctantRelativeToCenter(point: Point): ScoreMultiplier = {
+
+    val Point(row, col) = point
+
+    def isCornerPoint: Boolean = point == Point(middle, middle)
+
+    def isMidEdgePoint: Boolean = point == Point(0, middle)
+
+    def isCenterPoint: Boolean = point == Point(0, 0)
+
+    def isDiagonalPoint(centerOffset: Int): Boolean = col - row == centerOffset
+
+    def isQuarterEdgePoint: Boolean = row == middle / 2 && col == middle
+
+    if (isCenterPoint)
       noMultiplier()
-    else if (isCornerPoint(point))
+    else if (isCornerPoint)
       wordMultiplier(3)
-    else if (isMidEdgePoint(point))
+    else if (isMidEdgePoint)
       wordMultiplier(3)
-    else if (isQuarterEdgePoint(point))
+    else if (isQuarterEdgePoint)
       letterMultiplier(2)
-    else if (isDiagonalPoint(point, 0)) {
-      point.row match {
+    else if (isDiagonalPoint(0)) {
+      row match {
+        case 1 => letterMultiplier(2)
         case 2 => letterMultiplier(3)
-        case _ => letterMultiplier(2)
+        case _ => wordMultiplier(2)
       }
     }
-    else if (isDiagonalPoint(point, middle/2 + 1)) {
+    else if (isDiagonalPoint(middle/2 + 1)) {
       val nextToMiddle = middle - 1
       point.row match {
         case `middle` => noMultiplier()
@@ -39,6 +82,8 @@ class Scorer(dimension: Int) {
     }
     else noMultiplier()
   }
+
+  def cellScoreMultiplier(row: Int)(col: Int) = scoreMultiplier(Point(row, col))
 
   val multiplierGrid: Grid[ScoreMultiplier] = Grid(cellScoreMultiplier _, dimension, dimension)
 
@@ -62,48 +107,8 @@ class Scorer(dimension: Int) {
     val score = aggregateWordMultiplier * baseScore
     score
   }
+}
 
-
-  def translateOrigin(origin: Point)(point: Point): Point =
-    Point(point.row - origin.row, point.col - origin.col)
-
-  def reflectOnPositiveQuadrant(point: Point): Point =
-    Point(Math.abs(point.row), Math.abs(point.col))
-
-  def reflectOnFirstQuadrant(point: Point): Point = {
-    val fromCenter = translateOrigin(centerPoint)(point)
-    val positiveOffCenter = reflectOnPositiveQuadrant(fromCenter)
-    positiveOffCenter
-  }
-
-  /**
-    * Invariant return - row, col > 0 && row <= col
-    */
-  def reflectOnFirstOctant(point: Point): Point = {
-    val p @ Point(row, col) = reflectOnFirstQuadrant(point)
-    if (row <= col) p else Point(col, row)
-  }
-
-  def isCornerPoint(point: Point): Boolean = {
-    val symmetrical = reflectOnFirstOctant(point)
-    symmetrical == Point(middle, middle)
-  }
-
-  def isMidEdgePoint(point: Point): Boolean = {
-    val symmetrical = reflectOnFirstQuadrant(point)
-    symmetrical == Point(0, middle)
-  }
-
-  def isCenterPoint(point: Point): Boolean = point == centerPoint
-
-  def isDiagonalPoint(point: Point, centerOffset: Int): Boolean = {
-    val Point(row, col) = reflectOnFirstOctant(point)
-    col - row == centerOffset
-  }
-
-  def isQuarterEdgePoint(point: Point): Boolean = {
-    val Point(row, col) = reflectOnFirstOctant(point)
-    row == middle / 2 && col == middle
-  }
-
+object Scorer {
+  def apply(dimension: Int): Scorer = new Scorer(dimension)
 }

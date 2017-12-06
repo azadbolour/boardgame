@@ -1,15 +1,26 @@
 
+- Cannot run tests from intellij - either can't find the test
+  or module is not specified. Delete the run configuration.
+  Still can't find the class. Invalidated caches and restarted 
+  and still getting the same problem.
+
+  There is a warning about JavaLaunchHelper being available
+  from two different places. Not sure if that is the cause 
+  of the problem. Suggested fix for the latter is to upgrade 
+  to:
+
+      oracle jdk 8u152
+
+- Let's do that and hope it solves the issue.
+
+- Eliminate height and width grid constructor parameters.
+
+- Write test for dimension 15 board multiplier and make sure
+  all points in the first octant are covered.
+
 - Make sure dimension is odd.
 
 - Add letter scores to pieces.
-
-- Get rid of height and width - just dimension.
-
-- Need an enumeration of SquareMultiplierType Letter or Word or None.
-  Need a SquareMultiplier data structure with square multiplier type 
-  and factor. Default None 1.
-
-- function row, col -> SquareMultiplier.
 
 - First in Scala - then in javascript.
 
@@ -44,8 +55,9 @@
     J – X = 8 points
     Q – Z = 10 points
 
-- Use following weights. TODO. Just use the following tiles
-  without replacement.
+- Use following weights. 
+
+  TODO. Just use the following tiles without replacement.
 
     1: J – K – X – Q – Z
     2: B – C – F – H – M – P – W – Y – V – Blank Tiles
@@ -56,15 +68,8 @@
     9: A – I
     10: E
 
-- Basic Scoring
-
-    Strip letter factor is 1 for originals and square latter factor for new ones.
-
-    Dot product strip letter factors with word letters. That is the basic score.
-    Then add all the word factors for new letters and multiply the basic score.
-
-    TODO. Rule for ending the game is part of refactoring to use bag of letters
-    without replacement.
+- TODO. Rule for ending the game is part of refactoring to use bag of letters
+  without replacement.
 
 ## To Do
 

@@ -11,14 +11,16 @@ import org.slf4j.LoggerFactory
 
 case class Grid[T](height: Int, width: Int, cells: List[List[T]]) {
 
+  // TODO. Remove parameters height and width. Derive from rectangular 2D list.
   val logger = LoggerFactory.getLogger(this.getClass)
 
   val sizes = cells map { _.size}
   val rectangular = sizes.forall(_ == width)
 
   if (!rectangular)
-    throw new IllegalArgumentException(s"attempt to create jagged grid with sizes: ${sizes}")
+    throw new IllegalArgumentException(s"attempt to create jagged grid with row sizes: ${sizes}")
 
+  // TODO. Check that dimensions are the same and set dimension.
   val dimension = height // TODO. Replace height and width with dimension.
   val _columns = cells.transpose
 
