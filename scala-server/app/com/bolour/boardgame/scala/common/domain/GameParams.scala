@@ -8,8 +8,7 @@ package com.bolour.boardgame.scala.common.domain
 import com.bolour.boardgame.scala.common.domain.PieceGeneratorType.PieceGeneratorType
 
 case class GameParams(
-  height: Int,
-  width: Int,
+  dimension: Int,
   trayCapacity: Int,
   languageCode: String,
   playerName: String, // TODO. Does not belong here.

@@ -31,8 +31,6 @@ module BoardGame.Server.Domain.Board (
 where
 
 import Data.List
--- import qualified Data.Map as Map
--- import qualified Data.Set as Set
 import qualified Data.ByteString.Char8 as BS
 
 import Control.Monad.Except (MonadError(..))
@@ -47,15 +45,12 @@ import BoardGame.Common.Domain.Point (Coordinate, Height, Width, Axis(..), Point
 import qualified BoardGame.Common.Domain.Point as Point
 import BoardGame.Server.Domain.Grid (Grid, Grid(Grid))
 import qualified BoardGame.Server.Domain.Grid as Grid
--- import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
--- import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
 
 -- | The game board.
 data Board = Board {
-    height :: Height
-  , width :: Width
+    dimension :: Coordinate
   , grid :: Grid GridPiece
 }
   deriving (Show)
@@ -68,48 +63,46 @@ getValidGridPiece :: Board -> Point -> GridPiece
 getValidGridPiece Board {grid} Point {row, col} = Grid.getValue grid row col
 
 centerGridPoint :: Board -> Point
-centerGridPoint Board {height, width} = Point (height `div` 2) (width `div` 2)
+centerGridPoint Board {dimension} = Point (dimension `div` 2) (dimension `div` 2)
 
-gridPiecesToGrid :: Height -> Width -> [GridPiece] -> Grid GridPiece
-gridPiecesToGrid height width gridPieces =
+gridPiecesToGrid :: Coordinate -> [GridPiece] -> Grid GridPiece
+gridPiecesToGrid dimension gridPieces =
   let findGridPiece point = find ((== point) . GridValue.point) gridPieces
       cellMaker r c = case findGridPiece $ Point r c of
                         Nothing -> Piece.noPiece
                         Just GridValue.GridValue {value} -> value
-  in Grid.mkPointedGrid cellMaker height width
+  in Grid.mkPointedGrid cellMaker dimension dimension
 
 filterNonEmptyGridPieces :: [GridPiece] -> [GridPiece]
 filterNonEmptyGridPieces = filter ((/= Piece.noPiece) . GridValue.value)
 
 getGridPieces :: Board -> [GridPiece]
-getGridPieces Board {height, width, grid} =
+getGridPieces Board {grid} =
   let Grid {cells} = grid
   in getGridPiecesOfCells cells
-  -- in concat $ filterNonEmptyGridPieces <$> cells
 
 getGridPiecesOfCells :: [[GridPiece]] -> [GridPiece]
 getGridPiecesOfCells cells = concat $ filterNonEmptyGridPieces <$> cells
 
-mkBoardFromGridPieces :: Height -> Width -> [GridPiece] -> Board
-mkBoardFromGridPieces height width gridPieces = Board height width $ gridPiecesToGrid height width gridPieces
+mkBoardFromGridPieces :: Coordinate -> [GridPiece] -> Board
+mkBoardFromGridPieces dimension gridPieces = Board dimension $ gridPiecesToGrid dimension gridPieces
 
-mkBoardGridPoint :: Board -> Height -> Width -> Either GameError Point
+mkBoardGridPoint :: Board -> Coordinate -> Coordinate -> Either GameError Point
 mkBoardGridPoint board row col =
    checkGridPoint board (Point row col)
 
 mkOutOfBounds :: Board -> Axis -> Coordinate -> GameError
-mkOutOfBounds board axis =
-  PositionOutOfBoundsError axis (0, boardDimension board axis - 1)
+mkOutOfBounds (board @ Board { dimension }) axis pos =
+  PositionOutOfBoundsError axis (0, dimension) pos
 
-mkBoard :: MonadError GameError m => Height -> Width -> m Board
-mkBoard height width
-  | Util.nonPositive height = throwInvalid Y height
-  | Util.nonPositive width = throwInvalid X width
-  | otherwise = return $ Board height width (Grid.mkPointedGrid (\row col -> Piece.noPiece) height width)
-      where throwInvalid axis size = throwError $ InvalidDimensionError axis size
+mkBoard :: MonadError GameError m => Int -> m Board
+mkBoard dimension
+  | Util.nonPositive dimension = throwInvalid dimension
+  | otherwise = return $ Board dimension (Grid.mkPointedGrid (\row col -> Piece.noPiece) dimension dimension)
+      where throwInvalid size = throwError $ InvalidDimensionError size
 
-mkOKBoard :: Height -> Width -> Board
-mkOKBoard height width = Util.fromRight $ mkBoard height width
+mkOKBoard :: Coordinate -> Board
+mkOKBoard dimension = Util.fromRight $ mkBoard dimension
 
 validPositionIsFree :: Board -> Point -> Bool
 validPositionIsFree board validPos =
@@ -120,14 +113,9 @@ validPositionIsTaken :: Board -> Point -> Bool
 validPositionIsTaken board point = not $ validPositionIsFree board point
 -- TODO. Is there a point-free shorthand for this type of composition.
 
-boardDimension :: Board -> Axis -> Coordinate
-boardDimension board axis = case axis of
-  X -> width board
-  Y -> height board
-
 checkAxisPosition :: MonadError GameError m => Board -> Axis -> Coordinate -> m Coordinate
-checkAxisPosition board axis position =
-  if position < 0 || position >= boardDimension board axis then
+checkAxisPosition (board @ Board { dimension }) axis position =
+  if position < 0 || position >= dimension then
     throwError $ mkOutOfBounds board axis position
   else
     return position
@@ -152,13 +140,13 @@ pointHasNoLineNeighbors board point axis =
 
 lineNeighbors :: Board -> Point -> Axis -> [GridPiece]
 
-lineNeighbors (Board {height, width, grid}) (Point {row, col}) X =
-  let cols = filter (\c -> c >= 0 && c < width) [col - 1, col + 1]
+lineNeighbors (Board {dimension, grid}) (Point {row, col}) X =
+  let cols = filter (\c -> c >= 0 && c < dimension) [col - 1, col + 1]
       points = Point row <$> cols
   in gridPiecesOfPoints grid points
 
-lineNeighbors (Board {height, width, grid}) (Point {row, col}) Y =
-  let rows = filter (\r -> r >= 0 && r < height) [row - 1, row + 1]
+lineNeighbors (Board {dimension, grid}) (Point {row, col}) Y =
+  let rows = filter (\r -> r >= 0 && r < dimension) [row - 1, row + 1]
       points = flip Point col <$> rows
   in gridPiecesOfPoints grid points
 

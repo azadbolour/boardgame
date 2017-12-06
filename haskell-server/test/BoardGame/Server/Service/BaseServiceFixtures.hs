@@ -39,14 +39,13 @@ import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorTyp
 testConfigPath = "test-data/test-config.yml"
 thePlayer = "You"
 testDimension = 5
+center = testDimension `div` 2
 testTrayCapacity = 3
 pieceGeneratorType = PieceGeneratorType.Cyclic
 
-gameParams = GameParams testDimension testDimension testTrayCapacity Dict.defaultLanguageCode thePlayer pieceGeneratorType
+gameParams = GameParams testDimension testTrayCapacity Dict.defaultLanguageCode thePlayer pieceGeneratorType
 
-centerGridPoint =
-  let GameParams.GameParams {height, width} = gameParams
-  in Point (height `div`2) (width `div` 2)
+centerGridPoint = Point center center
 
 centerGridPiece :: Char -> IO GridPiece
 centerGridPiece value = do

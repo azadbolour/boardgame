@@ -19,7 +19,7 @@ class MockApiImpl {
     // TODO. Reflect initial conditions on game. Check server-side code for logic.
     this.gameParams = gameParams;
     this.nextPieceId = 0;
-    this.dimension = gameParams.height;
+    this.dimension = gameParams.dimension;
 
     // this.machineTray = this.mkMachineTray();
     // this.machinePieces = this.getPieces(gameParams.trayCapacity);
@@ -27,7 +27,7 @@ class MockApiImpl {
     // this.numPiecesInPlay = this.machineTray.pieces.length; // TODO. Use method.
     this.gameId = gameId;
     // TODO. Only do this if initGridPieces is not provided.
-    const mid = Math.floor(gameParams.height / 2);
+    const mid = Math.floor(gameParams.dimension / 2);
     const midPiece = this.getPiece();
     const pos = {row: mid, col: mid};
     const pos1 = {row: mid + 1, col: mid - 1};
@@ -49,10 +49,8 @@ class MockApiImpl {
 
     this.gameDto = {
       gameId: gameId,
-      height: gameParams.height,
-      width: gameParams.width,
+      dimension: gameParams.dimension,
       trayCapacity: gameParams.trayCapacity,
-      // gridPieces: [midGridPiece, otherGridPiece],
       gridPieces: [], // Start with an empty board.
       trayPieces: trayPieces
     };

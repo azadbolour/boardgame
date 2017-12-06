@@ -92,14 +92,13 @@ startApp = do
 -- TODO. Duplicated in WebTestFixtures. Unify into single fixture module.
 
 dimension = 9
+center = dimension `div` 2
 thePlayer = "You"
 pieceGeneratorType = PieceGeneratorType.Cyclic
-params = GameParams dimension dimension 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
+params = GameParams dimension 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
 playerJohn = Player thePlayer
 
-centerGridPoint =
-  let GameParams.GameParams {height, width, trayCapacity, playerName} = params
-  in Point (height `div`2) (width `div` 2)
+centerGridPoint = Point center center
 
 centerGridPiece :: Char -> IO GridPiece
 centerGridPiece value = do

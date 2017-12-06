@@ -76,8 +76,8 @@ paramsBadPlayer = Fixtures.gameParams {playerName = nonExistentPlayerName}
 nonAlphaNumPlayerName = "Mary-?"
 paramsNonAlphaNumPlayer = Fixtures.gameParams {playerName = nonAlphaNumPlayerName}
 badDimension = -1
-paramsBadDimension = Fixtures.gameParams {height = badDimension}
-paramsZeroWidth = Fixtures.gameParams {width = 0}
+paramsBadDimension = Fixtures.gameParams {dimension = badDimension}
+paramsZeroWidth = Fixtures.gameParams {dimension = 0}
 badTrayCapacity = 0
 paramsBadTrayCapacity = Fixtures.gameParams {trayCapacity = badTrayCapacity}
 -- TODO. 0 and 1 are also bad sizes.
@@ -100,13 +100,13 @@ spec = do
       do
         runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
         error <- runL' $ GameService.startGameService paramsBadDimension [] [] []
-        error `shouldBe` GameError.InvalidDimensionError Point.Y badDimension
+        error `shouldBe` GameError.InvalidDimensionError badDimension
 
     it "disallows 0 board dimensions" $
       do
         runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
         error <- runL' $ GameService.startGameService paramsZeroWidth [] [] []
-        error `shouldBe` GameError.InvalidDimensionError Point.X 0
+        error `shouldBe` GameError.InvalidDimensionError 0
 
     it "disallows trays with 0 capacity" $
       do

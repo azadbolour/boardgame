@@ -17,7 +17,6 @@ import Data.Aeson (FromJSON, ToJSON)
 import Control.DeepSeq (NFData)
 
 import BoardGame.Common.Domain.GameParams (GameParams)
-import BoardGame.Common.Domain.Point (Height, Width)
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.GridValue (GridValue)
 

@@ -32,8 +32,7 @@ export const StartGameRequestConverter = {
 export const GameParamsConverter = {
   toJson: function(gameParams) {
     return {
-      height: gameParams.dimension,
-      width: gameParams.dimension,
+      dimension: gameParams.dimension,
       trayCapacity: gameParams.trayCapacity,
       languageCode: "",
       playerName: gameParams.appParams.userName,

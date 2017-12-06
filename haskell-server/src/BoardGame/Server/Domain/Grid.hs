@@ -40,7 +40,7 @@ import Data.List
 
 import qualified Bolour.Util.MiscUtil as Util
 
-import BoardGame.Common.Domain.Point (Point, Point(Point), Axis, Height, Width)
+import BoardGame.Common.Domain.Point (Point, Point(Point), Axis, Coordinate, Height, Width)
 import qualified BoardGame.Common.Domain.Point as Axis
 import qualified BoardGame.Common.Domain.Point as Point
 import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
@@ -54,7 +54,7 @@ data Grid val = Grid {
 deriving instance (Show val) => Show (Grid val)
 
 -- TODO. Grid must be rectangular. Check all rows same length at least 1, and at least 1 row.
-mkGrid :: (Height -> Width -> val) -> Height -> Width -> Grid val
+mkGrid :: (Coordinate -> Width -> val) -> Height -> Width -> Grid val
 mkGrid cellMaker height width = Grid $ (\r -> mkRow (cellMaker r) width) <$> [0 .. height - 1]
 
 mkRow :: (Width -> val) -> Width -> [val]
@@ -92,7 +92,7 @@ setPointedGridValues =
   foldl' (\grid gridVal -> setGridValue grid (GridValue.point gridVal) gridVal)
 
 -- | Get a cell on the grid.
-getValue :: Grid val -> Height -> Width -> val
+getValue :: Grid val -> Coordinate -> Coordinate -> val
 getValue Grid {cells} row col = cells !! row !! col
 
 -- | Get the next cell adjacent to a given cell on the grid.
@@ -128,7 +128,7 @@ prevValue grid (Point {row, col}) Axis.Y height =
     else Just $ getValue grid (row - 1) col
 
 -- | Map a function of coordinates and cells onto a matrix.
-mapMatrixWithCoordinates :: [[a]] -> (Point.Height -> Point.Width -> a -> b) -> [[b]]
+mapMatrixWithCoordinates :: [[a]] -> (Coordinate -> Coordinate -> a -> b) -> [[b]]
 mapMatrixWithCoordinates matrix mapper =
   zipWith rowAdder [0 .. length matrix - 1] matrix
   where rowAdder rowNum line = zipWith (mapper rowNum) [0 .. length line - 1] line

@@ -65,7 +65,7 @@ testGrid1 =
   let cellMaker r c = Maybe.fromMaybe Piece.noPiece (Grid.getValue baseTestGrid1 r c)
   in Grid.mkPointedGrid cellMaker 7 7
 
-testBoard1 = Board 7 7 testGrid1
+testBoard1 = Board 7 testGrid1
 gridRows1 = Board.charRows testBoard1
 
 testGrid :: Grid GridPiece
@@ -73,7 +73,7 @@ testGrid =
   let cellMaker r c = Maybe.fromMaybe Piece.noPiece (Grid.getValue baseTestGrid r c)
   in Grid.mkPointedGrid cellMaker 6 6
 
-testBoard = Board 6 6 testGrid
+testBoard = Board 6 testGrid
 gridRows = Board.charRows testBoard
 
 blank = Piece.noPieceValue

@@ -51,7 +51,7 @@ case class GameState(
 
 object GameState {
   def apply(game: Game, params: GameParams, gridPieces: List[GridPiece], initUserPieces: List[Piece], initMachinePieces: List[Piece]): GameState = {
-    val board = Board(params.height, params.width, gridPieces)
+    val board = Board(params.dimension, gridPieces)
     val userTray = mkTray(params.trayCapacity, initUserPieces, game.pieceGenerator)
     val machineTray = mkTray(params.trayCapacity, initMachinePieces, game.pieceGenerator)
     GameState(game, board, List(userTray, machineTray), 0, UserPlayer, List(0, 0))

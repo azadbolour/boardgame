@@ -39,8 +39,7 @@ data GameError =
   }
   |
   InvalidDimensionError {
-      axis :: Axis
-    , dimension :: Coordinate
+    dimension :: Coordinate
   }
   |
   InvalidTrayCapacityError {

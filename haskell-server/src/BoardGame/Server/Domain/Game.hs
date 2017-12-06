@@ -125,9 +125,9 @@ mkInitialGame :: (MonadError GameError m, MonadIO m) =>
 
 -- TODO. Fix duplicated player name.
 mkInitialGame gameParams pieceGenerator initGridPieces initUserPieces initMachinePieces playerName = do
-  let GameParams.GameParams { height, width, trayCapacity, languageCode } = gameParams
+  let GameParams.GameParams { dimension, trayCapacity, languageCode } = gameParams
   gameId <- Util.mkUuid
-  board <- Board.mkBoard height width
+  board <- Board.mkBoard dimension
   board' <- primeBoard board initGridPieces
   now <- liftIO getCurrentTime
   let emptyTray = Tray trayCapacity []
@@ -266,12 +266,10 @@ doExchange (game @ Game {gameId, board, trays}) playerType trayPos = do
 -- Here rather than Either we use MonadError.
 validateGameParams :: MonadError GameError m => GameParams -> m GameParams
 validateGameParams params =
-  let GameParams.GameParams {height, width, trayCapacity, playerName} = params
+  let GameParams.GameParams {dimension, trayCapacity, playerName} = params
   in
-    if height <= 0 || height > maxDimension then
-      throwError $ InvalidDimensionError Point.Y height
-    else if width <= 0 || width > maxDimension then
-      throwError $ InvalidDimensionError Point.X width
+    if dimension <= 0 || dimension > maxDimension then
+      throwError $ InvalidDimensionError dimension
     else if trayCapacity <= 0 || trayCapacity > maxTraySize then
       throwError $ InvalidTrayCapacityError trayCapacity
     else if not (all isAlphaNum playerName) then

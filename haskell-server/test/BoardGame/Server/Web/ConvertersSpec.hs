@@ -36,7 +36,7 @@ mid = dim `div` 2
 thePlayer = "You"
 
 pieceGeneratorType = PieceGeneratorType.Cyclic
-params = GameParams dim dim 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
+params = GameParams dim 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
 pieceGenerator = PieceGen.mkDefaultPieceGen PieceGeneratorType.Cyclic
 
 spec :: Spec

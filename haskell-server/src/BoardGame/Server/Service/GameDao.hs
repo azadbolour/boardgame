@@ -91,8 +91,7 @@ PlayerRow sql=player
 GameRow sql=game
     gameUid String
     player PlayerRowId
-    height Coordinate
-    width Coordinate
+    dimension Coordinate
     traySize Int
     UniqueGameUid gameUid
     deriving Show Eq

@@ -14,7 +14,7 @@ module BoardGame.Common.Domain.GameParams (
 import GHC.Generics (Generic)
 import Data.Aeson (FromJSON, ToJSON)
 import Control.DeepSeq (NFData)
-import BoardGame.Common.Domain.Point (Height, Width)
+import BoardGame.Common.Domain.Point (Coordinate)
 import BoardGame.Common.Domain.PieceGeneratorType
 
 -- | Parameters used in creating a new game - provided by API clients.
@@ -24,8 +24,7 @@ import BoardGame.Common.Domain.PieceGeneratorType
 --   Browsers on the other hand use a dash separator. Beware!
 --   For now, we are only supporting the generic language without the country code.
 data GameParams = GameParams {
-    height :: Height      -- ^ Height of the board.
-  , width :: Width        -- ^ Width of the board.
+    dimension :: Coordinate      -- ^ Height and width of the board.
   , trayCapacity :: Int   -- ^ Number of letters in a user or machine tray.
   , languageCode :: String -- ^ Language code for the language of the word list to use, e.g. "en".
   , playerName :: String  -- ^ Name of user initiating a game. TODO. Expedient. Not a game parameter per se. Move it out.

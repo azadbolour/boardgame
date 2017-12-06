@@ -23,7 +23,7 @@ trait StripMatcher {
 
   import StripMatcher._
 
-  val dimension = board.height
+  val dimension = board.dimension
   val trayLetters = tray.pieces.map(_.value).mkString
   val trayCombosByLength = WordUtil.computeCombosGroupedByLength(trayLetters)
   val playableStrips = computePlayableStrips

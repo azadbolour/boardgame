@@ -155,9 +155,8 @@ findOptimalMatch ::
   -> String     -- ^ available characters that can be played
   -> Maybe (Strip, DictWord)
 
-findOptimalMatch dictionary (board @ Board {height}) trayContent =
-  let dimension = height -- TODO. Assume for now that height and width are the same. Fix.
-      trayLength = length trayContent
+findOptimalMatch dictionary (board @ Board {dimension}) trayContent =
+  let trayLength = length trayContent
       playableStrips = computePlayableStrips board trayLength
       trayBytes = BS.pack trayContent
       playableCombos = WordUtil.computeCombosGroupedByLength trayBytes
@@ -172,8 +171,7 @@ computePlayableStrips ::
   -> Map ByteCount (Map BlankCount [Strip])
 
 -- TODO. Assume for now that height and width are the same. Fix.
-computePlayableStrips (board @ Board {height = dimension}) trayCapacity =
-  -- let dimension = height
+computePlayableStrips (board @ Board {dimension}) trayCapacity =
   if Board.isEmpty board then
     emptyCenterStripsByLengthByBlanks dimension
   else
@@ -207,14 +205,12 @@ stripBlanksAreFreeCrosswise board (strip @ Strip {axis}) =
 --   since a matching word will run into the neighbors. However, a containing
 --   strip will be playable and so we can forget about this strip.
 stripIsDisconnectedInLine :: Board -> Strip -> Bool
-stripIsDisconnectedInLine (Board {height, width, grid}) (strip @ Strip {axis, begin, end, content})
+stripIsDisconnectedInLine (Board {dimension, grid}) (strip @ Strip {axis, begin, end, content})
   | (BS.null content) = False
   | otherwise =
       let f = Strip.stripPoint strip 0
           l = Strip.stripPoint strip (end - begin)
-          limit = case axis of
-           Axis.X -> width
-           Axis.Y -> height
+          limit = dimension
           maybePrevGridPiece = Grid.prevValue grid f axis limit
           maybeNextGridPiece = Grid.nextValue grid l axis limit
           isSeparator maybeGridPiece =

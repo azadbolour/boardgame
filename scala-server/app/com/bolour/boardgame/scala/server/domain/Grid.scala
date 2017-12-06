@@ -5,14 +5,18 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.boardgame.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain.Point
 import org.slf4j.LoggerFactory
 
-case class Grid[T](height: Int, width: Int, cells: List[List[T]]) {
+case class Grid[T](cells: List[List[T]]) {
 
-  // TODO. Remove parameters height and width. Derive from rectangular 2D list.
   val logger = LoggerFactory.getLogger(this.getClass)
+
+  val height = cells.size
+  if (height == 0)
+    throw new IllegalArgumentException(s"grid has no rows")
+
+  val width = cells.head.size
 
   val sizes = cells map { _.size}
   val rectangular = sizes.forall(_ == width)
@@ -20,8 +24,6 @@ case class Grid[T](height: Int, width: Int, cells: List[List[T]]) {
   if (!rectangular)
     throw new IllegalArgumentException(s"attempt to create jagged grid with row sizes: ${sizes}")
 
-  // TODO. Check that dimensions are the same and set dimension.
-  val dimension = height // TODO. Replace height and width with dimension.
   val _columns = cells.transpose
 
   def flatFilter(predicate: T => Boolean): List[T] = filter(predicate).flatten
@@ -57,6 +59,6 @@ object Grid {
 
   def apply[T](cellMaker: Int => Int => T, height: Int, width: Int): Grid[T] = {
     val cells = for (r <- List.range(0, height)) yield mkRow(cellMaker(r), width)
-    Grid(height, width, cells)
+    Grid(cells)
   }
 }

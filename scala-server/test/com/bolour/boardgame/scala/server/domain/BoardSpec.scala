@@ -13,15 +13,15 @@ class BoardSpec extends FlatSpec with Matchers {
   val logger = LoggerFactory.getLogger(this.getClass)
 
   "board" should "start empty" in {
-    val board1 = Board(15, 15)
+    val board1 = Board(15)
     board1.gridPieces.size shouldEqual 0
 
     val noGridPieces: List[GridPiece] = Nil
-    val board2: Board = Board(2, 2, noGridPieces)
+    val board2: Board = Board(2, noGridPieces)
     board2.gridPieces.size shouldBe 0
 
     val gridPieces = List(GridPiece(Piece('A', "idA"), Point(0, 0)))
-    val board3 = Board(1, 1, gridPieces)
+    val board3 = Board(1, gridPieces)
     logger.info(s"${board3}")
     board3.gridPieces.size shouldEqual 1
   }

@@ -29,7 +29,7 @@ name = "You"
 
 pieceGeneratorType = PieceGeneratorType.Cyclic
 params :: GameParams
-params = GameParams 9 9 12 Dict.defaultLanguageCode name pieceGeneratorType
+params = GameParams 9 12 Dict.defaultLanguageCode name pieceGeneratorType
 pieceGenerator = PieceGen.mkDefaultPieceGen PieceGeneratorType.Cyclic
 
 game :: IO Game

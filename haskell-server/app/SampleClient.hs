@@ -22,7 +22,7 @@ dimension = 9
 name = "John"
 player = Player name
 pieceGeneratorType = PieceGeneratorType.Cyclic
-gameParams = GameParams dimension dimension 12 "en" name pieceGeneratorType
+gameParams = GameParams dimension 12 "en" name pieceGeneratorType
 gen = PieceGen.mkDefaultPieceGen pieceGeneratorType
 mkPiece = PieceGen.pieceOf
 

@@ -80,7 +80,6 @@ library
       BoardGame.Server.Domain.Tray
       BoardGame.Server.Domain.PlayInfo
       BoardGame.Server.Domain.PlayDetails
-      BoardGame.Server.Domain.BoardStripMatcher
       BoardGame.Server.Domain.IndexedStripMatcher
       BoardGame.Server.Domain.IndexedLanguageDictionary
       BoardGame.Server.Domain.GameCache
@@ -242,7 +241,6 @@ test-suite spec
       BoardGame.Server.Domain.GridSpec
       BoardGame.Server.Domain.BoardSpec
       BoardGame.Server.Domain.CommonSpec
-      BoardGame.Server.Domain.WordMatcherSpec
       BoardGame.Server.Domain.StripMatcherSpec
       BoardGame.Server.Domain.IndexedDictionarySpec
       BoardGame.Server.Domain.DictionaryCacheSpec

@@ -20,7 +20,7 @@ class StripMatcherSpec extends FlatSpec with Matchers { self =>
   val words = List("BAT", "BET", "EATEN")
   val dictionary = WordDictionary(WordUtil.english, words)
   val dimension = 7
-  val emptyBoard = Board(dimension, dimension)
+  val emptyBoard = Board(dimension)
   val pieces = Vector(
     Piece('B', "id1"),
     Piece('E', "id2"),

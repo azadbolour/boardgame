@@ -7,14 +7,14 @@ package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain.{GridPiece, Piece, Point}
 
-case class Board(height: Int, width: Int, grid: Grid[GridPiece]) {
+case class Board(dimension: Int, grid: Grid[GridPiece]) {
   def gridPieces: List[GridPiece] =
     grid.flatFilter(gp => !gp.value.isEmpty)
 
   def addPieces(gridPieces: List[GridPiece]): Board = {
     val pointedPieces = gridPieces map (gp => (gp, gp.point))
     val augmentedGrid = grid.setPoints(pointedPieces)
-    Board(height, width, augmentedGrid)
+    Board(dimension, augmentedGrid)
   }
 
   def rows = grid.rows
@@ -28,19 +28,19 @@ case class Board(height: Int, width: Int, grid: Grid[GridPiece]) {
 }
 
 object Board {
-  def apply(height: Int, width: Int, cellMaker: Int => Int => GridPiece) : Board = {
+  def apply(dimension: Int, cellMaker: Int => Int => GridPiece) : Board = {
     // TODO. No need here for cellMaker _. Why different from Board (below)?
-    val grid = Grid(cellMaker, height, width)
-    Board(height, width, grid)
+    val grid = Grid(cellMaker, dimension, dimension)
+    Board(dimension, grid)
   }
 
-  def apply(height: Int, width: Int) : Board = {
+  def apply(dimension: Int) : Board = {
     def cellMaker(row: Int)(col: Int) = GridPiece(Piece.noPiece, Point(row, col))
-    Board(height, width, cellMaker _)
+    Board(dimension, cellMaker _)
   }
 
   // TODO. Check that grid pieces fall inside the board boundaries.
-  def apply(height: Int, width: Int, gridPieces: List[GridPiece]): Board = {
+  def apply(dimension: Int, gridPieces: List[GridPiece]): Board = {
     def maybeGridPiece(r: Int, c: Int) = gridPieces.find(_.point == Point(r, c))
     def cellMaker(row: Int)(col: Int) = {
       maybeGridPiece(row, col) match {
@@ -48,7 +48,7 @@ object Board {
         case None => isEmpty(row, col)
       }
     }
-    Board(height, width, cellMaker _)
+    Board(dimension, cellMaker _)
   }
 
   def isEmpty(row: Int, col: Int) = GridPiece(Piece.noPiece, Point(row, col))

@@ -74,10 +74,8 @@ import qualified BoardGame.Server.Domain.Tray as Tray
 import qualified BoardGame.Server.Domain.Grid as Grid
 import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Board (Board, Board(Board))
--- import qualified BoardGame.Server.Domain.BoardStripMatcher as BoardStripMatcher
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictionaryCache
--- import qualified BoardGame.Server.Domain.LanguageDictionary as LanguageDictionary
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
 import BoardGame.Server.Domain.PlayInfo (PlayInfo, PlayInfo(PlayInfo))
@@ -309,7 +307,7 @@ optimalMatch matches =
 
 gameToRow :: PlayerRowId -> Game -> GameRow
 gameToRow playerId game =
-  GameRow gameId playerId (Board.height board) (Board.width board) trayCapacity
+  GameRow gameId playerId (Board.dimension board) trayCapacity
     where gameId = Game.gameId game
           languageCode = Game.languageCode game -- TODO. Add language code to the table.
           board = Game.board game

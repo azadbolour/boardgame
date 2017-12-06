@@ -19,9 +19,9 @@ module BoardGame.Common.Domain.Point (
     Axis(..)
   , crossAxis
   , Coordinate
+  , Point(..)
   , Height
   , Width
-  , Point(..)
 ) where
 
 import GHC.Generics (Generic)
@@ -49,19 +49,15 @@ crossAxis Y = X
 
 -- | A value of a board coordinate.
 type Coordinate = Int
-
--- | A value of the Y (height/row) coordinate on a board.
 type Height = Coordinate
-
--- | A value of the X (width/col) coordinate on a board.
 type Width = Coordinate
 
 -- | The coordinates of a square on a board.
 --   TODO. Refactor to use x and y as coordinates consistent with axes X and Y.
 --   BEWARE! That would reverse the roles of the coordinates.
 data Point = Point {
-    row :: Height     -- ^ The row index - top-down.
-  , col :: Width      -- ^ The column index - left-to-right.
+    row :: Coordinate     -- ^ The row index - top-down.
+  , col :: Coordinate      -- ^ The column index - left-to-right.
 }
   deriving (Eq, Show, Generic, NFData)
 
