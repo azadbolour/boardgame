@@ -5,7 +5,7 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.boardgame.scala.common.domain.{GridPiece, Piece, Point}
+import com.bolour.boardgame.scala.common.domain.{Grid, GridPiece, Piece, Point}
 
 case class Board(dimension: Int, grid: Grid[GridPiece]) {
   def gridPieces: List[GridPiece] =

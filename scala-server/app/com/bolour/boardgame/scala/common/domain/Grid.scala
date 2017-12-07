@@ -3,9 +3,8 @@
  * Licensed under GNU Affero General Public License v3.0 -
  *    https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
-package com.bolour.boardgame.scala.server.domain
+package com.bolour.boardgame.scala.common.domain
 
-import com.bolour.boardgame.scala.common.domain.Point
 import org.slf4j.LoggerFactory
 
 case class Grid[T](cells: List[List[T]]) {

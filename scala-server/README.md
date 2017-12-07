@@ -1,10 +1,21 @@
 
-- Removing height and width from scala.
+- Port the ScoreMultiplier logic to javascript in web-ui.
 
-- Remove from UI.
+      move the logic for computing square multipler to ScoreMultiplier
 
-- Remove from Haskell.
+      move grid to common
 
+- Add score of piece to piece image. Can you use subscript
+  with smaller font?
+
+    Blank Tiles = 0 points
+    A – E – I – O – - U – L – N – R – S – T = 1 point
+    D – G = 2 points
+    B – C – M – P = 3 points
+    F – H – W – Y – V = 4 points
+    K = 5 points
+    J – X = 8 points
+    Q – Z = 10 points
 
 - SBT compilation for play2 is disabled by default.
 
@@ -28,10 +39,7 @@
 
 - Let's do that and hope it solves the issue.
 
-- Eliminate height and width grid constructor parameters.
-
-- Write test for dimension 15 board multiplier and make sure
-  all points in the first octant are covered.
+- Add real scoring tests.
 
 - Make sure dimension is odd.
 
@@ -57,18 +65,6 @@
   diagonal - not corner - 2 or more away from center - double word - pink
   quarter diagonal - offset 1 from edge - 3L blue
   quarter diagonal - offset > 1 from edge <= 1/4 from edge - 2L light blue
-
-- Add value of piece to piece image. Can you use subscript
-  with smaller font?
-
-    Blank Tiles = 0 points
-    A – E – I – O – - U – L – N – R – S – T = 1 point
-    D – G = 2 points
-    B – C – M – P = 3 points
-    F – H – W – Y – V = 4 points
-    K = 5 points
-    J – X = 8 points
-    Q – Z = 10 points
 
 - TODO. Rule for ending the game is part of refactoring to use bag of letters
   without replacement.
