@@ -93,10 +93,13 @@ const PieceComponent = React.createClass({
 
     return connectDragSource(
       <div style={{
+        position: 'absolute',
+        left: 6,
         opacity: isDragging ? 0.5 : 1,
-        fontSize: 23,
+        fontSize: 25,
         fontWeight: 'bold',
-        cursor: 'move'
+        cursor: 'move',
+        zIndex: 10
       }}>
         {this.props.piece.value}
       </div>

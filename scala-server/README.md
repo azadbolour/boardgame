@@ -1,4 +1,10 @@
 
+- BoardComponent has to get the grid as a property.
+  GameComponent has to get it from index.js.
+
+  The multiplier grid should be a property of game.
+  Goes before score in mkGame. 
+
 - Port the ScoreMultiplier logic to javascript in web-ui.
 
       move the logic for computing square multipler to ScoreMultiplier

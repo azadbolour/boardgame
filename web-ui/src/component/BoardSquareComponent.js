@@ -55,6 +55,25 @@ function inPlayStyle() {
   };
 }
 
+function scoreStyle(scoreMultiplier, squarePixels) {
+  const height = 10;
+  const width = 15;
+  let top = squarePixels - height;
+  let left = squarePixels - width;
+  return {
+    position: 'absolute',
+    top: top,
+    left: left,
+    height: height + 'px',
+    width: width + 'px',
+    zIndex: 1,
+    color: 'white',
+    backgroundColor: 'Blue',
+    opacity: 0.5,
+    fontSize: 10
+  };
+}
+
 /**
  * Style for the square - it is relative to its siblings within its parent.
  */
@@ -227,6 +246,7 @@ let BoardSquareComponent = React.createClass({
         {!isOver && canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'yellow')} />}
         {isOver && canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'green')} />}
         {inPlay && <div style={inPlayStyle()} />}
+        {true && <div style={scoreStyle(null, pixels)} >3W</div>}
 
       </div>
     );
