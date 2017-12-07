@@ -4,6 +4,7 @@
  *   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
 
+// Not supported. Ignore.
 
 jest.dontMock('../component/SquareComponent');
 

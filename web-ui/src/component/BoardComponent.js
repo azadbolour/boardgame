@@ -70,6 +70,8 @@ const BoardComponent = React.createClass({
      */
     squarePixels: PropTypes.number.isRequired,
 
+    scoreMultipliers: PropTypes.object.isRequired,
+
     /**
      * The board responds to interactions.
      */
@@ -114,6 +116,7 @@ const BoardComponent = React.createClass({
     let point = mkPoint(row, col);
     let inPlay = this.props.pointsInPlay.some(p => Point.eq(p, point));
     let enabled = this.props.enabled;
+    let scoreMultiplier = this.props.scoreMultipliers.getElement(point);
 
     return (
       <div key={squareKey} style={squareStyle({squarePixels})}>
@@ -122,6 +125,7 @@ const BoardComponent = React.createClass({
           point={point}
           isLegalMove={isLegalMove}
           squarePixels={squarePixels}
+          scoreMultiplier={scoreMultiplier}
           enabled={enabled}>
             {this.renderPiece(point)}
         </BoardSquareComponent>

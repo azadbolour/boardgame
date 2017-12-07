@@ -16,6 +16,7 @@ import {mkTray} from "../domain/Tray";
 import {mkGame} from "../domain/Game";
 import {mkCommittedPlayPiece} from "../domain/PlayPiece";
 import GameParams from "../domain/GameParams";
+import {mkMultiplierGrid} from "../domain/ScoreMultiplier";
 
 let mkDefaultGame = function(dimension) {
   let gameParams = GameParams.defaultParams();
@@ -32,7 +33,8 @@ let mkDefaultGame = function(dimension) {
     mkPiece('C', 'trayC'),
   ];
   let tray = mkTray(2, trayPieces);
-  let game = mkGame(gameParams, "1234", $board, tray, [0, 0]);
+  let scoreMultipliers = mkMultiplierGrid(dimension);
+  let game = mkGame(gameParams, "1234", $board, tray, scoreMultipliers, [0, 0]);
   return game;
 };
 

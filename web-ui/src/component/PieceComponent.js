@@ -93,8 +93,6 @@ const PieceComponent = React.createClass({
 
     return connectDragSource(
       <div style={{
-        position: 'absolute',
-        left: 6,
         opacity: isDragging ? 0.5 : 1,
         fontSize: 25,
         fontWeight: 'bold',

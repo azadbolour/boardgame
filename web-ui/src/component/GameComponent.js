@@ -178,6 +178,8 @@ const GameComponent = React.createClass({
     let enableStart = !running && !isError;
     let enableCommit = running && hasUncommittedPieces;
     let enableRevert = running && hasUncommittedPieces;
+    let scoreMultipliers = game.scoreMultipliers;
+    console.log(`BoardComponent: ${stringify(scoreMultipliers)}`)
 
     // TODO. Use individual function components where possible.
     // TODO. Break up game component structure into modular pieces.
@@ -283,6 +285,7 @@ const GameComponent = React.createClass({
               isLegalMove={isLegalMove}
               canMovePiece={canMovePiece}
               squarePixels={squarePixels}
+              scoreMultipliers={scoreMultipliers}
               enabled={running}
             />
           </div>

@@ -14,6 +14,7 @@ import {mkPiece} from "../domain/Piece";
 import {mkPoint} from "../domain/Point";
 import {mkGridPiece} from "../domain/GridPiece";
 import {mkCommittedPlayPiece, mkPlayPiece} from "../domain/PlayPiece";
+import {mkMultiplierGrid} from "../domain/ScoreMultiplier";
 
 // TODO. Conversion of class object to json - use JSON.stringify in simple cases.
 // TODO. What about conversion from json to a class object?
@@ -66,7 +67,8 @@ export const GameConverter = {
     playPieces.forEach(playPiece => {
       board = board.setPlayPiece(playPiece);
     });
-    let game = mkGame(gameParams, gameId, board, tray, [0, 0]);
+    let scoreMultipliers = mkMultiplierGrid(dimension);
+    let game = mkGame(gameParams, gameId, board, tray, scoreMultipliers, [0, 0]);
     return game;
   }
 };

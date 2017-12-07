@@ -15,6 +15,7 @@ import {mkPiece} from '../domain/Piece';
 import {mkPoint} from '../domain/Point';
 import {mkGridPiece} from '../domain/GridPiece';
 import {stringify} from "../util/Logger";
+import {ScoreMultiplierType} from "../domain/ScoreMultiplier";
 
 const PropTypes = React.PropTypes;
 
@@ -58,6 +59,7 @@ function inPlayStyle() {
 function scoreStyle(scoreMultiplier, squarePixels) {
   const height = 10;
   const width = 15;
+  let backgroundColor = scoreMultiplierColor(scoreMultiplier);
   let top = squarePixels - height;
   let left = squarePixels - width;
   return {
@@ -67,8 +69,8 @@ function scoreStyle(scoreMultiplier, squarePixels) {
     height: height + 'px',
     width: width + 'px',
     zIndex: 1,
-    color: 'white',
-    backgroundColor: 'Blue',
+    color: 'White',
+    backgroundColor: backgroundColor,
     opacity: 0.5,
     fontSize: 10
   };
@@ -161,6 +163,25 @@ function checkerShade(point) {
   return (point.row + point.col) % 2 === 0 ? 'light' : 'dark'; // TODO. Constants.
 }
 
+function scoreMultiplierColor(scoreMultiplier) {
+  let {multiplierType, factor} = scoreMultiplier;
+  switch (multiplierType) {
+    case ScoreMultiplierType.Letter:
+      switch (factor) {
+        case 2: return 'Cyan';
+        case 3: return 'Blue';
+        default: return 'White';
+      }
+    case ScoreMultiplierType.Word:
+      switch (factor) {
+        case 2: return 'Orange';
+        case 3: return 'Red';
+        default: return 'White';
+      }
+
+  }
+}
+
 /**
  * A given square on the board.
  *
@@ -188,6 +209,8 @@ let BoardSquareComponent = React.createClass({
      * The number of pixels in each side of the square.
      */
     squarePixels: PropTypes.number.isRequired,
+
+    scoreMultiplier: PropTypes.object.isRequired,
 
     /**
      * Does this square form part of the current play?
@@ -225,6 +248,7 @@ let BoardSquareComponent = React.createClass({
     let shade = checkerShade(this.props.point);
     let pixels = this.props.squarePixels;
     let inPlay = this.props.inPlay;
+    let scoreMultiplier = this.props.scoreMultiplier;
 
     let isLight = (shade === 'light'); // TODO. Constant.
     let backgroundColor = isLight ? 'CornSilk' : 'AquaMarine';
@@ -246,7 +270,9 @@ let BoardSquareComponent = React.createClass({
         {!isOver && canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'yellow')} />}
         {isOver && canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'green')} />}
         {inPlay && <div style={inPlayStyle()} />}
-        {true && <div style={scoreStyle(null, pixels)} >3W</div>}
+        {scoreMultiplier.factor > 1 && <div style={scoreStyle(scoreMultiplier, pixels)}>
+          {scoreMultiplier.show()}
+        </div>}
 
       </div>
     );

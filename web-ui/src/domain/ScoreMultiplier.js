@@ -13,7 +13,10 @@ export const ScoreMultiplierType = {
 export const mkScoreMultiplier = function(multiplierType, factor) {
   return {
     multiplierType,
-    factor
+    factor,
+    show: function() {
+      return factor + multiplierType.charAt(0);
+    }
   };
 };
 
@@ -51,7 +54,7 @@ export const mkMultiplierGrid = function (dimension) {
     const isCornerPoint = Point.eq(point, mkPoint(bound, bound));
     const isMidEdgePoint = Point.eq(point, mkPoint(0, bound));
     const isCenterPoint = Point.eq(point, mkPoint(0, 0));
-    const isQuarterEdgePoint = row == bound / 2 + 1 && col == bound;
+    const isQuarterEdgePoint = row == Math.floor(bound / 2) + 1 && col == bound;
     const isDiagonalPoint = function (centerOffset) {
       return col - row == centerOffset
     };

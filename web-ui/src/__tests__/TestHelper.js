@@ -13,6 +13,7 @@ import {mkEmptyBoard} from "../domain/Board";
 import {mkTray} from "../domain/Tray";
 import {mkPoint} from "../domain/Point";
 import {mkGridPiece} from "../domain/GridPiece";
+import {mkMultiplierGrid} from "../domain/ScoreMultiplier";
 
 const LARGE = 1000000;
 
@@ -34,7 +35,8 @@ const testUtil = {
     let params = GameParams.defaultParams();
     let board = mkEmptyBoard(params.dimension);
     let tray = mkTray(params.trayCapacity, testUtil.randomPieces(params.trayCapacity));
-    return mkGame(params, 1, board, tray, [0, 0]);
+    const scoreMultipliers = mkMultiplierGrid(params.dimension);
+    return mkGame(params, 1, board, tray, scoreMultipliers, [0, 0]);
   },
 
   // addInitialPlayToGame: function(game) {

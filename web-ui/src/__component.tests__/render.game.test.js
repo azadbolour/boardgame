@@ -5,6 +5,8 @@
  */
 
 
+// Not supported. Ignore.
+
 jest.dontMock('../component/PieceComponent');
 jest.dontMock('../component/GameComponent');
 jest.dontMock('../component/TraySquareComponent');

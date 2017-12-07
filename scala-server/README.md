@@ -1,4 +1,5 @@
 
+
 - BoardComponent has to get the grid as a property.
   GameComponent has to get it from index.js.
 

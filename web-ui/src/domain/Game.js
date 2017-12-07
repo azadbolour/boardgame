@@ -11,6 +11,7 @@ import * as Point from './Point';
 import * as Tray from './Tray';
 import * as PlayPiece from './PlayPiece';
 import {mkMovePlayPiece, mkCommittedPlayPiece} from './PlayPiece';
+import {mkMultiplierGrid} from "./ScoreMultiplier";
 
 export const USER_INDEX = 0;
 export const MACHINE_INDEX = 1;
@@ -27,11 +28,12 @@ const RUN_STATE = {
 export const mkEmptyGame = function(gameParams) {
   const board = Board.mkEmptyBoard(gameParams.dimension);
   const tray = Tray.mkEmptyTray(gameParams.trayCapacity);
+  const scoreMultipliers = mkMultiplierGrid(gameParams.dimension);
   const score = [0, 0];
-  return mkGame(gameParams, EMPTY_GAME_ID, board, tray, score, RUN_STATE.PRE_START);
+  return mkGame(gameParams, EMPTY_GAME_ID, board, tray, scoreMultipliers, score, RUN_STATE.PRE_START);
 };
 
-export const mkGame = function(gameParams, gameId, board, tray, score, runState = RUN_STATE.RUNNING) {
+export const mkGame = function(gameParams, gameId, board, tray, scoreMultipliers, score, runState = RUN_STATE.RUNNING) {
   let _gameParams = gameParams;
   let _gameId = gameId;
   let _board = board;
@@ -39,6 +41,7 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
   let _dimension = gameParams.dimension;
   let _squarePixels = gameParams.squarePixels;
   let _trayCapacity = gameParams.trayCapacity;
+  let _scoreMultipliers = scoreMultipliers;
   let _score = score;
   let _runState = runState;
 
@@ -58,6 +61,7 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
     get dimension() { return _dimension; },
     get squarePixels() { return _squarePixels; },
     get trayCapacity() { return _trayCapacity; },
+    get scoreMultipliers() { return _scoreMultipliers; },
     get score() { return _score.slice(); },
     get runState() {return _runState; },
 
@@ -70,7 +74,7 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
     },
 
     kill: function() {
-      let $game = mkGame(_gameParams, _gameId, _board, _tray, _score, RUN_STATE.KILLED);
+      let $game = mkGame(_gameParams, _gameId, _board, _tray, _scoreMultipliers, _score, RUN_STATE.KILLED);
       return $game;
     },
 
@@ -123,7 +127,7 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
       let playPiece = mkMovePlayPiece(piece, point);
       let $tray = _tray.removePiece(piece.id);
       let $board = _board.setPlayPiece(playPiece);
-      let $game = mkGame(_gameParams, _gameId, $board, $tray, _score);
+      let $game = mkGame(_gameParams, _gameId, $board, $tray, _scoreMultipliers, _score);
       return $game;
     },
 
@@ -140,7 +144,7 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
       let playedPieces = this.getUserMovePlayPieces().map(playPiece => playPiece.piece);
       let $score = updateScore(USER_INDEX, playedPieces);
       let $board = _board.commitUserMoves();
-      let $game = mkGame(_gameParams, _gameId, $board, $tray, $score);
+      let $game = mkGame(_gameParams, _gameId, $board, $tray, _scoreMultipliers, $score);
       return $game;
     },
 
@@ -148,11 +152,11 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
       let $board = _board.commitMachineMoves(moveGridPieces);
       let playedPieces = moveGridPieces.map(move => move.piece);
       let $score = updateScore(MACHINE_INDEX, playedPieces);
-      return mkGame(_gameParams, _gameId, $board, _tray, $score);
+      return mkGame(_gameParams, _gameId, $board, _tray, _scoreMultipliers, $score);
     },
 
     end: function() {
-      let $game = mkGame(_gameParams, _gameId, _board, _tray, _score, RUN_STATE.FINISHED);
+      let $game = mkGame(_gameParams, _gameId, _board, _tray, _scoreMultipliers, _score, RUN_STATE.FINISHED);
       return $game;
     },
 
@@ -161,7 +165,7 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
       let movedTrayPieces = movedPlayPieces.map(playPiece => playPiece.piece)
       let $board = _board.rollbackUserMoves();
       let $tray = _tray.addPieces(movedTrayPieces);
-      let $game = mkGame(_gameParams, _gameId, $board, $tray, _score);
+      let $game = mkGame(_gameParams, _gameId, $board, $tray, _scoreMultipliers, _score);
       return $game;
     },
 
@@ -180,7 +184,7 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
       let barePlayPiece = PlayPiece.mkBarePlayPiece(point);
       let $board = _board.setPlayPiece(barePlayPiece);
       let $tray = _tray.addPiece(piece);
-      let $game = mkGame(_gameParams, _gameId, $board, $tray, _score);
+      let $game = mkGame(_gameParams, _gameId, $board, $tray, _scoreMultipliers, _score);
       return $game;
     },
 
@@ -211,7 +215,7 @@ export const mkGame = function(gameParams, gameId, board, tray, score, runState 
 
     replaceTrayPiece: function(replacedPieceId, replacementPiece) {
       let $tray = _tray.replacePiece(replacedPieceId, replacementPiece);
-      return mkGame(_gameParams, _gameId, _board, $tray, _score);
+      return mkGame(_gameParams, _gameId, _board, $tray, _scoreMultipliers, _score);
     }
   };
 };

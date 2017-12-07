@@ -44,7 +44,7 @@ class GameParams {
   static ENV_GAME_SERVER_URL = 'GAME_SERVER_URL';
 
   static DEFAULT_DIMENSION = 5;
-  static DEFAULT_SQUARE_PIXELS = 33;
+  static DEFAULT_SQUARE_PIXELS = 36;
   static DEFAULT_TRAY_SIZE = 5;
   static MOCK_API_TYPE = 'mock';
   static CLIENT_API_TYPE = 'client';
