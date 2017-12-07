@@ -58,10 +58,12 @@ function inPlayStyle() {
 
 function scoreStyle(scoreMultiplier, squarePixels) {
   const height = 10;
-  const width = 15;
+  const width = Math.floor(squarePixels/2);
   let backgroundColor = scoreMultiplierColor(scoreMultiplier);
   let top = squarePixels - height;
-  let left = squarePixels - width;
+  // let top = 0;
+  // let left = squarePixels - width;
+  let left = 0;
   return {
     position: 'absolute',
     top: top,
@@ -72,7 +74,8 @@ function scoreStyle(scoreMultiplier, squarePixels) {
     color: 'White',
     backgroundColor: backgroundColor,
     opacity: 1,
-    fontSize: 10
+    fontSize: 10,
+    textAlign: 'center'
   };
 }
 

@@ -12,6 +12,7 @@ const DragSource = require('react-dnd').DragSource;
 import logger from "../util/Logger";
 const PropTypes = React.PropTypes;
 import {stringify} from "../util/Logger";
+import * as Piece from "../domain/Piece";
 
 const pieceDragger = {
   /**
@@ -90,16 +91,30 @@ const PieceComponent = React.createClass({
   render: function () {
     let connectDragSource = this.props.connectDragSource;
     let isDragging = this.props.isDragging;
+    let letter = this.props.piece.value;
+    let worth = Piece.worths[letter];
 
     return connectDragSource(
       <div style={{
         opacity: isDragging ? 0.5 : 1,
-        fontSize: 25,
+        fontSize: 18,
         fontWeight: 'bold',
         cursor: 'move',
         zIndex: 10
       }}>
-        {this.props.piece.value}
+        <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center'}}>
+          <div style={{ fontSize: 18}}>
+            {letter}
+          </div>
+          <div>
+            <div style={{ fontSize: 8}}>
+              <pre></pre>
+            </div>
+            <div style={{ fontSize: 12}}>
+              {worth}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

@@ -1,15 +1,19 @@
 
-- Add score of piece to piece image. Can you use subscript
-  with smaller font?
+- Add real scoring tests.
 
-    Blank Tiles = 0 points
-    A – E – I – O – - U – L – N – R – S – T = 1 point
-    D – G = 2 points
-    B – C – M – P = 3 points
-    F – H – W – Y – V = 4 points
-    K = 5 points
-    J – X = 8 points
-    Q – Z = 10 points
+- Compute real score for game.
+
+- New api call to get the total score so far.
+
+- Compute real scores and send to the UI.
+
+- Make sure dimension is odd.
+
+- Very useful guide for styling:
+
+    https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+
+- Add letter worths to pieces Haskell.
 
 - SBT compilation for play2 is disabled by default.
 
@@ -33,35 +37,11 @@
 
 - Let's do that and hope it solves the issue.
 
-- Add real scoring tests.
-
-- Make sure dimension is odd.
-
-- Add letter scores to pieces.
-
-- First in Scala - then in javascript.
-
-- For simplicity - just add the number after the letter for now.
-  Did not figure out a good way of changing font size within text.
-
-- Prototype adding score factors in React. Just absolute with some 
-  offset.
-
-- Add double triple letter and word indicators to board.
-  For now indicate 2L, 3L, 2W, 3W on one corner.
-
-  center - star - pink
-  corner - 3W - red
-  edge middles - 3W - red
-  edge quarters - 2L - light blue
-  diagonal offset 1 from center - 2L light-blue
-  diagonal offset 2 from center - 3L blue
-  diagonal - not corner - 2 or more away from center - double word - pink
-  quarter diagonal - offset 1 from edge - 3L blue
-  quarter diagonal - offset > 1 from edge <= 1/4 from edge - 2L light blue
-
 - TODO. Rule for ending the game is part of refactoring to use bag of letters
   without replacement.
+
+- TODO. Matching algorithm needs to be based on the best guess as to 
+  the real score of a play. 
 
 ## To Do
 
