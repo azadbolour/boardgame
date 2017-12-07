@@ -71,7 +71,7 @@ function scoreStyle(scoreMultiplier, squarePixels) {
     zIndex: 1,
     color: 'White',
     backgroundColor: backgroundColor,
-    opacity: 0.5,
+    opacity: 1,
     fontSize: 10
   };
 }
@@ -168,8 +168,8 @@ function scoreMultiplierColor(scoreMultiplier) {
   switch (multiplierType) {
     case ScoreMultiplierType.Letter:
       switch (factor) {
-        case 2: return 'Cyan';
-        case 3: return 'Blue';
+        case 2: return '#0000FF';
+        case 3: return 'DarkBlue';
         default: return 'White';
       }
     case ScoreMultiplierType.Word:
