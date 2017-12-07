@@ -1,10 +1,13 @@
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.boardgame.scala.common.domain.{Point, ScoreMultiplier}
+import com.bolour.boardgame.scala.common.domain.Axis.Axis
+import com.bolour.boardgame.scala.common.domain.Axis.Axis
+import com.bolour.boardgame.scala.common.domain._
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
 import com.bolour.boardgame.scala.common.domain.ScoreMultiplierType._
 import com.bolour.boardgame.scala.common.domain.ScoreMultiplier._
+
 
 
 class ScorerSpec extends FlatSpec with Matchers {
@@ -12,6 +15,18 @@ class ScorerSpec extends FlatSpec with Matchers {
 
   val dimension = 15
   val middle = dimension / 2
+
+  def play(word: String, strip: Strip): List[PlayPiece] = {
+    ((0 to word.length) map { i: Int =>
+      val ch = word(i)
+      val piece = Piece(ch, i.toString)
+      val point = strip.point(i)
+      val moved = Piece.isBlank(strip.content(i))
+      PlayPiece(piece, point, moved)
+    }).toList
+  }
+
+  def worth(letter: Char) = Piece.worths(letter)
 
   val x1 = noMultiplier()
   val x2Letter = letterMultiplier(2)
@@ -53,4 +68,18 @@ class ScorerSpec extends FlatSpec with Matchers {
     multiplier(13, 7) shouldEqual x1
     multiplier(14, 7) shouldEqual x3Word
   }
+
+  "scorer" should "score correctly based on worth of letters" in {
+    val playPieces = play("JOIN", Strip(Axis.X, 0, 0, 3, " O  "))
+    scorer.scorePlay(playPieces) shouldEqual
+      (3 * (worth('J') + worth('O') + worth('I') + 2 * worth('N')))
+  }
+
+  "scorer" should "score correctly based on worth of letters" in {
+    val playPieces = play("JOIN", Strip(Axis.X, 0, 0, 3, "J   "))
+    scorer.scorePlay(playPieces) shouldEqual
+      (worth('J') + worth('O') + worth('I') + 2 * worth('N'))
+  }
+
+
 }

@@ -1,7 +1,12 @@
 
-- Add real scoring tests.
-
 - Compute real score for game.
+
+  Add dimension and tray capacity to game constructor parameters. Refactor -
+  change signature.
+  And instantiate a scorer for the game.
+
+  Then gameState's computePlayScrore just calls game.scorer.scorePlay
+
 
 - New api call to get the total score so far.
 
