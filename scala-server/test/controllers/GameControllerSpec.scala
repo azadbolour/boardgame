@@ -6,7 +6,8 @@
 package controllers
 
 import com.bolour.boardgame.scala.common.domain._
-import com.bolour.boardgame.scala.common.message.{GameDto, PlayerDto, StartGameRequest}
+import com.bolour.boardgame.scala.common.message._
+import com.bolour.boardgame.scala.server.domain.Scorer.Score
 
 import scala.concurrent.Future
 import com.typesafe.config.ConfigFactory
@@ -91,14 +92,18 @@ class GameControllerSpec extends PlaySpec with Results {
       )
 
       result = controller.commitPlay(theGameId)(mkRequest(userPlayPieces))
-      val replacementPieces = decodeJsonContent[List[Piece]](result)
-      replacementPieces.size mustEqual 3
+      decodeJsonContent[CommitPlayResponse](result) match {
+        case CommitPlayResponse(score, replacementPieces) =>
+          replacementPieces.size mustEqual 3
+      }
       // logger.info(s"${replacementPieces}")
 
       // TODO. How to make request with no body the PlaySpec way??
       result = controller.machinePlay(theGameId)(FakeRequest())
-      val machinePlayPieces = decodeJsonContent[List[PlayPiece]](result)
-      machinePlayPieces.size must be > 2
+      decodeJsonContent[MachinePlayResponse](result) match {
+        case MachinePlayResponse(score, playedPieces) =>
+          playedPieces.size must be > 2
+      }
 
       val swappedPiece = theUserTrayPieces(0)
       result = controller.swapPiece(theGameId)(mkRequest(swappedPiece))

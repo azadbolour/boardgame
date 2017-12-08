@@ -10,7 +10,7 @@ import javax.inject._
 import com.bolour.boardgame.scala.common.domain.{Piece, PlayPiece}
 import controllers.GameJsonSupport._
 import controllers.GameDtoConverters._
-import com.bolour.boardgame.scala.common.message.{PlayerDto, StartGameRequest}
+import com.bolour.boardgame.scala.common.message.{CommitPlayResponse, MachinePlayResponse, PlayerDto, StartGameRequest}
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
 import com.bolour.boardgame.scala.server.service.GameService
 import org.slf4j.LoggerFactory
@@ -110,9 +110,10 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
       case Failure(ex) =>
         logger.error("commitPlay failure", ex)
         unprocessable(ex)
-      case Success(replacementPieces) =>
+      case Success((score, replacementPieces)) =>
         logger.info(s"commitPlay success - replacements: ${replacementPieces}")
-        Ok(Json.toJson(replacementPieces))
+        val response = CommitPlayResponse(score, replacementPieces)
+        Ok(Json.toJson(response))
     }
   }
 
@@ -124,9 +125,10 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
       case Failure(ex) =>
         logger.info("machinePlay failure", ex)
         unprocessable(ex)
-      case Success(playedPieces) =>
+      case Success((score, playedPieces)) =>
         logger.info(s"machinePlay success - playedPieces: ${playedPieces}")
-        Ok(Json.toJson(playedPieces))
+        val response = MachinePlayResponse(score, playedPieces)
+        Ok(Json.toJson(response))
     }
   }
 

@@ -74,7 +74,10 @@ class MockApiImpl {
       it.gameDto.trayPieces.push(p));
 
     // console.log(`committed game: ${JSON.stringify(this.gameDto)}`);
-    return refills;
+    return {
+      score: 10,
+      replacementPieces: refills
+    };
   }
 
   /**
@@ -114,7 +117,10 @@ class MockApiImpl {
     this.reflectMovesOnGame(movedPlayPieces);
 
     // Return entire sequence of play pieces to be returned, moved or not.
-    return playPieces;
+    return {
+      score: 10,
+      playedPieces: playPieces
+    };
   }
 
   // Future API member.

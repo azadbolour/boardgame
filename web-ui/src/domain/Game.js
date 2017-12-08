@@ -45,9 +45,10 @@ export const mkGame = function(gameParams, gameId, board, tray, scoreMultipliers
   let _score = score;
   let _runState = runState;
 
-  let updateScore = function(playerIndex, playedPieces) {
+  let updateScore = function(playerIndex, score) {
     let updatedScore = _score.slice();
-    updatedScore[playerIndex] += playedPieces.length;
+    // updatedScore[playerIndex] += playedPieces.length;
+    updatedScore[playerIndex] += score;
     return updatedScore;
   };
 
@@ -139,19 +140,21 @@ export const mkGame = function(gameParams, gameId, board, tray, scoreMultipliers
       return _board.completedPlayPieces();
     },
 
-    commitUserMoves: function(replacementPieces) {
+    commitUserMoves: function(score, replacementPieces) {
       let $tray = _tray.addPieces(replacementPieces);
       let playedPieces = this.getUserMovePlayPieces().map(playPiece => playPiece.piece);
-      let $score = updateScore(USER_INDEX, playedPieces);
+      // let $score = updateScore(USER_INDEX, playedPieces);
+      let $score = updateScore(USER_INDEX, score);
       let $board = _board.commitUserMoves();
       let $game = mkGame(_gameParams, _gameId, $board, $tray, _scoreMultipliers, $score);
       return $game;
     },
 
-    commitMachineMoves: function(moveGridPieces) {
+    commitMachineMoves: function(score, moveGridPieces) {
       let $board = _board.commitMachineMoves(moveGridPieces);
       let playedPieces = moveGridPieces.map(move => move.piece);
-      let $score = updateScore(MACHINE_INDEX, playedPieces);
+      // let $score = updateScore(MACHINE_INDEX, playedPieces);
+      let $score = updateScore(MACHINE_INDEX, score);
       return mkGame(_gameParams, _gameId, $board, _tray, _scoreMultipliers, $score);
     },
 

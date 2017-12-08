@@ -1,16 +1,13 @@
 
-- Compute real score for game.
-
-  Add dimension and tray capacity to game constructor parameters. Refactor -
-  change signature.
-  And instantiate a scorer for the game.
-
-  Then gameState's computePlayScrore just calls game.scorer.scorePlay
-
-
 - New api call to get the total score so far.
 
-- Compute real scores and send to the UI.
+- UI mock api needs to return a dummy score for user and machine play. Done.
+
+  GameService commitUserPlay gets an object with score and replacementPieces/
+
+  getMachinePlay gets (score, playedPieces)
+
+  mock api test should pass first
 
 - Make sure dimension is odd.
 

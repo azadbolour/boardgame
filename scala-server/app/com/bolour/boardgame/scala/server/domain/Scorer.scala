@@ -32,5 +32,6 @@ class Scorer(val dimension: Int) {
 }
 
 object Scorer {
+  type Score = Int
   def apply(dimension: Int): Scorer = new Scorer(dimension)
 }

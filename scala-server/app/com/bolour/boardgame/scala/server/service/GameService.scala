@@ -7,6 +7,7 @@ package com.bolour.boardgame.scala.server.service
 
 import com.bolour.util.BasicUtil.ID
 import com.bolour.boardgame.scala.common.domain._
+import com.bolour.boardgame.scala.server.domain.Scorer.Score
 import com.bolour.boardgame.scala.server.domain.{Game, GameState, Player}
 
 import scala.util.Try
@@ -29,9 +30,9 @@ trait GameService {
   ): Try[GameState]
   // ): Try[(GameState, Option[List[PlayPiece]])]
 
-  def commitPlay(gameId: ID, playPieces: List[PlayPiece]): Try[List[Piece]]
+  def commitPlay(gameId: ID, playPieces: List[PlayPiece]): Try[(Score, List[Piece])]
 
-  def machinePlay(gameId: ID): Try[List[PlayPiece]]
+  def machinePlay(gameId: ID): Try[(Score, List[PlayPiece])]
 
   def swapPiece(gameId: ID, piece: Piece): Try[Piece]
 

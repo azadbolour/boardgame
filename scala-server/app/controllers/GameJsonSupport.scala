@@ -48,6 +48,9 @@ object GameJsonSupport {
   implicit val gameDtoReads = reads[GameDto]
   implicit val startGameRequestReads = reads[StartGameRequest]
   implicit val playPieceReads = reads[PlayPiece]
+  implicit val commitPlayResponseReads = reads[CommitPlayResponse]
+  implicit val machinePlayResponseReads = reads[MachinePlayResponse]
+
 
   implicit val charWrites: Writes[Char] = new Writes[Char] {
     def writes(o: Char) = Json.toJson[String](o.toString)
@@ -69,6 +72,8 @@ object GameJsonSupport {
   implicit val gameDtoWrites = writes[GameDto]
   implicit val startGameRequestWrites = writes[StartGameRequest]
   implicit val playPieceWrites = writes[PlayPiece]
+  implicit val commitPlayResponseWrites = writes[CommitPlayResponse]
+  implicit val machinePlayResponseWrites = writes[MachinePlayResponse]
 
   implicit val missingPieceErrorDtoWrites = writes[MissingPieceErrorDto]
   implicit val missingGameErrorDtoWrites = writes[MissingGameErrorDto]
@@ -78,6 +83,7 @@ object GameJsonSupport {
   implicit val unsupportedLanguageErrorDtoWrites = writes[UnsupportedLanguageErrorDto]
   implicit val missingDictionaryErrorDtoWrites = writes[MissingDictionaryErrorDto]
   implicit val internalErrorDtoWrites = writes[InternalErrorDto]
+
 
   // def unitJson = Json.toJson(List[String]())
 }

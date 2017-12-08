@@ -58,9 +58,9 @@ class GameService {
       if (!dtoResponse.ok) {
         return dtoResponse; // TODO. Convert dto message to application message;.
       }
-      let refillPiecesDto = dtoResponse.json;
-      let refillPieces = refillPiecesDto.map(PieceConverter.fromJson);
-      let response = this.convertResponse(dtoResponse, refillPieces);
+      let {score, replacementPieces} = dtoResponse.json;
+      let refillPieces = replacementPieces.map(PieceConverter.fromJson);
+      let response = this.convertResponse(dtoResponse, {score, replacementPieces});
       return response;
     });
   }
@@ -71,9 +71,9 @@ class GameService {
       if (!dtoResponse.ok) {
         return dtoResponse; // TODO. Convert dto message to application message;.
       }
-      let playPiecesDto = dtoResponse.json;
-      let play = PlayConverter.fromJson(playPiecesDto);
-      let response = this.convertResponse(dtoResponse, play);
+      let {score, playedPieces} = dtoResponse.json;
+      let play = PlayConverter.fromJson(playedPieces);
+      let response = this.convertResponse(dtoResponse, {score: score, play: play});
       return response;
     });
   }

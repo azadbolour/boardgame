@@ -18,6 +18,7 @@ import com.bolour.boardgame.scala.common.domain.Piece.noPiece
 import com.bolour.boardgame.scala.common.domain.PlayPieceObj.PlayPieces
 import com.bolour.boardgame.scala.server.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
+import com.bolour.boardgame.scala.server.domain.Scorer.Score
 import com.bolour.boardgame.scala.server.domain.WordDictionary.readDictionary
 import org.slf4j.LoggerFactory
 
@@ -126,7 +127,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     }
   }
 
-  override def commitPlay(gameId: String, playPieces: List[PlayPiece]): Try[List[Piece]] = {
+  override def commitPlay(gameId: String, playPieces: List[PlayPiece]): Try[(Score, List[Piece])] = {
     val os = gameCache.get(gameId)
     if (os.isEmpty)
       return Failure(MissingGameException(gameId))
@@ -142,12 +143,14 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     if (!od.get.hasWord(word))
       return Failure(InvalidWordException(languageCode, word))
 
+    val score = state.game.scorer.scorePlay(playPieces)
+
     for {
       (newState, refills) <- state.addPlay(UserPlayer, playPieces)
       // TODO. How to eliminate dummy values entirely in for.
       _ <- savePlay(newState, playPieces, refills)
       _ = gameCache += ((gameId, newState))
-    } yield (refills)
+    } yield (score, refills)
   }
 
   // TODO. Persist play.
@@ -155,8 +158,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     Success(())
   }
 
-  // TODO. Implement machine play.
-  override def machinePlay(gameId: String): Try[List[PlayPiece]] = {
+  override def machinePlay(gameId: String): Try[(Score, List[PlayPiece])] = {
     val os = gameCache.get(gameId)
     if (os.isEmpty)
       return Failure(MissingGameException(gameId))
@@ -177,7 +179,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       override def tray: Tray = machineTray
     }
 
-    stripMatcher.bestMatch() match {
+    val tryPlayPieces = stripMatcher.bestMatch() match {
       case Nil =>
         for {
           newState <- exchangeMachinePiece(state)
@@ -185,11 +187,16 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
         } yield Nil
       case playPieces =>
         for {
-          (newState, refills) <- state.addPlay(UserPlayer, playPieces)
+          (newState, refills) <- state.addPlay(MachinePlayer, playPieces)
           // TODO. How to eliminate dummy values entirely in for.
           _ <- savePlay(newState, playPieces, refills)
           _ = gameCache += ((gameId, newState))
         } yield playPieces
+    }
+
+    tryPlayPieces map {playPieces =>
+      val score = state.game.scorer.scorePlay(playPieces)
+      (score, playPieces)
     }
   }
 
