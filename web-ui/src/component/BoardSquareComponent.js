@@ -162,26 +162,28 @@ function injectedDropTargetProperties(connect, monitor) {
 /**
  * Get the shade of the checker at the given position - light or dark square.
  */
-function checkerShade(point) {
-  return (point.row + point.col) % 2 === 0 ? 'light' : 'dark'; // TODO. Constants.
-}
+// function checkerShade(point) {
+//   return (point.row + point.col) % 2 === 0 ? 'light' : 'dark'; // TODO. Constants.
+// }
 
 function scoreMultiplierColor(scoreMultiplier) {
+  let defaultColor = 'CornSilk';
   let {multiplierType, factor} = scoreMultiplier;
   switch (multiplierType) {
     case ScoreMultiplierType.Letter:
       switch (factor) {
         case 2: return '#0000FF';
         case 3: return 'DarkBlue';
-        default: return 'White';
+        default: return defaultColor;
       }
     case ScoreMultiplierType.Word:
       switch (factor) {
         case 2: return 'Orange';
         case 3: return 'Red';
-        default: return 'White';
+        default: return defaultColor;
       }
-
+    default:
+      return defaultColor;
   }
 }
 
@@ -248,13 +250,15 @@ let BoardSquareComponent = React.createClass({
     let connectDropTarget = this.props.connectDropTarget;
     let isOver = this.props.isOver;
     let canDrop = this.props.canDrop;
-    let shade = checkerShade(this.props.point);
+    // let shade = checkerShade(this.props.point);
     let pixels = this.props.squarePixels;
     let inPlay = this.props.inPlay;
     let scoreMultiplier = this.props.scoreMultiplier;
+    // console.log(`${stringify(scoreMultiplier)}`);
 
-    let isLight = (shade === 'light'); // TODO. Constant.
-    let backgroundColor = isLight ? 'CornSilk' : 'AquaMarine';
+    // let isLight = (shade === 'light'); // TODO. Constant.
+    // let backgroundColor = isLight ? 'CornSilk' : 'AquaMarine';
+    let backgroundColor = scoreMultiplierColor(scoreMultiplier);
     let color = 'OrangeRed';
     let enabled = this.props.enabled;
 

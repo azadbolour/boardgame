@@ -68,8 +68,12 @@ library
       BoardGame.Common.Domain.GameParams
       BoardGame.Common.Message.GameDto
       BoardGame.Common.Message.StartGameRequest
+      BoardGame.Common.Message.CommitPlayResponse
+      BoardGame.Common.Message.MachinePlayResponse
       BoardGame.Common.Domain.PlayPiece
       BoardGame.Common.Domain.PieceGen
+      BoardGame.Common.Domain.ScoreMultiplierType
+      BoardGame.Common.Domain.ScoreMultiplier
       BoardGame.Server.Domain.Grid
       BoardGame.Server.Domain.Core
       BoardGame.Server.Domain.Board

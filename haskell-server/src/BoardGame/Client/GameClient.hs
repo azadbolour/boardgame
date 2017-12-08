@@ -37,8 +37,8 @@ import BoardGame.Common.Message.StartGameRequest (StartGameRequest)
 
 addPlayer :: Player -> Manager -> BaseUrl -> ClientM ()
 startGame :: StartGameRequest -> Manager -> BaseUrl -> ClientM GameDto
-commitPlay :: String -> [PlayPiece] -> Manager -> BaseUrl -> ClientM [Piece]
-machinePlay :: String -> Manager -> BaseUrl -> ClientM [PlayPiece]
+commitPlay :: String -> [PlayPiece] -> Manager -> BaseUrl -> ClientM CommitPlayResponse
+machinePlay :: String -> Manager -> BaseUrl -> ClientM MachinePlayResponse
 swapPiece :: String -> Piece -> Manager -> BaseUrl -> ClientM Piece
 endGame :: String -> Manager -> BaseUrl -> ClientM ()
 

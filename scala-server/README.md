@@ -1,13 +1,18 @@
 
+- In haskell GameEndPoint map the service returns for plays
+  to a constructor for the corresponding messages.
+
 - Change haskell api to return score of a play.
+
+- Compute real score in Haskell and return.
+
+- intellij subscription by 12/14.
 
 - Make sure dimension is odd.
 
 - Very useful guide for styling:
 
     https://css-tricks.com/snippets/css/a-guide-to-flexbox/
-
-- Add letter worths to pieces Haskell.
 
 - If the intellij play configuration goes awry and things like
   running tests stop working, the best remedy I have found is

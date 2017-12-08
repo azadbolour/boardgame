@@ -185,7 +185,7 @@ startGameService gameParams initGridPieces initUserPieces initMachinePieces = do
 commitPlayService ::
      String
   -> [PlayPiece]
-  -> GameTransformerStack [Piece]
+  -> GameTransformerStack (Int, [Piece])
 
 commitPlayService gmId playPieces = do
   GameEnv { gameCache } <- ask
@@ -197,14 +197,15 @@ commitPlayService gmId playPieces = do
     <- Game.reflectPlayOnGame game UserPlayer playPieces
   saveWordPlay gmId playNumber UserPlayer playPieces refills
   liftGameExceptToStack $ GameCache.insert game' gameCache
-  return refills
+  let score = length playPieces -- TODO. Get real score.
+  return $ (score, refills)
 
 -- TODO. Save the replacement pieces in the database.
 -- TODO. Need to save the update game info in the DB.
 
 -- | Service function to obtain the next machine play.
 --   If no match is found, then the machine exchanges a piece.
-machinePlayService :: String -> GameTransformerStack [PlayPiece]
+machinePlayService :: String -> GameTransformerStack (Int, [PlayPiece])
 machinePlayService gameId = do
   GameEnv { gameCache } <- ask
   (game @ Game {gameId, languageCode, board, trays}) <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
@@ -231,7 +232,8 @@ machinePlayService gameId = do
       saveWordPlay gameId playNumber MachinePlayer playPieces refills
       return (gm, playPieces)
   liftGameExceptToStack $ GameCache.insert game' gameCache
-  return machinePlayPieces
+  let score = length machinePlayPieces
+  return (score, machinePlayPieces)
 
 -- TODO. Save the new game data in the database.
 -- TODO. Would this be simpler with a stack of ExceptT May IO??
