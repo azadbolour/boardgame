@@ -2,7 +2,8 @@ package com.bolour.boardgame.scala.common.domain
 import com.bolour.boardgame.scala.common.domain.ScoreMultiplierType._
 
 case class ScoreMultiplier(scoreMultiplierType: ScoreMultiplierType, factor: Int) {
-  def isWordMultiplier: Boolean = (scoreMultiplierType == Letter)
+  def isLetterMultiplier: Boolean = scoreMultiplierType == Letter
+  def isWordMultiplier: Boolean = scoreMultiplierType == Word
 }
 
 object ScoreMultiplier {

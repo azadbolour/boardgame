@@ -22,25 +22,12 @@
 
 - SBT compilation for play2 is disabled by default.
 
-- The intellij play configuration is messed up and I am wasting
-  too much time trying to make it right. 
-
-- Right click project, Add Framework Support in intellij to 
-  add Play support to a project.
-
-- Cannot run tests from intellij - either can't find the test
-  or module is not specified. Delete the run configuration.
-  Still can't find the class. Invalidated caches and restarted 
-  and still getting the same problem.
-
-  There is a warning about JavaLaunchHelper being available
-  from two different places. Not sure if that is the cause 
-  of the problem. Suggested fix for the latter is to upgrade 
-  to:
-
-      oracle jdk 8u152
-
-- Let's do that and hope it solves the issue.
+- If the intellij play configuration goes awry and things like
+  running tests stop working, the best remedy I have found is
+  to simply create another empty play porject from inside intellij,
+  get rid of its sources (keep build.sbt, poroject/, and yes target/
+  as well), and copy your sources back to this project and merge your
+  build.sbt taking care not to change configured stuff.
 
 - TODO. Rule for ending the game is part of refactoring to use bag of letters
   without replacement.

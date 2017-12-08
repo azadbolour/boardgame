@@ -15,18 +15,18 @@ class Scorer(val dimension: Int) {
     val multipliers = playPieces map {_.point} map { multiplierGrid.cell(_) }
     val playPieceMultipliers = playPieces zip multipliers
     val letterScores = playPieceMultipliers map {
-      case (playPiece, squareMultiplier) =>
-        val factor = if (playPiece.moved) squareMultiplier.factor else 1
+      case (playPiece, multiplier) =>
+        val factor = if (playPiece.moved && multiplier.isLetterMultiplier) multiplier.factor else 1
         factor * Piece.worths(playPiece.piece.value)
     }
     val baseScore = letterScores.sum
 
     val aggregateWordMultiplier = (playPieceMultipliers map {
-      case (playPiece, squareMultiplier) =>
-        if (playPiece.moved && squareMultiplier.isWordMultiplier) squareMultiplier.factor else 0
+      case (playPiece, multiplier) =>
+        if (playPiece.moved && multiplier.isWordMultiplier) multiplier.factor else 0
     }).sum
 
-    val score = aggregateWordMultiplier * baseScore
+    val score = Math.max(1, aggregateWordMultiplier) * baseScore
     score
   }
 }

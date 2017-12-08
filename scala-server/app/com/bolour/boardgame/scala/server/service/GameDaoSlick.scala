@@ -47,9 +47,11 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   def toPlayerRow(player: Player): PlayerRow = PlayerRow(player.id, player.name)
   def fromPlayerRow(row: PlayerRow): Player = Player(row.id, row.name)
 
-  case class GameRow(id: ID, languageCode: String, playerId: ID, startTime: Instant, endTime: Option[Instant])
+  case class GameRow(id: ID, dimension: Int, trayCapacity: Int, languageCode: String, playerId: ID, startTime: Instant, endTime: Option[Instant])
   class GameTable(tag: Tag) extends Table[GameRow](tag, gameTableName) {
     def id = column[ID]("id", O.PrimaryKey)
+    def dimension = column[Int]("dimension")
+    def trayCapacity = column[Int]("tray-capacity")
     def languageCode = column[String]("language-code")
     def playerId = column[ID]("player-id")
     def startTime = column[Instant]("start-time")
@@ -59,15 +61,15 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
       _.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Restrict
     )
 
-    def * = (id, languageCode, playerId, startTime, endTime).mapTo[GameRow]
+    def * = (id, dimension, trayCapacity, languageCode, playerId, startTime, endTime).mapTo[GameRow]
   }
   def gameRows = TableQuery[GameTable]
 
   def toGameRow(game: Game): GameRow = {
-    GameRow(game.id, game.languageCode, game.playerId, game.startTime, game.endTime)
+    GameRow(game.id, game.dimension, game.trayCapacity, game.languageCode, game.playerId, game.startTime, game.endTime)
   }
   def fromGameRow(pieceGenerator: PieceGenerator)(row: GameRow): Game =
-    Game(row.id, row.languageCode, row.playerId, row.startTime, row.endTime, pieceGenerator)
+    Game(row.id, row.dimension, row.trayCapacity, row.languageCode, row.playerId, row.startTime, row.endTime, pieceGenerator)
 
   // TODO. Add game and play tables.
 

@@ -13,14 +13,18 @@ import com.bolour.boardgame.scala.common.domain.{GameParams, Piece}
 import com.bolour.boardgame.scala.server.util.WordUtil.english
 
 case class Game(
-   id: ID,
-   languageCode: String,
-   playerId: ID,
-   startTime: Instant,
-   endTime: Option[Instant],
-   pieceGenerator: PieceGenerator
+  id: ID,
+  dimension: Int,
+  trayCapacity: Int,
+  languageCode: String,
+  playerId: ID,
+  startTime: Instant,
+  endTime: Option[Instant],
+  pieceGenerator: PieceGenerator
 ) {
   def mkPieces(num: Int): List[Piece] = List.fill(num){pieceGenerator.next()}
+
+  val scorer = Scorer(dimension)
 }
 
 object Game {
@@ -29,11 +33,8 @@ object Game {
     val now = Instant.now()
     val lang = p.languageCode
     val languageCode = if (!lang.isEmpty) lang else english
-    Game(stringId, languageCode, playerId, now, None, pieceGenerator)
+    Game(stringId, p.dimension, p.trayCapacity, languageCode, playerId, now, None, pieceGenerator)
   }
 
-//  def apply(p: GameParams, playerId: ID): Game = {
-//    Game(p, playerId, PieceGenerator.CyclicPieceGenerator())
-//  }
 }
 
