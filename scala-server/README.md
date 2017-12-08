@@ -1,13 +1,5 @@
 
-- New api call to get the total score so far.
-
-- UI mock api needs to return a dummy score for user and machine play. Done.
-
-  GameService commitUserPlay gets an object with score and replacementPieces/
-
-  getMachinePlay gets (score, playedPieces)
-
-  mock api test should pass first
+- Change haskell api to return score of a play.
 
 - Make sure dimension is odd.
 
@@ -16,8 +8,6 @@
     https://css-tricks.com/snippets/css/a-guide-to-flexbox/
 
 - Add letter worths to pieces Haskell.
-
-- SBT compilation for play2 is disabled by default.
 
 - If the intellij play configuration goes awry and things like
   running tests stop working, the best remedy I have found is
@@ -33,6 +23,10 @@
   the real score of a play. 
 
 ## To Do
+
+- TODO. Check cross words and add their score - what is the ruke for that?
+
+- TODO. All validations.
 
 - Intellij - add license header for file creation.
   Add license to recent new files.

@@ -89,7 +89,7 @@ export const PieceConverter = {
 export const PlayPieceConverter = {
   toJson: function(playPiece) {
     let point = playPiece.point;
-    console.log(`to - point: ${stringify(point)}`);
+    // console.log(`to - point: ${stringify(point)}`);
     return {
       piece: PieceConverter.toJson(playPiece.piece),
       point: {row: point.row, col: point.col},
@@ -104,27 +104,27 @@ export const PlayPieceConverter = {
   }
 };
 
-export const PlayConverter = {
-  toJson: function(play) {
-    let playPieces = play.playPieces.map(playPiece => {
-      let moved = playPiece.moved;
-      let point = playPiece.point;
-      let piece = playPiece.piece;
-      return {
-        piece: piece,
-        point: point,
-        moved: moved
-      };
-    });
-    return playPieces;
-  },
-  
-  fromJson: function(json) {
-    let playPiecesDto = json;
-    let playPieces = playPiecesDto.map(dto => PlayPieceConverter.fromJson(dto));
-    return new Play(playPieces);
-  }
-};
+// export const PlayConverter = {
+//   toJson: function(play) {
+//     let playPieces = play.playPieces.map(playPiece => {
+//       let moved = playPiece.moved;
+//       let point = playPiece.point;
+//       let piece = playPiece.piece;
+//       return {
+//         piece: piece,
+//         point: point,
+//         moved: moved
+//       };
+//     });
+//     return playPieces;
+//   },
+//
+//   fromJson: function(json) {
+//     let playPiecesDto = json;
+//     let playPieces = playPiecesDto.map(dto => PlayPieceConverter.fromJson(dto));
+//     return new Play(playPieces);
+//   }
+// };
 
 export const GridPieceConverter = {
   toJson: function(gridPiece) {

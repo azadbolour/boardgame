@@ -75,7 +75,7 @@ class MockApiImpl {
 
     // console.log(`committed game: ${JSON.stringify(this.gameDto)}`);
     return {
-      score: 10,
+      playScore: 10,
       replacementPieces: refills
     };
   }
@@ -118,7 +118,7 @@ class MockApiImpl {
 
     // Return entire sequence of play pieces to be returned, moved or not.
     return {
-      score: 10,
+      playScore: 10,
       playedPieces: playPieces
     };
   }

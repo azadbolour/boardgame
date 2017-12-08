@@ -10,8 +10,9 @@
 
 import {apiSelector} from '../api/ApiUtil';
 import {GameConverter, PieceConverter, PlayConverter, GameParamsConverter} from './../api/Converters';
-import Play from "../domain/Play";
+// import Play from "../domain/Play";
 import {stringify} from "../util/Logger";
+import {PlayPieceConverter} from "../api/Converters";
 // TODO. Should rejections be caught here and converted to just !ok??
 
 /**
@@ -50,17 +51,18 @@ class GameService {
 
   commitUserPlay(gameId, playPieces) {
     // TODO. Eliminate Play. Not really needed. playPieces is sufficient.
-    let play = new Play(playPieces);
-    let jsonPlayPieces = PlayConverter.toJson(play);
+    // let play = new Play(playPieces);
+    // let jsonPlayPieces = PlayConverter.toJson(play);
+    let jsonPlayPieces = playPieces.map(playPiece => PlayPieceConverter.toJson(playPiece));
     // console.log(`json play pieces: ${stringify(jsonPlayPieces)}`);
     let promise = this.api.commitPlay(gameId, jsonPlayPieces);
     return promise.then(dtoResponse => {
       if (!dtoResponse.ok) {
         return dtoResponse; // TODO. Convert dto message to application message;.
       }
-      let {score, replacementPieces} = dtoResponse.json;
-      let refillPieces = replacementPieces.map(PieceConverter.fromJson);
-      let response = this.convertResponse(dtoResponse, {score, replacementPieces});
+      let {playScore, replacementPieces} = dtoResponse.json;
+      let replacementPiecesObjects = replacementPieces.map(PieceConverter.fromJson);
+      let response = this.convertResponse(dtoResponse, {playScore: playScore, replacementPieces: replacementPiecesObjects});
       return response;
     });
   }
@@ -71,9 +73,10 @@ class GameService {
       if (!dtoResponse.ok) {
         return dtoResponse; // TODO. Convert dto message to application message;.
       }
-      let {score, playedPieces} = dtoResponse.json;
-      let play = PlayConverter.fromJson(playedPieces);
-      let response = this.convertResponse(dtoResponse, {score: score, play: play});
+      let {playScore, playedPieces} = dtoResponse.json;
+      // let play = PlayConverter.fromJson(playedPieces);
+      let playPiecesObjects = playedPieces.map(playPiece => PlayPieceConverter.fromJson(playPiece));
+      let response = this.convertResponse(dtoResponse, {playScore: playScore, playedPieces: playPiecesObjects});
       return response;
     });
   }

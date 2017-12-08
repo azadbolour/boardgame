@@ -10,6 +10,7 @@ import GameParams from "../domain/GameParams";
 import {mkPiece} from "../domain/Piece";
 import {mkPoint} from "../domain/Point";
 import {mkMovePlayPiece, mkCommittedPlayPiece} from "../domain/PlayPiece";
+import * as PlayPiece from "../domain/PlayPiece";
 import GameService from "../service/GameService";
 import TestUtil from "../__tests__/TestHelper";
 import {stringify} from "../util/Logger";
@@ -45,12 +46,19 @@ test('start game and make user and machine plays', () => {
     return gameService.commitUserPlay(game.gameId, playPieces);
   }).
   then(response => {
-    let refillPieces = response.json;
-    expect(refillPieces.length).toBe(3);
+    let {playScore, replacementPieces} = response.json;
+    expect(replacementPieces.length).toBe(3);
+    expect(playScore).toBeGreaterThan(0);
     return gameService.getMachinePlay(game.gameId);
     // TODO. Add replacement pieces to the tray.
     // game.clearPlay(); // TODO. Move this before return.
   }).then(response => {
+    console.log(`machine play response: ${stringify(response.json)}`);
+    let {playScore, playedPieces} = response.json;
+    console.log(`machine play: ${stringify(playedPieces)}`);
+    let moves = PlayPiece.movedGridPieces(playedPieces);
+    expect(moves.length).toBeGreaterThan(1);
+    expect(playScore).toBeGreaterThan(0);
     return gameService.end(game.gameId);
   }).then(response => {
     let unitResponse = response.json;

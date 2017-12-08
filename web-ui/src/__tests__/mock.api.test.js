@@ -10,9 +10,11 @@ import GameParams from "../domain/GameParams";
 import {mkPiece} from "../domain/Piece";
 import {mkPoint} from "../domain/Point";
 import * as Piece from "../domain/Piece";
+import * as PlayPiece from "../domain/PlayPiece";
 // import TestUtil from "./TestHelper"
 import {mkMovePlayPiece, mkCommittedPlayPiece} from "../domain/PlayPiece";
 import GameService from "../service/GameService"
+import {stringify} from "../util/Logger";
 
 // TODO. Clean up promise tests.
 // Returning a promise from a test is sufficient.
@@ -83,18 +85,19 @@ test('machine play', done => {
 
   gameService.start([], uPieces, mPieces).then(response => {
     game = response.json;
-    // let $game = TestUtil.addInitialPlayToGame(game);
-    // let playPieces = $game.getUserMovePlayPieces();
     return gameService.commitUserPlay(game.gameId, userPlayPieces);
   }).then(response => {
-    let {score, replacementPieces} = response.json;
+    console.log(`commit response: ${stringify(response.json)}`);
+    let {playScore, replacementPieces} = response.json;
     expect(replacementPieces.length).toBe(3);
+    expect(playScore).toBeGreaterThan(0);
     return gameService.getMachinePlay(game.gameId);
   }).
   then(response => {
-    let {score, play} = response.json;
-    let moves = play.moves();
+    let {playScore, playedPieces} = response.json;
+    let moves = PlayPiece.movedGridPieces(playedPieces);
     expect(moves.length).toBeGreaterThan(0);
+    expect(playScore).toBeGreaterThan(0);
     done();
   }).
   catch(error => {

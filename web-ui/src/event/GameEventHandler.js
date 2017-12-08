@@ -11,6 +11,7 @@ import ActionStages from './GameActionStages';
 import {mkEmptyGame} from '../domain/Game';
 import GameParams from '../domain/GameParams';
 import {playPiecesWord} from '../domain/PlayPiece';
+import * as PlayPiece from '../domain/PlayPiece';
 import {emptyAuxGameData} from '../domain/AuxGameData';
 
 
@@ -187,8 +188,8 @@ export const mkGameEventHandler = function(gameService) {
       let promise = _gameService.commitUserPlay(_game.gameId, committedPlayPieces);
       let processedPromise = promise.then(response => {
         if (response.ok) {
-          let {score, replacementPieces} = response.json;
-          _game = _game.commitUserMoves(score, replacementPieces);
+          let {playScore, replacementPieces} = response.json;
+          _game = _game.commitUserMoves(playScore, replacementPieces);
           _status = OK;
           _auxGameData.pushWordPlayed(playPiecesWord(committedPlayPieces), "You"); // TODO. Use player name.
         }
@@ -214,11 +215,11 @@ export const mkGameEventHandler = function(gameService) {
       let promise = _gameService.getMachinePlay(_game.gameId);
       let processedPromise = promise.then(response => {
         if (response.ok) {
-          let {score, play} = response.json;
-          let moveGridPieces = play.moves();
-          _game = _game.commitMachineMoves(score, moveGridPieces);
-          _status = moveGridPieces.length > 0 ? OK : "bot took a pass";
-          _auxGameData.pushWordPlayed(playPiecesWord(play.playPieces), "Bot"); // TODO. Constant.
+          let {playScore, playedPieces} = response.json;
+          let movedGridPieces = PlayPiece.movedGridPieces(playedPieces);
+          _game = _game.commitMachineMoves(playScore, movedGridPieces);
+          _status = movedGridPieces.length > 0 ? OK : "bot took a pass";
+          _auxGameData.pushWordPlayed(playPiecesWord(playedPieces), "Bot"); // TODO. Constant.
         }
         else {
           killGame(errorText(response));

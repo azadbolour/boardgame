@@ -79,3 +79,9 @@ export const findFilledSegmentBoundary = function(playPieces, index, direction) 
   return to;
 };
 
+export const movedGridPieces = function(playPieces) {
+  let movedPlayPieces = playPieces.filter(p => p.moved);
+  let movedGridPieces = movedPlayPieces.map(p => p.gridPiece);
+  return movedGridPieces;
+};
+
