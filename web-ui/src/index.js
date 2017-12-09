@@ -52,7 +52,7 @@ const initialState = (function() {
 
 const validateParam = function(name, value) {
   switch (name) {
-    case 'api-type':
+    case 'api-type': // TODO. Constants. Go into GameParams.
       return GameParams.validateApiType(value);
     case 'env-type':
       return AppParams.validateEnvType(value);
@@ -94,8 +94,8 @@ for (let name in settableParameters) {
       continue;
     }
   }
-  if (!validateParam(name, value)) {
-    let message = `invalid value ${value} for parameter ${name}`;
+  let {valid, message} = validateParam(name, value);
+  if (!valid) {
     initialState.addError(message);
     console.log(message);
     continue;

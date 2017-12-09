@@ -38,6 +38,13 @@
 
   CMD-W will extend selection.
 
+- If the intellij play configuration goes awry and things like
+  running tests stop working, the best remedy I have found is
+  to simply create another empty play porject from inside intellij,
+  get rid of its sources (keep build.sbt, poroject/, and yes target/
+  as well), and copy your sources back to this project and merge your
+  build.sbt taking care not to change configured stuff.
+
 ## Akka HTTP
 
 - https://doc.akka.io/docs/akka-http/current/scala/http/introduction.html
@@ -599,6 +606,12 @@ Global settings should be placed in /usr/local/etc/sbtopts
     Headers are defined here
 
     https://doc.akka.io/api/akka-http/10.0.4/akka/http/scaladsl/model/headers/Access$minusControl$minusAllow$minusOrigin.html
+
+## CSS
+
+- Useful guide for styling:
+
+    https://css-tricks.com/snippets/css/a-guide-to-flexbox/
 
 ## Chrome Postman
 

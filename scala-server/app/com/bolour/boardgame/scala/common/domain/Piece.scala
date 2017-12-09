@@ -13,7 +13,6 @@ case class Piece(value: Char, id: String = stringId()) {
   def isEmpty = this == noPiece
 }
 
-// TODO. Why doesn't just Piece work?
 object Piece {
   type Pieces = List[Piece]
   val noPieceValue = '\u0000'

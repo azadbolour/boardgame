@@ -36,7 +36,17 @@ class AppParams {
   static DEFAULT_USER_NAME = 'You';
   static DEFAULT_PASSWORD = 'admin';
 
-  static validateEnvType = envType => AppParams.ENV_TYPES.includes(envType);
+  static validated = {valid: true};
+
+  static validateEnvType(envType) {
+    let valid = AppParams.ENV_TYPES.includes(envType);
+    if (!valid)
+      return {
+        valid: false,
+        message: `invalid env-type ${envType} - valid values are ${stringify(AppParams.ENV_TYPES)}`
+      };
+    return AppParams.validated;
+  }
 
   static defaultParams() {
     let get = getEnv;

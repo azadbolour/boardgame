@@ -1,42 +1,37 @@
 
-- In haskell GameEndPoint map the service returns for plays
-  to a constructor for the corresponding messages.
+- Add start to center square.
 
-- Change haskell api to return score of a play.
+- Star is a double word score. Update scoring algorithm.
 
-- Compute real score in Haskell and return.
+- Add a 50 point bonus to the score for playing all trayCapacity tiles.
 
-- intellij subscription by 12/14.
+- Allow an existing word to be extended.
 
-- Make sure dimension is odd.
+- Randomly choose between player and machine.
 
-- Very useful guide for styling:
+- Implement validations everywhere. First on API boundary.
 
-    https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+- Check for crosswords and add their score to the total.
+  
+- Clean up tests in web-ui and scala.
 
-- If the intellij play configuration goes awry and things like
-  running tests stop working, the best remedy I have found is
-  to simply create another empty play porject from inside intellij,
-  get rid of its sources (keep build.sbt, poroject/, and yes target/
-  as well), and copy your sources back to this project and merge your
-  build.sbt taking care not to change configured stuff.
+- Change various logging calls to debug and set up a run-debug to
+  log at debug level.
 
-- TODO. Rule for ending the game is part of refactoring to use bag of letters
-  without replacement.
-
-- TODO. Matching algorithm needs to be based on the best guess as to 
+- Matching algorithm needs to be based on the best guess as to 
   the real score of a play. 
+
+- Connect to real dictionary.
 
 ## To Do
 
-- TODO. Check cross words and add their score - what is the ruke for that?
-
-- TODO. All validations.
-
-- Intellij - add license header for file creation.
-  Add license to recent new files.
-
 - Check that rows.delete deletes everything.
+
+- Compute real score in Haskell.
+
+- Document migraion and seeding.
+
+- Fully implement GameServiceImpl.
 
 - Do we have to close a db in slick?
 
@@ -44,14 +39,23 @@
 
 ## Known Issues
 
+- Only single tile replacements allowed.
+
+- Using random tile selection *with replacement*. Bag model requires random
+  tile selection without replacement (except for swap which replace one 
+  tile with another).
+
+- Game is ended by the user. Not following the normal rules for ending the game.
+  Rule for ending the game is part of refactoring to use bag of letters
+  without replacement.
+
+- Minimal database interactions. Need to be able to save and restore
+  the state of the game. Not all required tables exist. Test with 
+  postgres and sqlite.
+
+- No blank tiles.
+
 - No checks for crosswise words yet.
-
-- For now user goes first. After starting a game, toss a coin in the client 
-  to determine who goes first. If it is machine, do a machine play.
-
-  Add center square image.
-
-- Bug extending a word should constitute a legitimate play.
 
 ## Technical Debt
 
@@ -90,14 +94,6 @@
 
 - More specific match tests and assertions. 
 
-- Change the board to look like a scrabble board.
-
-- Change the scoring to be consistent with scrabble.
-
-- Change the probabilities to be consistent with scrabble.
-
-- Connect to real dictionary.
-
 - Document basic slick model of actions.
 
 - Add play table.
@@ -113,6 +109,15 @@
   it for simplicity.
 
 - Should the controller call on services asynchronously? 
+
+- https://github.com/adambom/dictionary. It is 1913 Webster Unabridged. 
+  Does not have transistor, software. Abandoned it. Although we can still use it
+  for the machine. It has a simple json list of word + meaning.
+
+  Other resources are also based on the 1913. So for machine plays that might be
+  good enough.
+
+  Best to ask Natural Language experts.
 
 - Linux dictionary:
 
@@ -136,13 +141,9 @@
 - Add real dictionary with meanings. There is a dictionary application built-in 
   to MAC. Is it on Linux? Should be able to get to it easily from Scala.
 
-- Add bonus points and use the same tile values and Scrabble.
-
 - Allow game to be resumed.
 
 - Indexing.
-
-- Provide levels in game.
 
 - Implement sqlite file based access. May need a little experimentation.
 
