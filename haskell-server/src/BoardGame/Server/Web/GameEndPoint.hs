@@ -64,8 +64,8 @@ import BoardGame.Common.Domain.Player (Player)
 import BoardGame.Common.Domain.GameParams (GameParams(..))
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 import BoardGame.Common.Message.GameDto (GameDto)
-import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse)
-import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse)
+import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse, CommitPlayResponse(CommitPlayResponse), tupleToCommitPlayResponse)
+import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse, MachinePlayResponse(MachinePlayResponse), tupleToMachinePlayResponse)
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest, StartGameRequest(StartGameRequest))
 import qualified BoardGame.Common.Message.StartGameRequest as StartGameRequest
 import BoardGame.Server.Domain.GameError (GameError(..), ExceptGame)
@@ -165,11 +165,13 @@ startGameServiceWrapper params initGridPieces initUserPieces initMachinePieces =
 
 -- | API handler to commit a new play by the player side of the game.
 commitPlayHandler :: GameEnv -> String -> [PlayPiece] -> ExceptServant CommitPlayResponse
-commitPlayHandler env gameId playPieces = gameTransformerStackHandler env $ GameService.commitPlayService gameId playPieces
+commitPlayHandler env gameId playPieces = gameTransformerStackHandler env $
+  tupleToCommitPlayResponse <$> GameService.commitPlayService gameId playPieces
 
 -- | API handler to make a machine play.
 machinePlayHandler :: GameEnv -> String -> ExceptServant MachinePlayResponse
-machinePlayHandler env gameId = gameTransformerStackHandler env $ GameService.machinePlayService gameId
+machinePlayHandler env gameId = gameTransformerStackHandler env $
+  tupleToMachinePlayResponse <$> GameService.machinePlayService gameId
 
 -- | API handler to swap a piece.
 swapPieceHandler :: GameEnv -> String -> Piece -> ExceptServant Piece

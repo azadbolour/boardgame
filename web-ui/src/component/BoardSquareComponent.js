@@ -172,14 +172,14 @@ function scoreMultiplierColor(scoreMultiplier) {
   switch (multiplierType) {
     case ScoreMultiplierType.Letter:
       switch (factor) {
-        case 2: return '#0000FF';
-        case 3: return 'DarkBlue';
+        case 2: return '#A0A0FF'; // light blue
+        case 3: return '#6060FF'; // blue
         default: return defaultColor;
       }
     case ScoreMultiplierType.Word:
       switch (factor) {
-        case 2: return 'Orange';
-        case 3: return 'Red';
+        case 2: return '#FFC030'; // orange
+        case 3: return '#FF6060'; // red
         default: return defaultColor;
       }
     default:

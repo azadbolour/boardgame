@@ -34,6 +34,8 @@ import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.Player (Player)
 import BoardGame.Common.Message.GameDto (GameDto)
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest)
+import BoardGame.Common.Message.CommitPlayResponse
+import BoardGame.Common.Message.MachinePlayResponse
 
 addPlayer :: Player -> Manager -> BaseUrl -> ClientM ()
 startGame :: StartGameRequest -> Manager -> BaseUrl -> ClientM GameDto

@@ -32,6 +32,12 @@ import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
 import qualified BoardGame.Common.Domain.GridValue as GridValue
 import qualified BoardGame.Common.Domain.GridPiece as GridPiece
 
+import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse, CommitPlayResponse(CommitPlayResponse))
+import qualified BoardGame.Common.Message.CommitPlayResponse as CommitPlayResponse
+import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse, MachinePlayResponse(MachinePlayResponse))
+import qualified BoardGame.Common.Message.MachinePlayResponse as MachinePlayResponse
+
+
 import BoardGame.Server.Web.GameEndPoint (
     commitPlayHandler
   , machinePlayHandler
@@ -85,9 +91,9 @@ spec = do
               , PlayPiece pc2 (Point center (center + 1)) True
               ]
 
-        replacements <- satisfiesRight
+        CommitPlayResponse {playScore, replacementPieces} <- satisfiesRight
           =<< runExceptT (commitPlayHandler env gameId playPieces)
-        length replacements `shouldBe` 3
+        length replacementPieces `shouldBe` 3
 
   describe "make machine play" $
     it "make machine play" $
@@ -95,9 +101,9 @@ spec = do
         env <- Fixtures.initTest
         Fixtures.makePlayer env Fixtures.thePlayer
         gameDto <- Fixtures.makeGame env Fixtures.gameParams [] [] []
-        wordPlayPieces <- satisfiesRight
+        MachinePlayResponse {playScore, playedPieces} <- satisfiesRight
           =<< runExceptT (machinePlayHandler env (GameDto.gameId gameDto))
-        let word = Play.playToWord $ Play wordPlayPieces
+        let word = Play.playToWord $ Play playedPieces
         length word `shouldSatisfy` (> 1)
   describe "swap a piece" $
     it "swap a piece" $

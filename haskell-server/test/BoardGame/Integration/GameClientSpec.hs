@@ -39,6 +39,11 @@ import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Common.Domain.Player (Player(Player))
 import qualified BoardGame.Common.Message.GameDto as GameDto
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest(StartGameRequest))
+import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse, CommitPlayResponse(CommitPlayResponse))
+import qualified BoardGame.Common.Message.CommitPlayResponse as CommitPlayResponse
+import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse, MachinePlayResponse(MachinePlayResponse))
+import qualified BoardGame.Common.Message.MachinePlayResponse as MachinePlayResponse
+
 import qualified BoardGame.Server.Service.GameDao as GameDao
 import qualified BoardGame.Server.Web.GameEndPoint as GameEndPoint
 import qualified BoardGame.Util.TestUtil as TestUtil
@@ -134,11 +139,13 @@ spec = beforeAll startApp $ afterAll endWaiApp $
             , PlayPiece pc2 (Point center (center + 1)) True
             ]
 
-      replacements <- SpecUtil.satisfiesRight =<< runExceptT (Client.commitPlay gameId playPieces manager baseUrl)
-      length replacements `shouldBe` 3
-      wordPlayPieces <- SpecUtil.satisfiesRight
+      -- replacements <- SpecUtil.satisfiesRight =<< runExceptT (Client.commitPlay gameId playPieces manager baseUrl)
+      CommitPlayResponse {playScore, replacementPieces} <- SpecUtil.satisfiesRight =<< runExceptT (Client.commitPlay gameId playPieces manager baseUrl)
+      length replacementPieces `shouldBe` 3
+      -- wordPlayPieces <- SpecUtil.satisfiesRight
+      MachinePlayResponse {playScore, playedPieces} <- SpecUtil.satisfiesRight
         =<< runExceptT (Client.machinePlay gameId manager baseUrl)
-      print $ PlayPiece.playPiecesToWord wordPlayPieces
+      print $ PlayPiece.playPiecesToWord playedPieces
       let piece = last trayPieces
       (Piece.Piece {value}) <- SpecUtil.satisfiesRight
          =<< runExceptT (Client.swapPiece gameId piece manager baseUrl)

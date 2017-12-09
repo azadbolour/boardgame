@@ -10,6 +10,7 @@
 
 module BoardGame.Common.Message.CommitPlayResponse (
     CommitPlayResponse(..)
+  , tupleToCommitPlayResponse
   ) where
 
 import GHC.Generics (Generic)
@@ -26,4 +27,8 @@ data CommitPlayResponse = CommitPlayResponse {
 
 instance FromJSON CommitPlayResponse
 instance ToJSON CommitPlayResponse
+
+tupleToCommitPlayResponse :: (Int, [Piece]) -> CommitPlayResponse
+tupleToCommitPlayResponse (score, replacementPieces) = CommitPlayResponse score replacementPieces
+
 

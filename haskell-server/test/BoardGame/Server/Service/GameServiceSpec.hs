@@ -98,7 +98,7 @@ spec = do
         uPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
         mPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
 
-        refills <- runner'' $ do -- GameTransformerStack
+        (playScore, replacementPieces) <- runner'' $ do -- GameTransformerStack
           addPlayerService $ Player Fixtures.thePlayer
           Game {gameId, board, trays} <- startGameService Fixtures.gameParams [] uPieces mPieces
 --           let gridPieces = Board.getGridPieces board
@@ -113,7 +113,7 @@ spec = do
                 , PlayPiece pc2 (Point center (center + 1)) True
                 ]
           commitPlayService gameId playPieces -- refills
-        length refills `shouldBe` 3
+        length replacementPieces `shouldBe` 3
 
   describe "make machine play" $
     it "make machine play" $
@@ -121,8 +121,8 @@ spec = do
         word <- runner'' $ do
           addPlayerService $ Player Fixtures.thePlayer
           Game {gameId} <- startGameService Fixtures.gameParams [] [] []
-          wordPlayPieces <- machinePlayService gameId
-          let word = Play.playToWord $ Play wordPlayPieces
+          (playScore, playedPieces) <- machinePlayService gameId
+          let word = Play.playToWord $ Play playedPieces
           return word
         print word
         length word `shouldSatisfy` (> 1)

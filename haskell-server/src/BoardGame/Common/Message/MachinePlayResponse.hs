@@ -9,6 +9,7 @@
 
 module BoardGame.Common.Message.MachinePlayResponse (
     MachinePlayResponse(..)
+  , tupleToMachinePlayResponse
   ) where
 
 import GHC.Generics (Generic)
@@ -25,3 +26,7 @@ data MachinePlayResponse = MachinePlayResponse {
 
 instance FromJSON MachinePlayResponse
 instance ToJSON MachinePlayResponse
+
+tupleToMachinePlayResponse :: (Int, [PlayPiece]) -> MachinePlayResponse
+tupleToMachinePlayResponse (score, playPieces) = MachinePlayResponse score playPieces
+
