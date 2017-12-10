@@ -1,9 +1,9 @@
 
-- Add start to center square.
+- Compute crosswise words. Need to compute extensions in each direction.
+  If both are Nil then it is not a crossing. Otherwise join them with 
+  the played latter that connects them together.
 
-- Star is a double word score. Update scoring algorithm.
-
-- Add a 50 point bonus to the score for playing all trayCapacity tiles.
+  See Haskell and js code for similar code.
 
 - Allow an existing word to be extended.
 

@@ -117,6 +117,8 @@ const BoardComponent = React.createClass({
     let inPlay = this.props.pointsInPlay.some(p => Point.eq(p, point));
     let enabled = this.props.enabled;
     let scoreMultiplier = this.props.scoreMultipliers.getElement(point);
+    let center = Math.floor(dimension/20);
+    let isCenterPoint = row === center && col === center;
 
     return (
       <div key={squareKey} style={squareStyle({squarePixels})}>
@@ -126,6 +128,7 @@ const BoardComponent = React.createClass({
           isLegalMove={isLegalMove}
           squarePixels={squarePixels}
           scoreMultiplier={scoreMultiplier}
+          isCenterPoint={isCenterPoint}
           enabled={enabled}>
             {this.renderPiece(point)}
         </BoardSquareComponent>

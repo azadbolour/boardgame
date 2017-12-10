@@ -48,5 +48,5 @@ test('', () => {
 
 
 
-  expect(eq(multiplier(7, 7), x1)).toBe(true);
+  expect(eq(multiplier(7, 7), xWord(2))).toBe(true);
 });

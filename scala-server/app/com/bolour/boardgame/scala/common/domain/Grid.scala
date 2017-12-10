@@ -5,6 +5,7 @@
  */
 package com.bolour.boardgame.scala.common.domain
 
+import com.bolour.boardgame.scala.common.domain.Axis.Axis
 import org.slf4j.LoggerFactory
 
 case class Grid[T](cells: List[List[T]]) {
@@ -49,6 +50,22 @@ case class Grid[T](cells: List[List[T]]) {
   def columns = _columns
 
   def cell(point: Point): T = rows(point.row)(point.col)
+
+  def prevCell(point: Point, axis: Axis): Option[T] = {
+    val Point(row, col) = point
+    axis match {
+      case Axis.X => if (col == 0) None else Some(cell(Point(row, col - 1)))
+      case Axis.Y => if (row == 0) None else Some(cell(Point(row - 1, col)))
+    }
+  }
+
+  def nextCell(point: Point, axis: Axis): Option[T] = {
+    val Point(row, col) = point
+    axis match {
+      case Axis.X => if (col == width - 1) None else Some(cell(Point(row, col + 1)))
+      case Axis.Y => if (row == height - 1) None else Some(cell(Point(row + 1, col)))
+    }
+  }
 
 }
 

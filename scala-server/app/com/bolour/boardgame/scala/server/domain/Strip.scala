@@ -33,6 +33,7 @@ case class Strip(
     (len == word.length) && fits(content, word)
   }
 
+  // TODO. Implement findFittingWords, plural. Use filter.
   def findFittingWord(words: List[DictWord]): Option[DictWord] =
     words.find(admits)
 
@@ -52,6 +53,7 @@ case class Strip(
 
   import Strip._
 
+  // TODO. Use fold.
   /** it has already been established that the rest of the word has the same length
     * as the rest of the strip content - so just compare their corresponding letters */
   private def fits(restContent: String, restWord: String): Boolean =

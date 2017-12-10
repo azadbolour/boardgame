@@ -15,6 +15,7 @@ class ScorerSpec extends FlatSpec with Matchers {
 
   val dimension = 15
   val middle = dimension / 2
+  val trayCapacity = 7
 
   def play(word: String, strip: Strip): List[PlayPiece] = {
     ((0 until word.length) map { i: Int =>
@@ -34,13 +35,13 @@ class ScorerSpec extends FlatSpec with Matchers {
   val x2Word = wordMultiplier(2)
   val x3Word = wordMultiplier(3)
 
-  val scorer = Scorer(dimension)
+  val scorer = Scorer(dimension, trayCapacity)
   val multiplierGrid = scorer.multiplierGrid
 
   def multiplier(row: Int, col: Int): ScoreMultiplier = multiplierGrid.cell(Point(row, col))
 
   "score multipliers" should "follow the rules" in {
-    multiplier(middle, middle) shouldEqual x1
+    multiplier(middle, middle) shouldEqual x2Word
     multiplier(0, 0) shouldEqual x3Word
     multiplier(0, 1) shouldEqual x1
     multiplier(0, 2) shouldEqual x1
@@ -59,7 +60,7 @@ class ScorerSpec extends FlatSpec with Matchers {
     multiplier(1, 6) shouldEqual x1
     multiplier(1, 7) shouldEqual x1
 
-    multiplier(7, 7) shouldEqual x1
+    multiplier(7, 7) shouldEqual x2Word
     multiplier(8, 7) shouldEqual x1
     multiplier(9, 7) shouldEqual x1
     multiplier(10, 7) shouldEqual x1

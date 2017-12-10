@@ -5,7 +5,7 @@ import com.bolour.boardgame.scala.common.domain.ScoreMultiplierType._
 import com.bolour.boardgame.scala.common.domain.ScoreMultiplier._
 import org.slf4j.LoggerFactory
 
-class Scorer(val dimension: Int) {
+class Scorer(val dimension: Int, trayCapacity: Int) {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -26,12 +26,15 @@ class Scorer(val dimension: Int) {
         if (playPiece.moved && multiplier.isWordMultiplier) multiplier.factor else 0
     }).sum
 
-    val score = Math.max(1, aggregateWordMultiplier) * baseScore
+    var score = Math.max(1, aggregateWordMultiplier) * baseScore
+    if (playPieces.length == trayCapacity)
+      score += Scorer.Bonus
     score
   }
 }
 
 object Scorer {
   type Score = Int
-  def apply(dimension: Int): Scorer = new Scorer(dimension)
+  val Bonus = 50
+  def apply(dimension: Int, trayCapacity: Int): Scorer = new Scorer(dimension, trayCapacity)
 }

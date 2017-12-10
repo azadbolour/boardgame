@@ -76,7 +76,7 @@ const multiplierForFirstOctantRelativeToCenter = function (point, dimension) {
   };
 
   const multiplier = function () {
-    if (isCenterPoint) return noMultiplier();
+    if (isCenterPoint) return wordMultiplier(2);
     else if (isCornerPoint) return wordMultiplier(3);
     else if (isMidEdgePoint) return wordMultiplier(3);
     else if (isQuarterEdgePoint) return letterMultiplier(2);

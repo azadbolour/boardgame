@@ -24,6 +24,7 @@ trait StripMatcher {
   import StripMatcher._
 
   val dimension = board.dimension
+  val grid = board.grid
   val trayLetters = tray.pieces.map(_.value).mkString
   val trayCombosByLength = WordUtil.computeCombosGroupedByLength(trayLetters)
   val playableStrips = computePlayableStrips
@@ -174,6 +175,7 @@ trait StripMatcher {
       case combo :: restCombos =>
         val wordCombo = WordUtil.mergeLetterCombos(strip.letters, combo)
         val words = dictionary.permutedWords(wordCombo)
+        // TODO. Find all fitting words and check each for crossword compliance.
         strip.findFittingWord(words) match {
           case None => bestMatchForStrip(strip, restCombos)
           case Some(word) => Some((strip, word))
@@ -181,17 +183,41 @@ trait StripMatcher {
     }
   }
 
+  // TODO. Compute crossings formed by playing a word on a strip.
+  /**
+    * A crossing is cross word that includes one of the new
+    * letters played on a strip.
+    *
+    * All crossings must be legitimate words in the dictionary.
+    */
+  def crossings(strip: Strip, word: String): List[String] = Nil
+
+  def crossingsAreWords(strip: Strip, word: String): Boolean =
+    crossings(strip, word).forall { crossing => dictionary hasWord crossing }
+
   def computePlayableStrips: GroupedStrips = {
     val traySize = tray.pieces.length
     val allStrips = computeAllStrips
     def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= traySize
     val conformantStrips1 = allStrips.filter(hasFillableBlanks)
     val conformantStrips2 = conformantStrips1.filter(_.hasAnchor)
-    // TODO. Check strip is free crosswise.
-    def isFreeCrossWise = (s: Strip) => true
-    val conformantStrips3 = conformantStrips2.filter(isFreeCrossWise)
+    val conformantStrips3 = conformantStrips2.filter(isDisconnectedInLine)
     val conformantStripsByLength = conformantStrips3.groupBy(_.content.length)
     conformantStripsByLength.mapValues(_.groupBy(_.numBlanks))
+  }
+
+  def isDisconnectedInLine(strip: Strip): Boolean = {
+    val firstPoint = strip.point(0)
+    val lastPoint = strip.point(strip.end - strip.begin)
+    val maybePrevPiece = grid.prevCell(firstPoint, strip.axis).map {_.value}
+    val maybeNextPiece = grid.nextCell(lastPoint, strip.axis).map {_.value}
+    def isSeparator(maybePiece: Option[Piece]): Boolean = {
+      maybePiece match {
+        case None => true
+        case Some(piece) => piece.isEmpty
+      }
+    }
+    isSeparator(maybePrevPiece) && isSeparator(maybeNextPiece)
   }
 
   def computeAllStrips: List[Strip] = {

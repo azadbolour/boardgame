@@ -238,6 +238,8 @@ let BoardSquareComponent = React.createClass({
 
     canDrop: PropTypes.bool.isRequired,
 
+    isCenterPoint: PropTypes.bool.isRequired,
+
     /**
      * Responds to user interactions.
      */
@@ -260,6 +262,7 @@ let BoardSquareComponent = React.createClass({
     // let backgroundColor = isLight ? 'CornSilk' : 'AquaMarine';
     let backgroundColor = scoreMultiplierColor(scoreMultiplier);
     let color = 'OrangeRed';
+    let isCenterPoint = this.props.isCenterPoint;
     let enabled = this.props.enabled;
 
     return connectDropTarget(

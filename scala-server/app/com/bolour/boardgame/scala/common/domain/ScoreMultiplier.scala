@@ -70,7 +70,7 @@ object ScoreMultiplier {
     def isQuarterEdgePoint: Boolean = row == bound/2 + 1 && col == bound
 
     if (isCenterPoint)
-      noMultiplier()
+      wordMultiplier(2)
     else if (isCornerPoint)
       wordMultiplier(3)
     else if (isMidEdgePoint)
