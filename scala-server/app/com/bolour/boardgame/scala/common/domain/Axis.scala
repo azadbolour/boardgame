@@ -8,5 +8,7 @@ package com.bolour.boardgame.scala.common.domain
 object Axis extends Enumeration {
   type Axis = Value
   val X, Y = Value
+
+  def crossAxis(axis: Axis): Axis = if (axis == X) Y else X
 }
 

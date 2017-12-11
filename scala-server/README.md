@@ -1,10 +1,4 @@
 
-- Compute crosswise words. Need to compute extensions in each direction.
-  If both are Nil then it is not a crossing. Otherwise join them with 
-  the played latter that connects them together.
-
-  See Haskell and js code for similar code.
-
 - Allow an existing word to be extended.
 
 - Randomly choose between player and machine.

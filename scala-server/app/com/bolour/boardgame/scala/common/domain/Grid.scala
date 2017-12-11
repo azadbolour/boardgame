@@ -51,19 +51,19 @@ case class Grid[T](cells: List[List[T]]) {
 
   def cell(point: Point): T = rows(point.row)(point.col)
 
-  def prevCell(point: Point, axis: Axis): Option[T] = {
-    val Point(row, col) = point
-    axis match {
-      case Axis.X => if (col == 0) None else Some(cell(Point(row, col - 1)))
-      case Axis.Y => if (row == 0) None else Some(cell(Point(row - 1, col)))
-    }
-  }
+  def prevCell(point: Point, axis: Axis): Option[T] = adjacentCell(point, axis, -1)
 
-  def nextCell(point: Point, axis: Axis): Option[T] = {
+  def nextCell(point: Point, axis: Axis): Option[T] = adjacentCell(point, axis, +1)
+
+  def adjacentCell(point: Point, axis: Axis, direction: Int): Option[T] = {
     val Point(row, col) = point
     axis match {
-      case Axis.X => if (col == width - 1) None else Some(cell(Point(row, col + 1)))
-      case Axis.Y => if (row == height - 1) None else Some(cell(Point(row + 1, col)))
+      case Axis.X =>
+        val adjCol = col + direction
+        if (adjCol < 0 || adjCol >= width) None else Some(cell(Point(row, adjCol)))
+      case Axis.Y =>
+        val adjRow = row + direction
+        if (adjRow < 0 || adjRow >= height) None else Some(cell(Point(adjRow, col)))
     }
   }
 

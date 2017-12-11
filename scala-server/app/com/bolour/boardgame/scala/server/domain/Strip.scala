@@ -33,7 +33,10 @@ case class Strip(
     (len == word.length) && fits(content, word)
   }
 
-  // TODO. Implement findFittingWords, plural. Use filter.
+  def findFittingWords(words: List[DictWord]): List[DictWord] = {
+    words.filter(admits)
+  }
+
   def findFittingWord(words: List[DictWord]): Option[DictWord] =
     words.find(admits)
 
