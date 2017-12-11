@@ -17,6 +17,8 @@ case class SystemOverloadedErrorDto(tag: String) extends GameErrorDto
 
 case class InvalidWordErrorDto(tag: String, languageCode: String, word: String) extends GameErrorDto
 
+case class InvalidCrosswordsErrorDto(tag: String, languageCode: String, crossWords: List[String]) extends GameErrorDto
+
 case class UnsupportedLanguageErrorDto(tag: String, languageCode: String)
 
 case class MissingDictionaryErrorDto(tag: String, languageCode: String, dictionaryDir: String) extends GameErrorDto

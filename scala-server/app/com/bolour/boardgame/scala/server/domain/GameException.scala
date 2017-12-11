@@ -31,6 +31,10 @@ object GameExceptions {
     override def getMessage: String = s"'${word}' not found for language code '${languageCode}'"
   }
 
+  case class InvalidCrosswordsException(languageCode: String, crosswords: List[String]) extends GameException() {
+    override def getMessage: String = s"crosswords '${crosswords}' not found for language code '${languageCode}'"
+  }
+
   case class UnsupportedLanguageException(languageCode: String) extends GameException {
     override def getMessage: String = s"unsupported language code: ${languageCode}"
   }

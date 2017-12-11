@@ -5,7 +5,8 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.boardgame.scala.common.domain.{Grid, GridPiece, Piece, Point}
+import com.bolour.boardgame.scala.common.domain._
+import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
 
 case class Board(dimension: Int, grid: Grid[GridPiece]) {
   def gridPieces: List[GridPiece] =
@@ -24,6 +25,27 @@ case class Board(dimension: Int, grid: Grid[GridPiece]) {
 
   // TODO. Make sure in-bounds.
   def get(point: Point): Piece = grid.rows(point.row)(point.col).value
+
+  /**
+    * TODO. Assumes play is contiguous.
+    */
+  def stripOfPlay(playPieces: List[PlayPiece]): Strip = {
+    if (playPieces.length < 2)
+      throw new InternalGameException("play must contain more than 1 piece", null)
+
+    val points = playPieces.map(_.point)
+
+    val head = points.head
+    val next = points(1)
+
+    val axis = if (head.row == next.row) Axis.X else Axis.Y
+    val (lineNumber, line, begin) = axis match {
+      case Axis.X => (head.row, rows(head.row), head.col)
+      case Axis.Y => (head.col, columns(head.col), head.row)
+    }
+    val end = begin + points.length - 1
+    Strip(axis, lineNumber, line.map(_.piece.value).mkString, begin, end)
+  }
 
 }
 

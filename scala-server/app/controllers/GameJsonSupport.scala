@@ -80,6 +80,7 @@ object GameJsonSupport {
   implicit val missingPlayerErrorDtoWrites = writes[MissingPlayerErrorDto]
   implicit val systemOverloadedErrorDtoWrites = writes[SystemOverloadedErrorDto]
   implicit val invalidWordErrorDtoWrites = writes[InvalidWordErrorDto]
+  implicit val invalidCrosswordsErrorDtoWrites = writes[InvalidCrosswordsErrorDto]
   implicit val unsupportedLanguageErrorDtoWrites = writes[UnsupportedLanguageErrorDto]
   implicit val missingDictionaryErrorDtoWrites = writes[MissingDictionaryErrorDto]
   implicit val internalErrorDtoWrites = writes[InternalErrorDto]

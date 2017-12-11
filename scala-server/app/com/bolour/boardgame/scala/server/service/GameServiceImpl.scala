@@ -140,12 +140,16 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     if (od.isEmpty)
       return Failure(UnsupportedLanguageException(languageCode))
 
-    if (!od.get.hasWord(word))
+    val dictionary = od.get
+
+    // TODO. Should validate the play here.
+
+    if (!dictionary.hasWord(word))
       return Failure(InvalidWordException(languageCode, word))
 
-    val score = state.game.scorer.scorePlay(playPieces)
-
     for {
+      _ <- state.checkCrossWords(playPieces, dictionary)
+      score = state.game.scorer.scorePlay(playPieces)
       (newState, refills) <- state.addPlay(UserPlayer, playPieces)
       // TODO. How to eliminate dummy values entirely in for.
       _ <- savePlay(newState, playPieces, refills)

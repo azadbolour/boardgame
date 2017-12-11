@@ -36,6 +36,9 @@ object GameDtoConverters {
   def toInvalidWordErrorDto(ex: InvalidWordException) =
     InvalidWordErrorDto("InvalidWordError", ex.languageCode, ex.word)
 
+  def toInvalidCrosswordsErrorDto(ex: InvalidCrosswordsException) =
+    InvalidCrosswordsErrorDto("InvalidCrosswordsError", ex.languageCode, ex.crosswords)
+
   def toUnsupportedLanguageErrorDto(ex: UnsupportedLanguageException) =
     UnsupportedLanguageErrorDto("UnsupportedLanguageError", ex.languageCode)
 

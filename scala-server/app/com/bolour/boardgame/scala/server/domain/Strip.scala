@@ -7,7 +7,8 @@ package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain.Axis._
 import com.bolour.boardgame.scala.common.domain.Axis.Axis
-import com.bolour.boardgame.scala.common.domain.Point
+import com.bolour.boardgame.scala.common.domain.{Axis, PlayPiece, Point}
+import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
 import com.bolour.boardgame.scala.server.util.WordUtil.{BLANK, DictWord, Length, LetterCombo, NumBlanks, nonBlankLetterCombo}
 
 case class Strip(
