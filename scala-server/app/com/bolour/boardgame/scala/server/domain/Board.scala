@@ -44,7 +44,8 @@ case class Board(dimension: Int, grid: Grid[GridPiece]) {
       case Axis.Y => (head.col, columns(head.col), head.row)
     }
     val end = begin + points.length - 1
-    Strip(axis, lineNumber, line.map(_.piece.value).mkString, begin, end)
+    val content = Piece.piecesToString(line.map(_.piece)) // converts null chars to blanks
+    Strip(axis, lineNumber, content, begin, end)
   }
 
 }

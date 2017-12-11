@@ -61,6 +61,7 @@ class StripMatcher3Spec extends FlatSpec with Matchers { self =>
     // TODO. Reinstate.
     val playStrip = Strip(Axis.Y, center, center - 6, center, "      C")
     stripMatcher.crossings(playStrip, "ORGANIC") shouldBe List("IT")
+
   }
 
 }

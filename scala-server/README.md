@@ -1,6 +1,4 @@
 
-- Allow an existing word to be extended.
-
 - Randomly choose between player and machine.
 
 - Implement validations everywhere. First on API boundary.
@@ -50,6 +48,10 @@
 - No blank tiles.
 
 - No checks for crosswise words yet.
+
+- Allow an existing word to be extended. 
+  Bug reported with Haskell.
+  Can't reproduce in Scala.
 
 ## Technical Debt
 
