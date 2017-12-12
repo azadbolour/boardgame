@@ -119,8 +119,34 @@ export const mkGameEventHandler = function(gameService) {
 
   let handler = {
     get game() { return _game; },
-    
+
     handleStart: function(gameParams) {
+      console.log("handle start");
+      let machineFirst = Math.random() >= 0.5;
+      let handler = this;
+      handler.handleStartInternal(gameParams).then(response => {
+        if (!response.ok)
+          return response;
+        if (machineFirst)
+          return handler.handleMachinePlayInternal();
+      }).catch(reason => {
+        killGame(reason);
+        emitChange(ActionStages.CHANGE_FAILURE);
+      });
+    },
+
+/*
+        return handler.handleMachinePlayInternal();
+      }).catch(reason => {
+        killGame(reason);
+        emitChange(ActionStages.CHANGE_FAILURE);
+      });
+
+ */
+
+
+
+    handleStartOld: function(gameParams) {
       console.log("handle start");
       let promise = _gameService.start([], [], []);
       promise.then(response => {
@@ -137,6 +163,24 @@ export const mkGameEventHandler = function(gameService) {
         blankOutGame(gameParams, reason);
         emitChange(ActionStages.CHANGE_FAILURE);
       });
+    },
+
+    handleStartInternal: function(gameParams) {
+      console.log("handle start internal");
+      let promise = _gameService.start([], [], []);
+      let processedPromise = promise.then(response => {
+        if (response.ok) {
+          _game = response.json;
+          _status = OK;
+          _auxGameData = emptyAuxGameData();
+        }
+        else {
+          blankOutGame(gameParams, errorText(response));
+        }
+        emitChange(systemResponseType(response));
+        return response;
+      });
+      return processedPromise;
     },
 
     handleMove: function(move) {

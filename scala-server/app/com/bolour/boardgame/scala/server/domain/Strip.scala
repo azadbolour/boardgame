@@ -86,9 +86,17 @@ object Strip {
   def allStrips(axis: Axis, dimension: Int, lines: List[String]): List[Strip] = {
     for {
       lineNumber <- lines.indices.toList
+      // TODO. Call stripsInLine.
       begin <- 0 until dimension
       end <- (begin + 1) until dimension
     } yield Strip(axis, lineNumber, lines(lineNumber), begin, end)
+  }
+
+  def stripsInLine(axis: Axis, dimension: Int, lineNumber: Int, line: String): List[Strip] = {
+    for {
+      begin <- (0 until dimension).toList
+      end <- (begin + 1) until dimension
+    } yield Strip(axis, lineNumber, line, begin, end)
   }
 
 }

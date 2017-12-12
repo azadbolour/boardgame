@@ -308,6 +308,22 @@ trait StripMatcher {
   }
 
   def computePlayableStrips: GroupedStrips = {
+    if (board.isEmpty) computePlayableStripsForEmptyBoard
+    else computePlayableStripsForNonEmptyBoard
+  }
+
+  def computePlayableStripsForEmptyBoard: GroupedStrips = {
+    val center = dimension/2
+    val centerRow = board.rows(center)
+    val centerRowAsString = Piece.piecesToString(centerRow.map(_.piece)) // converts null chars to blanks
+    val strips = Strip.stripsInLine(Axis.X, dimension, center, centerRowAsString)
+    val conformantStrips = strips.filter { strip => strip.begin <= center && strip.end >= center}
+    // TODO. Factor out grouping here and from computePlayableStrips.
+    val conformantStripsByLength = conformantStrips.groupBy(_.content.length)
+    conformantStripsByLength.mapValues(_.groupBy(_.numBlanks))
+  }
+
+  def computePlayableStripsForNonEmptyBoard: GroupedStrips = {
     val traySize = tray.pieces.length
     val allStrips = computeAllStrips
     def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= traySize

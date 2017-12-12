@@ -105,8 +105,9 @@ const TraySquareComponent = React.createClass({
     let shade = checkerShade(this.props.position);
     // let squarePixels = this.props.squarePixels;
     let isLight = (shade === 'light'); // TODO. Constant.
-    let backgroundColor = isLight ? 'CornSilk' : 'AquaMarine';
-    let color = 'OrangeRed';
+    // let backgroundColor = 'CornSilk';
+    let backgroundColor = isLight ? 'CornSilk' : '#FFD040';
+    let color = 'FireBrick';
     let enabled = this.props.enabled;
     let isOver = this.props.isOver;
     let canDrop = this.props.canDrop;

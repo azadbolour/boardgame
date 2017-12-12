@@ -172,14 +172,14 @@ function scoreMultiplierColor(scoreMultiplier) {
   switch (multiplierType) {
     case ScoreMultiplierType.Letter:
       switch (factor) {
-        case 2: return '#A0A0FF'; // light blue
-        case 3: return '#6060FF'; // blue
+        case 2: return '#B0B0FF'; // light blue
+        case 3: return '#8080FF'; // blue
         default: return defaultColor;
       }
     case ScoreMultiplierType.Word:
       switch (factor) {
-        case 2: return '#FFC030'; // orange
-        case 3: return '#FF6060'; // red
+        case 2: return '#FFD040'; // orange
+        case 3: return '#FF6347'; // red
         default: return defaultColor;
       }
     default:
@@ -261,7 +261,8 @@ let BoardSquareComponent = React.createClass({
     // let isLight = (shade === 'light'); // TODO. Constant.
     // let backgroundColor = isLight ? 'CornSilk' : 'AquaMarine';
     let backgroundColor = scoreMultiplierColor(scoreMultiplier);
-    let color = 'OrangeRed';
+    let color = 'FireBrick';
+    // let color = 'Tomato';
     let isCenterPoint = this.props.isCenterPoint;
     let enabled = this.props.enabled;
 

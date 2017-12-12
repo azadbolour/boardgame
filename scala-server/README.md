@@ -1,19 +1,27 @@
 
-- Randomly choose between player and machine.
+- mock api can't handle initial machine play
+
+- killGame may be called on empty game
+  add test for blankoutGame followed by killGame should be OK
+
+- Test first move being a pass - so next player will have to
+  be centered. Check for first move should be be empty board.
+
+- Add crossword scores to total.
 
 - Implement validations everywhere. First on API boundary.
 
-- Check for crosswords and add their score to the total.
-  
 - Clean up tests in web-ui and scala.
 
 - Change various logging calls to debug and set up a run-debug to
   log at debug level.
 
 - Matching algorithm needs to be based on the best guess as to 
-  the real score of a play. 
+  the real score of a play. Not needed for first release.
 
-- Connect to real dictionary.
+- Connect to real dictionary. Check with NL experts.
+
+- Log machine tray each time so we know bot is not cheating.
 
 ## To Do
 
@@ -28,6 +36,9 @@
 - Do we have to close a db in slick?
 
 - Add tests similar to the ones in the sample, then remove the sample.
+
+- More generic code based on axis - just call generic code on rows or columns 
+  depending on axis.
 
 ## Known Issues
 
