@@ -23,8 +23,10 @@ function getEnv(varName, defaultValue) {
   return res;
 }
 
+
+
 class GameParams {
-  constructor(appParams, dimension, squarePixels, trayCapacity, apiType, gameServerUrl, pieceGeneratorType) {
+  constructor(appParams, dimension, squarePixels, trayCapacity, apiType, gameServerUrl, pieceGeneratorType, startingPlayer = GameParams.PlayerType.userPlayer) {
     this.appParams = appParams;
     this.dimension = dimension;
     this.squarePixels = squarePixels;
@@ -32,12 +34,20 @@ class GameParams {
     this.apiType = apiType;
     this.gameServerUrl = gameServerUrl;
     this.pieceGeneratorType = pieceGeneratorType;
+    this.startingPlayer = startingPlayer; // PlayerType
   }
 
   static PieceGeneratorType = {
     random: "Random",
     cyclic: "Cyclic"
   };
+
+  static PlayerType = {
+    userPlayer: 'user',
+    machinePlayer: 'machine'
+  };
+
+  static PLAYER_TYPES = [GameParams.PlayerType.userPlayer, GameParams.PlayerType.machinePlayer];
 
   // Environment variable names.
 
@@ -107,6 +117,16 @@ class GameParams {
       return {
         valid: false,
         message: `invalid api-type ${apiType} - valid values are ${stringify(GameParams.API_TYPES)}`
+      };
+    return GameParams.validated;
+  }
+
+  static validateStartingPlayer(startingPlayer) {
+    let valid = GameParams.PLAYER_TYPES.includes(startingPlayer);
+    if (!valid)
+      return {
+        valid: false,
+        message: `invalid starting player ${startingPlayer} - valid values are ${stringify(GameParams.PLAYER_TYPES)}`
       };
     return GameParams.validated;
   }

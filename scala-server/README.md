@@ -1,6 +1,4 @@
 
-- mock api can't handle initial machine play
-
 - killGame may be called on empty game
   add test for blankoutGame followed by killGame should be OK
 

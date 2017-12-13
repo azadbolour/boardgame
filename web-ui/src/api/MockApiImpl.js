@@ -28,6 +28,7 @@ class MockApiImpl {
     this.gameId = gameId;
     // TODO. Only do this if initGridPieces is not provided.
     const mid = Math.floor(gameParams.dimension / 2);
+    this.center = mid;
     const midPiece = this.getPiece();
     const pos = {row: mid, col: mid};
     const pos1 = {row: mid + 1, col: mid - 1};
@@ -80,6 +81,10 @@ class MockApiImpl {
     };
   }
 
+  isGameEmpty() {
+    return this.gameDto.gridPieces.length === 0;
+  }
+
   /**
    * For now find the first position that has two empty positions below
    * and move the first two pieces from the tray to it.
@@ -88,12 +93,18 @@ class MockApiImpl {
    */
   getMachinePlay() {
     let it = this;
+    let start = {row: this.center, col: this.center}
+    let startPiece = this.getPiece();
+    let startMoved = pieceMoves;
 
-    // Find an anchor to start from.
-    let start = this.filledPositions().find(pos => it.twoBelowEmpty(pos, this.dimension));
-    if (start === undefined) return [];
-    let startPiece = this.getPieceAtGridPoint(start);
-    let startPlayPiece = this.mkPlayPiece(startPiece, start, !pieceMoves);
+    if (!this.isGameEmpty()) {
+      start = this.filledPositions().find(pos => it.twoBelowEmpty(pos, this.dimension));
+      if (start === undefined) return [];
+      startPiece = this.getPieceAtGridPoint(start);
+      startMoved = !pieceMoves;
+    }
+
+    let startPlayPiece = this.mkPlayPiece(startPiece, start, startMoved);
 
     // Create moves from machine tray to 2 slots below the anchor.
     if (this.machinePieces.length < 2) return [];

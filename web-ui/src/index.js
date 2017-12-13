@@ -30,7 +30,8 @@ let settableParameters = {
   'game-server-url': 'string',
   'dimension': 'int',
   'tray-capacity': 'int',
-  'square-pixels': 'int'
+  'square-pixels': 'int',
+  'starting-player': 'string'
 };
 
 const initialState = (function() {
@@ -64,6 +65,8 @@ const validateParam = function(name, value) {
       return GameParams.validateTrayCapacity(value);
     case 'square-pixels':
       return GameParams.validateSquarePixels(value);
+    case 'starting-player':
+      return GameParams.validateStartingPlayer(value);
     default:
       break;
   }
@@ -106,6 +109,17 @@ for (let name in settableParameters) {
   else
     gameParams[property] = value;
   console.log(`query param: ${name} = ${value}`);
+}
+
+// Special parameter processing.
+
+// No starting player? Don't use the default, randomly choose one.
+
+let startingPlayer = params.getParam('starting-player');
+if (startingPlayer === undefined) {
+  let playerType = GameParams.PlayerType;
+  startingPlayer = Math.random() < 0.5 ? playerType.userPlayer : playerType.machinePlayer;
+  gameParams['starting-player'] = startingPlayer;
 }
 
 // TODO. Add language-code to the query parameters and GameParams - default is en.

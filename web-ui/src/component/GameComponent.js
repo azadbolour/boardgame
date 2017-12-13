@@ -128,7 +128,7 @@ const GameComponent = React.createClass({
   },
 
   startGame: function() {
-    actions.start();
+    actions.start(this.props.game.gameParams);
   },
 
   endGame: function() {

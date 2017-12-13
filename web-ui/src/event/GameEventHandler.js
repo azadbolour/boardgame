@@ -121,13 +121,12 @@ export const mkGameEventHandler = function(gameService) {
     get game() { return _game; },
 
     handleStart: function(gameParams) {
-      console.log("handle start");
-      let machineFirst = Math.random() >= 0.5;
+      console.log(`handle start - ${stringify(gameParams)}`);
       let handler = this;
       handler.handleStartInternal(gameParams).then(response => {
         if (!response.ok)
           return response;
-        if (machineFirst)
+        if (gameParams.startingPlayer === GameParams.PlayerType.machinePlayer)
           return handler.handleMachinePlayInternal();
       }).catch(reason => {
         killGame(reason);
@@ -254,6 +253,7 @@ export const mkGameEventHandler = function(gameService) {
      * rejections.
      */
     handleMachinePlayInternal: function() {
+      console.log("machine play internal");
       if (noGame()) { logNoGame(); return; }
 
       let promise = _gameService.getMachinePlay(_game.gameId);
