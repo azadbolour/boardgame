@@ -33,6 +33,7 @@ trait StripMatcher {
   val trayLetters = tray.pieces.map(_.value).mkString
   val trayCombosByLength = WordUtil.computeCombosGroupedByLength(trayLetters)
   val playableStrips = computePlayableStrips
+  val playHelper = new PlayHelper(board)
 
   // def bestMatch(): StripMatch = bestMatchUpToLength(dimension)
 
@@ -184,7 +185,7 @@ trait StripMatcher {
 
         val fittingWords = strip.findFittingWords(words)
         val crossCheckedFittingWords = fittingWords.filter { word =>
-          crossings(strip, word).forall(crossWord => dictionary hasWord crossWord)
+          playHelper.crossingWords(strip, word).forall(crossWord => dictionary hasWord crossWord)
         }
 
         // strip.findFittingWord(words) match {
@@ -195,117 +196,8 @@ trait StripMatcher {
     }
   }
 
-  /**
-    * A crossing is cross word that includes one of the new
-    * letters played on a strip.
-    *
-    * All crossings must be legitimate words in the dictionary.
-    */
-  def crossings(strip: Strip, word: String): List[String] = {
-    val l = word.length
-    val range = (0 until l).toList
-    val crossingIndices = range.filter {
-      i =>
-        val stripChar = strip.content(i)
-        Piece.isBlank(stripChar)
-    }
-    val acrossWordList = crossingIndices.map{ i =>
-      val point = strip.point(i)
-      val playedChar = word(i)
-      crossingChars(point, playedChar, Axis.crossAxis(strip.axis))
-    }
-
-    acrossWordList.filter {word => word.length > 1}
-  }
-
-  def crossingChars(crossPoint: Point, crossingChar: Char, axis: Axis): String = {
-    val Point(row, col) = crossPoint
-
-    /**
-      * Given a point on the board, find the closest filled/empty boundary
-      * in a given direction (considering the point as filled).
-      *
-      * @param point     The starting point.
-      * @param axis      The axis along which to look for the next empty position.
-      * @param direction The direction (+1, -1) to look along the axis.
-      * @return The coordinate (row or column number) of the last contiguous
-      *         filled position along the given direction.
-      */
-    def filledUpTo(point: Point, axis: Axis, direction: Int): Point = {
-
-      // logger.info(s"filledUpTo - point ${point}, axis: ${axis}, direction: ${direction}")
-
-      def free(maybePiece: Option[Piece]) =
-        maybePiece.isEmpty || maybePiece.get.isEmpty
-
-      def nextPiece(point: Point) =
-        grid.adjacentCell(point, axis, direction).map(_.piece)
-
-      def pointIsEmpty(point: Point): Boolean = {
-        grid.cell(point).piece.isEmpty
-      }
-
-      def isBoundary(point: Point): Boolean = {
-        val isFilled = !pointIsEmpty(point)
-        val is = isFilled && free(nextPiece(point))
-        // logger.info(s"point ${point} is filled? ${isFilled}, is boundary? ${is}")
-        is
-      }
-
-      def inBounds(point: Point): Boolean = {
-        val Point(row, col) = point
-        row >= 0 && row < dimension && col >= 0 && col < dimension
-      }
-
-      def crossPoint(i: Int): Point = {
-        val offset = i * direction
-        axis match {
-          case Axis.X => Point(row, col + offset)
-          case Axis.Y => Point(row + offset, col)
-        }
-      }
-
-      // The starting point is special because it is empty.
-      val crossPt1 = crossPoint(1)
-      // logger.info(s"first cross point: ${crossPt1}")
-      if (!inBounds(crossPt1) || pointIsEmpty(crossPt1))
-        return point
-
-      var lastPoint = point // Not strictly necessary. Being extra defensive.
-      for (i <- 1 until dimension) {
-        val pt = crossPoint(i)
-        // logger.info(s"cross point for ${i} is ${pt}")
-
-        // Begin defensive.
-        // Redundant check. Boundary should be reached before cross point goes out of bounds.
-        if (!inBounds(pt))
-          return lastPoint
-        lastPoint = pt
-        // End defensive.
-
-        if (isBoundary(pt))
-          return pt
-      }
-      point // Should never be reached. Keep compiler happy.
-    }
-
-    val beforeBoundary = filledUpTo(crossPoint, axis, -1)
-    val afterBoundary = filledUpTo(crossPoint, axis, +1)
-    val crossCharSeq = axis match {
-      case Axis.X =>
-        def crossChar(i: Int) = grid.cell(Point(row, i)).piece.value
-        val beforeChars = (beforeBoundary.col to col - 1).map(i => crossChar(i))
-        val afterChars = (col + 1 to afterBoundary.col).map(i => crossChar(i))
-        beforeChars ++ List(crossingChar) ++ afterChars
-      case Axis.Y =>
-        def crossChar(i: Int) = grid.cell(Point(i, col)).piece.value
-        val beforeChars = (beforeBoundary.row to row - 1).map(i => crossChar(i))
-        val afterChars = (row + 1 to afterBoundary.row).map(i => crossChar(i))
-        beforeChars ++ List(crossingChar) ++ afterChars
-    }
-
-    crossCharSeq.mkString
-  }
+  def crossings(strip: Strip, word: String): List[String] =
+    playHelper.crossingWords(strip, word)
 
   def computePlayableStrips: GroupedStrips = {
     if (board.isEmpty) computePlayableStripsForEmptyBoard

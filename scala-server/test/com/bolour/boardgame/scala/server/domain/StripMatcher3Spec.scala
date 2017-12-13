@@ -55,7 +55,8 @@ class StripMatcher3Spec extends FlatSpec with Matchers { self =>
 
     // T is a cross point when ORGANIC is played against CODER
 
-    val crossChars = stripMatcher.crossingChars(Point(center - 1, center), 'I', Axis.X)
+    val playHelper = new PlayHelper(stripMatcher.board)
+    val crossChars = playHelper.crossingChars(Point(center - 1, center), 'I', Axis.X)
     crossChars shouldBe "IT"
 
     // TODO. Reinstate.

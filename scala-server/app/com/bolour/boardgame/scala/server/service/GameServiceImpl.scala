@@ -149,7 +149,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       _ <- state.checkCrossWords(playPieces, dictionary)
-      score = state.game.scorer.scorePlay(playPieces)
+      score = state.computePlayScore(playPieces)
       (newState, refills) <- state.addPlay(UserPlayer, playPieces)
       // TODO. How to eliminate dummy values entirely in for.
       _ <- savePlay(newState, playPieces, refills)
@@ -199,7 +199,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     }
 
     tryPlayPieces map {playPieces =>
-      val score = state.game.scorer.scorePlay(playPieces)
+      val score = state.computePlayScore(playPieces)
       (score, playPieces)
     }
   }

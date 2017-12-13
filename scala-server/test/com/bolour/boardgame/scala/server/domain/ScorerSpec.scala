@@ -17,13 +17,13 @@ class ScorerSpec extends FlatSpec with Matchers {
   val middle = dimension / 2
   val trayCapacity = 7
 
-  def play(word: String, strip: Strip): List[PlayPiece] = {
+  def playInfo(word: String, strip: Strip): List[(Char, Point, Boolean)] = {
     ((0 until word.length) map { i: Int =>
       val ch = word(i)
-      val piece = Piece(ch, i.toString)
+      // val piece = Piece(ch, i.toString)
       val point = strip.point(i)
       val moved = Piece.isBlank(strip.content(i))
-      PlayPiece(piece, point, moved)
+      (ch, point, moved)
     }).toList
   }
 
@@ -71,15 +71,15 @@ class ScorerSpec extends FlatSpec with Matchers {
   }
 
   "scoring with 3 times word score" should "score correctly based on worth of letters" in {
-    val playPieces = play("JOIN", Strip(Axis.X, 0, 0, 3, " O  "))
-    logger.info(s"play pieces: ${playPieces}")
-    scorer.scorePlay(playPieces) shouldEqual
+    val info = playInfo("JOIN", Strip(Axis.X, 0, 0, 3, " O  "))
+    logger.info(s"play pieces: ${info}")
+    scorer.scoreWord(info) shouldEqual
       (3 * ( (worth('J') + worth('O') + worth('I') + 2 * worth('N'))))
   }
 
   "scoring with 2 time letter score" should "score correctly based on worth of letters" in {
-    val playPieces = play("JOIN", Strip(Axis.X, 0, 0, 3, "J   "))
-    scorer.scorePlay(playPieces) shouldEqual
+    val info = playInfo("JOIN", Strip(Axis.X, 0, 0, 3, "J   "))
+    scorer.scoreWord(info) shouldEqual
       (worth('J') + worth('O') + worth('I') + 2 * worth('N'))
   }
 

@@ -31,7 +31,10 @@ case class GameState(
 
   def tray(playerType: PlayerType): Tray = trays(playerIndex(playerType))
 
-  def computePlayScore(playPieces: List[PlayPiece]): Int = game.scorer.scorePlay(playPieces)
+  def computePlayScore(playPieces: List[PlayPiece]): Int = {
+    val playHelper = new PlayHelper(board)
+    game.scorer.scorePlay(playHelper, playPieces)
+  }
 
   private def addGoodPlay(playerType: PlayerType, gridPieces: List[GridPiece], score: Int): Try[(GameState, List[Piece])] = {
     val newBoard = board.addPieces(gridPieces)

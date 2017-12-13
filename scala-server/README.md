@@ -1,11 +1,9 @@
 
-- killGame may be called on empty game
-  add test for blankoutGame followed by killGame should be OK
+- Write tests for scoring plays with cross scores.
 
-- Test first move being a pass - so next player will have to
-  be centered. Check for first move should be be empty board.
+- Connect to real dictionary. Check with NL experts.
 
-- Add crossword scores to total.
+- Document the end game rules.
 
 - Implement validations everywhere. First on API boundary.
 
@@ -14,16 +12,24 @@
 - Change various logging calls to debug and set up a run-debug to
   log at debug level.
 
-- Matching algorithm needs to be based on the best guess as to 
-  the real score of a play. Not needed for first release.
+- Document in WIKI. Strategy to increase confidence in machine 
+  not cheating.
 
-- Connect to real dictionary. Check with NL experts.
-
-- Log machine tray each time so we know bot is not cheating.
+    use a separate 'trays' process that keeps track of the two trays
+    then each side only gets its own tray from that process
+    the other side can validate that a play uses tray pieces
+    by making a call to the trays process that checks if the 
+    purported play pieces actually did come from teh tray
 
 ## To Do
 
+- Matching algorithm needs to be based on the best guess as to 
+  the real score of a play. Not needed for first release.
+
 - Check that rows.delete deletes everything.
+
+- Test first move being a pass - so next player will have to
+  be centered. Check for first move should be be empty board.
 
 - Compute real score in Haskell.
 

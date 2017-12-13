@@ -11,23 +11,31 @@ class Scorer(val dimension: Int, trayCapacity: Int) {
 
   val multiplierGrid: Grid[ScoreMultiplier] = mkMultiplierGrid(dimension)
 
-  def scorePlay(playPieces: List[PlayPiece]): Int = {
-    val multipliers = playPieces map {_.point} map { multiplierGrid.cell(_) }
-    val playPieceMultipliers = playPieces zip multipliers
+  def scorePlay(playHelper: PlayHelper, playPieces: List[PlayPiece]): Int = {
+    val crossingPlays = playHelper.crossingPlays(playPieces)
+    val crossScoreList = crossingPlays map { cp => scoreWord(cp)}
+    val crossWordsScore = crossScoreList.sum
+    val wordScore = scoreWord(playPieces map { pp => (pp.piece.value, pp.point, pp.moved) })
+    wordScore + crossWordsScore
+  }
+
+  def scoreWord(playInfo: List[(Char, Point, Boolean)]): Int = {
+    val multipliers = playInfo map {_._2} map { multiplierGrid.cell(_) }
+    val playPieceMultipliers = playInfo zip multipliers
     val letterScores = playPieceMultipliers map {
-      case (playPiece, multiplier) =>
-        val factor = if (playPiece.moved && multiplier.isLetterMultiplier) multiplier.factor else 1
-        factor * Piece.worths(playPiece.piece.value)
+      case ((letter, _, moved), multiplier) =>
+        val factor = if (moved && multiplier.isLetterMultiplier) multiplier.factor else 1
+        factor * Piece.worths(letter)
     }
     val baseScore = letterScores.sum
 
     val aggregateWordMultiplier = (playPieceMultipliers map {
-      case (playPiece, multiplier) =>
-        if (playPiece.moved && multiplier.isWordMultiplier) multiplier.factor else 0
+      case ((_, _, moved), multiplier) =>
+        if (moved && multiplier.isWordMultiplier) multiplier.factor else 0
     }).sum
 
     var score = Math.max(1, aggregateWordMultiplier) * baseScore
-    if (playPieces.length == trayCapacity)
+    if (playInfo.length == trayCapacity)
       score += Scorer.Bonus
     score
   }
