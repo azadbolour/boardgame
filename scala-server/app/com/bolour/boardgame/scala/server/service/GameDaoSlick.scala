@@ -14,7 +14,7 @@ import slick.jdbc.JdbcBackend.Database
 import com.typesafe.config.Config
 import com.bolour.util.BasicUtil.ID
 import com.bolour.boardgame.scala.common.domain.PlayPiece
-import com.bolour.boardgame.scala.server.domain.{Game, GameState, PieceGenerator, Player}
+import com.bolour.boardgame.scala.server.domain.{Game, GameState, TileSack, Player}
 import com.bolour.util.SlickUtil.{CustomColumnTypes, configuredDbAndProfile, tableNames}
 import org.slf4j.LoggerFactory
 
@@ -68,7 +68,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   def toGameRow(game: Game): GameRow = {
     GameRow(game.id, game.dimension, game.trayCapacity, game.languageCode, game.playerId, game.startTime, game.endTime)
   }
-  def fromGameRow(pieceGenerator: PieceGenerator)(row: GameRow): Game =
+  def fromGameRow(pieceGenerator: TileSack)(row: GameRow): Game =
     Game(row.id, row.dimension, row.trayCapacity, row.languageCode, row.playerId, row.startTime, row.endTime, pieceGenerator)
 
   // TODO. Add game and play tables.
@@ -128,7 +128,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     rows.headOption map fromPlayerRow
   }
 
-  override def findGameById(id: String)(implicit pieceGenerator: PieceGenerator): Try[Option[Game]] = Try {
+  override def findGameById(id: String)(implicit pieceGenerator: TileSack): Try[Option[Game]] = Try {
     val query = gameRows.filter {_.id === id }
     val future = db.run(query.result)
     val rows = Await.result(future, 1.second)

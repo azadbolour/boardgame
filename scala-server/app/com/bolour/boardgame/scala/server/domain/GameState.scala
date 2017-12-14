@@ -122,14 +122,14 @@ object GameState {
     GameState(game, board, List(userTray, machineTray), 0, UserPlayer, List(0, 0))
   }
 
-  def mkTray(capacity: Int, initPieces: List[Piece], pieceGen: PieceGenerator): Tray = {
+  def mkTray(capacity: Int, initPieces: List[Piece], pieceGen: TileSack): Tray = {
     val pieces =
       if (initPieces.length >= capacity)
         initPieces.take(capacity)
       else {
         val num = capacity - initPieces.length
         val restPieces = List.fill(num) {
-          pieceGen.next
+          pieceGen.take
         }
         initPieces ++ restPieces
       }

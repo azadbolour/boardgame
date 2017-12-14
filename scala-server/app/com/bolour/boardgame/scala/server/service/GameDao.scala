@@ -7,7 +7,7 @@ package com.bolour.boardgame.scala.server.service
 
 import com.bolour.util.BasicUtil.ID
 import com.bolour.boardgame.scala.common.domain.PlayPiece
-import com.bolour.boardgame.scala.server.domain.{Game, GameState, PieceGenerator, Player}
+import com.bolour.boardgame.scala.server.domain.{Game, GameState, TileSack, Player}
 
 import scala.util.Try
 
@@ -32,6 +32,6 @@ trait GameDao {
   def addPlay(gameId: ID, playPieces: List[PlayPiece]): Try[Unit]
 
   def findPlayerByName(name: String): Try[Option[Player]]
-  def findGameById(id: ID)(implicit pieceGenerator: PieceGenerator): Try[Option[Game]]
+  def findGameById(id: ID)(implicit pieceGenerator: TileSack): Try[Option[Game]]
 
 }

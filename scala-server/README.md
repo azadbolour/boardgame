@@ -1,27 +1,41 @@
 
+- DONE. Add swap to piece generators.
+  
+- Change exchanges to return pieces to piece generator.
+
+- GameServiceImpl 252 need to provide the piece generator.
+  Move piece generator out of game and into game state and call it tile sack.
+
+- Rename the abstraction from PieceGenerator to TileSack - 
+  rename TileSack to RandomTileSack
+
+- Remove RandomPieceGenerator.
+
+- Rename CyclicPieceGenerator CyclicTileSack
+
+
+- Game state has a tile sack. 
+
+- Problem is sack also gets swapped pieces back.
+
+
 - Write tests for scoring plays with cross scores.
 
 - Connect to real dictionary. Check with NL experts.
 
-- Document the end game rules.
+- Change various logging calls to debug and set up a run-debug to
+  log at debug level.
+
+## To Do
 
 - Implement validations everywhere. First on API boundary.
 
 - Clean up tests in web-ui and scala.
 
-- Change various logging calls to debug and set up a run-debug to
-  log at debug level.
+- Implement random w/o replacement piece generator.
+  numLetterInBag(ch) = min(1, round(frequency(ch) * dim * dim / (15 * 15))
 
-- Document in WIKI. Strategy to increase confidence in machine 
-  not cheating.
-
-    use a separate 'trays' process that keeps track of the two trays
-    then each side only gets its own tray from that process
-    the other side can validate that a play uses tray pieces
-    by making a call to the trays process that checks if the 
-    purported play pieces actually did come from teh tray
-
-## To Do
+  exchanges go back in the bag
 
 - Matching algorithm needs to be based on the best guess as to 
   the real score of a play. Not needed for first release.
@@ -46,7 +60,35 @@
 
 ## Known Issues
 
-- Only single tile replacements allowed.
+- Game end rules are ignored - the user ends the game. 
+
+  The ending rules are:
+
+    game ends when all letters have been drawn and
+    both players pass
+
+    or when six consecutive non-board plays have been made
+
+    at end sum up each player's remainig letter values
+    and subtract from that player's score
+
+    if one player has no letters, the other player's
+    remaining sum is also added to the score of the 
+    player with no letters
+
+    so we need a model of drawing letters without replacement
+    (except in exchanges)
+
+    for initial simplicity we'll just code the 6 consecutive
+    non-board plays - or when 100 have been placed on the 
+    board - let us say (dimension * 2/3) squared tiles
+
+- No parallel plays. A parallel play is parallel to and adjacent to a 
+  a given word with all crosswords existing in the dictionary
+  in this case, no anchor is needed. We can ignore this initially
+  for machine plays. But it is for now also disalloed for user plays.
+
+- Only single tile replacements allowed. And no passes without exchanges.
 
 - Using random tile selection *with replacement*. Bag model requires random
   tile selection without replacement (except for swap which replace one 

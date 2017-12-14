@@ -102,7 +102,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     if (gameCache.size >= maxActiveGames)
       return Failure(SystemOverloadedException())
 
-    val pieceGenerator = PieceGenerator(gameParams.pieceGeneratorType)
+    val pieceGenerator = TileSack(gameParams.pieceGeneratorType)
     for {
       player <- getPlayerByName(gameParams.playerName)
       game = Game(gameParams, player.id, pieceGenerator)
@@ -250,7 +250,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   // TODO. Check the cache first for the game.
   // TODO. Get the correct piece generator for the game. For now using cyclic.
   override def findGameById(gameId: ID): Try[Option[Game]] =
-    gameDao.findGameById(gameId)(PieceGenerator.CyclicPieceGenerator())
+    gameDao.findGameById(gameId)(TileSack.CyclicPieceGenerator())
 }
 
 object GameServiceImpl {

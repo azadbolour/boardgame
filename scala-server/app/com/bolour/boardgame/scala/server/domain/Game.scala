@@ -20,16 +20,16 @@ case class Game(
   playerId: ID,
   startTime: Instant,
   endTime: Option[Instant],
-  pieceGenerator: PieceGenerator
+  pieceGenerator: TileSack
 ) {
-  def mkPieces(num: Int): List[Piece] = List.fill(num){pieceGenerator.next()}
+  def mkPieces(num: Int): List[Piece] = List.fill(num){pieceGenerator.take()}
 
   val scorer = Scorer(dimension, trayCapacity)
 }
 
 object Game {
 
-  def apply(p: GameParams, playerId: ID, pieceGenerator: PieceGenerator = PieceGenerator.CyclicPieceGenerator()): Game = {
+  def apply(p: GameParams, playerId: ID, pieceGenerator: TileSack = TileSack.CyclicPieceGenerator()): Game = {
     val now = Instant.now()
     val lang = p.languageCode
     val languageCode = if (!lang.isEmpty) lang else english
