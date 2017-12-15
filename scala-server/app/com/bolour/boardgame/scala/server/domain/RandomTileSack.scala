@@ -5,9 +5,9 @@ import com.bolour.util.BasicUtil
 
 import scala.util.Try
 
-case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece]) {
+case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece]) extends TileSack {
 
-  def isEmpty = contents.isEmpty
+  override def isEmpty = contents.isEmpty
 
   def length = contents.length
 
@@ -20,7 +20,7 @@ case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece
     (RandomTileSack(initialContents, rest), piece)
   }
 
-  def swapPieces(swapped: List[Piece]): Try[(RandomTileSack, List[Piece])] = Try {
+  override def swapPieces(swapped: List[Piece]): Try[(RandomTileSack, List[Piece])] = Try {
     val existing = swapped intersect contents
     if (existing.nonEmpty)
       throw new IllegalArgumentException(s"attempt to swap existing piece(s) - ${existing}")
