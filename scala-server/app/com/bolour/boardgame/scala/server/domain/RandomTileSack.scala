@@ -2,14 +2,18 @@ package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain.Piece
 import com.bolour.util.BasicUtil
+import org.slf4j.LoggerFactory
 
 import scala.util.Try
 
 case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece]) extends TileSack {
 
-  override def isEmpty = contents.isEmpty
+  val logger = LoggerFactory.getLogger(this.getClass)
 
-  def length = contents.length
+  override def isEmpty: Boolean = contents.isEmpty
+  def isFull: Boolean = contents.length == initialContents.length
+
+  def length: Int = contents.length
 
   def take(): Try[(RandomTileSack, Piece)] = Try {
     if (contents.isEmpty)
@@ -20,6 +24,12 @@ case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece
     (RandomTileSack(initialContents, rest), piece)
   }
 
+  override def give(piece:Piece): Try[RandomTileSack] = Try {
+    if (isFull)
+      throw new IllegalStateException(s"cannot add to full tile stack - piece: ${piece}")
+    // TODO. Check that piece belongs to initial contents.
+    RandomTileSack(initialContents, piece +: contents)
+  }
   override def swapPieces(swapped: List[Piece]): Try[(RandomTileSack, List[Piece])] = Try {
     val existing = swapped intersect contents
     if (existing.nonEmpty)
@@ -42,7 +52,7 @@ case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece
 
 object RandomTileSack {
 
-  def mkInitialTileSack(dimension: Int): RandomTileSack = {
+  def apply(dimension: Int): RandomTileSack = {
     val pieces = mkInitialContents(dimension)
     RandomTileSack(pieces, pieces)
   }
@@ -66,7 +76,7 @@ object RandomTileSack {
       * has at least one instance in the sack.
       */
     def repeats(ch: Char): Int =
-      Math.round(frequenciesFor15Board(ch) * factor).min(1)
+      Math.round(frequenciesFor15Board(ch) * factor).max(1)
 
     var id = -1
     val pieces = frequenciesFor15Board.toList flatMap {

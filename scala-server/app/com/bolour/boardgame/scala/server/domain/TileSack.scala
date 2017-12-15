@@ -6,15 +6,15 @@
 package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain.Piece
-import com.bolour.boardgame.scala.common.domain.PieceGeneratorType._
 
 import scala.util.{Success, Try}
 
 trait TileSack {
 
-  def isEmpty: Boolean = false
+  def isEmpty: Boolean
+  def isFull: Boolean
   def take(): Try[(TileSack, Piece)]
-  def give(piece: Piece): Try[(TileSack)] = Success(this)
+  def give(piece: Piece): Try[(TileSack)]
 
   def takeAdd(sack: TileSack, pieces: List[Piece], n: Int): Try[(TileSack, List[Piece])] = {
     if (n == 0)
@@ -25,7 +25,7 @@ trait TileSack {
     } yield (sack2, pieces)
   }
 
-  def taken(n: Int): Try[(TileSack, List[Piece])] = takeAdd(this, List(), n)
+  def takeN(n: Int): Try[(TileSack, List[Piece])] = takeAdd(this, List(), n)
 
   def swapOne(piece: Piece): Try[(TileSack, Piece)] = {
     for {
@@ -34,6 +34,7 @@ trait TileSack {
     } yield (sack2, resultPiece)
   }
 
+  // TODO. Implement swapPieces.
   def swapPieces(swapped: List[Piece]): Try[(TileSack, List[Piece])] = ???
 }
 
@@ -46,6 +47,9 @@ object TileSack {
     val cycleLength: Int = valueList.length
     var counter: BigInt = 0
 
+    override def isEmpty: Boolean = false
+    override def isFull: Boolean = false
+
     override def take(): Try[(TileSack, Piece)] = Try {
       val index: Int = (counter % cycleLength).toInt
       val value = valueList(index)
@@ -53,31 +57,12 @@ object TileSack {
       counter = counter + 1
       (this, Piece(value, id))
     }
+
+    override def give(piece: Piece): Try[(TileSack)] = Success(this)
   }
 
   object CyclicTileSack {
     def apply() = new CyclicTileSack("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-  }
-
-  class RandomPieceGenerator extends TileSack {
-    var counter: BigInt = 0
-
-    override def take(): Try[(TileSack, Piece)] = Try {
-      val id = counter.toString
-      counter = counter + 1
-      (this, Piece.randomPiece(id))
-    }
-  }
-
-  object RandomPieceGenerator {
-    def apply(): RandomPieceGenerator = new RandomPieceGenerator()
-  }
-
-  def apply(pieceGeneratorType: PieceGeneratorType): TileSack = {
-    pieceGeneratorType match {
-      case Cyclic => CyclicTileSack()
-      case Random => RandomPieceGenerator()
-    }
   }
 
 }

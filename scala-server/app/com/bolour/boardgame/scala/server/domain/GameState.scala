@@ -8,6 +8,7 @@ package com.bolour.boardgame.scala.server.domain
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType.{playerIndex, _}
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InvalidCrosswordsException
+import com.bolour.boardgame.scala.server.domain.TileSack.CyclicTileSack
 import com.bolour.boardgame.scala.server.util.WordUtil
 
 import scala.util.{Failure, Success, Try}
@@ -44,7 +45,7 @@ case class GameState(
     val usedPieces = gridPieces map { _.value }
     val ind = playerIndex(playerType)
     for {
-      (nextGen, newPieces) <- pieceGenerator.taken(usedPieces.length)
+      (nextGen, newPieces) <- pieceGenerator.takeN(usedPieces.length)
       newTrays = trays.updated(ind, trays(ind).replacePieces(usedPieces, newPieces))
       newScores = scores.updated(ind, scores(ind) + score)
       nextType = nextPlayerType(playerType)
@@ -136,7 +137,12 @@ object GameState {
     initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[GameState] = {
 
     val board = Board(game.dimension, gridPieces)
-    val pieceGenerator = TileSack(game.pieceGeneratorType)
+    // val pieceGenerator = TileSack(game.pieceGeneratorType)
+
+    val pieceGenerator = game.pieceGeneratorType match {
+      case PieceGeneratorType.Random => RandomTileSack(game.dimension)
+      case PieceGeneratorType.Cyclic => CyclicTileSack()
+    }
 
     for {
       (userTray, pieceGen1) <- mkTray(game.trayCapacity, initUserPieces, pieceGenerator)
@@ -150,7 +156,7 @@ object GameState {
       return Success((Tray(capacity, initPieces.take(capacity).toVector), pieceGen))
 
     for {
-      (nextGen, restPieces) <- pieceGen.taken(capacity - initPieces.length)
+      (nextGen, restPieces) <- pieceGen.takeN(capacity - initPieces.length)
       pieces = initPieces ++ restPieces
     } yield (Tray(capacity, pieces.toVector), nextGen)
   }

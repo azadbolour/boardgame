@@ -1,13 +1,43 @@
 
-- Remove RandomPieceGenerator.
+- Keep track of last play score.
 
-- Rename CyclicPieceGenerator CyclicTileSack
+- GameState - keep track if successivePasses.
 
+- Logic for game end:
 
-- Game state has a tile sack. 
+      MaxSuccessivePasses reached
+      sack is empty && one tray is empty
 
-- Problem is sack also gets swapped pieces back.
+- GameState has game ended.
 
+- GameSummaryResponse - 
+    playScore, totalScore, numTilesInSack, isMachineTrayEmpty, ended, successivePasses
+
+  Convert from GameState. Return with each call.
+
+- Swap API - use List. 
+
+- UI - button for pass.
+
+- Web ui - if sack is empty, disallow swap.
+
+- Web ui - make sure smaller trays are handled properly.
+
+- New exception for num swapped > sack size. TODO.
+  For now just return the pieces.
+
+- Replacements for a play are the min of used pieces and sack length.
+
+- Game end api returns the ending data and final scores: 
+
+    outstandingTrayPenalty[]
+    endPlayScore
+    finalScore
+
+- After each call, check for game ended - if ended call deactivated.
+  Deactivated returns the final summary. 
+
+- Write tests for RandomTileSack.
 
 - Write tests for scoring plays with cross scores.
 
@@ -15,6 +45,33 @@
 
 - Change various logging calls to debug and set up a run-debug to
   log at debug level.
+
+- UI bug. Got into a state where after adding a couple of moves
+  could not add any more, and revert did not work, and got a red
+  background in tray for one square.
+
+  uncaught - message piece T on tray and on board at the same time
+  T was the one I was trying to move
+
+  ended the game but start did not get enabled
+
+  It seems to happen on the third move.
+
+  This happened when each letter appeared once in the bag.
+  The letters in the bag all had different ids.
+
+  Most likely duplicate ID. Tested on server. Looks good.
+
+  Maybe the sack was not updated?? state.addPlay. addGoodPlay. It is updated.
+
+  So just print out the board content and the tray content in the UI.
+
+  matrix has playPieces
+
+- Test with a small sack size - 1 instance of each letter.
+  Reproduce the problem and then check console output.
+
+- TODO. Comment out console log of game state in UI once debugged.
 
 ## To Do
 
