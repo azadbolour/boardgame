@@ -102,15 +102,13 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     if (gameCache.size >= maxActiveGames)
       return Failure(SystemOverloadedException())
 
-    val pieceGenerator = TileSack(gameParams.pieceGeneratorType)
+    // val pieceGenerator = TileSack(gameParams.pieceGeneratorType)
     for {
       player <- getPlayerByName(gameParams.playerName)
-      game = Game(gameParams, player.id, pieceGenerator)
-      gameState = GameState(game, gameParams, gridPieces, initUserPieces, initMachinePieces)
+      game = Game(gameParams, player.id)
+      gameState <- GameState.mkGameState(game, gridPieces, initUserPieces, initMachinePieces)
       _ <- gameDao.addGame(game)
       _ = gameCache.put(game.id, gameState)
-      // machinePlayPieces <- machinePlay(game.id)
-      // logger.info(s"machine play initial word: ${machinePlayPieces.map(_.piece.value).mkString}")
     } yield gameState
     // } yield (gameState, Some(machinePlayPieces))
   }
@@ -208,11 +206,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     val tray = state.tray(MachinePlayer)
     val letter = Piece.leastFrequentLetter(tray.letters).get
     val swappedPiece = tray.findPieceByLetter(letter).get
-    implicit val pieceGenerator = state.game.pieceGenerator
     for {
-      (newPiece, newTray) <- tray.swapPiece(swappedPiece)
-      newTrays: List[Tray] = state.trays.updated(playerIndex(MachinePlayer), newTray)
-      newState = state.copy(trays = newTrays)
+      (newState, newPiece) <- state.swapPiece(swappedPiece, MachinePlayer)
       _ = saveSwap(state.game.id, state.playNumber, MachinePlayer, swappedPiece, newPiece)
     } yield newState
   }
@@ -225,14 +220,11 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     os match {
       case None => Failure(MissingGameException(gameId))
       case Some(state) =>
-        val userTray: Tray = state.tray(UserPlayer)
-        implicit val gen = state.game.pieceGenerator
         for {
-          (newPiece, newUserTray) <- userTray.swapPiece(piece)
-          newState = state.copy(trays = state.trays.updated(playerIndex(UserPlayer), newUserTray))
+          (newState, newPiece) <- state.swapPiece(piece, UserPlayer)
           _ = gameCache.put(gameId, newState)
           _ = saveSwap(state.game.id, state.playNumber, MachinePlayer, piece, newPiece)
-        } yield (newPiece)
+        } yield newPiece
     }
   }
 
@@ -250,7 +242,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   // TODO. Check the cache first for the game.
   // TODO. Get the correct piece generator for the game. For now using cyclic.
   override def findGameById(gameId: ID): Try[Option[Game]] =
-    gameDao.findGameById(gameId)(TileSack.CyclicPieceGenerator())
+    gameDao.findGameById(gameId)
 }
 
 object GameServiceImpl {

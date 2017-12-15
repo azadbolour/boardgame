@@ -6,7 +6,7 @@
 package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain._
-import com.bolour.boardgame.scala.common.domain.PlayerType._
+import com.bolour.boardgame.scala.common.domain.PlayerType.{playerIndex, _}
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InvalidCrosswordsException
 import com.bolour.boardgame.scala.server.util.WordUtil
 
@@ -16,10 +16,13 @@ case class GameState(
   game: Game,
   board: Board,
   trays: List[Tray],
+  pieceGenerator: TileSack,
   playNumber: Int,
   playTurn: PlayerType,
   scores: List[Int]
 ) {
+
+
   def addPlay(playerType: PlayerType, playPieces: List[PlayPiece]): Try[(GameState, List[Piece])] = {
     for {
       _ <- validatePlay(playPieces)
@@ -40,12 +43,26 @@ case class GameState(
     val newBoard = board.addPieces(gridPieces)
     val usedPieces = gridPieces map { _.value }
     val ind = playerIndex(playerType)
-    val newPieces = game.mkPieces(usedPieces.length)
-    val newTrays = trays.updated(ind, trays(ind).replacePieces(usedPieces, newPieces))
-    val newScores = scores.updated(ind, scores(ind) + score)
-    val nextType = nextPlayerType(playerType)
-    val newState = GameState(game, newBoard, newTrays, playNumber + 1, nextType, newScores)
-    Success((newState, newPieces))
+    for {
+      (nextGen, newPieces) <- pieceGenerator.taken(usedPieces.length)
+      newTrays = trays.updated(ind, trays(ind).replacePieces(usedPieces, newPieces))
+      newScores = scores.updated(ind, scores(ind) + score)
+      nextType = nextPlayerType(playerType)
+      newState = GameState(game, newBoard, newTrays, nextGen, playNumber + 1, nextType, newScores)
+    } yield ((newState, newPieces))
+  }
+
+  def swapPiece(piece: Piece, playerType: PlayerType): Try[(GameState, Piece)] = {
+    val trayIndex = PlayerType.playerIndex(playerType)
+    val tray = trays(trayIndex)
+    for {
+      tray1 <- tray.removePiece(piece)
+      (nextGen, newPiece) <- pieceGenerator.swapOne(piece)
+      tray2 <- tray1.addPiece(newPiece)
+      trays2 = trays.updated(playerIndex(MachinePlayer), tray2)
+      // newState <- this.copy(trays = trays2, pieceGenerator = nextGen)
+      newState = this.copy(trays = trays2, pieceGenerator = nextGen)
+    } yield (newState, newPiece)
   }
 
   /**
@@ -115,25 +132,26 @@ case class GameState(
 }
 
 object GameState {
-  def apply(game: Game, params: GameParams, gridPieces: List[GridPiece], initUserPieces: List[Piece], initMachinePieces: List[Piece]): GameState = {
-    val board = Board(params.dimension, gridPieces)
-    val userTray = mkTray(params.trayCapacity, initUserPieces, game.pieceGenerator)
-    val machineTray = mkTray(params.trayCapacity, initMachinePieces, game.pieceGenerator)
-    GameState(game, board, List(userTray, machineTray), 0, UserPlayer, List(0, 0))
+  def mkGameState(game: Game, gridPieces: List[GridPiece],
+    initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[GameState] = {
+
+    val board = Board(game.dimension, gridPieces)
+    val pieceGenerator = TileSack(game.pieceGeneratorType)
+
+    for {
+      (userTray, pieceGen1) <- mkTray(game.trayCapacity, initUserPieces, pieceGenerator)
+      (machineTray, pieceGen2) <- mkTray(game.trayCapacity, initMachinePieces, pieceGen1)
+    }
+      yield GameState(game, board, List(userTray, machineTray), pieceGen2, 0, UserPlayer, List(0, 0))
   }
 
-  def mkTray(capacity: Int, initPieces: List[Piece], pieceGen: TileSack): Tray = {
-    val pieces =
-      if (initPieces.length >= capacity)
-        initPieces.take(capacity)
-      else {
-        val num = capacity - initPieces.length
-        val restPieces = List.fill(num) {
-          pieceGen.take
-        }
-        initPieces ++ restPieces
-      }
-    Tray(capacity, pieces.toVector)
-  }
+  def mkTray(capacity: Int, initPieces: List[Piece], pieceGen: TileSack): Try[(Tray, TileSack)] = {
+    if (initPieces.length >= capacity)
+      return Success((Tray(capacity, initPieces.take(capacity).toVector), pieceGen))
 
+    for {
+      (nextGen, restPieces) <- pieceGen.taken(capacity - initPieces.length)
+      pieces = initPieces ++ restPieces
+    } yield (Tray(capacity, pieces.toVector), nextGen)
+  }
 }

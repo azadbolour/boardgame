@@ -22,14 +22,33 @@ case class Tray(capacity: Int, pieces: Vector[Piece]) {
     Tray(capacity, updatedPieces)
   }
 
-  def swapPiece(piece: Piece)(implicit pieceGenerator: TileSack): Try [(Piece, Tray)] = {
-    val maybePiece = pieces.find(_ == piece)
-    if (maybePiece.isEmpty)
-      Failure(new MissingPieceException(piece.id))
-    val newPiece = pieceGenerator.take()
-    val newTray = this.copy(pieces = pieces.filter(_ != piece) :+ newPiece)
-    Success((newPiece, newTray))
+  def isFull = pieces.length == capacity
+
+  def addPiece(piece: Piece): Try[Tray] = {
+    val found = pieces.find( _ == piece)
+    if (found.nonEmpty)
+      Failure(new IllegalArgumentException(s"piece already exists in tray"))
+    if (isFull)
+      Failure(new IllegalStateException(s"tray is full"))
+    Success(Tray(capacity, piece +: pieces))
   }
+
+  def removePiece(piece: Piece): Try[Tray] = {
+    val i = pieces.indexOf(piece)
+    if (i < 0)
+      Failure(new MissingPieceException(piece.id))
+    val updatedPieces = pieces.patch(i, Nil, 1)
+    Success(Tray(capacity, updatedPieces))
+  }
+
+//  def swapPiece(piece: Piece)(implicit pieceGenerator: TileSack): Try [(Piece, Tray)] = {
+//    val maybePiece = pieces.find(_ == piece)
+//    if (maybePiece.isEmpty)
+//      Failure(new MissingPieceException(piece.id))
+//    val newPiece = pieceGenerator.take()
+//    val newTray = this.copy(pieces = pieces.filter(_ != piece) :+ newPiece)
+//    Success((newPiece, newTray))
+//  }
 
   def findPieceByLetter(letter: Char): Option[Piece] = pieces.find(_.value == letter)
 

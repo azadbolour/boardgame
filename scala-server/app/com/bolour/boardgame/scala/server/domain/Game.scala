@@ -8,6 +8,7 @@ package com.bolour.boardgame.scala.server.domain
 import java.time.Instant
 import java.util.UUID
 
+import com.bolour.boardgame.scala.common.domain.PieceGeneratorType.PieceGeneratorType
 import com.bolour.util.BasicUtil.{ID, stringId}
 import com.bolour.boardgame.scala.common.domain.{GameParams, Piece}
 import com.bolour.boardgame.scala.server.util.WordUtil.english
@@ -17,23 +18,24 @@ case class Game(
   dimension: Int,
   trayCapacity: Int,
   languageCode: String,
+  pieceGeneratorType: PieceGeneratorType,
   playerId: ID,
   startTime: Instant,
-  endTime: Option[Instant],
-  pieceGenerator: TileSack
+  endTime: Option[Instant]
 ) {
-  def mkPieces(num: Int): List[Piece] = List.fill(num){pieceGenerator.take()}
+  // def mkPieces(num: Int): List[Piece] = List.fill(num){pieceGenerator.take()}
 
   val scorer = Scorer(dimension, trayCapacity)
 }
 
 object Game {
 
-  def apply(p: GameParams, playerId: ID, pieceGenerator: TileSack = TileSack.CyclicPieceGenerator()): Game = {
+  def apply(p: GameParams, playerId: ID): Game = {
     val now = Instant.now()
     val lang = p.languageCode
     val languageCode = if (!lang.isEmpty) lang else english
-    Game(stringId, p.dimension, p.trayCapacity, languageCode, playerId, now, None, pieceGenerator)
+    val genType = p.pieceGeneratorType
+    Game(stringId, p.dimension, p.trayCapacity, languageCode, genType, playerId, now, None)
   }
 
 }

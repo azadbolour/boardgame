@@ -1,6 +1,9 @@
 package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain.Piece
+import com.bolour.util.BasicUtil
+
+import scala.util.Try
 
 case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece]) {
 
@@ -8,36 +11,16 @@ case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece
 
   def length = contents.length
 
-  def take(): (Piece, RandomTileSack) = {
+  def take(): Try[(RandomTileSack, Piece)] = Try {
     if (contents.isEmpty)
       throw new IllegalArgumentException(s"attempt to take a random piece from empty sack")
     val index = (Math.random() * contents.length).toInt
     val piece = contents(index)
     val rest = contents.patch(index, Nil, 1)
-    (piece, RandomTileSack(initialContents, rest))
+    (RandomTileSack(initialContents, rest), piece)
   }
 
-  // TODO. Move to util.
-  type TakenRest[A] = (Vector[A], Vector[A])
-
-  def takeRandomElement[A](takeRest: TakenRest[A]): TakenRest[A] = {
-    val (taken, rest) = takeRest
-    val index = (Math.random() * rest.length).toInt
-    val element = rest(index)
-    val remaining = rest.patch(index, Nil, 1)
-    (taken :+ element, remaining)
-  }
-
-  def takeRandomElements[A](takeRest: TakenRest[A], n : Int): TakenRest[A] = {
-    if (n == 0) return takeRest
-    val nextTakeRest = takeRandomElement(takeRest)
-    takeRandomElements(nextTakeRest, n - 1)
-  }
-
-  def takeRandomElements[A](vector: Vector[A], n: Int): TakenRest[A] =
-    takeRandomElements((Vector(), vector), n)
-
-  def swapPieces(swapped: List[Piece]): (List[Piece], RandomTileSack) = {
+  def swapPieces(swapped: List[Piece]): Try[(RandomTileSack, List[Piece])] = Try {
     val existing = swapped intersect contents
     if (existing.nonEmpty)
       throw new IllegalArgumentException(s"attempt to swap existing piece(s) - ${existing}")
@@ -51,9 +34,9 @@ case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece
     if (n >= contents.length)
       throw new IllegalArgumentException(s"attempt to swap more pieces (${n}) than exist in tile sack (${contents.length})")
 
-    val (randomPieces, restContent) = takeRandomElements(contents, n)
+    val (restContent, randomPieces) = BasicUtil.giveRandomElements((contents, Vector()), n)
     val replacedContent = restContent ++ swapped
-    (randomPieces.toList, RandomTileSack(initialContents, replacedContent))
+    (RandomTileSack(initialContents, replacedContent), randomPieces.toList)
   }
 }
 

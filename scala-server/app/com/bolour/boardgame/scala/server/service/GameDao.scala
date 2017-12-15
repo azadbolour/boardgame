@@ -32,6 +32,6 @@ trait GameDao {
   def addPlay(gameId: ID, playPieces: List[PlayPiece]): Try[Unit]
 
   def findPlayerByName(name: String): Try[Option[Player]]
-  def findGameById(id: ID)(implicit pieceGenerator: TileSack): Try[Option[Game]]
+  def findGameById(id: ID): Try[Option[Game]]
 
 }

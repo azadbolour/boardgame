@@ -13,8 +13,8 @@ import slick.jdbc.JdbcProfile
 import slick.jdbc.JdbcBackend.Database
 import com.typesafe.config.Config
 import com.bolour.util.BasicUtil.ID
-import com.bolour.boardgame.scala.common.domain.PlayPiece
-import com.bolour.boardgame.scala.server.domain.{Game, GameState, TileSack, Player}
+import com.bolour.boardgame.scala.common.domain.{PieceGeneratorType, PlayPiece}
+import com.bolour.boardgame.scala.server.domain.{Game, GameState, Player, TileSack}
 import com.bolour.util.SlickUtil.{CustomColumnTypes, configuredDbAndProfile, tableNames}
 import org.slf4j.LoggerFactory
 
@@ -47,12 +47,13 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   def toPlayerRow(player: Player): PlayerRow = PlayerRow(player.id, player.name)
   def fromPlayerRow(row: PlayerRow): Player = Player(row.id, row.name)
 
-  case class GameRow(id: ID, dimension: Int, trayCapacity: Int, languageCode: String, playerId: ID, startTime: Instant, endTime: Option[Instant])
+  case class GameRow(id: ID, dimension: Int, trayCapacity: Int, languageCode: String, sackType: String, playerId: ID, startTime: Instant, endTime: Option[Instant])
   class GameTable(tag: Tag) extends Table[GameRow](tag, gameTableName) {
     def id = column[ID]("id", O.PrimaryKey)
     def dimension = column[Int]("dimension")
     def trayCapacity = column[Int]("tray-capacity")
     def languageCode = column[String]("language-code")
+    def sackType = column[String]("sack-type")
     def playerId = column[ID]("player-id")
     def startTime = column[Instant]("start-time")
     def endTime = column[Option[Instant]]("end-time")
@@ -61,15 +62,15 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
       _.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Restrict
     )
 
-    def * = (id, dimension, trayCapacity, languageCode, playerId, startTime, endTime).mapTo[GameRow]
+    def * = (id, dimension, trayCapacity, languageCode, sackType, playerId, startTime, endTime).mapTo[GameRow]
   }
   def gameRows = TableQuery[GameTable]
 
   def toGameRow(game: Game): GameRow = {
-    GameRow(game.id, game.dimension, game.trayCapacity, game.languageCode, game.playerId, game.startTime, game.endTime)
+    GameRow(game.id, game.dimension, game.trayCapacity, game.languageCode, game.pieceGeneratorType.toString, game.playerId, game.startTime, game.endTime)
   }
-  def fromGameRow(pieceGenerator: TileSack)(row: GameRow): Game =
-    Game(row.id, row.dimension, row.trayCapacity, row.languageCode, row.playerId, row.startTime, row.endTime, pieceGenerator)
+  def fromGameRow(row: GameRow): Game =
+    Game(row.id, row.dimension, row.trayCapacity, row.languageCode, PieceGeneratorType.withName(row.sackType), row.playerId, row.startTime, row.endTime)
 
   // TODO. Add game and play tables.
 
@@ -128,11 +129,11 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     rows.headOption map fromPlayerRow
   }
 
-  override def findGameById(id: String)(implicit pieceGenerator: TileSack): Try[Option[Game]] = Try {
+  override def findGameById(id: String): Try[Option[Game]] = Try {
     val query = gameRows.filter {_.id === id }
     val future = db.run(query.result)
     val rows = Await.result(future, 1.second)
-    rows.headOption map fromGameRow(pieceGenerator)
+    rows.headOption map fromGameRow
   }
 
 }

@@ -1,14 +1,4 @@
 
-- DONE. Add swap to piece generators.
-  
-- Change exchanges to return pieces to piece generator.
-
-- GameServiceImpl 252 need to provide the piece generator.
-  Move piece generator out of game and into game state and call it tile sack.
-
-- Rename the abstraction from PieceGenerator to TileSack - 
-  rename TileSack to RandomTileSack
-
 - Remove RandomPieceGenerator.
 
 - Rename CyclicPieceGenerator CyclicTileSack
