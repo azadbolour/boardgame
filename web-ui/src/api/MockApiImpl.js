@@ -60,7 +60,22 @@ class MockApiImpl {
   // Begin Api.
 
   swap(piece) {
-    return this.getPiece();
+    let gameMiniState = {
+      lastPlayScore: 0,
+      scores: [0, 0],
+      noMorePlays: false
+    };
+    return {
+      gameMiniState: gameMiniState,
+      piece: this.getPiece()};
+  }
+
+  mkMiniPlayState() {
+    return {
+      lastPlayScore: 10,
+      scores: [10, 10],
+      noMOrePlays: false
+    };
   }
 
   commitPlay(playPieces) {
@@ -76,7 +91,7 @@ class MockApiImpl {
 
     // console.log(`committed game: ${JSON.stringify(this.gameDto)}`);
     return {
-      playScore: 10,
+      gameMiniState: this.mkMiniPlayState(),
       replacementPieces: refills
     };
   }
@@ -129,7 +144,7 @@ class MockApiImpl {
 
     // Return entire sequence of play pieces to be returned, moved or not.
     return {
-      playScore: 10,
+      gameMiniState: this.mkMiniPlayState(),
       playedPieces: playPieces
     };
   }

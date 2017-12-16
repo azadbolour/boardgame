@@ -60,9 +60,9 @@ class GameService {
       if (!dtoResponse.ok) {
         return dtoResponse; // TODO. Convert dto message to application message;.
       }
-      let {playScore, replacementPieces} = dtoResponse.json;
+      let {gameMiniState, replacementPieces} = dtoResponse.json;
       let replacementPiecesObjects = replacementPieces.map(PieceConverter.fromJson);
-      let response = this.convertResponse(dtoResponse, {playScore: playScore, replacementPieces: replacementPiecesObjects});
+      let response = this.convertResponse(dtoResponse, {playScore: gameMiniState.lastPlayScore, replacementPieces: replacementPiecesObjects});
       return response;
     });
   }
@@ -73,10 +73,10 @@ class GameService {
       if (!dtoResponse.ok) {
         return dtoResponse; // TODO. Convert dto message to application message;.
       }
-      let {playScore, playedPieces} = dtoResponse.json;
+      let {gameMiniState, playedPieces} = dtoResponse.json;
       // let play = PlayConverter.fromJson(playedPieces);
       let playPiecesObjects = playedPieces.map(playPiece => PlayPieceConverter.fromJson(playPiece));
-      let response = this.convertResponse(dtoResponse, {playScore: playScore, playedPieces: playPiecesObjects});
+      let response = this.convertResponse(dtoResponse, {playScore: gameMiniState.lastPlayScore, playedPieces: playPiecesObjects});
       return response;
     });
   }
@@ -89,7 +89,7 @@ class GameService {
         return dtoResponse; // TODO. Convert dto message to application message;.
       }
       let jsonNewPiece = dtoResponse.json;
-      let newPiece = PieceConverter.fromJson(jsonNewPiece);
+      let {gameMiniState, newPiece} = PieceConverter.fromJson(jsonNewPiece);
       // console.log(`new piece: ${JSON.stringify(newPiece)}`);
       let response = this.convertResponse(dtoResponse, newPiece);
       return response;

@@ -45,12 +45,15 @@ object GameJsonSupport {
   implicit val pointReads = reads[Point]
   implicit val gridPieceReads = reads[GridPiece]
   implicit val playerDtoReads = reads[PlayerDto]
-  implicit val gameDtoReads = reads[GameDto]
+  implicit val gameMiniStateReads = reads[GameMiniState]
+  implicit val startGameResponseReads = reads[StartGameResponse]
   implicit val startGameRequestReads = reads[StartGameRequest]
   implicit val playPieceReads = reads[PlayPiece]
   implicit val commitPlayResponseReads = reads[CommitPlayResponse]
   implicit val machinePlayResponseReads = reads[MachinePlayResponse]
-
+  implicit val swapPieceResponseReads = reads[SwapPieceResponse]
+  implicit val stopInfoReads = reads[StopInfo]
+  implicit val gameSummaryReads = reads[GameSummary]
 
   implicit val charWrites: Writes[Char] = new Writes[Char] {
     def writes(o: Char) = Json.toJson[String](o.toString)
@@ -69,11 +72,15 @@ object GameJsonSupport {
   implicit val pointWrites = writes[Point]
   implicit val gridPieceWrites = writes[GridPiece]
   implicit val playerDtoWrites = writes[PlayerDto]
-  implicit val gameDtoWrites = writes[GameDto]
+  implicit val gameMiniStateWrites = writes[GameMiniState]
+  implicit val startGameResponseWrites = writes[StartGameResponse]
   implicit val startGameRequestWrites = writes[StartGameRequest]
   implicit val playPieceWrites = writes[PlayPiece]
   implicit val commitPlayResponseWrites = writes[CommitPlayResponse]
   implicit val machinePlayResponseWrites = writes[MachinePlayResponse]
+  implicit val swapPieceResponseWrites = writes[SwapPieceResponse]
+  implicit val stopInfoWrites = writes[StopInfo]
+  implicit val gameSummaryWrites = writes[GameSummary]
 
   implicit val missingPieceErrorDtoWrites = writes[MissingPieceErrorDto]
   implicit val missingGameErrorDtoWrites = writes[MissingGameErrorDto]

@@ -5,9 +5,9 @@
  */
 package com.bolour.boardgame.scala.common.message
 
-import com.bolour.boardgame.scala.common.domain.{PlayPiece}
+import com.bolour.boardgame.scala.common.domain.{GameMiniState, PlayPiece}
 
 case class MachinePlayResponse(
-  playScore: Int,
+  gameMiniState: GameMiniState,
   playedPieces: List[PlayPiece]
 )

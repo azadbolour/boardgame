@@ -125,7 +125,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     }
   }
 
-  override def commitPlay(gameId: String, playPieces: List[PlayPiece]): Try[(Score, List[Piece])] = {
+  override def commitPlay(gameId: String, playPieces: List[PlayPiece]): Try[(GameMiniState, List[Piece])] = {
     val os = gameCache.get(gameId)
     if (os.isEmpty)
       return Failure(MissingGameException(gameId))
@@ -147,12 +147,12 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       _ <- state.checkCrossWords(playPieces, dictionary)
-      score = state.computePlayScore(playPieces)
+      // score = state.computePlayScore(playPieces)
       (newState, refills) <- state.addPlay(UserPlayer, playPieces)
       // TODO. How to eliminate dummy values entirely in for.
       _ <- savePlay(newState, playPieces, refills)
       _ = gameCache += ((gameId, newState))
-    } yield (score, refills)
+    } yield (newState.miniState, refills)
   }
 
   // TODO. Persist play.
@@ -160,7 +160,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     Success(())
   }
 
-  override def machinePlay(gameId: String): Try[(Score, List[PlayPiece])] = {
+  override def machinePlay(gameId: String): Try[(GameMiniState, List[PlayPiece])] = {
     val os = gameCache.get(gameId)
     if (os.isEmpty)
       return Failure(MissingGameException(gameId))
@@ -181,24 +181,19 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       override def tray: Tray = machineTray
     }
 
-    val tryPlayPieces = stripMatcher.bestMatch() match {
+    stripMatcher.bestMatch() match {
       case Nil =>
         for {
           newState <- exchangeMachinePiece(state)
           _ = gameCache +=((gameId, newState))
-        } yield Nil
+        } yield (newState.miniState, Nil)
       case playPieces =>
         for {
           (newState, refills) <- state.addPlay(MachinePlayer, playPieces)
           // TODO. How to eliminate dummy values entirely in for.
           _ <- savePlay(newState, playPieces, refills)
           _ = gameCache += ((gameId, newState))
-        } yield playPieces
-    }
-
-    tryPlayPieces map {playPieces =>
-      val score = state.computePlayScore(playPieces)
-      (score, playPieces)
+        } yield (newState.miniState, playPieces)
     }
   }
 
@@ -215,7 +210,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   private def saveSwap(gameId: String, playNumber: Int, playerType: PlayerType, swappedPiece: Piece, newPiece: Piece): Try[Unit] =
     Success(()) // TODO. Implement saveSwap.
 
-  override def swapPiece(gameId: String, piece: Piece): Try[Piece] = {
+  override def swapPiece(gameId: String, piece: Piece): Try[(GameMiniState, Piece)] = {
     val os = gameCache.get(gameId)
     os match {
       case None => Failure(MissingGameException(gameId))
@@ -224,17 +219,19 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
           (newState, newPiece) <- state.swapPiece(piece, UserPlayer)
           _ = gameCache.put(gameId, newState)
           _ = saveSwap(state.game.id, state.playNumber, MachinePlayer, piece, newPiece)
-        } yield newPiece
+        } yield (newState.miniState, newPiece)
     }
   }
 
-  override def endGame(gameId: String): Try[Unit] = {
+  override def endGame(gameId: String): Try[GameSummary] = {
     val maybeState = gameCache.get(gameId)
     maybeState match {
       case None => Failure(MissingGameException(gameId))
-      case Some(_) => {
+      case Some(state) => {
         gameCache.remove(gameId)
         gameDao.endGame(gameId)
+        val (finalState, endOfPlayScores) = state.stop()
+        Success(finalState.summary(endOfPlayScores))
       }
     }
   }

@@ -10,7 +10,7 @@ import javax.inject._
 import com.bolour.boardgame.scala.common.domain.{Piece, PlayPiece}
 import controllers.GameJsonSupport._
 import controllers.GameDtoConverters._
-import com.bolour.boardgame.scala.common.message.{CommitPlayResponse, MachinePlayResponse, PlayerDto, StartGameRequest}
+import com.bolour.boardgame.scala.common.message._
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
 import com.bolour.boardgame.scala.server.service.GameService
 import org.slf4j.LoggerFactory
@@ -83,7 +83,7 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
             logger.error("startGame failure", ex)
             unprocessable(ex)
           case Success(gameState) => {
-            val gameDto = toGameDto(gameParams, gameState)
+            val gameDto = mkStartGameResponse(gameParams, gameState)
             logger.info(s"startGame success gameDto: ${gameDto}")
             Ok(Json.toJson(gameDto))
           }
@@ -110,9 +110,9 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
       case Failure(ex) =>
         logger.error("commitPlay failure", ex)
         unprocessable(ex)
-      case Success((score, replacementPieces)) =>
+      case Success((minState, replacementPieces)) =>
         logger.info(s"commitPlay success - replacements: ${replacementPieces}")
-        val response = CommitPlayResponse(score, replacementPieces)
+        val response = CommitPlayResponse(minState, replacementPieces)
         Ok(Json.toJson(response))
     }
   }
@@ -125,9 +125,9 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
       case Failure(ex) =>
         logger.info("machinePlay failure", ex)
         unprocessable(ex)
-      case Success((score, playedPieces)) =>
+      case Success((miniState, playedPieces)) =>
         logger.info(s"machinePlay success - playedPieces: ${playedPieces}")
-        val response = MachinePlayResponse(score, playedPieces)
+        val response = MachinePlayResponse(miniState, playedPieces)
         Ok(Json.toJson(response))
     }
   }
@@ -145,23 +145,24 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
       case Failure(ex) =>
         logger.error("swapPiece failure", ex)
         unprocessable(ex)
-      case Success(newPiece) =>
+      case Success((miniState, newPiece)) =>
         logger.info(s"swapPiece success - new piece: ${newPiece}")
-        Ok(Json.toJson(newPiece))
+        val response = SwapPieceResponse(miniState, newPiece)
+        Ok(Json.toJson(response))
     }
   }
 
   // def endGame(gameId: String) = Action(parse.json) { implicit request =>
   def endGame(gameId: String) = Action { implicit request =>
     logger.info(s"endGame")
-    val triedEnd = service.endGame(gameId)
-    triedEnd match {
+    val triedSummary = service.endGame(gameId)
+    triedSummary match {
       case Failure(ex) =>
         logger.error("endGame failure", ex)
         unprocessable(ex)
-      case Success(_) =>
+      case Success(summary) =>
         logger.info("endGame success")
-        Ok(Json.toJson(()))
+        Ok(Json.toJson(summary))
     }
 
   }

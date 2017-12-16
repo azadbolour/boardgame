@@ -1,7 +1,8 @@
 
-- Add noMorePlays to API.
 
 - Add GameSummaryResponse to end API. 
+
+- TODO. Reject plays after game has been stopped.
 
 - Swap API - use List. 
 

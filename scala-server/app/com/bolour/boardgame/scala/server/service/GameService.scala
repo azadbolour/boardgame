@@ -30,13 +30,13 @@ trait GameService {
   ): Try[GameState]
   // ): Try[(GameState, Option[List[PlayPiece]])]
 
-  def commitPlay(gameId: ID, playPieces: List[PlayPiece]): Try[(Score, List[Piece])]
+  def commitPlay(gameId: ID, playPieces: List[PlayPiece]): Try[(GameMiniState, List[Piece])]
 
-  def machinePlay(gameId: ID): Try[(Score, List[PlayPiece])]
+  def machinePlay(gameId: ID): Try[(GameMiniState, List[PlayPiece])]
 
-  def swapPiece(gameId: ID, piece: Piece): Try[Piece]
+  def swapPiece(gameId: ID, piece: Piece): Try[(GameMiniState, Piece)]
 
-  def endGame(gameId: ID): Try[Unit]
+  def endGame(gameId: ID): Try[GameSummary]
 
   def findGameById(gameId: ID): Try[Option[Game]]
 

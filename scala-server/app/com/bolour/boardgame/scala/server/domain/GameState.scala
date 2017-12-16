@@ -39,6 +39,20 @@ case class GameState(
     */
   def noMorePlays: Boolean = passesMaxedOut || (isSackEmpty && (isUserTrayEmpty || isMachineTrayEmpty))
 
+  def miniState: GameMiniState = GameMiniState(lastPlayScore, scores, noMorePlays)
+
+  def stopInfo: StopInfo = StopInfo(numSuccessivePasses, MaxSuccessivePasses, isSackEmpty, isUserTrayEmpty, isMachineTrayEmpty)
+
+  // TODO. May fail. So return a Try for consistency.
+  def stop(): (GameState, List[Int]) = {
+    val endOfPlayScores = List(0, 0) // TODO. Compute end of play scores.
+    val newState = this  // TODO. Add end of play scores to total scores.
+    (newState, endOfPlayScores)
+  }
+
+  def summary(endOfPlayScores: List[Int]): GameSummary =
+    GameSummary(stopInfo, endOfPlayScores, scores)
+
   def addPlay(playerType: PlayerType, playPieces: List[PlayPiece]): Try[(GameState, List[Piece])] = {
     for {
       _ <- validatePlay(playPieces)

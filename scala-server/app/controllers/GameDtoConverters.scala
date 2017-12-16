@@ -5,7 +5,7 @@
  */
 package controllers
 
-import com.bolour.boardgame.scala.common.domain.{GameParams, PlayPiece}
+import com.bolour.boardgame.scala.common.domain.{GameParams, GameMiniState, PlayPiece}
 import com.bolour.boardgame.scala.common.domain.PlayerType.{UserPlayer, playerIndex}
 import com.bolour.boardgame.scala.common.message._
 import com.bolour.boardgame.scala.server.domain._
@@ -13,10 +13,10 @@ import com.bolour.boardgame.scala.server.domain.GameExceptions._
 
 object GameDtoConverters {
 
-  def toGameDto(params: GameParams, state: GameState): GameDto = {
+  def mkStartGameResponse(params: GameParams, state: GameState): StartGameResponse = {
     val gridPieces = state.board.gridPieces
     val userTray = state.trays(playerIndex(UserPlayer))
-    GameDto(state.game.id, params, gridPieces, userTray.pieces.toList)
+    StartGameResponse(state.game.id, params, gridPieces, userTray.pieces.toList)
   }
 
   def fromPlayerDto(dto: PlayerDto): Player = Player(dto.name)

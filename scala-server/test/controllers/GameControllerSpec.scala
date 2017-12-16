@@ -74,10 +74,10 @@ class GameControllerSpec extends PlaySpec with Results {
       logger.info(s"addPlayer result: ${unit}")
 
       result = controller.startGame()(mkRequest(startGameRequest))
-      val gameDto = decodeJsonContent[GameDto](result)
-      logger.info(s"startGame dto result: ${gameDto}")
-      gameDto match {
-        case GameDto(gameId, responseGameParams, gridPieces, userTrayPieces) =>
+      val startGameResponse = decodeJsonContent[StartGameResponse](result)
+      logger.info(s"startGame dto result: ${startGameResponse}")
+      startGameResponse match {
+        case StartGameResponse(gameId, responseGameParams, gridPieces, userTrayPieces) =>
           responseGameParams mustEqual gameParams
           gridPieces.size mustEqual 0
           userTrayPieces.size mustEqual gameParams.trayCapacity
@@ -107,12 +107,12 @@ class GameControllerSpec extends PlaySpec with Results {
 
       val swappedPiece = theUserTrayPieces(0)
       result = controller.swapPiece(theGameId)(mkRequest(swappedPiece))
-      val newPiece = decodeJsonContent[Piece](result)
+      val SwapPieceResponse(_, newPiece) = decodeJsonContent[SwapPieceResponse](result)
       newPiece must not be Piece.noPiece
 
       result = controller.endGame(theGameId)(FakeRequest())
-      val endUnit = decodeJsonContent[Unit](result)
-      logger.info(s"end game result: ${endUnit}")
+      val summary = decodeJsonContent[GameSummary](result)
+      logger.info(s"end game result: ${summary}")
     }
 
   }
