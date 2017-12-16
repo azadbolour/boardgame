@@ -1,16 +1,4 @@
 
-- Machine is always going first. How come?
-
-- Bug. Error first play must contain more than one piece.
-  An initial pass by the machine should be handled correctly
-  in the UI.
-
-- Test. Two clicks on start button e.g., start in rapid succession??
-  On any button? Should be disabled immediately.
-
-- Move RandomTileSack to TileSack.scala and make TileSack a
-  sealed abstract trait so you can pattern matck on TileSack.
-
 - Keep track of last play score.
 
 - GameState - keep track if successivePasses.
@@ -64,6 +52,13 @@
 - TODO. Comment out console log of game state in UI once debugged.
 
 ## To Do
+
+- Integration test. First play is a machine play and it is a pass. 
+  Both client and server should do the right thing. Client has
+  to make sure user move is centered.
+
+- Test. Two clicks on start button e.g., start in rapid succession??
+  On any button? Should be disabled immediately.
 
 - Document. Test assertion exceptions are converted to Failure 
   in Try for blocks. So they do not cause test failure automatically.

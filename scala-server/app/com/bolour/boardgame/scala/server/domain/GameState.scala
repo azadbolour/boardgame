@@ -8,8 +8,6 @@ package com.bolour.boardgame.scala.server.domain
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType.{playerIndex, _}
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InvalidCrosswordsException
-import com.bolour.boardgame.scala.server.domain.TileSack.CyclicTileSack
-import com.bolour.boardgame.scala.server.util.WordUtil
 import org.slf4j.LoggerFactory
 
 import scala.util.{Success, Try}
