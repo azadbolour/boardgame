@@ -19,9 +19,25 @@ case class GameState(
   pieceGenerator: TileSack,
   playNumber: Int,
   playTurn: PlayerType,
+  lastPlayScore: Int,
+  numSuccessivePasses: Int,
   scores: List[Int]
 ) {
+  import GameState.MaxSuccessivePasses
+
   val logger = LoggerFactory.getLogger(this.getClass)
+
+  def passesMaxedOut: Boolean = numSuccessivePasses == MaxSuccessivePasses
+  def isSackEmpty: Boolean = pieceGenerator.isEmpty
+  def isUserTrayEmpty: Boolean = trays(playerIndex(UserPlayer)).isEmpty
+  def isMachineTrayEmpty: Boolean = trays(playerIndex(MachinePlayer)).isEmpty
+
+  /**
+    * Play stops when either the maximum number of passes (plays with no score)
+    * is reached, or when there are no more tiles in the sack and one of the
+    * players has used up all his tiles.
+    */
+  def noMorePlays: Boolean = passesMaxedOut || (isSackEmpty && (isUserTrayEmpty || isMachineTrayEmpty))
 
   def addPlay(playerType: PlayerType, playPieces: List[PlayPiece]): Try[(GameState, List[Piece])] = {
     for {
@@ -42,13 +58,14 @@ case class GameState(
   private def addGoodPlay(playerType: PlayerType, gridPieces: List[GridPiece], score: Int): Try[(GameState, List[Piece])] = {
     val newBoard = board.addPieces(gridPieces)
     val usedPieces = gridPieces map { _.value }
+    val succPasses = if (score > 0) 0 else numSuccessivePasses + 1
     val ind = playerIndex(playerType)
     for {
       (nextGen, newPieces) <- pieceGenerator.takeN(usedPieces.length)
       newTrays = trays.updated(ind, trays(ind).replacePieces(usedPieces, newPieces))
       newScores = scores.updated(ind, scores(ind) + score)
       nextType = nextPlayerType(playerType)
-      newState = GameState(game, newBoard, newTrays, nextGen, playNumber + 1, nextType, newScores)
+      newState = GameState(game, newBoard, newTrays, nextGen, playNumber + 1, nextType, score, succPasses, newScores)
     } yield ((newState, newPieces))
   }
 
@@ -150,6 +167,9 @@ case class GameState(
 }
 
 object GameState {
+
+  def MaxSuccessivePasses = 6
+
   def mkGameState(game: Game, gridPieces: List[GridPiece],
     initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[GameState] = {
 
@@ -161,11 +181,13 @@ object GameState {
       case PieceGeneratorType.Cyclic => CyclicTileSack()
     }
 
+    val lastPlayScore = 0
+
     for {
       (userTray, pieceGen1) <- mkTray(game.trayCapacity, initUserPieces, pieceGenerator)
       (machineTray, pieceGen2) <- mkTray(game.trayCapacity, initMachinePieces, pieceGen1)
     }
-      yield GameState(game, board, List(userTray, machineTray), pieceGen2, 0, UserPlayer, List(0, 0))
+      yield GameState(game, board, List(userTray, machineTray), pieceGen2, 0, UserPlayer, lastPlayScore, 0, List(0, 0))
   }
 
   def mkTray(capacity: Int, initPieces: List[Piece], pieceGen: TileSack): Try[(Tray, TileSack)] = {

@@ -22,7 +22,9 @@ case class Tray(capacity: Int, pieces: Vector[Piece]) {
     Tray(capacity, updatedPieces)
   }
 
-  def isFull = pieces.length == capacity
+  def isEmpty: Boolean = pieces.isEmpty
+
+  def isFull: Boolean = pieces.length == capacity
 
   def addPiece(piece: Piece): Try[Tray] = {
     val found = pieces.find( _ == piece)

@@ -1,19 +1,7 @@
 
-- Keep track of last play score.
+- Add noMorePlays to API.
 
-- GameState - keep track if successivePasses.
-
-- Logic for game end:
-
-      MaxSuccessivePasses reached
-      sack is empty && one tray is empty
-
-- GameState has game ended.
-
-- GameSummaryResponse - 
-    playScore, totalScore, numTilesInSack, isMachineTrayEmpty, ended, successivePasses
-
-  Convert from GameState. Return with each call.
+- Add GameSummaryResponse to end API. 
 
 - Swap API - use List. 
 
@@ -27,15 +15,6 @@
   For now just return the pieces.
 
 - Replacements for a play are the min of used pieces and sack length.
-
-- Game end api returns the ending data and final scores: 
-
-    outstandingTrayPenalty[]
-    endPlayScore
-    finalScore
-
-- After each call, check for game ended - if ended call deactivated.
-  Deactivated returns the final summary. 
 
 - Write tests for RandomTileSack.
 
