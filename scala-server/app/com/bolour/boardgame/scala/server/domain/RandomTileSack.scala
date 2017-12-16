@@ -57,6 +57,10 @@ object RandomTileSack {
     RandomTileSack(pieces, pieces)
   }
 
+  def apply(initialPieces: Vector[Piece]): RandomTileSack = {
+    RandomTileSack(initialPieces, initialPieces)
+  }
+
   /**
     * Put together the initial contents of a tile sack for any dimension.
     *
@@ -75,12 +79,16 @@ object RandomTileSack {
       * Scale the frequency of a letter making sure each letter
       * has at least one instance in the sack.
       */
-    def repeats(ch: Char): Int =
-      Math.round(frequenciesFor15Board(ch) * factor).max(1)
+    def repeats(frequencies: Map[Char, Int])(ch: Char): Int =
+      Math.round(frequencies(ch) * factor).max(1)
 
+    generatePieces(frequenciesFor15Board, repeats)
+  }
+
+  def generatePieces(baseFrequencies: Map[Char, Int], repetition: Map[Char, Int] => Char => Int) = {
     var id = -1
-    val pieces = frequenciesFor15Board.toList flatMap {
-      case (ch, _) => (0 until repeats(ch)).map { _ =>
+    val pieces = baseFrequencies.toList flatMap {
+      case (ch, _) => (0 until repetition(baseFrequencies)(ch)).map { _ =>
         id += 1
         Piece(ch, id.toString)
       }

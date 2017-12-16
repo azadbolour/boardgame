@@ -1,4 +1,16 @@
 
+- Machine is always going first. How come?
+
+- Bug. Error first play must contain more than one piece.
+  An initial pass by the machine should be handled correctly
+  in the UI.
+
+- Test. Two clicks on start button e.g., start in rapid succession??
+  On any button? Should be disabled immediately.
+
+- Move RandomTileSack to TileSack.scala and make TileSack a
+  sealed abstract trait so you can pattern matck on TileSack.
+
 - Keep track of last play score.
 
 - GameState - keep track if successivePasses.
@@ -19,9 +31,9 @@
 
 - UI - button for pass.
 
-- Web ui - if sack is empty, disallow swap.
+- UI - if sack is empty, disallow swap.
 
-- Web ui - make sure smaller trays are handled properly.
+- UI - make sure trays with less contents than capacity are handled properly.
 
 - New exception for num swapped > sack size. TODO.
   For now just return the pieces.
@@ -46,34 +58,15 @@
 - Change various logging calls to debug and set up a run-debug to
   log at debug level.
 
-- UI bug. Got into a state where after adding a couple of moves
-  could not add any more, and revert did not work, and got a red
-  background in tray for one square.
-
-  uncaught - message piece T on tray and on board at the same time
-  T was the one I was trying to move
-
-  ended the game but start did not get enabled
-
-  It seems to happen on the third move.
-
-  This happened when each letter appeared once in the bag.
-  The letters in the bag all had different ids.
-
-  Most likely duplicate ID. Tested on server. Looks good.
-
-  Maybe the sack was not updated?? state.addPlay. addGoodPlay. It is updated.
-
-  So just print out the board content and the tray content in the UI.
-
-  matrix has playPieces
-
 - Test with a small sack size - 1 instance of each letter.
   Reproduce the problem and then check console output.
 
 - TODO. Comment out console log of game state in UI once debugged.
 
 ## To Do
+
+- Document. Test assertion exceptions are converted to Failure 
+  in Try for blocks. So they do not cause test failure automatically.
 
 - Implement validations everywhere. First on API boundary.
 

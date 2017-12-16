@@ -99,6 +99,9 @@
 
 ## Scala
 
+- Within a Try for block if a function throws an exception, that 
+  exception is caught and converted to a Failure.
+
 - Don't use undefined vals in traits. Use undefined defs and in an object or 
   new definition for that trait use override def.
 

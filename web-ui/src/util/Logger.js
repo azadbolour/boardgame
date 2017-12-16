@@ -15,7 +15,7 @@ import AppParams from './AppParams';
 // See AppParams for env types - dev, test, prod.
 
 export const stringify = function(value) {
-  return `${JSON.stringify(value)}\n`;
+  return `${JSON.stringify(value)}`;
 };
 
 const logger = {

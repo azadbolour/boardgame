@@ -11,19 +11,12 @@ import scala.util.{Success, Try}
 
 trait TileSack {
 
+  import TileSack.takeAdd
+
   def isEmpty: Boolean
   def isFull: Boolean
   def take(): Try[(TileSack, Piece)]
   def give(piece: Piece): Try[(TileSack)]
-
-  def takeAdd(sack: TileSack, pieces: List[Piece], n: Int): Try[(TileSack, List[Piece])] = {
-    if (n == 0)
-      return Success((sack, pieces))
-    for {
-      (sack1, piece) <- take()
-      (sack2, pieces) <- takeAdd (sack1, piece +: pieces, n - 1)
-    } yield (sack2, pieces)
-  }
 
   def takeN(n: Int): Try[(TileSack, List[Piece])] = takeAdd(this, List(), n)
 
@@ -41,6 +34,17 @@ trait TileSack {
 // TODO. Use default piece generators for dev test and production.
 // Ideally should be configurable in teh application.conf.
 object TileSack {
+
+  def takeAdd(sack: TileSack, pieces: List[Piece], n: Int): Try[(TileSack, List[Piece])] = {
+    if (n == 0)
+      return Success((sack, pieces))
+    for {
+      (sack1, piece) <- sack.take()
+      (sack2, pieces) <- takeAdd(sack1, piece +: pieces, n - 1)
+    } yield (sack2, pieces)
+  }
+
+
   class CyclicTileSack(val valueList: String) extends TileSack {
     if (valueList == null || valueList.isEmpty)
       throw new IllegalArgumentException("empty cyclic generator value list")

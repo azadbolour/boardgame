@@ -117,22 +117,6 @@ export const mkGameEventHandler = function(gameService) {
 
   const logNoGame = () => console.log('warning: game event handler called with no game in effect');
 
-  const logGameState = function() {
-    if (_game === undefined)
-      return;
-    let board = _game.board;
-    let tray = _game.tray;
-    let playPieces = board.matrix.linearize();
-    console.log("-- The Board --")
-    playPieces.forEach(function(pp) {
-      console.log(`piece: ${stringify(pp.piece)}, point: ${stringify(pp.point)}. moved: ${pp.moved}`);
-    });
-    console.log("-- The Tray --");
-    tray.pieces.forEach(function(p) {
-      console.log(`${stringify(p)}`);
-    });
-  };
-
   let handler = {
     get game() { return _game; },
 
@@ -336,7 +320,9 @@ export const mkGameEventHandler = function(gameService) {
    };
 
   let dispatchHandler = function(action) {
-    logGameState();
+    // if (_game !== undefined)
+    //   _game.logGameState();
+
     switch (action.type) {
       case ActionTypes.START:
         let result = handler.handleStart(action.gameParams);

@@ -66,6 +66,13 @@ export const mkBoard = function(matrix) {
       return _matrix.every(function (playPiece) {return playPiece.isFree()});
     },
 
+    playPieces: function() {
+      return _matrix.linearize().filter(function(playPiece) {
+        return playPiece.hasRealPiece();
+      })
+
+    },
+
     hasCommittedPlays: function () {
       return _matrix.some(function (playPiece) {return playPiece.isOriginal()});
     },

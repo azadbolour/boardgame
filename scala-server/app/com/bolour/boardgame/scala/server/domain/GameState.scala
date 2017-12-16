@@ -10,8 +10,9 @@ import com.bolour.boardgame.scala.common.domain.PlayerType.{playerIndex, _}
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InvalidCrosswordsException
 import com.bolour.boardgame.scala.server.domain.TileSack.CyclicTileSack
 import com.bolour.boardgame.scala.server.util.WordUtil
+import org.slf4j.LoggerFactory
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Success, Try}
 
 case class GameState(
   game: Game,
@@ -22,7 +23,7 @@ case class GameState(
   playTurn: PlayerType,
   scores: List[Int]
 ) {
-
+  val logger = LoggerFactory.getLogger(this.getClass)
 
   def addPlay(playerType: PlayerType, playPieces: List[PlayPiece]): Try[(GameState, List[Piece])] = {
     for {
@@ -130,6 +131,24 @@ case class GameState(
     * Check that the moved pieces in this play are in fact user tray pieces.
     */
   private def checkMoveTrayPieces(playPieces: List[PlayPiece]): Try[Unit] = Success(())
+
+  def sanityCheck: Try[Unit] = Try {
+    val boardPieces = board.gridPieces.map { _.piece }
+    val userTrayPieces = trays(playerIndex(PlayerType.UserPlayer)).pieces
+    val machineTrayPieces = trays(playerIndex(PlayerType.MachinePlayer)).pieces
+
+    val boardPieceIds = boardPieces.map { _.id }
+    val userPieceIds = userTrayPieces.map { _.id }
+    val machinePieceIds = machineTrayPieces.map { _.id }
+
+    val allIds = boardPieceIds ++ userPieceIds ++ machinePieceIds
+    val dups = allIds diff allIds.distinct
+    if (dups.nonEmpty) {
+      val message = s"duplicate ids in game state: ${dups}"
+      logger.error(message)
+      throw new IllegalStateException(message)
+    }
+  }
 }
 
 object GameState {

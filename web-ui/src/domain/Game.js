@@ -102,7 +102,8 @@ export const mkGame = function(gameParams, gameId, board, tray, scoreMultipliers
       const isFromTray = trayIndex >= 0;
       const isFromBoard = sourcePlayPiece !== undefined;
 
-      // console.log(`isFromTray: ${isFromTray}, isFromBoard: ${isFromBoard}`);
+      // console.log(`applyUserMove - isFromTray: ${isFromTray}, isFromBoard: ${isFromBoard}`);
+      // this.logGameState();
 
       if (isFromTray && isFromBoard)
         throw {
@@ -125,10 +126,13 @@ export const mkGame = function(gameParams, gameId, board, tray, scoreMultipliers
 
     applyTrayMove: function(move) {
       const { piece, point } = move;
+      // console.log(`applying tray move: ${stringify(move)}`);
       let playPiece = mkMovePlayPiece(piece, point);
       let $tray = _tray.removePiece(piece.id);
       let $board = _board.setPlayPiece(playPiece);
       let $game = mkGame(_gameParams, _gameId, $board, $tray, _scoreMultipliers, _score);
+      // console.log(`tray move applied - new game state`);
+      $game.logGameState();
       return $game;
     },
 
@@ -196,11 +200,15 @@ export const mkGame = function(gameParams, gameId, board, tray, scoreMultipliers
       let sourcePlayPiece = _board.findPiece(piece);
       let onBoard = sourcePlayPiece !== undefined;
 
-      if (onTray && onBoard)
+      if (onTray && onBoard) {
+        console.log(`move error: piece: ${stringify(piece)}, point: ${stringify(point)}, source play piece: ${stringify(sourcePlayPiece)}`)
+        this.logGameState();
+        console.trace();
         throw {
           name: "illegal state",
           message: `piece ${stringify(piece)} on tray and on board at the same time`
         };
+      }
 
       // Cannot move a committed piece.
       if (onBoard && sourcePlayPiece.isOriginal())
@@ -219,6 +227,18 @@ export const mkGame = function(gameParams, gameId, board, tray, scoreMultipliers
     replaceTrayPiece: function(replacedPieceId, replacementPiece) {
       let $tray = _tray.replacePiece(replacedPieceId, replacementPiece);
       return mkGame(_gameParams, _gameId, _board, $tray, _scoreMultipliers, _score);
+    },
+
+    logGameState: function() {
+      let playPieces = _board.playPieces();
+      console.log("-- The Board --")
+      playPieces.forEach(function(pp) {
+        console.log(`piece: ${stringify(pp.piece)}, point: ${stringify(pp.point)}. moved: ${pp.moved}`);
+      });
+      console.log("-- The Tray --");
+      _tray.pieces.forEach(function(p) {
+        console.log(`${stringify(p)}`);
+      });
     }
   };
 };
