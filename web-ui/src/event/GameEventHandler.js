@@ -6,6 +6,7 @@
 
 
 import {stringify} from "../util/Logger";
+import {convertResponse} from "../util/MiscUtil";
 import ActionTypes from './GameActionTypes';
 import ActionStages from './GameActionStages';
 import {mkEmptyGame} from '../domain/Game';
@@ -189,7 +190,7 @@ export const mkGameEventHandler = function(gameService) {
       if (inComplete()) {
         let response = {
           json: "",
-            ok: false,
+          ok: false,
           status: 422,
           statusText: "incomplete word"
         };
@@ -205,8 +206,10 @@ export const mkGameEventHandler = function(gameService) {
           _game = _game.commitUserMoves(gameMiniState.lastPlayScore, replacementPieces);
           _status = OK;
           _auxGameData.pushWordPlayed(playPiecesWord(committedPlayPieces), "You"); // TODO. Use player name.
+          emitChange(systemResponseType(response));
+          return convertResponse(response, gameMiniState);
         }
-        else if (isUserError(response)) {
+        if (isUserError(response)) {
           _status = "error: " + errorText(response);
         }
         else {
@@ -234,10 +237,11 @@ export const mkGameEventHandler = function(gameService) {
           _game = _game.commitMachineMoves(gameMiniState.lastPlayScore, movedGridPieces);
           _status = movedGridPieces.length > 0 ? OK : "bot took a pass";
           _auxGameData.pushWordPlayed(playPiecesWord(playedPieces), "Bot"); // TODO. Constant.
+          emitChange(systemResponseType(response));
+          return convertResponse(response, gameMiniState);
         }
-        else {
-          killGame(errorText(response));
-        }
+
+        killGame(errorText(response));
         emitChange(systemResponseType(response));
         return response;
       });
@@ -250,7 +254,23 @@ export const mkGameEventHandler = function(gameService) {
       handler.handleCommitPlayInternal().then(response => {
         if (!response.ok)
           return response;
-        return handler.handleMachinePlayInternal();
+        let gameMiniState = response.json;
+        if (gameMiniState.noMorePlays) {
+          return convertResponse(response, {}); // TODO. handler.handleEndInternal.
+        }
+        else {
+          handler.handleMachinePlayInternal().then(response => {
+            if (!response.ok)
+              return response;
+            let gameMiniState = response.json;
+            if (gameMiniState.noMorePlays) {
+              return convertResponse(response, {}); // TODO. handler.handleEndInternal.
+            }
+            else {
+              return response;
+            }
+          });
+        }
       }).catch(reason => {
         killGame(reason);
         emitChange(ActionStages.CHANGE_FAILURE);
@@ -263,7 +283,19 @@ export const mkGameEventHandler = function(gameService) {
       handler.handleSwapInternal(piece).then(response => {
         if (!response.ok)
           return response;
-        return handler.handleMachinePlayInternal();
+        else {
+          handler.handleMachinePlayInternal().then(response => {
+            if (!response.ok)
+              return response;
+            let gameMiniState = response.json;
+            if (gameMiniState.noMorePlays) {
+              return convertResponse(response, {}); // TODO. handler.handleEndInternal.
+            }
+            else {
+              return response;
+            }
+          });
+        }
       }).catch(reason => {
         killGame(reason);
         emitChange(ActionStages.CHANGE_FAILURE);
@@ -278,24 +310,54 @@ export const mkGameEventHandler = function(gameService) {
       emitChange(ActionStages.CHANGE_SUCCESS);
     },
 
-    handleEnd: function () {
+    gameSummaryStatus: function(stopInfo) {
+      let {successivePasses, maxSuccessivePasses, isSackEmpty, isUserTrayEmpty, isMachineTrayEmpty} = stopInfo;
+      let status = "game over - ";
+      if (successivePasses == maxSuccessivePasses)
+        status += `${successivePasses} successive passes - maxed out`;
+      else {
+        status += `${isUserTrayEmpty ? "user " : " machine "} finished`
+      }
+      return status;
+    },
+
+    handleEndInternal: function () {
       if (noGame()) { logNoGame(); return; }
       let promise = _gameService.end(_game.gameId);
-      promise.then(response => {
+      let processedResponse = promise.then(response => {
         if (response.ok) {
-          let gameParams = _gameService.gameParams;
-          _game = _game.end();
-          _status = "game over";
+          let {stopInfo, endOfPlayScores, totalScores} = response.json;
+          let $game = _game.addEndOfPlayScores(endOfPlayScores);
+          _game = $game.end();
+          _status = this.gameSummaryStatus(stopInfo);
         }
         else {
           killGame(errorText(response));
         }
         emitChange(systemResponseType(response));
-      }).catch(reason => {
-        killGame(reason);
-        emitChange(ActionStages.CHANGE_FAILURE);
+        return response;
       });
+      return processedResponse;
     },
+
+    // handleEnd: function () {
+    //   if (noGame()) { logNoGame(); return; }
+    //   let promise = _gameService.end(_game.gameId);
+    //   promise.then(response => {
+    //     if (response.ok) {
+    //       let gameParams = _gameService.gameParams;
+    //       _game = _game.end();
+    //       _status = "game over";
+    //     }
+    //     else {
+    //       killGame(errorText(response));
+    //     }
+    //     emitChange(systemResponseType(response));
+    //   }).catch(reason => {
+    //     killGame(reason);
+    //     emitChange(ActionStages.CHANGE_FAILURE);
+    //   });
+    // },
 
     handleSwapInternal: function (pc) {
       if (noGame()) { logNoGame(); return; }

@@ -1,6 +1,15 @@
 
+- Game component - add pass functionality. 
+  Change all END to PASS.
+
+- Implement pass - swap takes list.
+
+- Test with small boards to reach end of game.
+
 - Internal handlers will return data needed by the top-level handlers
-  in a promise.
+  in a promise. 
+
+  Then add endInternal and call it. Remove end button.
 
 - handleGameInternal - render game summary.
   add miniState to aux game data??
@@ -28,6 +37,8 @@
 - Connect to real dictionary. Check with NL experts.
 
 ## To Do
+
+- Harvest long-running games.
 
 - Server. Reject plays after game has been stopped.
 

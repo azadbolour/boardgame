@@ -252,22 +252,6 @@ const GameComponent = React.createClass({
               }
             </div>
 
-            <pre></pre>
-            <div style={paddingStyle}>
-              <button
-                onClick={() => {this.tipOff(); this.endGame()}}
-                onMouseOver={() => this.tipOn(END)}
-                onMouseOut={() => this.tipOff()}
-                style={buttonStyle(running)}
-                disabled={!running}
-              >
-                End Game
-              </button>
-              {running && this.isTipOn(END) &&
-              <div style={tooltipStyle(running)}>end this game</div>
-              }
-            </div>
-
           </div>
 
           <pre>   </pre>

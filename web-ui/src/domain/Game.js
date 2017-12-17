@@ -132,7 +132,7 @@ export const mkGame = function(gameParams, gameId, board, tray, scoreMultipliers
       let $board = _board.setPlayPiece(playPiece);
       let $game = mkGame(_gameParams, _gameId, $board, $tray, _scoreMultipliers, _score);
       // console.log(`tray move applied - new game state`);
-      $game.logGameState();
+      // $game.logGameState();
       return $game;
     },
 
@@ -152,6 +152,13 @@ export const mkGame = function(gameParams, gameId, board, tray, scoreMultipliers
       let $board = _board.commitUserMoves();
       let $game = mkGame(_gameParams, _gameId, $board, $tray, _scoreMultipliers, $score);
       return $game;
+    },
+
+    addEndOfPlayScores: function(endOfPlayScores) {
+      let userScore = _score[USER_INDEX] + endOfPlayScores[USER_INDEX];
+      let machineScore = _score[MACHINE_INDEX] + endOfPlayScores[MACHINE_INDEX];
+      let $score = [userScore, machineScore];
+      let $game = mkGame(_gameParams, _gameId, _board, _tray, _scoreMultipliers, $score);
     },
 
     commitMachineMoves: function(playScore, moveGridPieces) {
