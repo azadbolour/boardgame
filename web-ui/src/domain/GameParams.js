@@ -102,7 +102,7 @@ class GameParams {
   }
 
   static validateTrayCapacity(capacity) {
-    let inBounds = capacity >= GameParams.MIN_TRAY_CAPACITY && pix <= GameParams.MAX_TRAY_CAPACITY;
+    let inBounds = capacity >= GameParams.MIN_TRAY_CAPACITY && capacity <= GameParams.MAX_TRAY_CAPACITY;
     if (!inBounds)
       return {
         valid: false,

@@ -1,4 +1,16 @@
 
+- Just work with dimension = 7 and tray-capacity = 5 to get
+  to edge cases quickly.
+
+- Hit tile sack empty. takeN should get what is is the sack - no more.
+
+- Develop integration tests at the level of the handler.
+  For all ending conditions.
+
+- UI - button for pass.
+
+- Machine play is not checking crosswords. Or does not seem to.
+
 - Game component - add pass functionality. 
   Change all END to PASS.
 
@@ -9,10 +21,6 @@
 - Report sack size or empty in UI.
 
 - UI check for noMorePlays and disable all plays. 
-  Report end of game.
-  And call game end to get summary and show summary.
-
-- UI - button for pass.
 
 - UI - if sack is empty, disallow swap.
 
