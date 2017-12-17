@@ -1,13 +1,10 @@
 
+- Return the real data to the handler.
+
 - handleGameInternal - render game summary.
   add miniState to aux game data??
 
   After each call update the miniState.
-
-  Ideally auxGameData should be immutable.
-
-  ConvertResponse in GameService goes to MiscUtil. The internal calls return a
-  converted response with the data needed by the outer layers.
 
 - UI. Return gameMiniState to handler.
 

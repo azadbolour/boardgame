@@ -60,6 +60,13 @@ export const range = function(n) {
   return Array.from({length: n}, (v, i) => i);
 };
 
+export const convertResponse = function(response, data) {
+  let newResponse = Object.create(response);
+  newResponse.json = data;
+  return newResponse;
+};
+
+
 
 
 

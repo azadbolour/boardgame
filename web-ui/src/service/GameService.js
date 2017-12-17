@@ -12,6 +12,7 @@ import {apiSelector} from '../api/ApiUtil';
 import {GameConverter, PieceConverter, PlayConverter, GameParamsConverter} from './../api/Converters';
 // import Play from "../domain/Play";
 import {stringify} from "../util/Logger";
+import {convertResponse} from "../util/MiscUtil";
 import {PlayPieceConverter} from "../api/Converters";
 // TODO. Should rejections be caught here and converted to just !ok??
 
@@ -39,7 +40,7 @@ class GameService {
       // console.log(`game dto returned from start: ${JSON.stringify(gameDto)}`); // TODO. Remove me.
       let game = GameConverter.fromJson(gameDto, this.gameParams);
 
-      let response = this.convertResponse(dtoResponse, game);
+      let response = convertResponse(dtoResponse, game);
       return response;
     });
   }
@@ -62,7 +63,7 @@ class GameService {
       }
       let {gameMiniState, replacementPieces} = dtoResponse.json;
       let replacementPiecesObjects = replacementPieces.map(PieceConverter.fromJson);
-      let response = this.convertResponse(dtoResponse, {playScore: gameMiniState.lastPlayScore, replacementPieces: replacementPiecesObjects});
+      let response = convertResponse(dtoResponse, {playScore: gameMiniState.lastPlayScore, replacementPieces: replacementPiecesObjects});
       return response;
     });
   }
@@ -76,31 +77,30 @@ class GameService {
       let {gameMiniState, playedPieces} = dtoResponse.json;
       // let play = PlayConverter.fromJson(playedPieces);
       let playPiecesObjects = playedPieces.map(playPiece => PlayPieceConverter.fromJson(playPiece));
-      let response = this.convertResponse(dtoResponse, {playScore: gameMiniState.lastPlayScore, playedPieces: playPiecesObjects});
+      let response = convertResponse(dtoResponse, {playScore: gameMiniState.lastPlayScore, playedPieces: playPiecesObjects});
       return response;
     });
   }
   
-  swap(gameId, piece) {
-    let jsonPiece = PieceConverter.toJson(piece);
+  swap(gameId, pc) {
+    let jsonPiece = PieceConverter.toJson(pc);
     let promise = this.api.swap(gameId, jsonPiece);
     return promise.then(dtoResponse => {
       if (!dtoResponse.ok) {
         return dtoResponse; // TODO. Convert dto message to application message;.
       }
-      let jsonNewPiece = dtoResponse.json;
-      let {gameMiniState, newPiece} = PieceConverter.fromJson(jsonNewPiece);
+      let {gameMiniState, piece} = dtoResponse.json;
+      let newPiece = PieceConverter.fromJson(piece);
       // console.log(`new piece: ${JSON.stringify(newPiece)}`);
-      let response = this.convertResponse(dtoResponse, newPiece);
+      let result = {
+        gameMiniState: gameMiniState,
+        piece: newPiece
+      };
+      let response = convertResponse(dtoResponse, result);
       return response;
     });
   }
 
-  convertResponse(response, data) {
-    let newResponse = Object.create(response);
-    newResponse.json = data;
-    return newResponse;
-  }
 
 }
 

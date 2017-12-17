@@ -91,7 +91,7 @@ case class GameState(
       tray1 <- tray.removePiece(piece)
       (nextGen, newPiece) <- pieceGenerator.swapOne(piece)
       tray2 <- tray1.addPiece(newPiece)
-      trays2 = trays.updated(playerIndex(MachinePlayer), tray2)
+      trays2 = trays.updated(playerIndex(playerType), tray2)
       // newState <- this.copy(trays = trays2, pieceGenerator = nextGen)
       newState = this.copy(trays = trays2, pieceGenerator = nextGen)
     } yield (newState, newPiece)

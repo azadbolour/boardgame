@@ -297,13 +297,13 @@ export const mkGameEventHandler = function(gameService) {
       });
     },
 
-    handleSwapInternal: function (piece) {
+    handleSwapInternal: function (pc) {
       if (noGame()) { logNoGame(); return; }
-      let promise = _gameService.swap(_game.gameId, piece);
+      let promise = _gameService.swap(_game.gameId, pc);
       let processedPromise = promise.then(response => {
         if (response.ok) {
-          let newPiece = response.json;
-          _game = _game.replaceTrayPiece(piece.id, newPiece);
+          let {gameMiniState, piece} = response.json;
+          _game = _game.replaceTrayPiece(pc.id, piece);
           _status = OK;
         }
         else {
