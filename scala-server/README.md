@@ -2,8 +2,6 @@
 - Just work with dimension = 7 and tray-capacity = 5 to get
   to edge cases quickly.
 
-- Hit tile sack empty. takeN should get what is is the sack - no more.
-
 - Develop integration tests at the level of the handler.
   For all ending conditions.
 
@@ -16,8 +14,6 @@
 
 - Implement pass - swap takes list.
 
-- Test with small boards to reach end of game.
-
 - Report sack size or empty in UI.
 
 - UI check for noMorePlays and disable all plays. 
@@ -26,13 +22,15 @@
 
 - UI - make sure trays with less contents than capacity are handled properly.
 
-- Replacements for a play are the min of used pieces and sack length.
-
 - Write tests for scoring plays with cross scores.
 
 - Connect to real dictionary. Check with NL experts.
 
 ## To Do
+
+- For some tests, should suspend validity checking of a play.
+  Too hard to set up test otherwise.
+  Flag to not do validity checking for testing.
 
 - Harvest long-running games.
 

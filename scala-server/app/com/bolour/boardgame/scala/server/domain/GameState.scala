@@ -76,7 +76,7 @@ case class GameState(
     val succPasses = if (score > 0) 0 else numSuccessivePasses + 1
     val ind = playerIndex(playerType)
     for {
-      (nextGen, newPieces) <- pieceGenerator.takeN(usedPieces.length)
+      (nextGen, newPieces) <- pieceGenerator.takeAvailableTiles(usedPieces.length)
       newTrays = trays.updated(ind, trays(ind).replacePieces(usedPieces, newPieces))
       newScores = scores.updated(ind, scores(ind) + score)
       nextType = nextPlayerType(playerType)
@@ -210,7 +210,7 @@ object GameState {
       return Success((Tray(capacity, initPieces.take(capacity).toVector), pieceGen))
 
     for {
-      (nextGen, restPieces) <- pieceGen.takeN(capacity - initPieces.length)
+      (nextGen, restPieces) <- pieceGen.takeAvailableTiles(capacity - initPieces.length)
       pieces = initPieces ++ restPieces
     } yield (Tray(capacity, pieces.toVector), nextGen)
   }

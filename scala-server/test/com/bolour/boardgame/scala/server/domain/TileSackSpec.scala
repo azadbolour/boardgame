@@ -21,7 +21,7 @@ class TileSackSpec extends FlatSpec with Matchers {
     contents.length shouldBe Piece.maxDistribution
 
     for {
-      (RandomTileSack(initialContents, contents), pieces) <- sack.takeN(trayCapacity)
+      (RandomTileSack(initialContents, contents), pieces) <- sack.takeAvailableTiles(trayCapacity)
       _ = initialContents.length shouldBe Piece.maxDistribution
       _ = contents.length shouldBe Piece.maxDistribution - trayCapacity
       _ = pieces.length shouldBe trayCapacity
@@ -45,7 +45,7 @@ class TileSackSpec extends FlatSpec with Matchers {
     val sack = RandomTileSack(initialPieces)
 
     val result = for {
-      (RandomTileSack(initialContents, contents), pieces) <- sack.takeN(trayCapacity)
+      (RandomTileSack(initialContents, contents), pieces) <- sack.takeAvailableTiles(trayCapacity)
       pieceIds = (pieces map { p => p.id }).distinct
       _ = pieceIds.length shouldBe pieces.length
       contentIds = (contents map { p => p.id }).distinct

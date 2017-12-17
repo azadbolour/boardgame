@@ -13,7 +13,7 @@ import scala.util.{Success, Try}
 
 sealed abstract class TileSack {
 
-  import TileSack.takeAdd
+  import TileSack.takeOneIfAvailable
 
   def isEmpty: Boolean
   def isFull: Boolean
@@ -21,7 +21,7 @@ sealed abstract class TileSack {
   def take(): Try[(TileSack, Piece)]
   def give(piece: Piece): Try[(TileSack)]
 
-  def takeN(n: Int): Try[(TileSack, List[Piece])] = takeAdd(this, List(), n)
+  def takeAvailableTiles(max: Int): Try[(TileSack, List[Piece])] = takeOneIfAvailable(this, List(), max)
 
   def swapOne(piece: Piece): Try[(TileSack, Piece)] = {
     for {
@@ -38,12 +38,12 @@ sealed abstract class TileSack {
 // Ideally should be configurable in teh application.conf.
 object TileSack {
 
-  def takeAdd(sack: TileSack, pieces: List[Piece], n: Int): Try[(TileSack, List[Piece])] = {
-    if (n == 0)
+  def takeOneIfAvailable(sack: TileSack, pieces: List[Piece], n: Int): Try[(TileSack, List[Piece])] = {
+    if (n == 0 || sack.isEmpty)
       return Success((sack, pieces))
     for {
       (sack1, piece) <- sack.take()
-      (sack2, pieces) <- takeAdd(sack1, piece +: pieces, n - 1)
+      (sack2, pieces) <- takeOneIfAvailable(sack1, piece +: pieces, n - 1)
     } yield (sack2, pieces)
   }
 
