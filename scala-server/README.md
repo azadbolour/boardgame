@@ -56,57 +56,33 @@
 
 ## Known Issues
 
-- Game end rules are ignored - the user ends the game. 
+- No blank tiles.
 
-  The ending rules are:
+- No multiple swaps.
 
-    game ends when all letters have been drawn and
-    both players pass
+- No passes without swapping.
 
-    or when six consecutive non-board plays have been made
+- No parallel plays. 
 
-    at end sum up each player's remainig letter values
-    and subtract from that player's score
+  A parallel play is parallel to and adjacent to a given word with 
+  all crosswords existing in the dictionary. A parallel play does
+  not require an inner anchor point (an already existing tile within the
+  new word). Currently the program always expects an inner anchor point within 
+  the word.
 
-    if one player has no letters, the other player's
-    remaining sum is also added to the score of the 
-    player with no letters
+- No end of play score adjustments.
 
-    so we need a model of drawing letters without replacement
-    (except in exchanges)
+  At end sum up each player's remainig letter values and subtract from that
+  player's score
 
-    for initial simplicity we'll just code the 6 consecutive
-    non-board plays - or when 100 have been placed on the 
-    board - let us say (dimension * 2/3) squared tiles
+  If one player has no letters, the other player's remaining sum is also added
+  to the score of the player with no letters
 
-- No parallel plays. A parallel play is parallel to and adjacent to a 
-  a given word with all crosswords existing in the dictionary
-  in this case, no anchor is needed. We can ignore this initially
-  for machine plays. But it is for now also disalloed for user plays.
-
-- Only single tile replacements allowed. And no passes without exchanges.
-
-- Using random tile selection *with replacement*. Bag model requires random
-  tile selection without replacement (except for swap which replace one 
-  tile with another).
-
-- Game is ended by the user. Not following the normal rules for ending the game.
-  Rule for ending the game is part of refactoring to use bag of letters
-  without replacement.
+## Technical Debt
 
 - Minimal database interactions. Need to be able to save and restore
   the state of the game. Not all required tables exist. Test with 
   postgres and sqlite.
-
-- No blank tiles.
-
-- No checks for crosswise words yet.
-
-- Allow an existing word to be extended. 
-  Bug reported with Haskell.
-  Can't reproduce in Scala.
-
-## Technical Debt
 
 - API versioning - just include in URL.
 
