@@ -256,7 +256,7 @@ export const mkGameEventHandler = function(gameService) {
           return response;
         let gameMiniState = response.json;
         if (gameMiniState.noMorePlays) {
-          return convertResponse(response, {}); // TODO. handler.handleEndInternal.
+          return handler.handleEndInternal();
         }
         else {
           handler.handleMachinePlayInternal().then(response => {
@@ -264,7 +264,7 @@ export const mkGameEventHandler = function(gameService) {
               return response;
             let gameMiniState = response.json;
             if (gameMiniState.noMorePlays) {
-              return convertResponse(response, {}); // TODO. handler.handleEndInternal.
+              return handler.handleEndInternal();
             }
             else {
               return response;
@@ -283,13 +283,17 @@ export const mkGameEventHandler = function(gameService) {
       handler.handleSwapInternal(piece).then(response => {
         if (!response.ok)
           return response;
+        let gameMiniState = response.json;
+        if (gameMiniState.noMorePlays) {
+          return handler.handleEndInternal();
+        }
         else {
           handler.handleMachinePlayInternal().then(response => {
             if (!response.ok)
               return response;
             let gameMiniState = response.json;
             if (gameMiniState.noMorePlays) {
-              return convertResponse(response, {}); // TODO. handler.handleEndInternal.
+              return handler.handleEndInternal();
             }
             else {
               return response;
@@ -367,10 +371,10 @@ export const mkGameEventHandler = function(gameService) {
           let {gameMiniState, piece} = response.json;
           _game = _game.replaceTrayPiece(pc.id, piece);
           _status = OK;
+          emitChange(systemResponseType(response));
+          return convertResponse(response, gameMiniState);
         }
-        else {
-          killGame(errorText(response));
-        }
+        killGame(errorText(response));
         emitChange(systemResponseType(response));
         return(response);
       }).catch(reason => {

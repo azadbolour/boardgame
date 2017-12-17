@@ -6,18 +6,6 @@
 
 - Test with small boards to reach end of game.
 
-- Internal handlers will return data needed by the top-level handlers
-  in a promise. 
-
-  Then add endInternal and call it. Remove end button.
-
-- handleGameInternal - render game summary.
-  add miniState to aux game data??
-
-  After each call update the miniState.
-
-- If noMorePlays call end API and end game.
-
 - Report sack size or empty in UI.
 
 - UI check for noMorePlays and disable all plays. 
