@@ -17,6 +17,7 @@ sealed abstract class TileSack {
 
   def isEmpty: Boolean
   def isFull: Boolean
+  def length: Int
   def take(): Try[(TileSack, Piece)]
   def give(piece: Piece): Try[(TileSack)]
 
@@ -56,6 +57,7 @@ case class CyclicTileSack(valueList: String) extends TileSack {
 
   override def isEmpty: Boolean = false
   override def isFull: Boolean = false
+  override def length: Int = Int.MaxValue
 
   override def take(): Try[(TileSack, Piece)] = Try {
     val index: Int = (counter % cycleLength).toInt
@@ -78,8 +80,7 @@ case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece
 
   override def isEmpty: Boolean = contents.isEmpty
   def isFull: Boolean = contents.length == initialContents.length
-
-  def length: Int = contents.length
+  override def length: Int = contents.length
 
   def take(): Try[(RandomTileSack, Piece)] = Try {
     if (contents.isEmpty)

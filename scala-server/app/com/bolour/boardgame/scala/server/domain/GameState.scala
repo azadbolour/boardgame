@@ -39,7 +39,8 @@ case class GameState(
     */
   def noMorePlays: Boolean = passesMaxedOut || (isSackEmpty && (isUserTrayEmpty || isMachineTrayEmpty))
 
-  def miniState: GameMiniState = GameMiniState(lastPlayScore, scores, noMorePlays)
+  def miniState: GameMiniState =
+    GameMiniState(lastPlayScore, scores, pieceGenerator.length, noMorePlays)
 
   def stopInfo: StopInfo = StopInfo(numSuccessivePasses, MaxSuccessivePasses, isSackEmpty, isUserTrayEmpty, isMachineTrayEmpty)
 

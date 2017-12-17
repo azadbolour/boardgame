@@ -1,10 +1,23 @@
 
+- handleGameInternal - render game summary.
+  add miniState to aux game data??
 
-- Add GameSummaryResponse to end API. 
+  After each call update the miniState.
 
-- TODO. Reject plays after game has been stopped.
+  Ideally auxGameData should be immutable.
 
-- Swap API - use List. 
+  ConvertResponse in GameService goes to MiscUtil. The internal calls return a
+  converted response with the data needed by the outer layers.
+
+- UI. Return gameMiniState to handler.
+
+- If noMorePlays call end API and end game.
+
+- Report sack size or empty in UI.
+
+- UI check for noMorePlays and disable all plays. 
+  Report end of game.
+  And call game end to get summary and show summary.
 
 - UI - button for pass.
 
@@ -12,26 +25,22 @@
 
 - UI - make sure trays with less contents than capacity are handled properly.
 
-- New exception for num swapped > sack size. TODO.
-  For now just return the pieces.
-
 - Replacements for a play are the min of used pieces and sack length.
-
-- Write tests for RandomTileSack.
 
 - Write tests for scoring plays with cross scores.
 
 - Connect to real dictionary. Check with NL experts.
 
+## To Do
+
+- Server. Reject plays after game has been stopped.
+
+- New exception for num swapped > sack size. 
+
 - Change various logging calls to debug and set up a run-debug to
   log at debug level.
 
-- Test with a small sack size - 1 instance of each letter.
-  Reproduce the problem and then check console output.
-
-- TODO. Comment out console log of game state in UI once debugged.
-
-## To Do
+- Swap API - use List. 
 
 - Integration test. First play is a machine play and it is a pass. 
   Both client and server should do the right thing. Client has
@@ -72,6 +81,8 @@
 
 - More generic code based on axis - just call generic code on rows or columns 
   depending on axis.
+
+- Change Haskell to conform to new API.
 
 ## Known Issues
 

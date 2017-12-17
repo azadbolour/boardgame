@@ -7,4 +7,9 @@ package com.bolour.boardgame.scala.common.domain
   * @param scores The total scores so far.
   * @param noMorePlays Whether the conditions for stopping play have been reached.
   */
-case class GameMiniState(lastPlayScore: Int, scores: List[Int], noMorePlays: Boolean)
+case class GameMiniState(
+  lastPlayScore: Int,
+  scores: List[Int],
+  numSackTiles: Int,
+  noMorePlays: Boolean
+)
