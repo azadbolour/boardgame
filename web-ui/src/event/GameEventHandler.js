@@ -284,6 +284,7 @@ export const mkGameEventHandler = function(gameService) {
         if (!response.ok)
           return response;
         let gameMiniState = response.json;
+        // console.log(`swap - mini state: ${stringify(gameMiniState)}`);
         if (gameMiniState.noMorePlays) {
           return handler.handleEndInternal();
         }

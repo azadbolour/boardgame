@@ -159,6 +159,7 @@ export const mkGame = function(gameParams, gameId, board, tray, scoreMultipliers
       let machineScore = _score[MACHINE_INDEX] + endOfPlayScores[MACHINE_INDEX];
       let $score = [userScore, machineScore];
       let $game = mkGame(_gameParams, _gameId, _board, _tray, _scoreMultipliers, $score);
+      return $game;
     },
 
     commitMachineMoves: function(playScore, moveGridPieces) {

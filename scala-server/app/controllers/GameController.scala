@@ -110,9 +110,9 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
       case Failure(ex) =>
         logger.error("commitPlay failure", ex)
         unprocessable(ex)
-      case Success((minState, replacementPieces)) =>
-        logger.info(s"commitPlay success - replacements: ${replacementPieces}")
-        val response = CommitPlayResponse(minState, replacementPieces)
+      case Success((miniState, replacementPieces)) =>
+        logger.info(s"commitPlay success - replacements: ${replacementPieces}, mini state: ${miniState}")
+        val response = CommitPlayResponse(miniState, replacementPieces)
         Ok(Json.toJson(response))
     }
   }
@@ -126,7 +126,7 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
         logger.info("machinePlay failure", ex)
         unprocessable(ex)
       case Success((miniState, playedPieces)) =>
-        logger.info(s"machinePlay success - playedPieces: ${playedPieces}")
+        logger.info(s"machinePlay success - playedPieces: ${playedPieces}, mini state: ${miniState}")
         val response = MachinePlayResponse(miniState, playedPieces)
         Ok(Json.toJson(response))
     }
@@ -146,7 +146,7 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
         logger.error("swapPiece failure", ex)
         unprocessable(ex)
       case Success((miniState, newPiece)) =>
-        logger.info(s"swapPiece success - new piece: ${newPiece}")
+        logger.info(s"swapPiece success - new piece: ${newPiece}, mini state: ${miniState}")
         val response = SwapPieceResponse(miniState, newPiece)
         Ok(Json.toJson(response))
     }
@@ -166,7 +166,6 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
     }
 
   }
-
 
   private def processRequest[DTO](maybeValid: JsResult[DTO], validProcessor: DTO => Result) =
     maybeValid.fold(badRequest, validProcessor)

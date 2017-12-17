@@ -1,49 +1,25 @@
 
-- Just work with dimension = 7 and tray-capacity = 5 to get
-  to edge cases quickly.
+## To Do
 
 - Develop integration tests at the level of the handler.
   For all ending conditions.
-
-- Machine play is not checking crosswords. Or does not seem to.
-
-- Report sack size or empty in UI.
-
-- UI check for noMorePlays and disable all plays. 
-
-- UI - if sack is empty, disallow swap.
-
-- UI - make sure trays with less contents than capacity are handled properly.
 
 - Write tests for scoring plays with cross scores.
 
 - Connect to real dictionary. Check with NL experts.
 
-## To Do
-
 - Document no pass for now. To pass just swap one piece.
 
 - Implement swap taking a possibly empty list of pieces.
   Needs UI swap bin to be a list, plus an explicit pass button.
-
-- For some tests, should suspend validity checking of a play.
-  Too hard to set up test otherwise.
-  Flag to not do validity checking for testing.
-
-- Harvest long-running games.
-
-- Server. Reject plays after game has been stopped.
+  UI - if sack is empty, disallow swap.
 
 - New exception for num swapped > sack size. 
 
+- Server. Reject plays after game has been stopped.
+
 - Change various logging calls to debug and set up a run-debug to
   log at debug level.
-
-- Swap API - use List. 
-
-- Integration test. First play is a machine play and it is a pass. 
-  Both client and server should do the right thing. Client has
-  to make sure user move is centered.
 
 - Test. Two clicks on start button e.g., start in rapid succession??
   On any button? Should be disabled immediately.
@@ -55,11 +31,6 @@
 
 - Clean up tests in web-ui and scala.
 
-- Implement random w/o replacement piece generator.
-  numLetterInBag(ch) = min(1, round(frequency(ch) * dim * dim / (15 * 15))
-
-  exchanges go back in the bag
-
 - Matching algorithm needs to be based on the best guess as to 
   the real score of a play. Not needed for first release.
 
@@ -70,7 +41,7 @@
 
 - Compute real score in Haskell.
 
-- Document migraion and seeding.
+- Document migration and seeding.
 
 - Fully implement GameServiceImpl.
 

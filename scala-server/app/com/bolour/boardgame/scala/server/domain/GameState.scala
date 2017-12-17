@@ -87,8 +87,11 @@ case class GameState(
   def swapPiece(piece: Piece, playerType: PlayerType): Try[(GameState, Piece)] = {
     // Cannot swap if no more pieces in the sack, so for now just return the same piece.
     // This is our way of doing a pass for now.
-    if (pieceGenerator.isEmpty)
-      return Success((this, piece))
+    if (pieceGenerator.isEmpty) {
+      val succPasses = numSuccessivePasses + 1
+      val newState = this.copy(numSuccessivePasses = succPasses)
+      return Success((newState, piece))
+    }
 
     val trayIndex = PlayerType.playerIndex(playerType)
     val tray = trays(trayIndex)
