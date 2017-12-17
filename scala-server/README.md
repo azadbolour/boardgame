@@ -1,12 +1,11 @@
 
-- Return the real data to the handler.
+- Internal handlers will return data needed by the top-level handlers
+  in a promise.
 
 - handleGameInternal - render game summary.
   add miniState to aux game data??
 
   After each call update the miniState.
-
-- UI. Return gameMiniState to handler.
 
 - If noMorePlays call end API and end game.
 

@@ -66,7 +66,7 @@ test('commit play', done => {
 
     return gameService.commitUserPlay(game.gameId, userPlayPieces);
   }).then(myResponse => {
-    let {score, replacementPieces} = myResponse.json;
+    let {gameMiniState, replacementPieces} = myResponse.json;
     expect(replacementPieces.length).toBe(3);
     done();
   }).catch(error => {
@@ -88,16 +88,16 @@ test('machine play', done => {
     return gameService.commitUserPlay(game.gameId, userPlayPieces);
   }).then(response => {
     console.log(`commit response: ${stringify(response.json)}`);
-    let {playScore, replacementPieces} = response.json;
+    let {gameMiniState, replacementPieces} = response.json;
     expect(replacementPieces.length).toBe(3);
-    expect(playScore).toBeGreaterThan(0);
+    expect(gameMiniState.lastPlayScore).toBeGreaterThan(0);
     return gameService.getMachinePlay(game.gameId);
   }).
   then(response => {
-    let {playScore, playedPieces} = response.json;
+    let {gameMiniState, playedPieces} = response.json;
     let moves = PlayPiece.movedGridPieces(playedPieces);
     expect(moves.length).toBeGreaterThan(0);
-    expect(playScore).toBeGreaterThan(0);
+    expect(gameMiniState.lastPlayScore).toBeGreaterThan(0);
     done();
   }).
   catch(error => {

@@ -201,8 +201,8 @@ export const mkGameEventHandler = function(gameService) {
       let promise = _gameService.commitUserPlay(_game.gameId, committedPlayPieces);
       let processedPromise = promise.then(response => {
         if (response.ok) {
-          let {playScore, replacementPieces} = response.json;
-          _game = _game.commitUserMoves(playScore, replacementPieces);
+          let {gameMiniState, replacementPieces} = response.json;
+          _game = _game.commitUserMoves(gameMiniState.lastPlayScore, replacementPieces);
           _status = OK;
           _auxGameData.pushWordPlayed(playPiecesWord(committedPlayPieces), "You"); // TODO. Use player name.
         }
@@ -229,9 +229,9 @@ export const mkGameEventHandler = function(gameService) {
       let promise = _gameService.getMachinePlay(_game.gameId);
       let processedPromise = promise.then(response => {
         if (response.ok) {
-          let {playScore, playedPieces} = response.json;
+          let {gameMiniState, playedPieces} = response.json;
           let movedGridPieces = PlayPiece.movedGridPieces(playedPieces);
-          _game = _game.commitMachineMoves(playScore, movedGridPieces);
+          _game = _game.commitMachineMoves(gameMiniState.lastPlayScore, movedGridPieces);
           _status = movedGridPieces.length > 0 ? OK : "bot took a pass";
           _auxGameData.pushWordPlayed(playPiecesWord(playedPieces), "Bot"); // TODO. Constant.
         }

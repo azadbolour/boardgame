@@ -63,7 +63,12 @@ class GameService {
       }
       let {gameMiniState, replacementPieces} = dtoResponse.json;
       let replacementPiecesObjects = replacementPieces.map(PieceConverter.fromJson);
-      let response = convertResponse(dtoResponse, {playScore: gameMiniState.lastPlayScore, replacementPieces: replacementPiecesObjects});
+      let result = {
+        gameMiniState: gameMiniState,
+        replacementPieces: replacementPiecesObjects
+      };
+
+      let response = convertResponse(dtoResponse, result);
       return response;
     });
   }
@@ -77,7 +82,11 @@ class GameService {
       let {gameMiniState, playedPieces} = dtoResponse.json;
       // let play = PlayConverter.fromJson(playedPieces);
       let playPiecesObjects = playedPieces.map(playPiece => PlayPieceConverter.fromJson(playPiece));
-      let response = convertResponse(dtoResponse, {playScore: gameMiniState.lastPlayScore, playedPieces: playPiecesObjects});
+      let result = {
+        gameMiniState: gameMiniState,
+        playedPieces: playPiecesObjects
+      };
+      let response = convertResponse(dtoResponse, result);
       return response;
     });
   }

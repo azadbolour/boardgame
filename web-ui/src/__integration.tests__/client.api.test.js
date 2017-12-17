@@ -46,19 +46,19 @@ test('start game and make user and machine plays', () => {
     return gameService.commitUserPlay(game.gameId, playPieces);
   }).
   then(response => {
-    let {playScore, replacementPieces} = response.json;
+    let {gameMiniState, replacementPieces} = response.json;
     expect(replacementPieces.length).toBe(3);
-    expect(playScore).toBeGreaterThan(0);
+    expect(gameMiniState.lastPlayScore).toBeGreaterThan(0);
     return gameService.getMachinePlay(game.gameId);
     // TODO. Add replacement pieces to the tray.
     // game.clearPlay(); // TODO. Move this before return.
   }).then(response => {
     console.log(`machine play response: ${stringify(response.json)}`);
-    let {playScore, playedPieces} = response.json;
+    let {gameMiniState, playedPieces} = response.json;
     console.log(`machine play: ${stringify(playedPieces)}`);
     let moves = PlayPiece.movedGridPieces(playedPieces);
     expect(moves.length).toBeGreaterThan(1);
-    expect(playScore).toBeGreaterThan(0);
+    expect(gameMiniState.lastPlayScore).toBeGreaterThan(0);
     return gameService.end(game.gameId);
   }).then(response => {
     let unitResponse = response.json;
