@@ -5,14 +5,7 @@
 - Develop integration tests at the level of the handler.
   For all ending conditions.
 
-- UI - button for pass.
-
 - Machine play is not checking crosswords. Or does not seem to.
-
-- Game component - add pass functionality. 
-  Change all END to PASS.
-
-- Implement pass - swap takes list.
 
 - Report sack size or empty in UI.
 
@@ -27,6 +20,11 @@
 - Connect to real dictionary. Check with NL experts.
 
 ## To Do
+
+- Document no pass for now. To pass just swap one piece.
+
+- Implement swap taking a possibly empty list of pieces.
+  Needs UI swap bin to be a list, plus an explicit pass button.
 
 - For some tests, should suspend validity checking of a play.
   Too hard to set up test otherwise.
