@@ -15,11 +15,7 @@
 
   Then just use the logic from Haskell.
 
-- Passes should be shown in the running list as just -- 
-  rather than blank.
-
 - When first play is a machine play and it is a pass,
   both client and server should do the right thing. Client has
   to make sure user move is centered.
-
 

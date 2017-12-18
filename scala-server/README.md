@@ -38,7 +38,8 @@ see its meaning (or a link to search the web for it).
 
 - No multiple swaps.
 
-- No passes without swapping.
+- No passes without swapping. At the end of the game when you are forced to
+  pass, just swap a letter - the same letter will be returned.
 
 - No parallel plays. 
 
@@ -54,22 +55,8 @@ see its meaning (or a link to search the web for it).
 
 ## To Do
 
-- Remove long-running games.
-
-- Clean up and use Moby's: mwords/354984si.ngl 
-  Remove words with no-alphabetic characters.
-  Credit Moby.  http://icon.shef.ac.uk/Moby/
-
-  Compare with /usr/share/dict/words on Linux.
-
 - Develop integration tests at the level of the handler.
   For all ending conditions.
-
-- Write tests for scoring plays with cross scores.
-
-- Connect to real dictionary. Check with NL experts.
-
-- Document no pass for now. To pass just swap one piece.
 
 - Implement swap taking a possibly empty list of pieces.
   Needs UI swap bin to be a list, plus an explicit pass button.
@@ -104,9 +91,6 @@ see its meaning (or a link to search the web for it).
 - Fully implement GameServiceImpl.
 
 - Do we have to close a db in slick?
-
-- More generic code based on axis - just call generic code on rows or columns 
-  depending on axis.
 
 - Change Haskell to conform to new API.
 
@@ -164,32 +148,6 @@ see its meaning (or a link to search the web for it).
   it for simplicity.
 
 - Should the controller call on services asynchronously? 
-
-- https://github.com/adambom/dictionary. It is 1913 Webster Unabridged. 
-  Does not have transistor, software. Abandoned it. Although we can still use it
-  for the machine. It has a simple json list of word + meaning.
-
-  Other resources are also based on the 1913. So for machine plays that might be
-  good enough.
-
-  Best to ask Natural Language experts.
-
-- Linux dictionary:
-
-    http://www.dict.org/bin/Dict - you can send a post request to this
-      I guess you can start by just using this. 
-      You can run your own server if the game becomes popular.
-      Just view the source for this and use an http client to get it.
-
-    http://www.dict.org/links.html
-
-      Has links to client server software.
-
-    http://www.informatik.uni-leipzig.de/~duc/Java/JDictd/
-      provides an http server - it is old though 2004
-    https://askubuntu.com/questions/650264/best-offline-dictionary-for-14-04-lts
-    http://manpages.ubuntu.com/manpages/zesty/man8/dictd.8.html
-    https://github.com/rocio/dictd/blob/master/src/test/java/com/dictionary/service/DictdTest.java
 
 - Load balancing and monitoring crashes and restarting.
 
