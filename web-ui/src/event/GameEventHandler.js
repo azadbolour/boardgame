@@ -372,6 +372,7 @@ export const mkGameEventHandler = function(gameService) {
           let {gameMiniState, piece} = response.json;
           _game = _game.replaceTrayPiece(pc.id, piece);
           _status = OK;
+          _auxGameData.pushWordPlayed("", "You");
           emitChange(systemResponseType(response));
           return convertResponse(response, gameMiniState);
         }

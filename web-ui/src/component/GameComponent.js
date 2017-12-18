@@ -139,12 +139,13 @@ const GameComponent = React.createClass({
     let words = this.props.auxGameData.wordsPlayed;
     let l = words.length
     let word = words[index].word;
+    let wordRep = word.length > 0 ? word : '-----';
     let color = index === l - 1 ? 'FireBrick' : 'Chocolate';
     return <div key={key}
                 style={{
                   color: color,
                   padding: '3px'
-                  }}>{word}</div>;
+                  }}>{wordRep}</div>;
   },
 
   scrollToLastWord: function() {

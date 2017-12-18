@@ -1,6 +1,6 @@
 
-- Scoring for the machine seems to go too fast.
-  Do a console log and backend log to see what is going on.
+
+- Check that play points are distinct and consecutive.
 
 - Harvest long-running tests.
 

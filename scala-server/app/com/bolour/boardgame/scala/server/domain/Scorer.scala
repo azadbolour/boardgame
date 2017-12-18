@@ -13,9 +13,12 @@ class Scorer(val dimension: Int, trayCapacity: Int) {
 
   def scorePlay(playHelper: PlayHelper, playPieces: List[PlayPiece]): Int = {
     val crossingPlays = playHelper.crossingPlays(playPieces)
-    val crossScoreList = crossingPlays map { cp => scoreWord(cp)}
+    logger.debug(s"crossing plays: ${crossingPlays}")
+    val crossScoreList = crossingPlays filter { cp => cp.length > 1 } map { cp => scoreWord(cp)}
+    logger.debug(s"crossing score list: ${crossScoreList}")
     val crossWordsScore = crossScoreList.sum
     val wordScore = scoreWord(playPieces map { pp => (pp.piece.value, pp.point, pp.moved) })
+    logger.debug(s"principle word score: ${wordScore}")
     wordScore + crossWordsScore
   }
 
@@ -35,7 +38,8 @@ class Scorer(val dimension: Int, trayCapacity: Int) {
     }).sum
 
     var score = Math.max(1, aggregateWordMultiplier) * baseScore
-    if (playInfo.length == trayCapacity)
+    val numMoves = playInfo.count(_._3)
+    if (numMoves == trayCapacity)
       score += Scorer.Bonus
     score
   }
