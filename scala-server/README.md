@@ -1,5 +1,66 @@
 
+# Scrabble-Like Board Game
+
+A word game close to scrabble. Not all the scrabble rules are implemented. See
+below for known differences.
+
+Drag and drop tiles from the tray to the board to form words, and then click
+_Commit Play_ to submit your word. 
+
+You can also drag and drop a tile onto the swap bin, indicating that you are
+taking a pass and exchanging one tile. Exactly one tile can be exchanged in a
+pass at this time.
+
+After each play or pass, the machine will automatically make its word play.
+
+Please note that although the program's word list is quite large, it is missing
+some common English words, which if you happen to play will be rejected. 
+This should occur very rarely, however. 
+
+Note also that that plurals and verb conjugations do not generally appear in the 
+the program's dictionary and will often be rejected unless of course they are 
+menaingful in their own right.
+
+Because the word list is large, you will likely see many strange words
+played by the machine. You may wish to install a dictionary browser extension
+to be able to see the meaning of such words. 
+
+For example, using Chrome, install the Google Dictionary extension:
+
+https://chrome.google.com/webstore/detail/google-dictionary-by-goog/mgijmajocgfcbeboacabfgobmjgjcoja?hl=en
+
+Then simply click on a word in the game's list view of played words to 
+see its meaning (or a link to search the web for it). 
+
+## Known Issues
+
+- No blank tiles.
+
+- No multiple swaps.
+
+- No passes without swapping.
+
+- No parallel plays. 
+
+  A parallel play is a play alongside of a given word which does not
+  have an inner anchor point (an already existing connecting tile within the
+  played word). Currently the program always expects an inner anchor.
+
+- No end of play score adjustments.
+
+  At end sum up each player's remainig letter values and subtract from that
+  player's score. If one player has no letters, the other player's remaining sum
+  is also added to the score of the player with no letters
+
 ## To Do
+
+- Remove long-running games.
+
+- Clean up and use Moby's: mwords/354984si.ngl 
+  Remove words with no-alphabetic characters.
+  Credit Moby.  http://icon.shef.ac.uk/Moby/
+
+  Compare with /usr/share/dict/words on Linux.
 
 - Develop integration tests at the level of the handler.
   For all ending conditions.
@@ -18,14 +79,11 @@
 
 - Server. Reject plays after game has been stopped.
 
-- Change various logging calls to debug and set up a run-debug to
+- Change logging calls to debug and set up a run-debug to
   log at debug level.
 
 - Test. Two clicks on start button e.g., start in rapid succession??
   On any button? Should be disabled immediately.
-
-- Document. Test assertion exceptions are converted to Failure 
-  in Try for blocks. So they do not cause test failure automatically.
 
 - Implement validations everywhere. First on API boundary.
 
@@ -47,36 +105,10 @@
 
 - Do we have to close a db in slick?
 
-- Add tests similar to the ones in the sample, then remove the sample.
-
 - More generic code based on axis - just call generic code on rows or columns 
   depending on axis.
 
 - Change Haskell to conform to new API.
-
-## Known Issues
-
-- No blank tiles.
-
-- No multiple swaps.
-
-- No passes without swapping.
-
-- No parallel plays. 
-
-  A parallel play is parallel to and adjacent to a given word with 
-  all crosswords existing in the dictionary. A parallel play does
-  not require an inner anchor point (an already existing tile within the
-  new word). Currently the program always expects an inner anchor point within 
-  the word.
-
-- No end of play score adjustments.
-
-  At end sum up each player's remainig letter values and subtract from that
-  player's score
-
-  If one player has no letters, the other player's remaining sum is also added
-  to the score of the player with no letters
 
 ## Technical Debt
 
@@ -99,8 +131,6 @@
 - Uniqueness of player name. Need an index for the database.
 
 - Need to standardize errors. Including validation of request. Version 2.
-
-- Removing abandoned games. Does it make sense to use Akka?
 
 - Database migration. 
 

@@ -1,8 +1,22 @@
 
-- Passes should be shown in the running list as just -- 
-  rather than blank.
+- Scoring for the machine seems to go too fast.
+  Do a console log and backend log to see what is going on.
 
 - Harvest long-running tests.
+
+      java.util.ConcurrentHashMap
+
+      ScheduledThreadPoolExecutor
+      https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ScheduledThreadPoolExecutor.html
+
+      ScheduledThreadPoolExecutor(int corePoolSize, ThreadFactory threadFactory, RejectedExecutionHandler handler)
+
+        ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)
+
+  Then just use the logic from Haskell.
+
+- Passes should be shown in the running list as just -- 
+  rather than blank.
 
 - When first play is a machine play and it is a pass,
   both client and server should do the right thing. Client has
