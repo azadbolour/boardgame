@@ -40,6 +40,8 @@ trait GameService {
 
   def findGameById(gameId: ID): Try[Option[Game]]
 
+  def timeoutLongRunningGames(): Try[Unit]
+
 }
 
 object GameService {
@@ -47,6 +49,7 @@ object GameService {
   def confPath(pathInService: String) =  s"${serviceConfigPrefix}.${pathInService}"
 
   val maxActiveGamesConfigPath = confPath("maxActiveGames")
+  val maxGameMinutesConfigPath = confPath("maxGameMinutes")
   val languageCodesConfigPath = confPath("languageCodes")
 
 }

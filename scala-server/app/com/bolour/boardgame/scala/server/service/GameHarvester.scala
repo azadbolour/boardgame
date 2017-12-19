@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
-class GameHarvester @Inject() (actorSystem: ActorSystem)(implicit executionContext: ExecutionContext) {
+class GameHarvester @Inject() (actorSystem: ActorSystem, service: GameService)(implicit executionContext: ExecutionContext) {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -16,7 +16,7 @@ class GameHarvester @Inject() (actorSystem: ActorSystem)(implicit executionConte
 
   // actorSystem.scheduler.schedule(initialDelay = 10.seconds, interval = 1.minute) {
   actorSystem.scheduler.schedule(initialDelay = 5.seconds, interval = 1.minute) {
-    logger.info("harvesting not yet implemented")
+    service.timeoutLongRunningGames()
   }
 
 }

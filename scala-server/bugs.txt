@@ -1,14 +1,10 @@
 
+- Coded harvesting of long-running games. Need to test.
+
 - Check that play points are distinct and consecutive.
 
-- Harvest long-running tests.
-
-      use java.util.ConcurrentHashMap
-
-      service.timeoutLongRunningGames: Unit
-
-        filter aged games
-        delete them from the cache
+- Check gameCache overflow. Use cacheGameState instead of put and 
+  throw exception if too big.
 
 - When first play is a machine play and it is a pass,
   both client and server should do the right thing. Client has

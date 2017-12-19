@@ -6,6 +6,7 @@
 package com.bolour.boardgame.scala.server.service
 
 
+import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
@@ -46,6 +47,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   val dictionaryDirConfigPath = confPath("dictionaryDir")
 
   val maxActiveGames = config.getInt(maxActiveGamesConfigPath)
+  val maxGameMinutes = config.getInt(maxGameMinutesConfigPath)
   val dictionaryDir = config.getString(dictionaryDirConfigPath)
 
   readConfigStringList(languageCodesConfigPath) match {
@@ -187,7 +189,6 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       case Nil =>
         for {
           newState <- exchangeMachinePiece(state)
-          // _ = gameCache +=((gameId, newState))
           _ = gameCache.put(gameId, newState)
         } yield (newState.miniState, Nil)
       case playPieces =>
@@ -195,7 +196,6 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
           (newState, refills) <- state.addPlay(MachinePlayer, playPieces)
           // TODO. How to eliminate dummy values entirely in for.
           _ <- savePlay(newState, playPieces, refills)
-          // _ = gameCache += ((gameId, newState))
           _ = gameCache.put(gameId, newState)
         } yield (newState.miniState, playPieces)
     }
@@ -244,14 +244,34 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   // TODO. Get the correct piece generator for the game. For now using cyclic.
   override def findGameById(gameId: ID): Try[Option[Game]] =
     gameDao.findGameById(gameId)
+
+  def timeoutLongRunningGames(): Try[Unit] = Try {
+    import scala.collection.JavaConverters._
+    logger.info("harvesting not yet implemented")
+    def aged(gameId: String): Boolean = {
+      val maybeState = Option(gameCache.get(gameId))
+      maybeState match {
+        case None => false
+        case Some(state) =>
+          val startTime = state.game.startTime
+          val now = Instant.now()
+          val seconds = now.getEpochSecond - startTime.getEpochSecond
+          seconds > maxGameMinutes
+      }
+    }
+    val gameIdList = gameCache.keys().asScala.toList
+    val longRunningGameIdList = gameIdList map { aged }
+    longRunningGameIdList.foreach(gameCache.remove(_))
+  }
 }
 
 object GameServiceImpl {
   val gameCache: ConcurrentHashMap[String, GameState] = new ConcurrentHashMap()
   val dictionaryCache: MutableMap[String, WordDictionary] = MutableMap()
 
-  def cacheGameState(gameId: String, gameState: GameState): Unit = {
-    // TODO. Check maxActiveGames.
+  def cacheGameState(gameId: String, gameState: GameState): Try[Unit] = Try {
+    // TODO. Check maxActiveGames. Fail if too many.
+    // TODO. Use this method instead of gameCache.put.
     gameCache.put(gameId, gameState)
   }
 }
