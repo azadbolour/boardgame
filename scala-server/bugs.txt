@@ -1,19 +1,14 @@
 
-
 - Check that play points are distinct and consecutive.
 
 - Harvest long-running tests.
 
-      java.util.ConcurrentHashMap
+      use java.util.ConcurrentHashMap
 
-      ScheduledThreadPoolExecutor
-      https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ScheduledThreadPoolExecutor.html
+      service.timeoutLongRunningGames: Unit
 
-      ScheduledThreadPoolExecutor(int corePoolSize, ThreadFactory threadFactory, RejectedExecutionHandler handler)
-
-        ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)
-
-  Then just use the logic from Haskell.
+        filter aged games
+        delete them from the cache
 
 - When first play is a machine play and it is a pass,
   both client and server should do the right thing. Client has

@@ -6,6 +6,7 @@
 package com.bolour.boardgame.scala.server.service
 
 
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 import scala.collection.mutable.{Map => MutableMap}
@@ -126,7 +127,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   }
 
   override def commitPlay(gameId: String, playPieces: List[PlayPiece]): Try[(GameMiniState, List[Piece])] = {
-    val os = gameCache.get(gameId)
+    val os = Option(gameCache.get(gameId))
     if (os.isEmpty)
       return Failure(MissingGameException(gameId))
 
@@ -151,7 +152,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       (newState, refills) <- state.addPlay(UserPlayer, playPieces)
       // TODO. How to eliminate dummy values entirely in for.
       _ <- savePlay(newState, playPieces, refills)
-      _ = gameCache += ((gameId, newState))
+      // _ = gameCache += ((gameId, newState))
+      _ = gameCache.put(gameId, newState)
     } yield (newState.miniState, refills)
   }
 
@@ -161,7 +163,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   }
 
   override def machinePlay(gameId: String): Try[(GameMiniState, List[PlayPiece])] = {
-    val os = gameCache.get(gameId)
+    val os = Option(gameCache.get(gameId))
     if (os.isEmpty)
       return Failure(MissingGameException(gameId))
 
@@ -185,14 +187,16 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       case Nil =>
         for {
           newState <- exchangeMachinePiece(state)
-          _ = gameCache +=((gameId, newState))
+          // _ = gameCache +=((gameId, newState))
+          _ = gameCache.put(gameId, newState)
         } yield (newState.miniState, Nil)
       case playPieces =>
         for {
           (newState, refills) <- state.addPlay(MachinePlayer, playPieces)
           // TODO. How to eliminate dummy values entirely in for.
           _ <- savePlay(newState, playPieces, refills)
-          _ = gameCache += ((gameId, newState))
+          // _ = gameCache += ((gameId, newState))
+          _ = gameCache.put(gameId, newState)
         } yield (newState.miniState, playPieces)
     }
   }
@@ -211,7 +215,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     Success(()) // TODO. Implement saveSwap.
 
   override def swapPiece(gameId: String, piece: Piece): Try[(GameMiniState, Piece)] = {
-    val os = gameCache.get(gameId)
+    val os = Option(gameCache.get(gameId))
     os match {
       case None => Failure(MissingGameException(gameId))
       case Some(state) =>
@@ -224,7 +228,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   }
 
   override def endGame(gameId: String): Try[GameSummary] = {
-    val maybeState = gameCache.get(gameId)
+    val maybeState = Option(gameCache.get(gameId))
     maybeState match {
       case None => Failure(MissingGameException(gameId))
       case Some(state) => {
@@ -243,6 +247,11 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 }
 
 object GameServiceImpl {
-  val gameCache: MutableMap[String, GameState] = MutableMap()
+  val gameCache: ConcurrentHashMap[String, GameState] = new ConcurrentHashMap()
   val dictionaryCache: MutableMap[String, WordDictionary] = MutableMap()
+
+  def cacheGameState(gameId: String, gameState: GameState): Unit = {
+    // TODO. Check maxActiveGames.
+    gameCache.put(gameId, gameState)
+  }
 }

@@ -478,6 +478,10 @@ Global settings should be placed in /usr/local/etc/sbtopts
 
 ## Play
 
+- To create timer tasks see:
+
+    https://www.playframework.com/documentation/2.6.x/ScheduledTasks
+
 - Created a play application from intellij.
 
 - Complained about sbt build disabled.
