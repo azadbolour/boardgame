@@ -16,7 +16,7 @@ object GameExceptions {
   }
 
   case class MissingGameException(gameId: String) extends GameException() {
-    override def getMessage() = s"game does not exist for id: ${gameId}"
+    override def getMessage() = s"unable to find game - game has likely timed out: ${gameId}"
   }
 
   case class MissingPlayerException(playerName: String) extends GameException {
@@ -41,6 +41,10 @@ object GameExceptions {
 
   case class MissingDictionaryException(languageCode: String, dictionaryDir: String, cause: Throwable) extends GameException(cause) {
     override def getMessage: String = s"unable to read dictionary for language code: ${languageCode} from dictionary directory ${dictionaryDir}${causeMessage}"
+  }
+
+  case class MalformedPlayException(condition: String) extends GameException {
+    override def getMessage: String = s"malformed play - ${condition}"
   }
 
   case class InternalGameException(message: String, cause: Throwable) extends GameException(cause) {

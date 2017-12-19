@@ -150,11 +150,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       _ <- state.checkCrossWords(playPieces, dictionary)
-      // score = state.computePlayScore(playPieces)
       (newState, refills) <- state.addPlay(UserPlayer, playPieces)
-      // TODO. How to eliminate dummy values entirely in for.
       _ <- savePlay(newState, playPieces, refills)
-      // _ = gameCache += ((gameId, newState))
       _ = gameCache.put(gameId, newState)
     } yield (newState.miniState, refills)
   }
@@ -247,7 +244,6 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
   def timeoutLongRunningGames(): Try[Unit] = Try {
     import scala.collection.JavaConverters._
-    logger.info("harvesting not yet implemented")
     def aged(gameId: String): Boolean = {
       val maybeState = Option(gameCache.get(gameId))
       maybeState match {
@@ -256,11 +252,12 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
           val startTime = state.game.startTime
           val now = Instant.now()
           val seconds = now.getEpochSecond - startTime.getEpochSecond
-          seconds > maxGameMinutes
+          seconds > (maxGameMinutes * 60)
       }
     }
     val gameIdList = gameCache.keys().asScala.toList
-    val longRunningGameIdList = gameIdList map { aged }
+    val longRunningGameIdList = gameIdList filter { aged }
+    // logger.info(s"games running more than ${maxGameMinutes}: ${longRunningGameIdList}")
     longRunningGameIdList.foreach(gameCache.remove(_))
   }
 }
@@ -270,8 +267,6 @@ object GameServiceImpl {
   val dictionaryCache: MutableMap[String, WordDictionary] = MutableMap()
 
   def cacheGameState(gameId: String, gameState: GameState): Try[Unit] = Try {
-    // TODO. Check maxActiveGames. Fail if too many.
-    // TODO. Use this method instead of gameCache.put.
     gameCache.put(gameId, gameState)
   }
 }

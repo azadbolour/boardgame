@@ -352,6 +352,11 @@
 
 - Default configuration: reference.conf. 
 
+- Can dummy returns be eliminated in a for comprehension?
+
+      _ <- savePlay(newState, playPieces, refills)
+      _ = gameCache.put(gameId, newState)
+
 ## Scalatest
 
 - http://doc.scalatest.org/3.0.0/index.html#org.scalatest.FlatSpec

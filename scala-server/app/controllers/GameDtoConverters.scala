@@ -22,29 +22,32 @@ object GameDtoConverters {
   def fromPlayerDto(dto: PlayerDto): Player = Player(dto.name)
 
   def toMissingPieceErrorDto(ex: MissingPieceException) =
-    MissingPieceErrorDto("MissingPieceError", ex.pieceId)
+    MissingPieceErrorDto("MissingPieceError", ex.getMessage, ex.pieceId)
 
   def toMissingGameErrorDto(ex: MissingGameException) =
-    MissingPieceErrorDto("MissingGameError", ex.gameId)
+    MissingGameErrorDto("MissingGameError", ex.getMessage, ex.gameId)
 
   def toMissingPlayerErrorDto(ex: MissingPlayerException) =
-    MissingPlayerErrorDto("MissingPlayerError", ex.playerName)
+    MissingPlayerErrorDto("MissingPlayerError", ex.getMessage, ex.playerName)
 
   def toSystemOverloadedErrorDto(ex: SystemOverloadedException) =
-    SystemOverloadedErrorDto("SystemOverloadedError")
+    SystemOverloadedErrorDto("SystemOverloadedError", ex.getMessage)
 
   def toInvalidWordErrorDto(ex: InvalidWordException) =
-    InvalidWordErrorDto("InvalidWordError", ex.languageCode, ex.word)
+    InvalidWordErrorDto("InvalidWordError", ex.getMessage, ex.languageCode, ex.word)
 
   def toInvalidCrosswordsErrorDto(ex: InvalidCrosswordsException) =
-    InvalidCrosswordsErrorDto("InvalidCrosswordsError", ex.languageCode, ex.crosswords)
+    InvalidCrosswordsErrorDto("InvalidCrosswordsError", ex.getMessage, ex.languageCode, ex.crosswords)
 
   def toUnsupportedLanguageErrorDto(ex: UnsupportedLanguageException) =
-    UnsupportedLanguageErrorDto("UnsupportedLanguageError", ex.languageCode)
+    UnsupportedLanguageErrorDto("UnsupportedLanguageError", ex.getMessage, ex.languageCode)
 
   def toMissingDictionaryErrorDto(ex: MissingDictionaryException) =
-    MissingDictionaryErrorDto("MissingDictionaryError", ex.languageCode, ex.dictionaryDir)
+    MissingDictionaryErrorDto("MissingDictionaryError", ex.getMessage, ex.languageCode, ex.dictionaryDir)
+
+  def toMalformedPlayErrorDto(ex: MalformedPlayException) =
+    MalformedPlayErrorDto("MalformedPlayError", ex.getMessage, ex.condition)
 
   def toInternalErrorDto(ex: InternalGameException) =
-    InternalErrorDto("InternalError", ex.message)
+    InternalErrorDto("InternalError", ex.getMessage)
 }

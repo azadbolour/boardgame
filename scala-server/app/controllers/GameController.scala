@@ -195,6 +195,7 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
       case ex: InvalidCrosswordsException => jsonError(toInvalidCrosswordsErrorDto(ex))
       case ex: UnsupportedLanguageException => jsonError(toUnsupportedLanguageErrorDto(ex))
       case ex: MissingDictionaryException => jsonError(toMissingDictionaryErrorDto(ex))
+      case ex: MalformedPlayException => jsonError(toMalformedPlayErrorDto(ex))
       case ex: InternalGameException => jsonError(toInternalErrorDto(ex))
     }
   }

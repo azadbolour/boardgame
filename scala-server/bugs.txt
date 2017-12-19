@@ -1,11 +1,4 @@
 
-- Coded harvesting of long-running games. Need to test.
-
-- Check that play points are distinct and consecutive.
-
-- Check gameCache overflow. Use cacheGameState instead of put and 
-  throw exception if too big.
-
 - When first play is a machine play and it is a pass,
   both client and server should do the right thing. Client has
   to make sure user move is centered.

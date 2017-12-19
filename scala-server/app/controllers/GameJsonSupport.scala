@@ -55,6 +55,8 @@ object GameJsonSupport {
   implicit val stopInfoReads = reads[StopInfo]
   implicit val gameSummaryReads = reads[GameSummary]
 
+  // TODO. JSON read implicits for all errors for clients.
+
   implicit val charWrites: Writes[Char] = new Writes[Char] {
     def writes(o: Char) = Json.toJson[String](o.toString)
   }
@@ -90,6 +92,7 @@ object GameJsonSupport {
   implicit val invalidCrosswordsErrorDtoWrites = writes[InvalidCrosswordsErrorDto]
   implicit val unsupportedLanguageErrorDtoWrites = writes[UnsupportedLanguageErrorDto]
   implicit val missingDictionaryErrorDtoWrites = writes[MissingDictionaryErrorDto]
+  implicit val malformedPlayErrorDtoWrites = writes[MalformedPlayErrorDto]
   implicit val internalErrorDtoWrites = writes[InternalErrorDto]
 
 

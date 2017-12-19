@@ -7,7 +7,7 @@ package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType.{playerIndex, _}
-import com.bolour.boardgame.scala.server.domain.GameExceptions.InvalidCrosswordsException
+import com.bolour.boardgame.scala.server.domain.GameExceptions.{InvalidCrosswordsException, MalformedPlayException}
 import org.slf4j.LoggerFactory
 
 import scala.util.{Success, Try}
@@ -56,7 +56,7 @@ case class GameState(
 
   def addPlay(playerType: PlayerType, playPieces: List[PlayPiece]): Try[(GameState, List[Piece])] = {
     for {
-      _ <- validatePlay(playPieces)
+      _ <- validatePlay(playerType, playPieces)
       movedGridPieces = playPieces filter { _.moved } map { _.gridPiece }
       score = computePlayScore(playPieces)
       added <- addGoodPlay(playerType, movedGridPieces, score)
@@ -126,18 +126,40 @@ case class GameState(
     }
   }
 
-  // TODO. Implement validation by chaining all teh specific validations.
-  private def validatePlay(playPieces: List[PlayPiece]): Try[Unit] = Success(())
+  private def validatePlay(playerType: PlayerType, playPieces: List[PlayPiece]): Try[Unit] = {
+    if (playerType == MachinePlayer)
+      return Success(())
 
-  // TODO. Validate the play.
+    for {
+      _ <- checkPlayLineInBounds(playPieces)
+      _ <- checkFirstPlayCentered(playPieces)
+      _ <- checkPlayAnchored(playPieces)
+      _ <- checkContiguousPlay(playPieces)
+      _ <- checkMoveDestinationsEmpty(playPieces)
+      _ <- checkUnmovedPlayPositions(playPieces)
+      _ <- checkMoveTrayPieces(playPieces)
+    } yield ()
+  }
+
+  // TODO. Implement all play validation checks.
   // Most of the validations are also done in the associated web ui.
   // To allow unrelated client code to use the API, however, these checks
   // need to be implemented.
 
+  def inBounds(coordinate: Int): Boolean =
+    coordinate >= 0 && coordinate < game.dimension
+
+  def inBounds(point: Point): Boolean = {
+    inBounds(point.row) && inBounds(point.col)
+  }
   /**
     * Check that play locations are within the board's boundaries.
     */
-  private def checkPlayLineInBounds(playPieces: List[PlayPiece]): Try[Unit] = Success(())
+  private def checkPlayLineInBounds(playPieces: List[PlayPiece]): Try[Unit] = Try {
+    val points = playPieces.map {_.point}
+    if (!points.forall(inBounds(_)))
+      throw MalformedPlayException("play points out of bounds")
+  }
 
   /**
     * Check that the first play includes the center point.
@@ -152,7 +174,20 @@ case class GameState(
   /**
     * Check that play for for a contiguous strip on the board.
     */
-  private def checkContiguousPlay(playPieces: List[PlayPiece]): Try[Unit] = Success(())
+  private def checkContiguousPlay(playPieces: List[PlayPiece]): Try[Unit] = Try {
+    val points = playPieces.map {_.point}
+    if (points.length != points.distinct.length)
+      throw MalformedPlayException("duplicate play points")
+
+    val rows = points.map { _.row }
+    val cols = points.map { _.col }
+
+    // TODO. Move to util.
+    def same[A](values: List[A]): Boolean =
+      if (values.length < 2) true else values.drop(1).forall(_ == values.head)
+    if (!same(rows) && !same(cols))
+      throw MalformedPlayException("non-contiguous play points")
+  }
 
   /**
     * Check that the destinations of the moved play pieces are empty.
