@@ -1,13 +1,17 @@
 #!/bin/sh
 
-# Locally deploy play executable to the dist directory.
+#
+# Locally deploy the play executable to the dist directory.
+#
+# Prerequisites. Distribution package built in target/universal folder. See package.sh.
+#
+# The distribution is deployed to dist/scala-server-1.0
+#
 
 # TODO. Input parameter for deployDir.
 deployDir=dist
 projectDir=`pwd`
 outDir=${projectDir}/target/universal
-
-sbt dist
 
 mkdir -p $deployDir
 cd $deployDir

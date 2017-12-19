@@ -1,8 +1,13 @@
-#!/bin/sh
+#!/bin/sh -x
 
 # Run locally deployed play server.
 
-port=6597
+port=$1
+defaultPort=6587
+
+if [ -z "$port" ]; then
+  port="${defaultPort}"
+fi
 
 deployDir=dist
 cd dist/scala-server-1.0

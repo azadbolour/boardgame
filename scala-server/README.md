@@ -32,6 +32,36 @@ https://chrome.google.com/webstore/detail/google-dictionary-by-goog/mgijmajocgfc
 Then simply click on a word in the game's list view of played words to 
 see its meaning (or a link to search the web for it). 
 
+## Deployment
+
+- Create the UI bundle: 
+
+    `cd $WORKSPACE/web-ui
+    ./build-prod.sh` 
+    
+  The bundle is created in the dist/static folder.
+
+- Copy the created ui bundle to the public folder of the play project:
+
+    `cd $WORKSPACE/scala-server
+    update-ui-bundle.sh`
+
+- Create the application distribution package:
+
+    `package.sh`
+
+- Deploy the package locally:
+
+    `deploy.sh`
+
+- Run the deployed application locally on a port (e.g. port 6587):
+
+    `run-deployed.sh 6587`
+
+- To bring up the application, use the url:
+
+      `http://localhost:6587/boardgame`
+
 ## Known Issues
 
 - No blank tiles.
@@ -61,8 +91,7 @@ see its meaning (or a link to search the web for it).
 - Implement swap taking a possibly empty list of pieces.
   Needs UI swap bin to be a list, plus an explicit pass button.
   UI - if sack is empty, disallow swap.
-
-- New exception for num swapped > sack size. 
+  New exception for num swapped > sack size. 
 
 - Server. Reject plays after game has been stopped.
 
@@ -87,8 +116,6 @@ see its meaning (or a link to search the web for it).
 - Compute real score in Haskell.
 
 - Document migration and seeding.
-
-- Fully implement GameServiceImpl.
 
 - Do we have to close a db in slick?
 

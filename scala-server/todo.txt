@@ -1,0 +1,7 @@
+
+- Create docker scripts for the scala server.
+
+- Remove hello.js.
+
+- Linked dictionaries are copied in whole in the deployed dict directory.
+

@@ -1,5 +1,0 @@
-
-- When first play is a machine play and it is a pass,
-  both client and server should do the right thing. Client has
-  to make sure user move is centered.
-
