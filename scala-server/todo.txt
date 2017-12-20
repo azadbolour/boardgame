@@ -1,7 +1,63 @@
 
-- Create docker scripts for the scala server.
+need to checkout the branch
 
-- Remove hello.js.
+clone creates boardgame directory
+
+add-apt-repository ppa:openjdk-r/ppa && apt-get update && install openjdk
+
+apt-get install dialog apt-utils
+
+
+
+after curl
+debconf: unable to initialize frontend: Dialog
+debconf: (TERM is not set, so the dialog frontend is not usable.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+Setting up krb5-locales (1.12+dfsg-2ubuntu5.3) ...
+Setting up libsasl2-modules:amd64 (2.1.25.dfsg1-17build1) ...
+Setting up wget (1.15-1ubuntu1.14.04.3) ...
+Setting up curl (7.35.0-1ubuntu2.13) ...
+Processing triggers for libc-bin (2.19-0ubuntu6.13) ...
+Processing triggers for ca-certificates (20170717~14.04.1) ...
+Updating certificates in /etc/ssl/certs... 148 added, 0 removed; done.
+Running hooks in /etc/ca-certificates/update.d....done.
+ ---> 2d3f8c3d4ae7
+Removing intermediate container 9e58a9b88f93
+Step 5/23 : RUN apt-get install -y openjdk-8-jdk && java -version
+ ---> Running in 8e5d6c8bc008
+Reading package lists...
+Building dependency tree...
+Reading state information...
+E: Unable to locate package openjdk-8-jdk
+
+- http://ubuntuhandbook.org/index.php/2015/01/install-openjdk-8-ubuntu-14-04-12-04-lts/
+
+- http://openjdk.java.net/install/
+
+- openjdk-8-jdk/trusty
+
+
+- https://github.com/dockerfile/java/blob/master/oracle-java8/Dockerfile
+
+- Get openjdk base for ubuntu trusty.
+
+- Create docker scripts to build and create a scala server package.
+
+- Create a docker script that uses the build docker image deploys
+  and runs.
 
 - Linked dictionaries are copied in whole in the deployed dict directory.
 
+- Move current docker directory to haskell-server.
+
+- Update roo-level README file.
+
+- Upgrade Haskell server.
+
+- Change docker names to reflect type of server -
+  
+    azadbolour/haskell-boardgame:0.2
+    azadbolour/scala-boardgame:0.2

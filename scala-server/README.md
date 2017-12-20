@@ -85,6 +85,8 @@ see its meaning (or a link to search the web for it).
 
 ## To Do
 
+- Use persistent database. Currently using h2.
+
 - Develop integration tests at the level of the handler.
   For all ending conditions.
 

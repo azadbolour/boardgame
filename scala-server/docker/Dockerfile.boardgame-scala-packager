@@ -1,0 +1,79 @@
+
+#
+# Base of boardgame development.
+#
+
+#
+# Begin with ubuntu version 14.04.
+#
+FROM ubuntu:trusty
+RUN whoami
+RUN apt-get update
+
+
+#
+# Get basic untilities.
+#
+RUN apt-get install -y dialog apt-utils wget curl software-properties-common python-software-properties
+
+RUN add-apt-repository ppa:openjdk-r/ppa \
+  && apt-get update \
+  && apt-get install -y openjdk-8-jdk && java -version
+
+#
+# Install git.
+#
+RUN apt-get install -y git && which git
+
+#
+# Set up the base environment.
+#
+ENV WORKSPACE /home/me/dev/boardgame
+RUN mkdir -p $WORKSPACE
+WORKDIR $WORKSPACE
+RUN echo `pwd`
+ENV PATH $PATH:.
+RUN echo $PATH
+
+#
+# Install node js version 7.
+#
+RUN apt-get update
+RUN curl -sL https://raw.githubusercontent.com/nodesource/distributions/master/deb/setup_7.x | bash -
+RUN apt-get update
+RUN apt-get install -y apt-utils
+RUN apt-get install -y nodejs
+
+#
+# Clone the repository.
+#
+RUN cd .. && git clone https://github.com/azadbolour/boardgame && cd boardgame && git checkout scala-dev
+
+#
+# Install the web-ui dependencies.
+#
+RUN cd web-ui && npm install -g eslint && npm install -g jsdoc
+RUN cd web-ui && npm install
+
+#
+# Bundle up the javascript.
+#
+RUN cd web-ui && ./build-prod.sh
+
+#
+# Install SBT
+#
+RUN echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list \
+  && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823 \
+  && apt-get update \
+  && apt-get install sbt
+
+#
+# Package the scala server
+#
+RUN cd scala-server \
+  && update-ui-bundle.sh \
+  && sbt compile test dist \
+  && deploy.sh
+
+
