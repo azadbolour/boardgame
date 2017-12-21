@@ -12,7 +12,7 @@ if [ -z "${port}" ]; then
   port=${defaultPort}
 fi
 
-nohup docker run -p ${port}:${port} --restart on-failure:5 -e port=${port} azadbolour/boardgame-scala:0.1 &
+nohup docker run -p ${port}:${port} --restart on-failure:5 -e HTTP_PORT=${port} azadbolour/boardgame-scala:0.1 &
 
 # For development.
 # docker run -p 6587:6587 -i -t azadbolour/boardgame:0.2 &
