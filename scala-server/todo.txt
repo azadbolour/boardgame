@@ -1,39 +1,8 @@
 
-- unable to read language dictionary
-
-  we just have moby-english.txt in github
-
-- check that a different port number works
-
-
-- Start with the shell script: docker run -i -t -e var1=ABHAYKUMARSOMANI
-
-- -e var1=value1 - then use $var1 in the docker file.
-
-port http.port will be an env variable
-
-
-- http://ubuntuhandbook.org/index.php/2015/01/install-openjdk-8-ubuntu-14-04-12-04-lts/
-
-- http://openjdk.java.net/install/
-
-- openjdk-8-jdk/trusty
-
-
-- https://github.com/dockerfile/java/blob/master/oracle-java8/Dockerfile
-
-- Get openjdk base for ubuntu trusty.
-
-- Create docker scripts to build and create a scala server package.
-
-- Create a docker script that uses the build docker image deploys
-  and runs.
-
-- Linked dictionaries are copied in whole in the deployed dict directory.
 
 - Move current docker directory to haskell-server.
 
-- Update roo-level README file.
+- Update root level README file.
 
 - Upgrade Haskell server.
 

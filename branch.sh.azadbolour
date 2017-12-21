@@ -16,6 +16,8 @@ echo "..."
 export JAVA_HOME=$(/usr/libexec/java_home)
 echo "JAVA_HOME=$JAVA_HOME"
 
+export SBT_OPTS="-Xmx2048M"
+
 postgres_home=/Applications/Postgres93.app/Contents/MacOS
 
 export M2_HOME=$HOME/software/mvn/apache-maven-3.2.2
