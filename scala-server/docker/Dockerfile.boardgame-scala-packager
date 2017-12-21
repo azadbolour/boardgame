@@ -14,11 +14,15 @@ RUN apt-get update
 #
 # Get basic untilities.
 #
-RUN apt-get install -y dialog apt-utils wget curl software-properties-common python-software-properties
+RUN apt-get install -y dialog apt-utils wget curl software-properties-common python-software-properties zip unzip
 
 RUN add-apt-repository ppa:openjdk-r/ppa \
   && apt-get update \
   && apt-get install -y openjdk-8-jdk && java -version
+
+
+ENV CA_CERTIFICATES_JAVA_VERSION 20170531+nmu1
+RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
 
 #
 # Install git.

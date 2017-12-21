@@ -1,0 +1,33 @@
+
+#
+# Runs the boardgame executable - built from the latest source.
+#
+
+#
+# Command line arguments.
+#
+
+# The docker tag.
+ARG tag=0.1
+#
+
+#
+# Base it on the same-tagged base.
+#
+FROM azadbolour/boardgame-scala-packager:${tag}
+
+#
+# Set up the base environment.
+#
+ENV WORKSPACE /home/me/dev/boardgame
+WORKDIR $WORKSPACE
+RUN echo `pwd` && ls
+ENV PATH $PATH:.
+RUN echo $PATH
+
+#
+# Expose the http port. Do it in the run command.
+#
+# EXPOSE ${serverPort}
+
+ENTRYPOINT ["/home/me/dev/boardgame/scala-server/cd-run-deployed.sh", "/home/me/dev/boardgame/scala-server/", "${port}"]

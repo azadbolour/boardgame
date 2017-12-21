@@ -1,4 +1,10 @@
 
+- Start with the shell script: docker run -i -t -e var1=ABHAYKUMARSOMANI
+
+- -e var1=value1 - then use $var1 in the docker file.
+
+port http.port will be an env variable
+
 
 - http://ubuntuhandbook.org/index.php/2015/01/install-openjdk-8-ubuntu-14-04-12-04-lts/
 
