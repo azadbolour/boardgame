@@ -1,4 +1,11 @@
 
+- unable to read language dictionary
+
+  we just have moby-english.txt in github
+
+- check that a different port number works
+
+
 - Start with the shell script: docker run -i -t -e var1=ABHAYKUMARSOMANI
 
 - -e var1=value1 - then use $var1 in the docker file.
