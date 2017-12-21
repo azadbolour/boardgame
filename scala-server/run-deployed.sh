@@ -3,7 +3,7 @@
 # Run locally deployed play server.
 
 port=$1
-defaultPort=6587
+defaultPort=${http.port}
 
 if [ -z "$port" ]; then
   port="${defaultPort}"

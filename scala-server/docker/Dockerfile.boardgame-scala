@@ -25,9 +25,19 @@ RUN echo `pwd` && ls
 ENV PATH $PATH:.
 RUN echo $PATH
 
+ENV HTTP_PORT 6587
+
+RUN git pull origin scala-dev
+# RUN cd web-ui && ./build-prod.sh
+
+# RUN cd scala-server \
+#  && update-ui-bundle.sh \
+#  && sbt compile test dist \
+#  && deploy.sh
+
 #
 # Expose the http port. Do it in the run command.
 #
 # EXPOSE ${serverPort}
 
-ENTRYPOINT ["/home/me/dev/boardgame/scala-server/cd-run-deployed.sh", "/home/me/dev/boardgame/scala-server/", "${port}"]
+ENTRYPOINT ["/home/me/dev/boardgame/scala-server/cd-run-deployed.sh", "/home/me/dev/boardgame/scala-server/"]
