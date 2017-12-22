@@ -25,7 +25,11 @@ RUN echo `pwd` && ls
 ENV PATH $PATH:.
 RUN echo $PATH
 
+# Environment variable for the server port (default 6587).
 ENV HTTP_PORT 6587
+# Environment variable for Play's production config file.
+# Defaults to none and reverts to the config file bundled with the app.
+ENV PROD_CONF 
 
 RUN git pull origin scala-dev
 # RUN cd web-ui && ./build-prod.sh
