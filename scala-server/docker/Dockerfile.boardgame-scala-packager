@@ -14,7 +14,7 @@ RUN apt-get update
 #
 # Get basic untilities.
 #
-RUN apt-get install -y dialog apt-utils wget curl software-properties-common python-software-properties zip unzip
+RUN apt-get install -y dialog apt-utils wget curl software-properties-common python-software-properties zip unzip build-essential
 
 RUN add-apt-repository ppa:openjdk-r/ppa \
   && apt-get update \
