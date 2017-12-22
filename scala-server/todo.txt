@@ -1,4 +1,26 @@
 
+- Test access to docker container on ec2.
+
+- docker push and coker pull the image to production machine
+
+- Open 6597 on production machine.
+
+- Test docker on production machine.
+
+- The port number specification is not dry. Make it so if possible.
+
+- controller test is flaky because it has a timeout of 1 sec. Change to 3.
+
+- On redhat trying to build the packager docker file:
+
+  WARNING: The following packages cannot be authenticated!
+  openjdk-8-jre-headless openjdk-8-jre openjdk-8-jdk-headless openjdk-8-jdk
+  E: There are problems and -y was used without --force-yes
+  Removing intermediate container 1f3aa35e0650
+  The command '/bin/sh -c add-apt-repository ppa:openjdk-r/ppa   && apt-get update   && apt-get install -y openjdk-8-jdk && java -version'
+  returned a non-zero code: 100
+
+  trying with --force-yes
 
 - Move current docker directory to haskell-server.
 
