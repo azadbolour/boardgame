@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 # 
 # Run a production docker container for the application.
@@ -6,9 +6,7 @@
 # The docker container is cognizant of two environment variables:
 #
 #   HTTP_PORT for the port of the server application
-#       obtained as the 'port' argument to this script
 #   PROD_CONF for the Play production configuration file of the application
-#       obtained as the environment variable PROD_CONF to this script
 #
 # These variables are used to provide information about the production 
 # deployment environment to the Play application. They are transmitted
@@ -29,11 +27,13 @@
 # Then can use docker run -d to create a detatched conatiner.
 # And the logs will be on the host file system.
 
-PORT=$1
-DEFAULT_PORT=6587
+HTTP_PORT=$1
+PROD_CONF=$2
+DEFAULT_PORT=6597
 
-if [ -z "${PORT}" ]; then
-  PORT=${DEFAULT_PORT}
+if [ -z "${HTTP_PORT}" -o -z "${PROD_CONF}" ]; then
+  echo "usage: $0 HTTP_PORT PROD_CONF - aborting"
+  exit 1
 fi
 
 APP_DATA_DIR=/opt/data/boardgame
@@ -41,10 +41,9 @@ NAMESPACE=azadbolour
 REPOSITORY=boardgame-scala
 TAG=0.1
 
-nohup docker run -p ${port}:${port} --restart on-failure:5 \
-    -e HTTP_PORT=${port} -e PROD_CONF="${PROD_CONF}" \
-    -v ${APP_DATA_DIR}:${APP_DATA_DIR} \
-    ${NAMESOACE}/${REPOSITORY}:${TAG} &
+nohup docker run -p ${HTTP_PORT}:${HTTP_PORT} --restart on-failure:5 --name boardgame-scala \
+    -e HTTP_PORT="${HTTP_PORT}" -e PROD_CONF="${PROD_CONF}" \
+    -v ${APP_DATA_DIR}:${APP_DATA_DIR} ${NAMESPACE}/${REPOSITORY}:${TAG} &
 
 # For development.
 # docker run -p 6587:6587 -i -t azadbolour/boardgame:0.2 &

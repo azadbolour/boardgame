@@ -16,6 +16,12 @@ ARG tag=0.1
 #
 FROM azadbolour/boardgame-scala-packager:${tag}
 
+# Environment variable for the server port (default 6587).
+ENV HTTP_PORT 6587
+# Environment variable for Play's production config file.
+# Defaults to none and reverts to the config file bundled with the app.
+# ENV PROD_CONF 
+
 #
 # Set up the base environment.
 #
@@ -24,12 +30,6 @@ WORKDIR $WORKSPACE
 RUN echo `pwd` && ls
 ENV PATH $PATH:.
 RUN echo $PATH
-
-# Environment variable for the server port (default 6587).
-ENV HTTP_PORT 6587
-# Environment variable for Play's production config file.
-# Defaults to none and reverts to the config file bundled with the app.
-ENV PROD_CONF 
 
 RUN git pull origin scala-dev
 # RUN cd web-ui && ./build-prod.sh
