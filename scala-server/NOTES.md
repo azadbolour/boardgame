@@ -429,6 +429,14 @@
 
 ## SBT
 
+- Running a main program from inside sbt:
+
+    runMain com.bolour.util.WordListFilter /Users/azadbolour/Downloads/count_1w.txt 
+
+  or
+
+    sbt "runMain com.bolour.util.WordListFilter /Users/azadbolour/Downloads/count_1w.txt"
+
 - http://www.scala-sbt.org/1.0/docs/Installing-sbt-on-Linux.html
 
 - sbt "testOnly com.bolour.boardgame.scala.server.web.GameEndPointSpec"

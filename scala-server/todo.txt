@@ -1,4 +1,15 @@
 
+- After a linux shutdown without shutting down the docker container,
+  when the system comes back up we get this message:
+
+  This application is already running (Or delete /home/me/dev/boardgame/scala-server/dist/scala-server-1.0/RUNNING_PID file).
+
+  -Dpidfile.path=/var/run/boardgame-scala/RUNNING_PID
+
+  You'll have to sudo mkdir -p /var/run/boardgame-scala/ and chown to the current user.
+
+  For now just docker rm thecontainer and rerun.
+
 - Indicate that first move has to be to the center.
 
 - Word frequencies:
