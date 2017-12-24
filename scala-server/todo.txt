@@ -1,11 +1,17 @@
 
-- Test access to docker container on ec2.
+- Indicate that first move has to be to the center.
 
-- docker push and coker pull the image to production machine
+- Word frequencies:
 
-- Open 6597 on production machine.
+    http://norvig.com/ngrams/count_1w.txt
+    Downloaded to /Users/azadbolour/Downloads/count_1w.txt.
 
-- Test docker on production machine.
+  Intersect with Moby first. Then add parameter - maxWords - only the most 
+  frequent words up to the max would be used.
+
+  Credit Norvig.
+
+- Truncate nohup.out on production machine.
 
 - The port number specification is not dry. Make it so if possible.
 
@@ -19,8 +25,6 @@
   Removing intermediate container 1f3aa35e0650
   The command '/bin/sh -c add-apt-repository ppa:openjdk-r/ppa   && apt-get update   && apt-get install -y openjdk-8-jdk && java -version'
   returned a non-zero code: 100
-
-  trying with --force-yes
 
 - Move current docker directory to haskell-server.
 

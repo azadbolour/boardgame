@@ -27,6 +27,8 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   val playerTableName = "player"
   val gameTableName = "game"
   val gameStateTableName = "game-state"
+  // Ue large timeout to avoid internal error on overloaded machine.
+  val timeout = 5.seconds
 
   def tableMap = Map(playerTableName -> playerRows, gameTableName -> gameRows)
   def allTableNames = tableMap.keySet.toList
@@ -79,7 +81,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     val neededTableNames = allTableNames diff existingTableNames
     val creates = neededTableNames map {name => tableMap(name).schema.create}
     val future = db.run(DBIO.seq(creates:_*))
-    Await.result(future, 2.seconds)
+    Await.result(future, timeout)
   }
 
   override def deleteAllGames(): Try[Unit] = Try {
@@ -97,7 +99,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     val playerRow = toPlayerRow(player)
     val insert = playerRows += playerRow
     val future = db.run(insert)
-    val numRows = Await.result(future, 1.second)
+    val numRows = Await.result(future, timeout)
     logger.debug(s"added ${numRows} player(s)")
   }
 
@@ -105,7 +107,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     val gameRow = toGameRow(game)
     val insert = gameRows += gameRow
     val future = db.run(insert)
-    val numRows = Await.result(future, 1.second)
+    val numRows = Await.result(future, timeout)
 
   }
 
@@ -114,7 +116,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     val now = Instant.now()
     val action = query.update(Some(now))
     val future = db.run(action)
-    val rows = Await.result(future, 1.second)
+    val rows = Await.result(future, timeout)
     ()
   }
 
@@ -125,14 +127,14 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   override def findPlayerByName(name: String): Try[Option[Player]] = Try {
     val query = playerRows.filter {_.name === name }
     val future = db.run(query.result)
-    val rows = Await.result(future, 1.second)
+    val rows = Await.result(future, timeout)
     rows.headOption map fromPlayerRow
   }
 
   override def findGameById(id: String): Try[Option[Game]] = Try {
     val query = gameRows.filter {_.id === id }
     val future = db.run(query.result)
-    val rows = Await.result(future, 1.second)
+    val rows = Await.result(future, timeout)
     rows.headOption map fromGameRow
   }
 
