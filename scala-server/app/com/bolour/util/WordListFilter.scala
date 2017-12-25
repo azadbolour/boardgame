@@ -27,6 +27,7 @@ object WordListFilter extends App {
   val frequencyWords = frequencyMap.keySet
 
   val intersection = frequencyWords.intersect(mobyWords)
+  val difference = frequencyWords diff intersection
   val filtered = frequencyMap.filterKeys { word => intersection.contains(word)}
 
   val tuples = filtered.toList
@@ -38,5 +39,6 @@ object WordListFilter extends App {
   logger.info(s"number of tuples: ${tuples.size}")
   logger.info(s"number of ordered: ${sortedTuples.size}")
   sortedTuples.foreach { case (word, freq) => println(s"${word} ${freq}") }
+  difference.foreach { word => println(word) }
 
 }

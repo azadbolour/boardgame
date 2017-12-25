@@ -1,26 +1,43 @@
 
-- After a linux shutdown without shutting down the docker container,
-  when the system comes back up we get this message:
+- Indicate that it is user's turn to drag.
 
-  This application is already running (Or delete /home/me/dev/boardgame/scala-server/dist/scala-server-1.0/RUNNING_PID file).
+- Remove non-word double letters from teh dictionary. WS, YE.
 
-  -Dpidfile.path=/var/run/boardgame-scala/RUNNING_PID
+- Target container is not a DOM element error in browser console.
 
-  You'll have to sudo mkdir -p /var/run/boardgame-scala/ and chown to the current user.
+  Both main and index include the script. Only one should I think.
 
-  For now just docker rm thecontainer and rerun.
+  I ran into this same error, and as others have suggested, it's because your
+  bundle.js file is loading too early. Move your <script> tag into the body (as
+  the last line before the closing </body> tag) to resolve this error. –
+
+- Create new docker image with latest - uncommenting the deployment.
+
+- Comment the deployment again.
 
 - Indicate that first move has to be to the center.
+
+- Help for the app.
+
+- Create cleanup scripts for docker container and image.
+
+- App logs in docker should go to the data area so you can see them easily from the
+  outside.
 
 - Word frequencies:
 
     http://norvig.com/ngrams/count_1w.txt
     Downloaded to /Users/azadbolour/Downloads/count_1w.txt.
+    Unfortunately this is not a clean set. I'd say about 50% are non-words. So give up on that.
 
-  Intersect with Moby first. Then add parameter - maxWords - only the most 
-  frequent words up to the max would be used.
+- https://www.wordfrequency.info/purchase.asp $250.00 for 100K words
+  https://www.wordfrequency.info/files/entries.pdf 
+    This is a clean list. But 100K is too few. The least frequent words are
+    still relatively common.
 
-  Credit Norvig.
+  Can just use that for the machine play, and use Moby to check user plays.
+
+  Credit Mark Davies.
 
 - Truncate nohup.out on production machine.
 
