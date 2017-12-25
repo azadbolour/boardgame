@@ -20,6 +20,8 @@ if [ -z "$HTTP_PORT" ]; then
 fi
 
 scalaServerDevDir=$1
+BOARGGAME_VAR=/var/run/boardgame
+PID_FILE=$BOARDGAME_VAR/RUNNING_PID
 
 if [ -z "$scalaServerDevDir" ]; then
   echo "usage: $0 scalaServerDevDir - aborting"
@@ -28,4 +30,4 @@ fi
 
 cd $scalaServerDevDir
 
-exec "./run-deployed.sh" "$HTTP_PORT" "$PROD_CONF"
+exec "./run-deployed.sh" "$HTTP_PORT" "$PROD_CONF" "$PID_FILE"

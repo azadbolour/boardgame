@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# 
+# Initial setup of the production machine: 
+#   
+#       setup the production configuration file
+#       setup the production application pid (lock) file
 #
 # Copy the production application.conf file to a well-known
 # file system location accessible by the application. The well-known
@@ -26,4 +31,13 @@ sudo chown $USER $prodConfDir
 
 cp $confDir/prod.conf.template $prodConfDir/prod.conf
 echo "edit $prodConfDir/prod.conf to reflect the environment of your deployment"
+
+# Set up the temporary file area for board game. 
+# The contents are wiped out on system restart.
+# The play pid lock file will be configured to be in this area.
+# That way the pid lock is automatically removed on restart.
+
+BOARDGAME_VAR=/var/run/boardgame
+sudo mkdir -p $BOARDGAME_VAR
+sudo chown $USER $BOARDGAME_VAR
 

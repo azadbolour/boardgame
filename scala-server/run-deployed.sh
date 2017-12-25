@@ -8,6 +8,7 @@
 
 port=$1             # The http port of the server.
 PROD_CONF=$2        # The location of the custom application.conf overriding the bundled one.
+PID_FILE=$3         # The location of the process pid (lock) file for the play application.
 
 defaultPort=6587
 
@@ -30,6 +31,10 @@ JAVA_OPTS="-Dhttp.port=${port}"
 if [ ! -z "$PROD_CONF" ]; then
     JAVA_OPTS="${JAVA_OPTS} -Dconfig.file=${PROD_CONF}"
 fi
+if [ ! -z "$PID_FILE" ]; then
+    JAVA_OPTS="${JAVA_OPTS} -Dpidfile.path=${PID_FILE}"
+fi
+
 export JAVA_OPTS
 echo "JAVA_OPTS: ${JAVA_OPTS}"
 
