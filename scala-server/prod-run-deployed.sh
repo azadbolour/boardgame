@@ -1,7 +1,7 @@
 #!/bin/sh -x
 
 #
-# Wrapper for running a deployed scala server.
+# Wrapper for running a deployed scala server. Used by docker run.
 #
 # args: 
 #   scalaServerDevDir - the root directory of the scala-dev server app
@@ -20,6 +20,12 @@ if [ -z "$HTTP_PORT" ]; then
 fi
 
 scalaServerDevDir=$1
+BOARDGAME_VAR=/var/run/boardgame
+PID_FILE=$BOARDGAME_VAR/RUNNING_PID
+
+# Assume this script is only run on startup when application cannot be running.
+# If there is a leftover pid file from stopping the docker container - remove it.
+rm -f $PID_FILE
 
 if [ -z "$scalaServerDevDir" ]; then
   echo "usage: $0 scalaServerDevDir - aborting"
@@ -28,4 +34,4 @@ fi
 
 cd $scalaServerDevDir
 
-exec "./run-deployed.sh" "$HTTP_PORT" "$PROD_CONF"
+exec "./run-deployed.sh" "$HTTP_PORT" "$PROD_CONF" "$PID_FILE"

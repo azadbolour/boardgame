@@ -9,7 +9,9 @@
 
 # The docker tag.
 ARG tag=0.1
-#
+
+# The temp storage area for boardgame. Use for the play pid (lock) file.
+ARG BOARDGAME_VAR=/var/run/boardgame
 
 #
 # Base it on the same-tagged base.
@@ -22,26 +24,31 @@ ENV HTTP_PORT 6587
 # Defaults to none and reverts to the config file bundled with the app.
 # ENV PROD_CONF 
 
+# Make it available after FROM!
+ARG BOARDGAME_VAR 
+
 #
 # Set up the base environment.
 #
 ENV WORKSPACE /home/me/dev/boardgame
 WORKDIR $WORKSPACE
-RUN echo `pwd` && ls
 ENV PATH $PATH:.
-RUN echo $PATH
+RUN echo $PATH \
+  && echo `pwd` \
+  && ls \
+  && mkdir -p $BOARDGAME_VAR
 
 RUN git pull origin scala-dev
 # RUN cd web-ui && ./build-prod.sh
 
-# RUN cd scala-server \
-#  && update-ui-bundle.sh \
-#  && sbt compile test dist \
-#  && deploy.sh
+RUN cd scala-server \
+  && update-ui-bundle.sh \
+  && sbt compile test dist \
+  && deploy.sh
 
 #
 # Expose the http port. Do it in the run command.
 #
 # EXPOSE ${serverPort}
 
-ENTRYPOINT ["/home/me/dev/boardgame/scala-server/cd-run-deployed.sh", "/home/me/dev/boardgame/scala-server/"]
+ENTRYPOINT ["/home/me/dev/boardgame/scala-server/prod-run-deployed.sh", "/home/me/dev/boardgame/scala-server/"]

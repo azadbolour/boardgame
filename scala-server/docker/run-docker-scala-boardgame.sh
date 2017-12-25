@@ -29,21 +29,32 @@
 
 HTTP_PORT=$1
 PROD_CONF=$2
-DEFAULT_PORT=6597
 
-if [ -z "${HTTP_PORT}" -o -z "${PROD_CONF}" ]; then
-  echo "usage: $0 HTTP_PORT PROD_CONF - aborting"
-  exit 1
+BOARDGAME_DATA=/opt/data/boardgame
+
+DEFAULT_PORT=6597
+DEFAULT_PROD_CONF=$BOARDGAME_DATA/conf/prod.conf
+
+if [ -z "${HTTP_PORT}" ]; then
+  HTTP_PORT=$DEFAULT_PORT
 fi
 
-APP_DATA_DIR=/opt/data/boardgame
+if [ -z "${PROD_CONF}" ]; then
+  PROD_CONF=$DEFAULT_PROD_CONF
+fi
+
+# if [ -z "${HTTP_PORT}" -o -z "${PROD_CONF}" ]; then
+#   echo "usage: $0 HTTP_PORT PROD_CONF - aborting"
+#   exit 1
+# fi
+
 NAMESPACE=azadbolour
 REPOSITORY=boardgame-scala
 TAG=0.1
 
 nohup docker run -p ${HTTP_PORT}:${HTTP_PORT} --restart on-failure:5 --name boardgame-scala \
     -e HTTP_PORT="${HTTP_PORT}" -e PROD_CONF="${PROD_CONF}" \
-    -v ${APP_DATA_DIR}:${APP_DATA_DIR} ${NAMESPACE}/${REPOSITORY}:${TAG} &
+    -v ${BOARDGAME_DATA}:${BOARDGAME_DATA} ${NAMESPACE}/${REPOSITORY}:${TAG} &
 
 # For development.
 # docker run -p 6587:6587 -i -t azadbolour/boardgame:0.2 &
