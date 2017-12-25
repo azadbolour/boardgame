@@ -20,7 +20,7 @@ if [ -z "$HTTP_PORT" ]; then
 fi
 
 scalaServerDevDir=$1
-BOARGGAME_VAR=/var/run/boardgame
+BOARDGAME_VAR=/var/run/boardgame
 PID_FILE=$BOARDGAME_VAR/RUNNING_PID
 
 if [ -z "$scalaServerDevDir" ]; then
