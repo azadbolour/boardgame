@@ -78,10 +78,31 @@ const tooltipStyle = function(visible) {
   }
 };
 
+const wordListStyle = {
+  overflow: 'auto',
+  maxHeight: 100,
+  borderStyle: 'solid',
+  borderWidth: '3px',
+  borderColor: 'DarkGrey',
+  backgroundColor: 'Khaki',
+  padding: '4px'
+};
+
+const navbarStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    borderStyle: 'solid',
+    borderWidth: '5px',
+    padding: '1px',
+    backgroundColor: 'Wheat',
+    color: 'Wheat'
+};
+
 const START = "start";
 const END = "end";
 const COMMIT = "commit";
 const REVERT = "revert";
+
 
 /**
  * The entire game UI component including the board and game buttons.
@@ -167,6 +188,57 @@ class GameComponent extends React.Component {
     this.scrollToLastWord();
   }
 
+  startAttrs = {
+    name: START,
+    label: "Start Game",
+    toolTip: "start a new game",
+    action: () => this.startGame()
+  };
+
+  commitAttrs = {
+    name: COMMIT,
+    label: "Commit Play",
+    toolTip: "commit the moves in current play",
+    action: () => this.commitPlay()
+  };
+
+  revertAttrs = {
+    name: REVERT,
+    label: "Revert Play",
+    toolTip: "revert the moves of the current play",
+    action: () => this.revertPlay()
+  };
+
+  renderButton(attrs, enabled) {
+    return (
+      <div style={paddingStyle}>
+        <button
+          onClick={() => {this.tipOff(); attrs.action()}}
+          onMouseOver={() => this.tipOn(attrs.name)}
+          onMouseOut={() => this.tipOff()}
+          style={buttonStyle(enabled)}
+          disabled={!enabled}
+        >
+          {attrs.label}
+        </button>
+        {enabled && this.isTipOn(attrs.name) &&
+        <div style={tooltipStyle(enabled)}>{attrs.toolTip}</div>
+        }
+      </div>
+    );
+  }
+
+  renderScore(player, score) {
+    return (
+      <div>
+        <label style={labelStyle}>{player}: </label>
+        <span style={{borderStyle: 'hidden', borderWidth: '5px'}}></span>
+        <label style={fieldStyle}>{score}</label>
+      </div>
+
+    );
+  }
+
   render() {
     let game = this.props.game;
     let running = game.running();
@@ -183,14 +255,8 @@ class GameComponent extends React.Component {
     let machineScore = game.score[Game.MACHINE_INDEX];
     let isTrayPiece = game.tray.isTrayPiece.bind(game.tray);
     let isError = (status !== "OK" && status !== "game over"); // TODO. This is a hack! Better indication of error and severity.
-    let enableStart = !running && !isError;
-    let enableCommit = running && hasUncommittedPieces;
-    let enableRevert = running && hasUncommittedPieces;
     let scoreMultipliers = game.scoreMultipliers;
     // console.log(`BoardComponent: ${stringify(scoreMultipliers.rows())}`)
-
-    // TODO. Use individual function components where possible.
-    // TODO. Break up game component structure into modular pieces.
 
     /*
      * Note. Do not use &nbsp; for spaces in JSX. It sometimes
@@ -202,103 +268,45 @@ class GameComponent extends React.Component {
      * Use <pre> </pre> for spaces instead.
     */
 
+    let startButton = this.renderButton(this.startAttrs, !running && !isError);
+    let commitButton = this.renderButton(this.commitAttrs, running && hasUncommittedPieces);
+    let revertButton = this.renderButton(this.revertAttrs, running && hasUncommittedPieces);
+    
+    let trayComponent = <TrayComponent
+      pieces={trayPieces}
+      canMovePiece={canMovePiece}
+      squarePixels={squarePixels}
+      enabled={running} />;
+
+    let boardComponent = <BoardComponent
+      board={board}
+      pointsInPlay={pointsInPlay}
+      isLegalMove={isLegalMove}
+      canMovePiece={canMovePiece}
+      squarePixels={squarePixels}
+      scoreMultipliers={scoreMultipliers}
+      enabled={running}
+    />;
+
     return (
       <div>
         <div style={{display: 'flex', flexDirection: 'row'}}>
-
-          <div style={{display: 'flex',
-                        flexDirection: 'column',
-                        borderStyle: 'solid',
-                        borderWidth: '5px',
-                        padding: '1px',
-                        backgroundColor: 'Wheat',
-                        color: 'Wheat'}}>
-
-            <div style={paddingStyle}>
-              <button
-                onClick={() => {this.tipOff(); this.startGame()}}
-                onMouseOver={() => this.tipOn(START)}
-                onMouseOut={() => this.tipOff()}
-                style={buttonStyle(enableStart)}
-                disabled={!enableStart}
-              >
-                Start Game
-              </button>
-              {!enableStart && this.isTipOn(START) &&
-              <div style={tooltipStyle(enableStart)}>start a new game</div>
-              }
-            </div>
-
-            <pre></pre>
-            <div style={paddingStyle}>
-              <button
-                onClick={() => {this.tipOff(); this.commitPlay()}}
-                onMouseOver={() => this.tipOn(COMMIT)}
-                onMouseOut={() => this.tipOff()}
-                style={buttonStyle(enableCommit)}
-                disabled={!enableCommit}
-              >Commit Play
-              </button>
-              {enableCommit && this.isTipOn(COMMIT) &&
-              <div style={tooltipStyle(enableCommit)}>commit the moves in current play</div>
-              }
-            </div>
-
-            <pre></pre>
-            <div style={paddingStyle}>
-              <button
-                onClick={() => {this.tipOff(); this.revertPlay()}}
-                onMouseOver={() => this.tipOn(REVERT)}
-                onMouseOut={() => this.tipOff()}
-                style={buttonStyle(enableRevert)}
-                disabled={!enableRevert}
-              >
-                Revert Play
-              </button>
-              {enableRevert && this.isTipOn(REVERT) &&
-              <div style={tooltipStyle(enableRevert)}>revert the moves of the current play</div>
-              }
-            </div>
-
-          </div>
-
-          <pre>   </pre>
-
+          <div style={navbarStyle}>
+            {startButton} <pre></pre>
+            {commitButton} <pre></pre>
+            {revertButton}
+          </div> <pre>  </pre>
           <div style={{display: 'flex', flexDirection: 'column'}}>
-            <TrayComponent
-              pieces={trayPieces}
-              canMovePiece={canMovePiece}
-              squarePixels={squarePixels}
-              enabled={running} />
-            <pre> </pre>
-            <BoardComponent
-              board={board}
-              pointsInPlay={pointsInPlay}
-              isLegalMove={isLegalMove}
-              canMovePiece={canMovePiece}
-              squarePixels={squarePixels}
-              scoreMultipliers={scoreMultipliers}
-              enabled={running}
-            />
-          </div>
-          <pre>  </pre>
+            {trayComponent} <pre></pre>
+            {boardComponent}
+          </div> <pre>  </pre>
           <div style={{display: 'flex', flexDirection: 'column'}}>
             <div style={paddingStyle}>
               <SwapBinComponent isTrayPiece={isTrayPiece} enabled={running} />
             </div>
             <pre> </pre>
             <div>
-
-
-              <div style={{
-                overflow: 'auto',
-                maxHeight: 100,
-                borderStyle: 'solid',
-                borderWidth: '3px',
-                borderColor: 'DarkGrey',
-                backgroundColor: 'Khaki',
-                padding: '4px'
-                }}>
+              <div style={wordListStyle}>
                 <ReactList
                   ref={c => this.wordReactListComponent = c}
                   itemRenderer={ (index, key) => this.renderWord(index, key) }
@@ -306,29 +314,17 @@ class GameComponent extends React.Component {
                   type='uniform'
                 />
               </div>
-
-
-
             </div>
           </div>
         </div>
         <pre>  </pre>
-        <div>
-          <label style={labelStyle}>{userName}: </label>
-          <span style={{borderStyle: 'hidden', borderWidth: '5px'}}></span>
-          <label style={fieldStyle}>{userScore}</label>
-        </div>
-        <div>
-          <label style={labelStyle}>Bot: </label>
-          <span style={{borderStyle: 'hidden', borderWidth: '5px'}}></span>
-          <label style={fieldStyle}>{machineScore}</label>
-        </div>
+        {this.renderScore(userName, userScore)}
+        {this.renderScore("Bot", machineScore)}
         <span style={{borderStyle: 'hidden', borderWidth: '5px'}}></span>
         <label style={fieldStyle}>{status}</label>
       </div>
     )
   }
-
 }
 
 export default DragDropContext(HTML5Backend)(GameComponent);

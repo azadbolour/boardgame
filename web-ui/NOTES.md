@@ -1,4 +1,12 @@
 
+- On MAC got the following error after a clean npm install. 
+
+  xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory 
+  '/Library/Developer/CommandLineTools' is a command line tools instance
+
+  Reinstalled developer command line tools and the error did not go away.
+  Could not see solution. Decided to ignore for now.
+
 - Always use arrow functions when passing a component method to an inner render 
   handler. Otherwise, this will be undefined when the "method" executes.
 
