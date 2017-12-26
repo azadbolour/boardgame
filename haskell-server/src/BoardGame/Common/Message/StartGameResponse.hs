@@ -7,8 +7,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
 
-module BoardGame.Common.Message.GameDto (
-  GameDto(..)
+module BoardGame.Common.Message.StartGameResponse (
+  StartGameResponse(..)
   )
   where
 
@@ -23,7 +23,7 @@ import BoardGame.Common.Domain.GridValue (GridValue)
 -- | Data transfer object for a game.
 --   The machine tray is excluded -
 --   we don't want to reveal the machine's hand to client programs.
-data GameDto = GameDto {
+data StartGameResponse = StartGameResponse {
     gameId :: String          -- ^ The unique identifier of the game.
   , gameParams :: GameParams
   , gridPieces :: [GridValue Piece]   -- ^ The pieces in play and their positions.
@@ -31,8 +31,8 @@ data GameDto = GameDto {
 }
   deriving (Eq, Show, Generic, NFData)
 
-instance FromJSON GameDto
-instance ToJSON GameDto
+instance FromJSON StartGameResponse
+instance ToJSON StartGameResponse
 
 
 

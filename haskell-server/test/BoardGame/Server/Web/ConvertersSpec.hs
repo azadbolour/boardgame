@@ -20,12 +20,12 @@ import BoardGame.Common.Domain.Point (Point, Point(Point))
 import qualified BoardGame.Common.Domain.Point as Point
 import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
 import qualified BoardGame.Common.Domain.GridValue as GridValue
-import BoardGame.Common.Message.GameDto as GameDto
+import BoardGame.Common.Message.StartGameResponse as StartGameResponse
 import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.Board as Board
-import BoardGame.Server.Web.Converters(gameToDto)
+import BoardGame.Server.Web.Converters(gameToStartGameResponse)
 import Bolour.Util.SpecUtil (satisfiesRight)
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 import qualified BoardGame.Common.Domain.PieceGen as PieceGen
@@ -46,10 +46,10 @@ spec = do
       let playerName = "You"
       let gridPiece = GridValue (Piece 'E' "idE") (Point mid mid)
       game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params pieceGenerator [gridPiece] [] [] playerName)
-      let dto = gameToDto game
+      let response = gameToStartGameResponse game
       let brd = Game.board game
-      length (Board.getGridPieces brd) `shouldBe` length (GameDto.gridPieces dto)
-      let GridValue.GridValue {value = piece, point} = head (GameDto.gridPieces dto)
+      length (Board.getGridPieces brd) `shouldBe` length (StartGameResponse.gridPieces response)
+      let GridValue.GridValue {value = piece, point} = head (StartGameResponse.gridPieces response)
       let Point.Point {row} = point
       row `shouldBe` mid
 

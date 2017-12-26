@@ -1,10 +1,12 @@
 
+- Make clear where the new word is placed by machine.
+
 - Use smaller amazon machine.
 
   Try t2.medium first. 2 CPU and 4G no SSD. 5c/hour
   Then c3.large - 2 CPU 3.75G SSD. 0.12
   Then m3.large 2 CPU and 7.5 G SSD. 15c/hour
-  Might as well do m3.large
+  Might as well do m3.large. That worked perfectly.
 
   t2 instances are VPC only. Why is that? VPC is another level of complication.
   Let's not do that for now.

@@ -37,7 +37,8 @@ import qualified BoardGame.Common.Domain.Point as Point
 import BoardGame.Common.Domain.GameParams (GameParams(GameParams))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Common.Domain.Player (Player(Player))
-import qualified BoardGame.Common.Message.GameDto as GameDto
+import BoardGame.Common.Message.SwapPieceResponse (SwapPieceResponse(..))
+import qualified BoardGame.Common.Message.StartGameResponse as StartGameResponse
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest(StartGameRequest))
 import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse, CommitPlayResponse(CommitPlayResponse))
 import qualified BoardGame.Common.Message.CommitPlayResponse as CommitPlayResponse
@@ -124,7 +125,7 @@ spec = beforeAll startApp $ afterAll endWaiApp $
       uPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
       mPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
 
-      (GameDto.GameDto {gameId, trayPieces, gridPieces}) <- SpecUtil.satisfiesRight
+      (StartGameResponse.StartGameResponse {gameId, trayPieces, gridPieces}) <- SpecUtil.satisfiesRight
         =<< runExceptT (Client.startGame (StartGameRequest params [] uPieces mPieces) manager baseUrl)
 
 --       let GridValue {value = piece, point = centerPoint} =
@@ -140,15 +141,16 @@ spec = beforeAll startApp $ afterAll endWaiApp $
             ]
 
       -- replacements <- SpecUtil.satisfiesRight =<< runExceptT (Client.commitPlay gameId playPieces manager baseUrl)
-      CommitPlayResponse {playScore, replacementPieces} <- SpecUtil.satisfiesRight =<< runExceptT (Client.commitPlay gameId playPieces manager baseUrl)
+      CommitPlayResponse {gameMiniState, replacementPieces} <- SpecUtil.satisfiesRight =<< runExceptT (Client.commitPlay gameId playPieces manager baseUrl)
       length replacementPieces `shouldBe` 3
       -- wordPlayPieces <- SpecUtil.satisfiesRight
-      MachinePlayResponse {playScore, playedPieces} <- SpecUtil.satisfiesRight
+      MachinePlayResponse {gameMiniState, playedPieces} <- SpecUtil.satisfiesRight
         =<< runExceptT (Client.machinePlay gameId manager baseUrl)
       print $ PlayPiece.playPiecesToWord playedPieces
       let piece = last trayPieces
-      (Piece.Piece {value}) <- SpecUtil.satisfiesRight
+      SwapPieceResponse {gameMiniState, piece = swappedPiece} <- SpecUtil.satisfiesRight
          =<< runExceptT (Client.swapPiece gameId piece manager baseUrl)
+      let Piece {value} = swappedPiece
       value `shouldSatisfy` isUpper
       killThread threadId
 

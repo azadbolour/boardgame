@@ -11,14 +11,14 @@
 
 module BoardGame.Server.Web.Converters (
     Converter(..)
-  , gameToDto
+  , gameToStartGameResponse
   )
   where
 
 import Data.Time
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
-import BoardGame.Common.Message.GameDto as GameDto
+import BoardGame.Common.Message.StartGameResponse as StartGameResponse
 import BoardGame.Server.Domain.Game(Game, Game(Game))
 import BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Tray as Tray
@@ -43,9 +43,9 @@ class Converter entity dto where
   toEntity :: dto -> entity
   toDto :: entity -> dto
 
-gameToDto (Game {gameId, languageCode, board, trays, playerName, playNumber, playTurn, pieceGenerator, score, startTime}) =
+gameToStartGameResponse (Game {gameId, languageCode, board, trays, playerName, playNumber, playTurn, pieceGenerator, score, startTime}) =
    let Board {dimension} = board
        genType = PieceGen.pieceGeneratorType pieceGenerator
        Tray {capacity, pieces = trayPieces} = trays !! Player.userIndex
        gameParams = GameParams dimension capacity languageCode playerName genType
-   in GameDto gameId gameParams (Board.getGridPieces board) trayPieces
+   in StartGameResponse gameId gameParams (Board.getGridPieces board) trayPieces

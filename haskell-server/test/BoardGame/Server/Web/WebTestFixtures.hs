@@ -19,7 +19,7 @@ import BoardGame.Common.Domain.Player (Player(Player))
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.GameParams (GameParams)
-import BoardGame.Common.Message.GameDto (GameDto)
+import BoardGame.Common.Message.StartGameResponse (StartGameResponse)
 import BoardGame.Server.Domain.GameEnv (GameEnv)
 import BoardGame.Server.Web.GameEndPoint (addPlayerHandler, startGameHandler)
 import BoardGame.Server.Service.BaseServiceFixtures
@@ -31,7 +31,7 @@ makePlayer env name = do
     eitherUnit <- runExceptT $ addPlayerHandler env player
     satisfiesRight eitherUnit
 
-makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO GameDto
+makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO StartGameResponse
 makeGame env gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith =
   satisfiesRight
     =<< runExceptT (startGameHandler env (StartGameRequest gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith))

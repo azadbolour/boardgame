@@ -21,6 +21,8 @@ module BoardGame.Server.Domain.Game (
   , doExchange
   , validateGameParams
   , gameAgeSeconds
+  , toMiniState
+  , summary
 )
 where
 
@@ -45,6 +47,9 @@ import BoardGame.Common.Domain.GridPiece (GridPiece)
 import qualified BoardGame.Common.Domain.GridValue as GridValue
 import BoardGame.Common.Domain.PlayPiece (PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
+import BoardGame.Common.Domain.GameMiniState (GameMiniState, GameMiniState(GameMiniState))
+import BoardGame.Common.Domain.GameSummary (GameSummary, GameSummary(GameSummary))
+import BoardGame.Common.Domain.StopInfo (StopInfo, StopInfo(StopInfo))
 
 import BoardGame.Server.Domain.Board (Board)
 import qualified BoardGame.Server.Domain.Board as Board
@@ -136,11 +141,24 @@ mkInitialGame gameParams pieceGenerator initGridPieces initUserPieces initMachin
   game' <- initTray game Player.UserPlayer initUserPieces
   initTray game' Player.MachinePlayer initMachinePieces
 
+toMiniState :: Game -> GameMiniState
+toMiniState game @ Game {score} =
+  let lastScore = 10
+      tilesLeft = 100 -- TODO. Get number of tiles.
+      gameEnded = False -- TODO. Compute no more plays.
+  in GameMiniState lastScore score tilesLeft gameEnded
+
 gameAgeSeconds :: UTCTime -> Game -> Int
 gameAgeSeconds utcNow game =
   let diffTime = diffUTCTime utcNow (startTime game)
       ageSeconds = toInteger $ floor diffTime
   in fromIntegral ageSeconds
+
+summary :: Game -> GameSummary
+summary game @ Game {score} =
+  let stopInfo = StopInfo 0 6 False False False -- TODO. Compute real stop info. TODO. Constant for max passes.
+      endScores = [0, 0]
+  in GameSummary stopInfo endScores score -- TODO. Compute end of play scores.
 
 defaultInitialGridPieces :: MonadIO m => Board -> m [GridPiece]
 defaultInitialGridPieces board = do

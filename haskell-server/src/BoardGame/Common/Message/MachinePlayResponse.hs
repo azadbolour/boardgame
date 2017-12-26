@@ -17,16 +17,18 @@ import Data.Aeson (FromJSON, ToJSON)
 import Control.DeepSeq (NFData)
 
 import BoardGame.Common.Domain.PlayPiece
+import BoardGame.Common.Domain.GameMiniState
 
 data MachinePlayResponse = MachinePlayResponse {
-  playScore :: Int,
-  playedPieces :: [PlayPiece]
+    gameMiniState :: GameMiniState
+  , playedPieces :: [PlayPiece]
 }
   deriving (Eq, Show, Generic, NFData)
 
 instance FromJSON MachinePlayResponse
 instance ToJSON MachinePlayResponse
 
-tupleToMachinePlayResponse :: (Int, [PlayPiece]) -> MachinePlayResponse
-tupleToMachinePlayResponse (score, playPieces) = MachinePlayResponse score playPieces
+tupleToMachinePlayResponse :: (GameMiniState, [PlayPiece]) -> MachinePlayResponse
+tupleToMachinePlayResponse (miniState, playPieces) =
+  MachinePlayResponse miniState playPieces
 

@@ -56,6 +56,8 @@ import BoardGame.Common.Domain.Point (Point, Point(Point))
 -- import qualified BoardGame.Common.Domain.Point as Point
 -- import BoardGame.Common.Domain.Point (Axis)
 import qualified BoardGame.Common.Domain.Point as Axis
+import BoardGame.Common.Domain.GameMiniState (GameMiniState)
+import BoardGame.Common.Domain.GameSummary (GameSummary)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
 import qualified BoardGame.Common.Domain.GridValue as GridValue
@@ -185,7 +187,7 @@ startGameService gameParams initGridPieces initUserPieces initMachinePieces = do
 commitPlayService ::
      String
   -> [PlayPiece]
-  -> GameTransformerStack (Int, [Piece])
+  -> GameTransformerStack (GameMiniState, [Piece])
 
 commitPlayService gmId playPieces = do
   GameEnv { gameCache } <- ask
@@ -197,15 +199,16 @@ commitPlayService gmId playPieces = do
     <- Game.reflectPlayOnGame game UserPlayer playPieces
   saveWordPlay gmId playNumber UserPlayer playPieces refills
   liftGameExceptToStack $ GameCache.insert game' gameCache
-  let score = length playPieces -- TODO. Get real score.
-  return $ (score, refills)
+  -- let score = length playPieces -- TODO. Get real score.
+  let miniState = Game.toMiniState game'
+  return $ (miniState, refills)
 
 -- TODO. Save the replacement pieces in the database.
 -- TODO. Need to save the update game info in the DB.
 
 -- | Service function to obtain the next machine play.
 --   If no match is found, then the machine exchanges a piece.
-machinePlayService :: String -> GameTransformerStack (Int, [PlayPiece])
+machinePlayService :: String -> GameTransformerStack (GameMiniState, [PlayPiece])
 machinePlayService gameId = do
   GameEnv { gameCache } <- ask
   (game @ Game {gameId, languageCode, board, trays}) <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
@@ -232,13 +235,14 @@ machinePlayService gameId = do
       saveWordPlay gameId playNumber MachinePlayer playPieces refills
       return (gm, playPieces)
   liftGameExceptToStack $ GameCache.insert game' gameCache
-  let score = length machinePlayPieces
-  return (score, machinePlayPieces)
+  -- let score = length machinePlayPieces
+  let miniState = Game.toMiniState game'
+  return (miniState, machinePlayPieces)
 
 -- TODO. Save the new game data in the database.
 -- TODO. Would this be simpler with a stack of ExceptT May IO??
 -- | Service function to swap a user piece for another.
-swapPieceService :: String -> Piece -> GameTransformerStack Piece
+swapPieceService :: String -> Piece -> GameTransformerStack (GameMiniState, Piece)
 
 swapPieceService gameId (piece @ (Piece {id})) = do
   gameCache <- asks GameEnv.gameCache
@@ -249,12 +253,15 @@ swapPieceService gameId (piece @ (Piece {id})) = do
   (game' @ Game {playNumber}, newPiece) <- Game.doExchange game UserPlayer index
   saveSwap gameId playNumber UserPlayer swappedPiece newPiece
   liftGameExceptToStack $ GameCache.insert game' gameCache
-  return newPiece
+  let miniState = Game.toMiniState game'
+  return (miniState, newPiece)
 
-endGameService :: String -> GameTransformerStack ()
+endGameService :: String -> GameTransformerStack GameSummary
 endGameService gameId = do
   gameCache <- asks GameEnv.gameCache
+  game <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
   liftGameExceptToStack $ GameCache.delete gameId gameCache
+  return $ Game.summary game
   -- TODO. Tell the database that the game has ended - as opposed to suspended.
 
 

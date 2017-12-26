@@ -18,9 +18,10 @@ import Data.List
 import Test.Hspec
 import Control.Monad.Trans.Except (runExceptT)
 import Bolour.Util.SpecUtil (satisfiesRight)
-import BoardGame.Common.Message.GameDto (GameDto(GameDto))
+import BoardGame.Common.Message.SwapPieceResponse (SwapPieceResponse(..))
+import BoardGame.Common.Message.StartGameResponse (StartGameResponse(StartGameResponse))
 -- import BoardGame.Common.Message.StartGameRequest (StartGameRequest(StartGameRequest))
-import qualified BoardGame.Common.Message.GameDto as GameDto(GameDto(..))
+import qualified BoardGame.Common.Message.StartGameResponse as StartGameResponse(StartGameResponse(..))
 import BoardGame.Server.Domain.Play (Play, Play(Play))
 import qualified BoardGame.Server.Domain.Play as Play
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
@@ -68,7 +69,7 @@ spec = do
         env <- Fixtures.initTest
         Fixtures.makePlayer env Fixtures.thePlayer
         gameDto <- Fixtures.makeGame env Fixtures.gameParams [] [] []
-        length (GameDto.trayPieces gameDto) `shouldSatisfy` (== Fixtures.testTrayCapacity)
+        length (StartGameResponse.trayPieces gameDto) `shouldSatisfy` (== Fixtures.testTrayCapacity)
 
   describe "commits a play" $
     it "commit a play" $
@@ -77,7 +78,7 @@ spec = do
         Fixtures.makePlayer env Fixtures.thePlayer
         uPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
         mPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
-        GameDto {gameId, gameParams, gridPieces, trayPieces}
+        StartGameResponse {gameId, gameParams, gridPieces, trayPieces}
           <- Fixtures.makeGame env Fixtures.gameParams [] uPieces mPieces
 --         let GridValue {value = piece, point = centerPoint} =
 --               fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
@@ -91,7 +92,7 @@ spec = do
               , PlayPiece pc2 (Point center (center + 1)) True
               ]
 
-        CommitPlayResponse {playScore, replacementPieces} <- satisfiesRight
+        CommitPlayResponse {gameMiniState, replacementPieces} <- satisfiesRight
           =<< runExceptT (commitPlayHandler env gameId playPieces)
         length replacementPieces `shouldBe` 3
 
@@ -101,8 +102,8 @@ spec = do
         env <- Fixtures.initTest
         Fixtures.makePlayer env Fixtures.thePlayer
         gameDto <- Fixtures.makeGame env Fixtures.gameParams [] [] []
-        MachinePlayResponse {playScore, playedPieces} <- satisfiesRight
-          =<< runExceptT (machinePlayHandler env (GameDto.gameId gameDto))
+        MachinePlayResponse {gameMiniState, playedPieces} <- satisfiesRight
+          =<< runExceptT (machinePlayHandler env (StartGameResponse.gameId gameDto))
         let word = Play.playToWord $ Play playedPieces
         length word `shouldSatisfy` (> 1)
   describe "swap a piece" $
@@ -110,10 +111,11 @@ spec = do
       do
         env <- Fixtures.initTest
         Fixtures.makePlayer env Fixtures.thePlayer
-        (GameDto {gameId, trayPieces}) <- Fixtures.makeGame env Fixtures.gameParams [] [] []
+        (StartGameResponse {gameId, trayPieces}) <- Fixtures.makeGame env Fixtures.gameParams [] [] []
         let piece = head trayPieces
-        (Piece {value}) <- satisfiesRight
+        SwapPieceResponse {gameMiniState, piece = swappedPiece} <- satisfiesRight
           =<< runExceptT (swapPieceHandler env gameId piece)
+        let Piece {value} = swappedPiece
         value `shouldSatisfy` isUpper
 
 

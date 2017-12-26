@@ -8,9 +8,9 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
 
-module BoardGame.Common.Message.CommitPlayResponse (
-    CommitPlayResponse(..)
-  , tupleToCommitPlayResponse
+module BoardGame.Common.Message.SwapPieceResponse (
+    SwapPieceResponse(..)
+  , tupleToSwapPieceResponse
   ) where
 
 import GHC.Generics (Generic)
@@ -20,17 +20,17 @@ import Control.DeepSeq (NFData)
 import BoardGame.Common.Domain.Piece
 import BoardGame.Common.Domain.GameMiniState
 
-data CommitPlayResponse = CommitPlayResponse {
+data SwapPieceResponse = SwapPieceResponse {
     gameMiniState :: GameMiniState
-  , replacementPieces :: [Piece]
+  , piece :: Piece
 }
   deriving (Eq, Show, Generic, NFData)
 
-instance FromJSON CommitPlayResponse
-instance ToJSON CommitPlayResponse
+instance FromJSON SwapPieceResponse
+instance ToJSON SwapPieceResponse
 
-tupleToCommitPlayResponse :: (GameMiniState, [Piece]) -> CommitPlayResponse
-tupleToCommitPlayResponse (miniState, replacementPieces) =
-  CommitPlayResponse miniState replacementPieces
+tupleToSwapPieceResponse :: (GameMiniState, Piece) -> SwapPieceResponse
+tupleToSwapPieceResponse (miniState, piece) =
+  SwapPieceResponse miniState piece
 
 

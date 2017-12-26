@@ -66,14 +66,18 @@ library
       BoardGame.Common.Domain.GridPiece
       BoardGame.Common.Domain.PieceGeneratorType
       BoardGame.Common.Domain.GameParams
-      BoardGame.Common.Message.GameDto
       BoardGame.Common.Message.StartGameRequest
+      BoardGame.Common.Message.StartGameResponse
       BoardGame.Common.Message.CommitPlayResponse
       BoardGame.Common.Message.MachinePlayResponse
+      BoardGame.Common.Message.SwapPieceResponse
       BoardGame.Common.Domain.PlayPiece
       BoardGame.Common.Domain.PieceGen
       BoardGame.Common.Domain.ScoreMultiplierType
       BoardGame.Common.Domain.ScoreMultiplier
+      BoardGame.Common.Domain.StopInfo
+      BoardGame.Common.Domain.GameMiniState
+      BoardGame.Common.Domain.GameSummary
       BoardGame.Server.Domain.Grid
       BoardGame.Server.Domain.Core
       BoardGame.Server.Domain.Board

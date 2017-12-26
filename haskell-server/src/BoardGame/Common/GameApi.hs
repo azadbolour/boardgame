@@ -195,22 +195,23 @@ import Servant
 import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 import BoardGame.Common.Domain.GridValue (GridValue)
-import BoardGame.Common.Message.GameDto (GameDto)
 import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse)
 import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse)
-import BoardGame.Common.Message.GameDto (GameDto)
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest)
+import BoardGame.Common.Message.StartGameResponse (StartGameResponse)
+import BoardGame.Common.Message.SwapPieceResponse (SwapPieceResponse)
+import BoardGame.Common.Domain.GameSummary (GameSummary)
 import BoardGame.Common.Domain.Player (Player)
 import BoardGame.Common.Domain.Piece (Piece)
 
 -- | The api interface for the game as a type. All paths have a "game" prefix.
 type GameApi =
        "game" :> "player" :> ReqBody '[JSON] Player :> Post '[JSON] ()
-  :<|> "game" :> "game" :> ReqBody '[JSON] StartGameRequest :> Post '[JSON] GameDto
+  :<|> "game" :> "game" :> ReqBody '[JSON] StartGameRequest :> Post '[JSON] StartGameResponse
   :<|> "game" :> "commit-play" :> Capture "gameId" String :> ReqBody '[JSON] [PlayPiece] :> Post '[JSON] CommitPlayResponse
   :<|> "game" :> "machine-play" :> Capture "gameId" String :> Post '[JSON] MachinePlayResponse
-  :<|> "game" :> "swap-piece" :> Capture "gameId" String :> ReqBody '[JSON] Piece :> Post '[JSON] Piece
-  :<|> "game" :> "end-game" :> Capture "gameId" String :> Post '[JSON] ()
+  :<|> "game" :> "swap-piece" :> Capture "gameId" String :> ReqBody '[JSON] Piece :> Post '[JSON] SwapPieceResponse
+  :<|> "game" :> "end-game" :> Capture "gameId" String :> Post '[JSON] GameSummary
 
 -- Note - In later servant versions this has changed - just use Raw.
 type GameApi' = GameApi :<|> "boardgame" :> Raw

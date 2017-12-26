@@ -61,18 +61,20 @@ import BoardGame.Common.GameApi (GameApi, GameApi', gameApi')
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.Player (Player)
+import BoardGame.Common.Domain.GameSummary (GameSummary)
 import BoardGame.Common.Domain.GameParams (GameParams(..))
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
-import BoardGame.Common.Message.GameDto (GameDto)
 import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse, CommitPlayResponse(CommitPlayResponse), tupleToCommitPlayResponse)
 import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse, MachinePlayResponse(MachinePlayResponse), tupleToMachinePlayResponse)
+import BoardGame.Common.Message.SwapPieceResponse (SwapPieceResponse, SwapPieceResponse(SwapPieceResponse), tupleToSwapPieceResponse)
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest, StartGameRequest(StartGameRequest))
 import qualified BoardGame.Common.Message.StartGameRequest as StartGameRequest
+import BoardGame.Common.Message.StartGameResponse (StartGameResponse, StartGameResponse(StartGameResponse))
 import BoardGame.Server.Domain.GameError (GameError(..), ExceptGame)
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack)
 import qualified BoardGame.Server.Service.GameTransformerStack as TransformerStack
-import BoardGame.Server.Web.Converters (gameToDto)
+import BoardGame.Server.Web.Converters (gameToStartGameResponse)
 import qualified BoardGame.Server.Service.GameService as GameService
 
 -- TODO. Simplify the api implementation by using the Servant 'enter' function.
@@ -145,23 +147,23 @@ addPlayerHandler env player =
 -- gameTransformerStackHandler env $ GameService.addPlayerService player
 
 -- | API handler to create and start a new game.
-startGameHandler :: GameEnv -> StartGameRequest -> ExceptServant GameDto
+startGameHandler :: GameEnv -> StartGameRequest -> ExceptServant StartGameResponse
 startGameHandler env (StartGameRequest{gameParams, initGridPieces, initUserPieces, initMachinePieces}) =
   gameTransformerStackHandler env $ do -- GameTransformerStack
-    gameDto <- startGameServiceWrapper gameParams initGridPieces initUserPieces initMachinePieces
+    response <- startGameServiceWrapper gameParams initGridPieces initUserPieces initMachinePieces
     -- logMessage (show gameDto) -- TODO. Could not prettify it - tried groom and pretty-show. No good.
-    return gameDto
+    return response
 
 startGameServiceWrapper ::
      GameParams
   -> [GridPiece]
   -> [Piece]
   -> [Piece]
-  -> GameTransformerStack GameDto
+  -> GameTransformerStack StartGameResponse
 startGameServiceWrapper params initGridPieces initUserPieces initMachinePieces = do
   -- (game, maybePlayPieces) <- GameService.startGameService params gridPieces initUserPieces initMachinePieces
   game <- GameService.startGameService params initGridPieces initUserPieces initMachinePieces
-  return $ gameToDto game
+  return $ gameToStartGameResponse game
 
 -- | API handler to commit a new play by the player side of the game.
 commitPlayHandler :: GameEnv -> String -> [PlayPiece] -> ExceptServant CommitPlayResponse
@@ -174,10 +176,11 @@ machinePlayHandler env gameId = gameTransformerStackHandler env $
   tupleToMachinePlayResponse <$> GameService.machinePlayService gameId
 
 -- | API handler to swap a piece.
-swapPieceHandler :: GameEnv -> String -> Piece -> ExceptServant Piece
-swapPieceHandler env gameId piece = gameTransformerStackHandler env $ GameService.swapPieceService gameId piece
+swapPieceHandler :: GameEnv -> String -> Piece -> ExceptServant SwapPieceResponse
+swapPieceHandler env gameId piece = gameTransformerStackHandler env $
+  tupleToSwapPieceResponse <$> GameService.swapPieceService gameId piece
 
-endGameHandler :: GameEnv -> String -> ExceptServant ()
+endGameHandler :: GameEnv -> String -> ExceptServant GameSummary
 endGameHandler env gameId = gameTransformerStackHandler env $ GameService.endGameService gameId
 
 -- | Convert an unknown exception that may be thrown by the Haskell
