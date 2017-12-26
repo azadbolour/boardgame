@@ -7,10 +7,10 @@
 /** @module Piece */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 const ItemTypes = require('./DragDropTypes').ItemTypes;
 const DragSource = require('react-dnd').DragSource;
 import logger from "../util/Logger";
-const PropTypes = React.PropTypes;
 import {stringify} from "../util/Logger";
 import * as Piece from "../domain/Piece";
 
@@ -62,8 +62,9 @@ function injectedDragSourceProperties(connect, monitor) {
 /**
  * The piece. A draggable item.
  */
-const PieceComponent = React.createClass({
-  propTypes: {
+class PieceComponent extends React.Component {
+
+  static propTypes = {
 
     /**
      * The immutable state of the piece.
@@ -86,9 +87,9 @@ const PieceComponent = React.createClass({
      * Injected - obtained from the 'collect' function.
      */
     isDragging: PropTypes.bool.isRequired
-  },
+  };
 
-  render: function () {
+  render() {
     let connectDragSource = this.props.connectDragSource;
     let isDragging = this.props.isDragging;
     let letter = this.props.piece.value;
@@ -118,7 +119,7 @@ const PieceComponent = React.createClass({
       </div>
     );
   }
-});
+}
 
 export default DragSource(ItemTypes.PIECE, pieceDragger, injectedDragSourceProperties)(PieceComponent);
 

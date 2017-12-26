@@ -6,6 +6,7 @@
 
 /** @module Board */
 import React from 'react';
+import PropTypes from 'prop-types';
 import BoardSquareComponent from './BoardSquareComponent';
 import PieceComponent from './PieceComponent';
 import * as Piece from '../domain/Piece';
@@ -13,8 +14,6 @@ import {mkPoint} from '../domain/Point';
 import * as Point from '../domain/Point';
 import logger from "../util/Logger";
 import {stringify} from "../util/Logger";
-
-const PropTypes = React.PropTypes;
 
 /**
  * A style that includes the board's overall
@@ -43,8 +42,8 @@ function squareStyle(squarePixels) {
 /**
  * User interface component representing a board.
  */
-const BoardComponent = React.createClass({
-  propTypes: {
+class BoardComponent extends React.Component {
+  static propTypes = {
     /**
      * The board data.
      */
@@ -76,20 +75,20 @@ const BoardComponent = React.createClass({
      * The board responds to interactions.
      */
     enabled: PropTypes.bool.isRequired
-  },
+  };
 
   /**
    * Is an row, col position currently occupied?
    */
-  positionInPlay: function(point) {
+  positionInPlay(point) {
     return this.props.pointsInPlay.some(p => Point.eq(p, point));
-  },
+  }
 
   /**
    * Return the UI specification of the piece that goes into
    * a specific board square - given the square's position.
    */
-  renderPiece: function (point) {
+  renderPiece(point) {
     let piece = this.props.board.rows()[point.row][point.col].piece;
     let canMovePiece = this.props.canMovePiece;
     let enabled = this.props.enabled;
@@ -99,7 +98,7 @@ const BoardComponent = React.createClass({
       canMovePiece={canMovePiece}
       enabled={enabled}
     />;
-  },
+  }
 
   /**
    * Return the UI specification of a single square based
@@ -108,7 +107,7 @@ const BoardComponent = React.createClass({
    * A function may return the react specification of a
    * UI component, and these specifications may be composed.
    */
-  renderSquare: function (row, col) {
+  renderSquare(row, col) {
     let dimension = this.props.board.dimension;
     let squareKey = dimension * row + col;
     let isLegalMove = this.props.isLegalMove;
@@ -134,7 +133,7 @@ const BoardComponent = React.createClass({
         </BoardSquareComponent>
       </div>
     );
-  },
+  }
 
   /**
    * Render all the squares on the board by accumulating their
@@ -142,7 +141,7 @@ const BoardComponent = React.createClass({
    * the child of a div component. The div component has a style
    * with the correct overall size of the board.
    */
-  render: function () {
+  render() {
     let dimension = this.props.board.dimension;
     let squarePixels = this.props.squarePixels;
     let squares = [];
@@ -156,7 +155,6 @@ const BoardComponent = React.createClass({
       </div>
     );
   }
-
-});
+}
 
 export default BoardComponent;

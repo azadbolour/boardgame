@@ -7,6 +7,7 @@
 /** @module BoardSquare */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 const ItemTypes = require('./DragDropTypes').ItemTypes;
 const DropTarget = require('react-dnd').DropTarget;
 import SquareComponent from './SquareComponent';
@@ -16,8 +17,6 @@ import {mkPoint} from '../domain/Point';
 import {mkGridPiece} from '../domain/GridPiece';
 import {stringify} from "../util/Logger";
 import {ScoreMultiplierType} from "../domain/ScoreMultiplier";
-
-const PropTypes = React.PropTypes;
 
 /**
  * Color coding style for move destinations (drop targets of the the piece being dragged).
@@ -200,8 +199,8 @@ function scoreMultiplierColor(scoreMultiplier) {
  * board position to its own class. There were issues with
  * class instances and react dnd.
  */
-let BoardSquareComponent = React.createClass({
-  propTypes: {
+class BoardSquareComponent extends React.Component {
+  static propTypes = {
     /**
      * The position of the square on the board.
      */
@@ -246,9 +245,9 @@ let BoardSquareComponent = React.createClass({
     enabled: PropTypes.bool.isRequired,
 
     // Note connectDropTarget is also injected.
-  },
+  };
 
-  render: function () {
+  render() {
     let connectDropTarget = this.props.connectDropTarget;
     let isOver = this.props.isOver;
     let canDrop = this.props.canDrop;
@@ -288,7 +287,7 @@ let BoardSquareComponent = React.createClass({
       </div>
     );
   }
-});
+}
 
 /**
  * Decorator of the BoardSquare as a drop target.

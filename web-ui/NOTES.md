@@ -1,4 +1,7 @@
 
+- Always use arrow functions when passing a component method to an inner render 
+  handler. Otherwise, this will be undefined when the "method" executes.
+
 - Use pre tags for spaces and just add spaces. Do not use &nbsp; it gets turned
   into circumflex A in unpredictable ways when using srevant and react.
 

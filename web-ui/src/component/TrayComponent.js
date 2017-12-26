@@ -6,11 +6,10 @@
 
 /** @module Tray */
 import React from 'react';
+import PropTypes from 'prop-types';
 import PieceComponent from './PieceComponent';
 import TraySquareComponent from './TraySquareComponent';
 import * as Piece from '../domain/Piece';
-
-const PropTypes = React.PropTypes;
 
 /**
  * A style that includes the board's overall
@@ -39,21 +38,21 @@ function squareStyle(squarePixels) {
 /**
  * User interface component representing tray of available pieces.
  */
-const TrayComponent = React.createClass({
-  propTypes: {
+class TrayComponent extends React.Component {
+  static propTypes = {
     pieces: PropTypes.array.isRequired,
     canMovePiece: PropTypes.func.isRequired,
     squarePixels: PropTypes.number.isRequired,
     enabled: PropTypes.bool.isRequired
-  },
+  };
   
   /**
    * Return the UI specification of the piece that goes into
    * a specific board square - given the square's position.
    */
-  renderPiece: function (position) {
+  renderPiece(position) {
     return <PieceComponent piece={this.props.pieces[position]} canMovePiece={this.props.canMovePiece} />;
-  },
+  }
 
   /**
    * Return the UI specification of a single square based
@@ -62,7 +61,7 @@ const TrayComponent = React.createClass({
    * A function may return the react specification of a
    * UI component, and these specifications may be composed.
    */
-  renderSquare: function (position) {
+  renderSquare(position) {
     let squareKey = position;
     let squarePixels = this.props.squarePixels;
     let pieces = this.props.pieces;
@@ -84,7 +83,7 @@ const TrayComponent = React.createClass({
         </TraySquareComponent>
       </div>
     );
-  },
+  }
 
   /**
    * Render all the squares on the tray by accumulating their
@@ -92,7 +91,7 @@ const TrayComponent = React.createClass({
    * the child of a div component. The div component has a style
    * with the correct overall size of the board. See boardStyle.
    */
-  render: function () {
+  render() {
     let trayCapacity = this.props.pieces.length;
     let squarePixels = this.props.squarePixels;
     let squares = [];
@@ -107,7 +106,7 @@ const TrayComponent = React.createClass({
     );
   }
 
-});
+}
 
 /**
  * The opponent's tray of pieces.

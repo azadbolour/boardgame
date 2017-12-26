@@ -1,0 +1,38 @@
+
+- Add error boundary.
+
+- Using fragments <> </> instead of divs??
+
+    https://reactjs.org/blog/2017/11/28/react-v16.2.0-fragment-support.html
+
+- Change all code to use module pattern rather than classes.
+
+- Split GameComponent:
+
+      https://medium.com/dailyjs/techniques-for-decomposing-react-components-e8a1081ef5da
+
+  Can you use functional components?
+
+  For each button, create a static javascript object:
+
+  startData = 
+    {
+      name:
+      title:
+      toolTip:
+      onClick:
+    }
+
+    <GameButton data={startData} enabled={} />
+    
+  take out some of the styles
+
+   factor out score component
+
+   wrapping a componnet inside a padding style div can be made into
+   a function
+
+- Make sure production version uses sanctioned code.
+
+- Clean up mock api.
+

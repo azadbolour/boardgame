@@ -7,13 +7,12 @@
 /** @module TraySquare */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 const ItemTypes = require('./DragDropTypes').ItemTypes;
 const DropTarget = require('react-dnd').DropTarget;
 import Square from './SquareComponent';
 import {mkPiece} from '../domain/Piece';
 import actions from '../event/GameActions';
-let PropTypes = React.PropTypes;
-
 
 // TODO. Duplicated in BoardSquareComponent. DRY.
 function colorCodedLegalMoveStyle(pixels, colorCoding) {
@@ -85,8 +84,9 @@ function injectedDropTargetProperties(connect, monitor) {
  * board position to its own class. There were issues with
  * class instances and react dnd.
  */
-const TraySquareComponent = React.createClass({
-  propTypes: {
+class TraySquareComponent extends React.Component {
+
+  static propTypes = {
     position: PropTypes.number.isRequired,
     isTrayPiece: PropTypes.func.isRequired,
     squarePixels: PropTypes.number.isRequired,
@@ -98,9 +98,9 @@ const TraySquareComponent = React.createClass({
     isOver: PropTypes.bool.isRequired,
 
     canDrop: PropTypes.bool.isRequired
-  },
+  };
 
-  render: function () {
+  render() {
     let connectDropTarget = this.props.connectDropTarget;
     let shade = checkerShade(this.props.position);
     // let squarePixels = this.props.squarePixels;
@@ -130,7 +130,7 @@ const TraySquareComponent = React.createClass({
       </div>
     );
   }
-});
+}
 
 // export default TraySquareComponent;
 

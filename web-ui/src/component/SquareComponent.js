@@ -7,8 +7,7 @@
 /** @module Square */
 
 import React from 'react';
-
-const PropTypes = React.PropTypes;
+import PropTypes from 'prop-types';
 
 function squareStyle(pixels, backgroundColor, color) {
   const pix = pixels + 'px';
@@ -27,15 +26,16 @@ function squareStyle(pixels, backgroundColor, color) {
 /**
  * Plain old board square - does not know about drag and drop.
  */
-const SquareComponent = React.createClass({
-  propTypes: {
+class SquareComponent extends React.Component {
+
+  static propTypes = {
     pixels: PropTypes.number.isRequired,
     color: PropTypes.string.isRequired,
     backgroundColor: PropTypes.string.isRequired,
     enabled: PropTypes.bool.isRequired
-  },
+  };
 
-  render: function () {
+  render() {
     let pixels = this.props.pixels;
     let color = this.props.color;
     let backgroundColor = this.props.backgroundColor;
@@ -46,6 +46,6 @@ const SquareComponent = React.createClass({
       </div>
     );
   }
-});
+}
 
 export default SquareComponent;

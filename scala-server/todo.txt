@@ -1,4 +1,9 @@
 
+- Use smaller amazon machine.
+
+  Try t2.medium first. 2 CPU and 4G no SSD. 5c/hour
+  Then m3.large 2 CPU and 7.5 G SSD. 15c/hour
+
 - Indicate that it is user's turn to drag.
 
 - Remove non-word double letters from teh dictionary. WS, YE.
@@ -23,6 +28,9 @@
 
 - App logs in docker should go to the data area so you can see them easily from the
   outside.
+
+- Catch and log UI errors at highest level - and send to server if possible -
+  indicate error id in UI asking user to report.
 
 - Word frequencies:
 

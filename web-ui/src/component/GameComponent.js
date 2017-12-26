@@ -6,6 +6,7 @@
 
 /** @module Game */
 const DragDropContext = require('react-dnd').DragDropContext;
+import PropTypes from 'prop-types';
 const HTML5Backend = require('react-dnd-html5-backend');
 import React from 'react';
 import ReactList from 'react-list';
@@ -16,8 +17,6 @@ import SwapBinComponent from './SwapBinComponent';
 import actions from '../event/GameActions';
 import {stringify} from "../util/Logger";
 import * as Style from "../util/StyleUtil";
-
-const PropTypes = React.PropTypes;
 
 function buttonStyle(enabled) {
   let color = enabled ? 'Chocolate' : Style.disabledColor;
@@ -87,55 +86,63 @@ const REVERT = "revert";
 /**
  * The entire game UI component including the board and game buttons.
  */
-const GameComponent = React.createClass({
+class GameComponent extends React.Component {
 
-  getInitialState: function() {
-    return {tipButton: ''};
-  },
+  constructor(props) {
+    super(props);
+    this.state = {
+      tipButton: ''
+    }
+  }
 
-  propTypes: {
+  // getInitialState() {
+  //   return {tipButton: ''};
+  // }
+
+  static propTypes = {
     /**
      * The contents of the grid. It is a 2-dimensional array of strings.
      */
     game: PropTypes.object.isRequired,
     status: PropTypes.string,
     auxGameData: PropTypes.object.isRequired
-  },
+  };
+
 
   tipOn(tipButton) {
     this.setState({tipButton: tipButton});
-  },
+  }
 
   tipOff() {
     this.setState({tipButton: ''});
-  },
+  }
 
   isTipOn(tipButton) {
     return this.state.tipButton === tipButton;
-  },
+  }
 
   overStart() {
 
-  },
+  }
 
-  commitPlay: function() {
+  commitPlay() {
     actions.commitPlay();
     // TODO. If server rejects the word - undo the play.
-  },
+  }
 
-  revertPlay: function() {
+  revertPlay() {
     actions.revertPlay();
-  },
+  }
 
-  startGame: function() {
+  startGame() {
     actions.start(this.props.game.gameParams);
-  },
+  }
 
-  endGame: function() {
+  endGame() {
     actions.end();
-  },
+  }
 
-  renderWord: function(index, key) {
+  renderWord(index, key) {
     let words = this.props.auxGameData.wordsPlayed;
     let l = words.length
     let word = words[index].word;
@@ -146,21 +153,21 @@ const GameComponent = React.createClass({
                   color: color,
                   padding: '3px'
                   }}>{wordRep}</div>;
-  },
+  }
 
-  scrollToLastWord: function() {
+  scrollToLastWord() {
     this.wordReactListComponent.scrollTo(this.props.auxGameData.wordsPlayed.length - 1);
-  },
+  }
 
-  componentDidMount: function() {
+  componentDidMount() {
     this.scrollToLastWord();
-  },
+  }
 
-  componentDidUpdate: function(prevPros, prevState) {
+  componentDidUpdate(prevPros, prevState) {
     this.scrollToLastWord();
-  },
+  }
 
-  render: function () {
+  render() {
     let game = this.props.game;
     let running = game.running();
     let hasUncommittedPieces = game.numPiecesInPlay() > 0;
@@ -294,7 +301,7 @@ const GameComponent = React.createClass({
                 }}>
                 <ReactList
                   ref={c => this.wordReactListComponent = c}
-                  itemRenderer={this.renderWord}
+                  itemRenderer={ (index, key) => this.renderWord(index, key) }
                   length={this.props.auxGameData.wordsPlayed.length}
                   type='uniform'
                 />
@@ -322,7 +329,7 @@ const GameComponent = React.createClass({
     )
   }
 
-});
+}
 
 export default DragDropContext(HTML5Backend)(GameComponent);
 

@@ -14,6 +14,7 @@ jest.dontMock('../component/TraySquareComponent');
 import React from 'react';
 import ReactDOM from 'react-dom';
 const DragDropContext = require('react-dnd').DragDropContext;
+// TODO. change: react-addons-test-utils as react-dom/test-utils
 import TestUtils from 'react-addons-test-utils'
 import TestBackend from 'react-dnd-test-backend';
 
@@ -34,7 +35,7 @@ const Component = React.Component;
 
 function wrapInTestContext(DecoratedComponent) {
   return DragDropContext(TestBackend)(
-    React.createClass({
+    create-react-class({
       render: function () {
         return <DecoratedComponent {...this.props} />;
       }

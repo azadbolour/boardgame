@@ -7,11 +7,12 @@
 /** @module SwapBin */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 const ItemTypes = require('./DragDropTypes').ItemTypes;
 const DropTarget = require('react-dnd').DropTarget;
 import {mkPiece} from '../domain/Piece';
 import SquareComponent from './SquareComponent';
-import actions from '../event/GameActions';let PropTypes = React.PropTypes;
+import actions from '../event/GameActions';
 import {stringify} from "../util/Logger";
 import * as Style from "../util/StyleUtil";
 
@@ -76,8 +77,8 @@ function injectedDropTargetProperties(connect, monitor) {
   };
 }
 
-const SwapBinComponent = React.createClass({
-  propTypes: {
+class SwapBinComponent extends React.Component {
+  static propTypes = {
     /**
      * Check that piece comes fro the tray - and hence can be swapped.
      */
@@ -96,9 +97,9 @@ const SwapBinComponent = React.createClass({
     canDrop: PropTypes.bool.isRequired
 
     // Note connectDropTarget is also injected.
-  },
+  };
 
-  render: function () {
+  render() {
     let connectDropTarget = this.props.connectDropTarget;
     let isOver = this.props.isOver;
     let canDrop = this.props.canDrop;
@@ -126,6 +127,6 @@ const SwapBinComponent = React.createClass({
       </div>
     );
   }
-});
+}
 
 export default DropTarget(ItemTypes.PIECE, pieceDropper, injectedDropTargetProperties)(SwapBinComponent);
