@@ -59,6 +59,8 @@ import BoardGame.Server.Domain.GameError
 import BoardGame.Common.Domain.PieceGen
 import qualified BoardGame.Common.Domain.PieceGen as PieceGen
 
+-- TODO. Separate out Game from GameState. See Scala version.
+
 data Game = Game {
     gameId :: String
   , languageCode :: String
@@ -68,7 +70,9 @@ data Game = Game {
   , playNumber :: Int
   , playTurn :: PlayerType
   , pieceGenerator :: PieceGen
-  , score :: [Int]
+  , lastPlayScore :: Int
+  , numSuccessivePasses :: Int
+  , scores :: [Int]
   , startTime :: UTCTime
 }
 
@@ -95,9 +99,7 @@ updatePieceGenerator :: Game -> PieceGen -> Game
 -- | Explicit record update for fieldGenerator.
 --   Cannot do normal update: game {pieceGenerator = nextGen} gets compiler error:
 --   Record update for insufficiently polymorphic field: pieceGenerator.
-updatePieceGenerator
-  Game {gameId, languageCode, board, trays, playerName, playNumber, playTurn, pieceGenerator, score, startTime} generator =
-    Game gameId languageCode board trays playerName playNumber playTurn generator score startTime
+updatePieceGenerator game generator = game { pieceGenerator = generator }
 
 mkPiece :: MonadIO m => Game -> m (Game, Piece)
 mkPiece (game @ Game {pieceGenerator}) = do
@@ -116,7 +118,8 @@ mkPieces' n (game, pieces) = do
 mkPieces :: MonadIO m => Int -> Game -> m (Game, [Piece])
 mkPieces num game = mkPieces' num (game, [])
 
-initScores = [0, 0]
+initScore = 0
+initScores = [initScore, initScore]
 
 -- | Note. Validation of player name does not happen here.
 mkInitialGame :: (MonadError GameError m, MonadIO m) =>
@@ -137,16 +140,28 @@ mkInitialGame gameParams pieceGenerator initGridPieces initUserPieces initMachin
   now <- liftIO getCurrentTime
   let emptyTray = Tray trayCapacity []
       emptyTrays = [emptyTray, emptyTray]
-      game = Game gameId languageCode board' emptyTrays playerName 0 Player.UserPlayer pieceGenerator initScores now
+      game = Game
+                gameId
+                languageCode
+                board'
+                emptyTrays
+                playerName
+                0
+                Player.UserPlayer
+                pieceGenerator
+                initScore
+                0
+                initScores
+                now
   game' <- initTray game Player.UserPlayer initUserPieces
   initTray game' Player.MachinePlayer initMachinePieces
 
 toMiniState :: Game -> GameMiniState
-toMiniState game @ Game {score} =
+toMiniState game @ Game {scores} =
   let lastScore = 10
       tilesLeft = 100 -- TODO. Get number of tiles.
       gameEnded = False -- TODO. Compute no more plays.
-  in GameMiniState lastScore score tilesLeft gameEnded
+  in GameMiniState lastScore scores tilesLeft gameEnded
 
 gameAgeSeconds :: UTCTime -> Game -> Int
 gameAgeSeconds utcNow game =
@@ -155,10 +170,10 @@ gameAgeSeconds utcNow game =
   in fromIntegral ageSeconds
 
 summary :: Game -> GameSummary
-summary game @ Game {score} =
+summary game @ Game {scores} =
   let stopInfo = StopInfo 0 6 False False False -- TODO. Compute real stop info. TODO. Constant for max passes.
       endScores = [0, 0]
-  in GameSummary stopInfo endScores score -- TODO. Compute end of play scores.
+  in GameSummary stopInfo endScores scores -- TODO. Compute end of play scores.
 
 defaultInitialGridPieces :: MonadIO m => Board -> m [GridPiece]
 defaultInitialGridPieces board = do
