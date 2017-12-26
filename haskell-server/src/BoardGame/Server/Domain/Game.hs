@@ -14,7 +14,6 @@
 module BoardGame.Server.Domain.Game (
     Game(..)
   , mkInitialGame
-  , addPlayedPieces
   , setPlayerTray
   , validatePlayAgainstGame
   , reflectPlayOnGame
@@ -262,36 +261,49 @@ checkPlayBoardPieces Game {board} playPieces =
        Just gridPiece -> throwError $ UnmatchedBoardPlayPieceError gridPiece
 
 reflectPlayOnGame :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> [PlayPiece] -> m (Game, [Piece])
-reflectPlayOnGame game playerType playPieces = do
+reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, scores}) playerType playPieces = do
   playPieces' <- validatePlayAgainstGame game playPieces
   let movedPlayPieces = filter PlayPiece.moved playPieces'
       movedGridPieces = PlayPiece.getGridPiece <$> movedPlayPieces
-  addPlayedPieces game playerType movedGridPieces
+      b = Board.setBoardPieces board movedGridPieces
+      usedPieces = GridValue.value <$> movedGridPieces
+      playerIndex = Player.playerTypeIndex playerType
+  (game', newPieces) <- mkPieces (length usedPieces) game
+  let tray = trays !! playerIndex
+      tray' = Tray.replacePieces tray usedPieces newPieces
+      trays' = Util.setListElement trays playerIndex tray'
+      playNumber' = playNumber + 1
+      score' = length playPieces -- TODO. Compute real score.
+      scores' = Util.setListElement scores playerIndex score'
+  return (game' { board = b, trays = trays', playNumber = playNumber', lastPlayScore = score', numSuccessivePasses = 0, scores = scores' }, newPieces)
+
+  -- addPlayedPieces game playerType movedGridPieces
 
 -- | Update the representation of the game by moving the moved
 --   pieces of a play from the corresponding tray to the game's board,
 --   then replenish the spent pieces of that tray and return the
 --   updated game, and the replenished pieces. TODO. Better name for this function.
-addPlayedPieces :: MonadIO m => Game -> PlayerType -> [GridPiece] -> m (Game, [Piece])
-addPlayedPieces (game @ Game {board, trays, playNumber}) playerType playedGridPieces = do
-  let b = Board.setBoardPieces board playedGridPieces
-      usedPieces = GridValue.value <$> playedGridPieces
-      whichTray = Player.playerTypeIndex playerType
-  (game', newPieces) <- mkPieces (length usedPieces) game
-  let tray = trays !! whichTray
-      tray' = Tray.replacePieces tray usedPieces newPieces
-      trays' = Util.setListElement trays whichTray tray'
-      playNumber' = playNumber + 1
-  return (game' { board = b, trays = trays', playNumber = playNumber'}, newPieces)
+-- addPlayedPieces :: MonadIO m => Game -> PlayerType -> [GridPiece] -> m (Game, [Piece])
+-- addPlayedPieces (game @ Game {board, trays, playNumber}) playerType playedGridPieces = do
+--   let b = Board.setBoardPieces board playedGridPieces
+--       usedPieces = GridValue.value <$> playedGridPieces
+--       whichTray = Player.playerTypeIndex playerType
+--   (game', newPieces) <- mkPieces (length usedPieces) game
+--   let tray = trays !! whichTray
+--       tray' = Tray.replacePieces tray usedPieces newPieces
+--       trays' = Util.setListElement trays whichTray tray'
+--       playNumber' = playNumber + 1
+--   return (game' { board = b, trays = trays', playNumber = playNumber'}, newPieces)
 
 doExchange :: (MonadIO m) => Game -> PlayerType -> Int -> m (Game, Piece)
-doExchange (game @ Game {gameId, board, trays}) playerType trayPos = do
+doExchange (game @ Game {gameId, board, trays, numSuccessivePasses}) playerType trayPos = do
   (game', piece') <- mkPiece game
   let whichTray = Player.playerTypeIndex playerType
       tray = trays !! whichTray
       tray' = Tray.replacePiece tray trayPos piece'
       game'' = setPlayerTray game' playerType tray'
-  return (game'', piece')
+      game''' = game'' {lastPlayScore = 0, numSuccessivePasses = numSuccessivePasses + 1}
+  return (game''', piece')
 
 -- Either is a MonadError - but this generalizes the function.
 -- In general rather than using a specific monad, use an mtl type class
