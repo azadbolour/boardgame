@@ -271,7 +271,7 @@ class GameComponent extends React.Component {
     let startButton = this.renderButton(this.startAttrs, !running && !isError);
     let commitButton = this.renderButton(this.commitAttrs, running && hasUncommittedPieces);
     let revertButton = this.renderButton(this.revertAttrs, running && hasUncommittedPieces);
-    
+
     let trayComponent = <TrayComponent
       pieces={trayPieces}
       canMovePiece={canMovePiece}
