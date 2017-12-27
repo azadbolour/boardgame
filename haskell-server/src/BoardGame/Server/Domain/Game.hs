@@ -88,7 +88,7 @@ initTray :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> [Piece]
 initTray (game @ Game { trays }) playerType initPieces = do
   let Tray.Tray { capacity } = trays !! Player.playerTypeIndex playerType
   let needed = capacity - length initPieces
-  (game', newPieces) <- liftIO $ mkPieces needed game
+  (game', newPieces) <- mkPieces needed game
   let tray = Tray capacity (initPieces ++ newPieces)
       game'' = setPlayerTray game' playerType tray
   return game''
@@ -100,21 +100,21 @@ updatePieceGenerator :: Game -> TileSack -> Game
 --   Record update for insufficiently polymorphic field: pieceGenerator.
 updatePieceGenerator game generator = game { pieceGenerator = generator }
 
-mkPiece :: MonadIO m => Game -> m (Game, Piece)
+mkPiece :: (MonadError GameError m, MonadIO m) => Game -> m (Game, Piece)
 mkPiece (game @ Game {pieceGenerator}) = do
-  (piece, nextGen) <- liftIO $ TileSack.next pieceGenerator
+  (piece, nextGen) <- TileSack.take pieceGenerator
   let game' = updatePieceGenerator game nextGen
   -- let game' = game { pieceGenerator = nextGen}
   -- piece <- liftIO $ Piece.mkRandomPieceForId (show id)
   return (game', piece)
 
-mkPieces' :: MonadIO m => Int -> (Game, [Piece]) -> m (Game, [Piece])
+mkPieces' :: (MonadError GameError m, MonadIO m) => Int -> (Game, [Piece]) -> m (Game, [Piece])
 mkPieces' 0 (game, pieces) = return (game, pieces)
 mkPieces' n (game, pieces) = do
   (game', piece) <- mkPiece game
   mkPieces' (n - 1) (game', piece:pieces)
 
-mkPieces :: MonadIO m => Int -> Game -> m (Game, [Piece])
+mkPieces :: (MonadError GameError m, MonadIO m) => Int -> Game -> m (Game, [Piece])
 mkPieces num game = mkPieces' num (game, [])
 
 initScore = 0
@@ -295,7 +295,7 @@ reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, s
 --       playNumber' = playNumber + 1
 --   return (game' { board = b, trays = trays', playNumber = playNumber'}, newPieces)
 
-doExchange :: (MonadIO m) => Game -> PlayerType -> Int -> m (Game, Piece)
+doExchange :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> Int -> m (Game, Piece)
 doExchange (game @ Game {gameId, board, trays, numSuccessivePasses}) playerType trayPos = do
   (game', piece') <- mkPiece game
   let whichTray = Player.playerTypeIndex playerType

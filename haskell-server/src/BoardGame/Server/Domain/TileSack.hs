@@ -1,10 +1,26 @@
+--
+-- Copyright 2017 Azad Bolour
+-- Licensed under GNU Affero General Public License v3.0 -
+--   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
+--
+
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE FlexibleContexts #-}
+
 module BoardGame.Server.Domain.TileSack (
     TileSack, TileSack(RandomTileSack, CyclicTileSack)
-  , next
+  -- , next
+  , BoardGame.Server.Domain.TileSack.take
   , pieceGeneratorType
   , mkDefaultPieceGen
   )
   where
+
+import Control.Monad.IO.Class (MonadIO(..))
+import Control.Monad.Except (MonadError(..))
 
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
@@ -33,26 +49,27 @@ isFull sack = False
 length :: TileSack -> Int
 length sack = maxBound :: Int
 
-take :: TileSack -> IOEither GameError (Piece, TileSack)
-take sack = Right <$> next sack
+take :: (MonadError GameError m, MonadIO m) => TileSack -> m (Piece, TileSack)
+take sack = liftIO $ next sack
 
 -- TODO. Better way to disambiguate?
+take' :: (MonadError GameError m, MonadIO m) => TileSack -> m (Piece, TileSack)
 take' = BoardGame.Server.Domain.TileSack.take
 
-takeAvailableTilesToList :: TileSack -> [Piece] -> Int -> IO ([Piece], TileSack)
+takeAvailableTilesToList :: (MonadError GameError m, MonadIO m) => TileSack -> [Piece] -> Int -> m ([Piece], TileSack)
 takeAvailableTilesToList sack list n =
   if n == 0 || isEmpty sack
     then return (list, sack)
     else do
-      Right (piece, sack1) <- take' sack -- Cannot fail if sack is non-empty.
+      (piece, sack1) <- take' sack -- Cannot fail if sack is non-empty.
       (pieces, sack2) <- takeAvailableTilesToList sack1 (piece:list) (n - 1)
       return (pieces, sack2)
 
-takeAvailableTiles :: TileSack -> Int -> IO ([Piece], TileSack)
+takeAvailableTiles :: (MonadError GameError m, MonadIO m) => TileSack -> Int -> m ([Piece], TileSack)
 takeAvailableTiles sack max = takeAvailableTilesToList sack [] max
 
-give :: TileSack -> Piece -> Either GameError TileSack
-give sack piece = Right sack
+give :: (MonadError GameError m, MonadIO m) => TileSack -> Piece -> m TileSack
+give sack piece = return sack
 
 next :: TileSack -> IO (Piece, TileSack)
 next (RandomTileSack count) = do
