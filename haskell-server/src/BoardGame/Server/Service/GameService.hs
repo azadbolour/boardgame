@@ -98,7 +98,7 @@ import qualified BoardGame.Server.Domain.ServerConfig as ServerParameters
 import qualified BoardGame.Server.Domain.IndexedStripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
-import qualified BoardGame.Common.Domain.TileSack as TileSack
+import qualified BoardGame.Server.Domain.TileSack as TileSack
 import BoardGame.Util.WordUtil (DictWord)
 import qualified Bolour.Util.DbConfig as DbConfig
 

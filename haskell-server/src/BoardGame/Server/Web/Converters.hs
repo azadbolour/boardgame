@@ -25,8 +25,8 @@ import BoardGame.Server.Domain.Tray as Tray
 
 import qualified BoardGame.Common.Domain.Player as Player
 import qualified BoardGame.Server.Domain.Game as Game
-import qualified BoardGame.Common.Domain.TileSack as TileSack
-import BoardGame.Common.Domain.TileSack
+import qualified BoardGame.Server.Domain.TileSack as TileSack
+import BoardGame.Server.Domain.TileSack
 import BoardGame.Common.Domain.PieceGeneratorType
 import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
 

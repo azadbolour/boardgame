@@ -72,12 +72,12 @@ library
       BoardGame.Common.Message.MachinePlayResponse
       BoardGame.Common.Message.SwapPieceResponse
       BoardGame.Common.Domain.PlayPiece
-      BoardGame.Common.Domain.TileSack
       BoardGame.Common.Domain.ScoreMultiplierType
       BoardGame.Common.Domain.ScoreMultiplier
       BoardGame.Common.Domain.StopInfo
       BoardGame.Common.Domain.GameMiniState
       BoardGame.Common.Domain.GameSummary
+      BoardGame.Server.Domain.TileSack
       BoardGame.Server.Domain.Grid
       BoardGame.Server.Domain.Core
       BoardGame.Server.Domain.Board

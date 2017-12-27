@@ -20,7 +20,7 @@ import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.GameError
 import qualified Bolour.Util.SpecUtil as SpecUtil
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
-import qualified BoardGame.Common.Domain.TileSack as TileSack
+import qualified BoardGame.Server.Domain.TileSack as TileSack
 import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
 
 spec :: Spec

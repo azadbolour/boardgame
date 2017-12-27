@@ -55,8 +55,8 @@ import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.GameError
-import BoardGame.Common.Domain.TileSack
-import qualified BoardGame.Common.Domain.TileSack as TileSack
+import BoardGame.Server.Domain.TileSack
+import qualified BoardGame.Server.Domain.TileSack as TileSack
 
 -- TODO. Separate out Game from GameState. See Scala version.
 

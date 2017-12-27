@@ -35,14 +35,15 @@ sealed abstract class TileSack {
 }
 
 // TODO. Use default piece generators for dev test and production.
-// Ideally should be configurable in teh application.conf.
+// Ideally should be configurable in the application.conf.
 object TileSack {
 
+  // TODO. Rename. Taking n not one.
   def takeOneIfAvailable(sack: TileSack, pieces: List[Piece], n: Int): Try[(TileSack, List[Piece])] = {
     if (n == 0 || sack.isEmpty)
       return Success((sack, pieces))
     for {
-      (sack1, piece) <- sack.take()
+      (sack1, piece) <- sack.take() // TODO. Make sure it does not fail - check sack length.
       (sack2, pieces) <- takeOneIfAvailable(sack1, piece +: pieces, n - 1)
     } yield (sack2, pieces)
   }
