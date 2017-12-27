@@ -55,8 +55,8 @@ import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.GameError
-import BoardGame.Common.Domain.PieceGen
-import qualified BoardGame.Common.Domain.PieceGen as PieceGen
+import BoardGame.Common.Domain.TileSack
+import qualified BoardGame.Common.Domain.TileSack as TileSack
 
 -- TODO. Separate out Game from GameState. See Scala version.
 
@@ -68,7 +68,7 @@ data Game = Game {
   , playerName :: Player.PlayerName
   , playNumber :: Int
   , playTurn :: PlayerType
-  , pieceGenerator :: PieceGen
+  , pieceGenerator :: TileSack
   , lastPlayScore :: Int
   , numSuccessivePasses :: Int
   , scores :: [Int]
@@ -93,7 +93,7 @@ initTray (game @ Game { trays }) playerType initPieces = do
       game'' = setPlayerTray game' playerType tray
   return game''
 
-updatePieceGenerator :: Game -> PieceGen -> Game
+updatePieceGenerator :: Game -> TileSack -> Game
 
 -- | Explicit record update for fieldGenerator.
 --   Cannot do normal update: game {pieceGenerator = nextGen} gets compiler error:
@@ -102,7 +102,7 @@ updatePieceGenerator game generator = game { pieceGenerator = generator }
 
 mkPiece :: MonadIO m => Game -> m (Game, Piece)
 mkPiece (game @ Game {pieceGenerator}) = do
-  (piece, nextGen) <- liftIO $ PieceGen.next pieceGenerator
+  (piece, nextGen) <- liftIO $ TileSack.next pieceGenerator
   let game' = updatePieceGenerator game nextGen
   -- let game' = game { pieceGenerator = nextGen}
   -- piece <- liftIO $ Piece.mkRandomPieceForId (show id)
@@ -123,7 +123,7 @@ initScores = [initScore, initScore]
 -- | Note. Validation of player name does not happen here.
 mkInitialGame :: (MonadError GameError m, MonadIO m) =>
   GameParams
-  -> PieceGen
+  -> TileSack
   -> [GridPiece]
   -> [Piece]
   -> [Piece]

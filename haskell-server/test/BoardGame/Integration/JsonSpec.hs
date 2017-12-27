@@ -20,7 +20,7 @@ import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.GameError
 import qualified Bolour.Util.SpecUtil as SpecUtil
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
-import qualified BoardGame.Common.Domain.PieceGen as PieceGen
+import qualified BoardGame.Common.Domain.TileSack as TileSack
 import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
 
 spec :: Spec
@@ -30,7 +30,7 @@ name = "You"
 pieceGeneratorType = PieceGeneratorType.Cyclic
 params :: GameParams
 params = GameParams 9 12 Dict.defaultLanguageCode name pieceGeneratorType
-pieceGenerator = PieceGen.mkDefaultPieceGen PieceGeneratorType.Cyclic
+pieceGenerator = TileSack.mkDefaultPieceGen PieceGeneratorType.Cyclic
 
 game :: IO Game
 game = do

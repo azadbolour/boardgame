@@ -8,7 +8,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 
 -- TODO. mkPiece is really deprecated. But let's not clutter the build output for now.
--- {-# DEPRECATED mkPiece "Use appropriate pieceOf function of appropriate PieceGen." #-}
+-- {-# DEPRECATED mkPiece "Use appropriate pieceOf function of appropriate TileSack." #-}
 
 module BoardGame.Common.Domain.Piece (
     Piece(..)

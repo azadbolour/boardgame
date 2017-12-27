@@ -16,15 +16,15 @@ import qualified BoardGame.Common.Domain.GameParams as GameParams
 import qualified BoardGame.Client.GameClient as Client
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest(StartGameRequest))
 import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
-import qualified BoardGame.Common.Domain.PieceGen as PieceGen
+import qualified BoardGame.Common.Domain.TileSack as TileSack
 
 dimension = 9
 name = "John"
 player = Player name
 pieceGeneratorType = PieceGeneratorType.Cyclic
 gameParams = GameParams dimension 12 "en" name pieceGeneratorType
-gen = PieceGen.mkDefaultPieceGen pieceGeneratorType
-mkPiece = PieceGen.pieceOf
+gen = TileSack.mkDefaultPieceGen pieceGeneratorType
+mkPiece = TileSack.pieceOf
 
 main :: IO ()
 main = do

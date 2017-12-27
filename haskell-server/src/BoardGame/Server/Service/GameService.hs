@@ -98,7 +98,7 @@ import qualified BoardGame.Server.Domain.ServerConfig as ServerParameters
 import qualified BoardGame.Server.Domain.IndexedStripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
-import qualified BoardGame.Common.Domain.PieceGen as PieceGen
+import qualified BoardGame.Common.Domain.TileSack as TileSack
 import BoardGame.Util.WordUtil (DictWord)
 import qualified Bolour.Util.DbConfig as DbConfig
 
@@ -171,7 +171,7 @@ startGameService gameParams initGridPieces initUserPieces initMachinePieces = do
   playerRowId <- GameDao.findExistingPlayerRowIdByName connectionProvider playerName
   dictionary <- lookupDictionary languageCode
   -- let pieceGenerator = RandomPieceGenerator.mkRandomPieceGenerator
-  let pieceGenerator = PieceGen.mkDefaultPieceGen pieceGeneratorType
+  let pieceGenerator = TileSack.mkDefaultPieceGen pieceGeneratorType
   game @ Game{ gameId } <- Game.mkInitialGame params pieceGenerator initGridPieces initUserPieces initMachinePieces playerName
   GameDao.addGame connectionProvider $ gameToRow playerRowId game
   liftGameExceptToStack $ GameCache.insert game gameCache

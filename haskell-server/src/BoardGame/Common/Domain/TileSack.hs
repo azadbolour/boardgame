@@ -1,5 +1,5 @@
-module BoardGame.Common.Domain.PieceGen (
-    PieceGen, PieceGen(RandomGen, CyclicGen)
+module BoardGame.Common.Domain.TileSack (
+    TileSack, TileSack(RandomTileSack, CyclicTileSack)
   , next
   , pieceOf
   , pieceGeneratorType
@@ -21,34 +21,34 @@ import BoardGame.Common.Domain.PieceGeneratorType
 --   Included in the common package to allow client tests
 --   to generate pieces consistently with the server.
 --   The string used in the cyclic generator has to be infinite.
-data PieceGen = RandomGen Integer | CyclicGen Integer String
+data TileSack = RandomTileSack Integer | CyclicTileSack Integer String
 
-next :: PieceGen -> IO (Piece, PieceGen)
-next (RandomGen count) = do
+next :: TileSack -> IO (Piece, TileSack)
+next (RandomTileSack count) = do
   let count' = count + 1
   piece <- Piece.mkRandomPieceForId (show count')
-  return (piece, RandomGen count')
-next (CyclicGen count cycler) = do
+  return (piece, RandomTileSack count')
+next (CyclicTileSack count cycler) = do
   let count' = count + 1
       piece = Piece (head cycler) (show count')
-  return (piece, CyclicGen count' (drop 1 cycler))
+  return (piece, CyclicTileSack count' (drop 1 cycler))
 
-pieceOf :: PieceGen -> Char -> IO (Piece, PieceGen)
-pieceOf (RandomGen count) letter = do
+pieceOf :: TileSack -> Char -> IO (Piece, TileSack)
+pieceOf (RandomTileSack count) letter = do
   let count' = count + 1
       piece = Piece letter (show count')
-  return (piece, RandomGen count')
-pieceOf (CyclicGen count cycler) letter = do
+  return (piece, RandomTileSack count')
+pieceOf (CyclicTileSack count cycler) letter = do
   let count' = count + 1
       piece = Piece letter (show count')
-  return (piece, CyclicGen count' cycler)
+  return (piece, CyclicTileSack count' cycler)
 
-pieceGeneratorType :: PieceGen -> PieceGeneratorType
-pieceGeneratorType (RandomGen _) = PieceGeneratorType.Random
-pieceGeneratorType (CyclicGen _ _) = PieceGeneratorType.Cyclic
+pieceGeneratorType :: TileSack -> PieceGeneratorType
+pieceGeneratorType (RandomTileSack _) = PieceGeneratorType.Random
+pieceGeneratorType (CyclicTileSack _ _) = PieceGeneratorType.Cyclic
 
 caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-mkDefaultPieceGen :: PieceGeneratorType -> PieceGen
-mkDefaultPieceGen PieceGeneratorType.Random = RandomGen 0
-mkDefaultPieceGen PieceGeneratorType.Cyclic = CyclicGen 0 (cycle caps)
+mkDefaultPieceGen :: PieceGeneratorType -> TileSack
+mkDefaultPieceGen PieceGeneratorType.Random = RandomTileSack 0
+mkDefaultPieceGen PieceGeneratorType.Cyclic = CyclicTileSack 0 (cycle caps)
 

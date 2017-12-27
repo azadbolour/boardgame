@@ -28,7 +28,7 @@ import BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Web.Converters(gameToStartGameResponse)
 import Bolour.Util.SpecUtil (satisfiesRight)
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
-import qualified BoardGame.Common.Domain.PieceGen as PieceGen
+import qualified BoardGame.Common.Domain.TileSack as TileSack
 import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
 
 dim = 9
@@ -37,7 +37,7 @@ thePlayer = "You"
 
 pieceGeneratorType = PieceGeneratorType.Cyclic
 params = GameParams dim 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
-pieceGenerator = PieceGen.mkDefaultPieceGen PieceGeneratorType.Cyclic
+pieceGenerator = TileSack.mkDefaultPieceGen PieceGeneratorType.Cyclic
 
 spec :: Spec
 spec = do
