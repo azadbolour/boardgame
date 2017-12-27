@@ -14,6 +14,7 @@ module BoardGame.Server.Domain.TileSack (
     TileSack, TileSack(RandomTileSack, CyclicTileSack)
   -- , next
   , BoardGame.Server.Domain.TileSack.take
+  , swapOne
   , pieceGeneratorType
   , mkDefaultPieceGen
   )
@@ -70,6 +71,12 @@ takeAvailableTiles sack max = takeAvailableTilesToList sack [] max
 
 give :: (MonadError GameError m, MonadIO m) => TileSack -> Piece -> m TileSack
 give sack piece = return sack
+
+swapOne :: (MonadError GameError m, MonadIO m) => TileSack -> Piece -> m (Piece, TileSack)
+swapOne sack piece = do
+  (swappedPiece, sack1) <- take' sack
+  sack2 <- give sack1 piece
+  return (swappedPiece, sack2)
 
 next :: TileSack -> IO (Piece, TileSack)
 next (RandomTileSack count) = do

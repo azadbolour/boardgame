@@ -170,9 +170,9 @@ startGameService gameParams initGridPieces initUserPieces initMachinePieces = do
   let playerName = GameParams.playerName params
   playerRowId <- GameDao.findExistingPlayerRowIdByName connectionProvider playerName
   dictionary <- lookupDictionary languageCode
-  -- let pieceGenerator = RandomPieceGenerator.mkRandomPieceGenerator
-  let pieceGenerator = TileSack.mkDefaultPieceGen pieceGeneratorType
-  game @ Game{ gameId } <- Game.mkInitialGame params pieceGenerator initGridPieces initUserPieces initMachinePieces playerName
+  -- let tileSack = RandomPieceGenerator.mkRandomPieceGenerator
+  let tileSack = TileSack.mkDefaultPieceGen pieceGeneratorType
+  game @ Game{ gameId } <- Game.mkInitialGame params tileSack initGridPieces initUserPieces initMachinePieces playerName
   GameDao.addGame connectionProvider $ gameToRow playerRowId game
   liftGameExceptToStack $ GameCache.insert game gameCache
   -- playPieces <- machinePlayService gameId

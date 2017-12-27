@@ -68,7 +68,7 @@ data Game = Game {
   , playerName :: Player.PlayerName
   , playNumber :: Int
   , playTurn :: PlayerType
-  , pieceGenerator :: TileSack
+  , tileSack :: TileSack
   , lastPlayScore :: Int
   , numSuccessivePasses :: Int
   , scores :: [Int]
@@ -96,15 +96,15 @@ initTray (game @ Game { trays }) playerType initPieces = do
 updatePieceGenerator :: Game -> TileSack -> Game
 
 -- | Explicit record update for fieldGenerator.
---   Cannot do normal update: game {pieceGenerator = nextGen} gets compiler error:
---   Record update for insufficiently polymorphic field: pieceGenerator.
-updatePieceGenerator game generator = game { pieceGenerator = generator }
+--   Cannot do normal update: game {tileSack = nextGen} gets compiler error:
+--   Record update for insufficiently polymorphic field: tileSack.
+updatePieceGenerator game generator = game { tileSack = generator }
 
 mkPiece :: (MonadError GameError m, MonadIO m) => Game -> m (Game, Piece)
-mkPiece (game @ Game {pieceGenerator}) = do
-  (piece, nextGen) <- TileSack.take pieceGenerator
+mkPiece (game @ Game {tileSack}) = do
+  (piece, nextGen) <- TileSack.take tileSack
   let game' = updatePieceGenerator game nextGen
-  -- let game' = game { pieceGenerator = nextGen}
+  -- let game' = game { tileSack = nextGen}
   -- piece <- liftIO $ Piece.mkRandomPieceForId (show id)
   return (game', piece)
 
@@ -131,7 +131,7 @@ mkInitialGame :: (MonadError GameError m, MonadIO m) =>
   -> m Game
 
 -- TODO. Fix duplicated player name.
-mkInitialGame gameParams pieceGenerator initGridPieces initUserPieces initMachinePieces playerName = do
+mkInitialGame gameParams tileSack initGridPieces initUserPieces initMachinePieces playerName = do
   let GameParams.GameParams { dimension, trayCapacity, languageCode } = gameParams
   gameId <- Util.mkUuid
   board <- Board.mkBoard dimension
@@ -147,7 +147,7 @@ mkInitialGame gameParams pieceGenerator initGridPieces initUserPieces initMachin
                 playerName
                 0
                 Player.UserPlayer
-                pieceGenerator
+                tileSack
                 initScore
                 0
                 initScores
@@ -296,10 +296,13 @@ reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, s
 --   return (game' { board = b, trays = trays', playNumber = playNumber'}, newPieces)
 
 doExchange :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> Int -> m (Game, Piece)
-doExchange (game @ Game {gameId, board, trays, numSuccessivePasses}) playerType trayPos = do
-  (game', piece') <- mkPiece game
+doExchange (game @ Game {gameId, board, trays, tileSack, numSuccessivePasses}) playerType trayPos = do
   let whichTray = Player.playerTypeIndex playerType
-      tray = trays !! whichTray
+      tray @ Tray {pieces} = trays !! whichTray
+      piece = pieces !! trayPos
+  (piece', sack1) <- TileSack.swapOne tileSack piece
+  -- (game', piece') <- mkPiece game
+  let game' = game { tileSack = sack1 }
       tray' = Tray.replacePiece tray trayPos piece'
       game'' = setPlayerTray game' playerType tray'
       game''' = game'' {lastPlayScore = 0, numSuccessivePasses = numSuccessivePasses + 1}

@@ -43,9 +43,9 @@ class Converter entity dto where
   toEntity :: dto -> entity
   toDto :: entity -> dto
 
-gameToStartGameResponse (Game {gameId, languageCode, board, trays, playerName, pieceGenerator}) =
+gameToStartGameResponse (Game {gameId, languageCode, board, trays, playerName, tileSack}) =
    let Board {dimension} = board
-       genType = TileSack.pieceGeneratorType pieceGenerator
+       genType = TileSack.pieceGeneratorType tileSack
        Tray {capacity, pieces = trayPieces} = trays !! Player.userIndex
        gameParams = GameParams dimension capacity languageCode playerName genType
    in StartGameResponse gameId gameParams (Board.getGridPieces board) trayPieces

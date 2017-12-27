@@ -37,7 +37,7 @@ thePlayer = "You"
 
 pieceGeneratorType = PieceGeneratorType.Cyclic
 params = GameParams dim 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
-pieceGenerator = TileSack.mkDefaultPieceGen PieceGeneratorType.Cyclic
+tileSack = TileSack.mkDefaultPieceGen PieceGeneratorType.Cyclic
 
 spec :: Spec
 spec = do
@@ -45,7 +45,7 @@ spec = do
     it "game to dto" $ do
       let playerName = "You"
       let gridPiece = GridValue (Piece 'E' "idE") (Point mid mid)
-      game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params pieceGenerator [gridPiece] [] [] playerName)
+      game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params tileSack [gridPiece] [] [] playerName)
       let response = gameToStartGameResponse game
       let brd = Game.board game
       length (Board.getGridPieces brd) `shouldBe` length (StartGameResponse.gridPieces response)

@@ -30,11 +30,11 @@ name = "You"
 pieceGeneratorType = PieceGeneratorType.Cyclic
 params :: GameParams
 params = GameParams 9 12 Dict.defaultLanguageCode name pieceGeneratorType
-pieceGenerator = TileSack.mkDefaultPieceGen PieceGeneratorType.Cyclic
+tileSack = TileSack.mkDefaultPieceGen PieceGeneratorType.Cyclic
 
 game :: IO Game
 game = do
-  SpecUtil.satisfiesRight =<< runExceptT (Game.mkInitialGame params pieceGenerator [] [] [] name)
+  SpecUtil.satisfiesRight =<< runExceptT (Game.mkInitialGame params tileSack [] [] [] name)
 
 spec = do
   describe "json for game data" $ do
