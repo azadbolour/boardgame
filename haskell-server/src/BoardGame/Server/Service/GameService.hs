@@ -263,6 +263,8 @@ endGameService gameId = do
   liftGameExceptToStack $ GameCache.delete gameId gameCache
   return $ Game.summary game
   -- TODO. Tell the database that the game has ended - as opposed to suspended.
+  -- TODO. Game.summary should return the game updated with the bonus/penalty scores.
+  -- TODO. Persist that final state of the game.
 
 
 -- TODO. A swap is also a play and should increment the playNumber. For both machine and user.

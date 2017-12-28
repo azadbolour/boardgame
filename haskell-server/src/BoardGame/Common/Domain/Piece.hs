@@ -6,6 +6,10 @@
 
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 -- TODO. mkPiece is really deprecated. But let's not clutter the build output for now.
 -- {-# DEPRECATED mkPiece "Use appropriate pieceOf function of appropriate TileSack." #-}
@@ -25,11 +29,13 @@ module BoardGame.Common.Domain.Piece (
   , mkRandomPieceForId
   , charIsBlank
   , frequencies
+  , worth
 ) where
 
 import System.Random
 import Data.Char
 import Data.List
+import qualified Data.Maybe as Maybe
 import qualified Data.Map as Map
 import GHC.Generics (Generic)
 import Control.DeepSeq (NFData)
@@ -163,6 +169,9 @@ distribution :: [(Char, Int)]
 distribution = tail $ scanl' (\(l1, f1) (l2, f2) -> (l2, f1 + f2)) ('a', 0) frequencies
 
 maxDistribution = snd $ last distribution
+
+worth :: Piece -> Int
+worth Piece { value } = Maybe.fromJust $ Map.lookup value worths
 
 -- | Get a random letter according to the letter frequencies.
 randomLetter :: IO Char

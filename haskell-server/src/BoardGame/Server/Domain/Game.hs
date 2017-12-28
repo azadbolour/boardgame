@@ -195,10 +195,20 @@ gameAgeSeconds utcNow game =
   in fromIntegral ageSeconds
 
 summary :: Game -> GameSummary
-summary game @ Game {scores} =
+summary game @ Game {trays, scores} =
   let stopData = stopInfo game
-      endScores = [0, 0] -- TODO. Compute end of play scores.
-  in GameSummary stopData endScores scores
+      userSum = Tray.sumLetterWeights $ trays !! Player.userIndex
+      machineSum = Tray.sumLetterWeights $ trays !! Player.machineIndex
+      bonus thisSum thatSum =
+        if thisSum > 0
+          then -thisSum
+          else thatSum
+      userBonus = bonus userSum machineSum
+      machineBonus = bonus machineSum userSum
+      endScores = [userBonus, machineBonus]
+      totalScores = zipWith (+) scores endScores
+      -- TODO. Update the game with the final score and return so it can be persisted.
+  in GameSummary stopData endScores totalScores
 
 defaultInitialGridPieces :: MonadIO m => Board -> m [GridPiece]
 defaultInitialGridPieces board = do

@@ -19,6 +19,7 @@ module BoardGame.Server.Domain.Tray (
   , findPieceIndexByValue
   , removePieceByValue
   , isEmpty
+  , sumLetterWeights
 )
 where
 
@@ -45,6 +46,9 @@ mkTray pieces = Tray (length pieces) pieces
 
 isEmpty :: Tray -> Bool
 isEmpty Tray { pieces } = null pieces
+
+sumLetterWeights :: Tray -> Int
+sumLetterWeights Tray { pieces } = sum $ Piece.worth <$> pieces
 
 -- | Replace pieces in tray.
 replacePieces :: Tray -> [Piece] -> [Piece] -> Tray
