@@ -24,6 +24,7 @@ module BoardGame.Common.Domain.Piece (
   , randomLetter
   , mkRandomPieceForId
   , charIsBlank
+  , frequencies
 ) where
 
 import System.Random
@@ -93,13 +94,13 @@ mkRandomPieceInternal _ = do
 eqValue :: Piece -> Piece -> Bool
 eqValue p1 p2 = (value p1) == (value p2)
 
--- | Letter frequencies to use in obtaining a piece with a random letter.
+-- | Tile frequencies for 15x15 board.
 frequencies = [
     ('A', 9),
     ('B', 2),
     ('C', 2),
     ('D', 4),
-    ('E', 10),
+    ('E', 12),
     ('F', 2),
     ('G', 3),
     ('H', 2),
@@ -122,6 +123,9 @@ frequencies = [
     ('Y', 2),
     ('Z', 1)
   ]
+
+frequencyMap :: Map.Map Char Int
+frequencyMap = Map.fromList frequencies
 
 -- TODO. blank: 0.
 worths :: Map.Map Char Int

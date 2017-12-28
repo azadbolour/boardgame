@@ -37,7 +37,7 @@ thePlayer = "You"
 
 pieceGeneratorType = PieceGeneratorType.Cyclic
 params = GameParams dim 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
-tileSack = TileSack.mkDefaultPieceGen PieceGeneratorType.Cyclic
+tileSack = TileSack.mkDefaultPieceGen PieceGeneratorType.Cyclic dim
 
 spec :: Spec
 spec = do

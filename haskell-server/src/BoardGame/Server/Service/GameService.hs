@@ -165,13 +165,13 @@ startGameService ::
   -- -> GameTransformerStack (Game, Maybe [PlayPiece])
 
 startGameService gameParams initGridPieces initUserPieces initMachinePieces = do
-  params @ GameParams.GameParams {languageCode, pieceGeneratorType} <- Game.validateGameParams gameParams
+  params @ GameParams.GameParams {dimension, languageCode, pieceGeneratorType} <- Game.validateGameParams gameParams
   GameEnv { connectionProvider, gameCache } <- ask
   let playerName = GameParams.playerName params
   playerRowId <- GameDao.findExistingPlayerRowIdByName connectionProvider playerName
   dictionary <- lookupDictionary languageCode
   -- let tileSack = RandomPieceGenerator.mkRandomPieceGenerator
-  let tileSack = TileSack.mkDefaultPieceGen pieceGeneratorType
+  let tileSack = TileSack.mkDefaultPieceGen pieceGeneratorType dimension
   game @ Game{ gameId } <- Game.mkInitialGame params tileSack initGridPieces initUserPieces initMachinePieces playerName
   GameDao.addGame connectionProvider $ gameToRow playerRowId game
   liftGameExceptToStack $ GameCache.insert game gameCache
