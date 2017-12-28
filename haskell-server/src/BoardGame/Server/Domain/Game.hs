@@ -75,7 +75,8 @@ data Game = Game {
   , startTime :: UTCTime
 }
 
--- Can't do deriving on Game because it has existential constraint.
+-- TODO. Add deriving for basic classes.
+-- Will need custom instances for tileSack - since cyclic tile sack is an infinite structure.
 
 -- TODO. Complete show of game if needed.
 instance Show Game where
@@ -83,6 +84,31 @@ instance Show Game where
 
 maxDimension = 120
 maxTraySize = 26
+maxSuccessivePasses = 6
+
+passesMaxedOut :: Game -> Bool
+passesMaxedOut Game { numSuccessivePasses } = numSuccessivePasses == maxSuccessivePasses
+
+isSackEmpty :: Game -> Bool
+isSackEmpty Game { tileSack } = TileSack.isEmpty tileSack
+
+isUserTrayEmpty :: Game -> Bool
+isUserTrayEmpty Game { trays } = Tray.isEmpty $ trays !! Player.userIndex
+
+isMachineTrayEmpty :: Game -> Bool
+isMachineTrayEmpty Game { trays } = Tray.isEmpty $ trays !! Player.machineIndex
+
+noMorePlays :: Game -> Bool
+noMorePlays game = passesMaxedOut game || (isSackEmpty game && (isUserTrayEmpty game || isMachineTrayEmpty game))
+
+stopInfo :: Game -> StopInfo
+stopInfo game @ Game { trays, tileSack, numSuccessivePasses } =
+  StopInfo
+    numSuccessivePasses
+    maxSuccessivePasses
+    (isSackEmpty game)
+    (isUserTrayEmpty game)
+    (isMachineTrayEmpty game)
 
 initTray :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> [Piece] -> m Game
 initTray (game @ Game { trays }) playerType initPieces = do
@@ -156,11 +182,11 @@ mkInitialGame gameParams tileSack initGridPieces initUserPieces initMachinePiece
   initTray game' Player.MachinePlayer initMachinePieces
 
 toMiniState :: Game -> GameMiniState
-toMiniState game @ Game {scores} =
-  let lastScore = 10
-      tilesLeft = 100 -- TODO. Get number of tiles.
-      gameEnded = False -- TODO. Compute no more plays.
-  in GameMiniState lastScore scores tilesLeft gameEnded
+toMiniState game @ Game {tileSack, lastPlayScore, scores} =
+  let
+      tilesLeft = TileSack.length' tileSack
+      gameEnded = noMorePlays game
+  in GameMiniState lastPlayScore scores tilesLeft gameEnded
 
 gameAgeSeconds :: UTCTime -> Game -> Int
 gameAgeSeconds utcNow game =
@@ -170,9 +196,9 @@ gameAgeSeconds utcNow game =
 
 summary :: Game -> GameSummary
 summary game @ Game {scores} =
-  let stopInfo = StopInfo 0 6 False False False -- TODO. Compute real stop info. TODO. Constant for max passes.
-      endScores = [0, 0]
-  in GameSummary stopInfo endScores scores -- TODO. Compute end of play scores.
+  let stopData = stopInfo game
+      endScores = [0, 0] -- TODO. Compute end of play scores.
+  in GameSummary stopData endScores scores
 
 defaultInitialGridPieces :: MonadIO m => Board -> m [GridPiece]
 defaultInitialGridPieces board = do
@@ -276,24 +302,6 @@ reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, s
       score' = length playPieces -- TODO. Compute real score.
       scores' = Util.setListElement scores playerIndex score'
   return (game' { board = b, trays = trays', playNumber = playNumber', lastPlayScore = score', numSuccessivePasses = 0, scores = scores' }, newPieces)
-
-  -- addPlayedPieces game playerType movedGridPieces
-
--- | Update the representation of the game by moving the moved
---   pieces of a play from the corresponding tray to the game's board,
---   then replenish the spent pieces of that tray and return the
---   updated game, and the replenished pieces. TODO. Better name for this function.
--- addPlayedPieces :: MonadIO m => Game -> PlayerType -> [GridPiece] -> m (Game, [Piece])
--- addPlayedPieces (game @ Game {board, trays, playNumber}) playerType playedGridPieces = do
---   let b = Board.setBoardPieces board playedGridPieces
---       usedPieces = GridValue.value <$> playedGridPieces
---       whichTray = Player.playerTypeIndex playerType
---   (game', newPieces) <- mkPieces (length usedPieces) game
---   let tray = trays !! whichTray
---       tray' = Tray.replacePieces tray usedPieces newPieces
---       trays' = Util.setListElement trays whichTray tray'
---       playNumber' = playNumber + 1
---   return (game' { board = b, trays = trays', playNumber = playNumber'}, newPieces)
 
 doExchange :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> Int -> m (Game, Piece)
 doExchange (game @ Game {gameId, board, trays, tileSack, numSuccessivePasses}) playerType trayPos = do

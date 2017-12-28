@@ -18,6 +18,7 @@ module BoardGame.Server.Domain.Tray (
   , findPieceIndexById
   , findPieceIndexByValue
   , removePieceByValue
+  , isEmpty
 )
 where
 
@@ -41,6 +42,9 @@ data Tray = Tray {
 
 mkTray :: [Piece] -> Tray
 mkTray pieces = Tray (length pieces) pieces
+
+isEmpty :: Tray -> Bool
+isEmpty Tray { pieces } = null pieces
 
 -- | Replace pieces in tray.
 replacePieces :: Tray -> [Piece] -> [Piece] -> Tray

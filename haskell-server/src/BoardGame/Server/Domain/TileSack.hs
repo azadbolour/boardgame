@@ -16,6 +16,7 @@ module BoardGame.Server.Domain.TileSack (
     TileSack(RandomTileSack, CyclicTileSack)
   -- , next
   , length'
+  , isEmpty
   , BoardGame.Server.Domain.TileSack.take
   , swapOne
   , pieceGeneratorType
@@ -38,10 +39,13 @@ import BoardGame.Server.Domain.GameError (GameError, GameError(InternalError))
 -- The piece generator types are closed in this implementation.
 -- TODO. Would be nice to have an open piece generator implementation model.
 -- So that new implementations of piece generator do not affect existing code.
--- What is the Haskell way of doing that?
+-- Best practices in Haskell for extensible variants of a type?
+-- Had some type system issues using type classes.
 
 type SackContents = [Piece]
 type InitialSackContents = SackContents
+
+-- TODO. Name cyclic constructor parameters.
 
 -- | Piece generator.
 --   Included in the common package to allow client tests
@@ -78,8 +82,6 @@ take (CyclicTileSack count cycler) = do
       piece = Piece (head cycler) (show count')
   return (piece, CyclicTileSack count' (drop 1 cycler))
 
--- take sack = liftIO $ next sack
-
 -- TODO. Better way to disambiguate?
 take' :: (MonadError GameError m, MonadIO m) => TileSack -> m (Piece, TileSack)
 take' = BoardGame.Server.Domain.TileSack.take
@@ -112,16 +114,6 @@ swapOne sack piece = do
   (swappedPiece, sack1) <- take' sack
   sack2 <- give sack1 piece
   return (swappedPiece, sack2)
-
--- next :: TileSack -> IO (Piece, TileSack)
--- next (RandomTileSack count) = do
---   let count' = count + 1
---   piece <- Piece.mkRandomPieceForId (show count')
---   return (piece, RandomTileSack count')
--- next (CyclicTileSack count cycler) = do
---   let count' = count + 1
---       piece = Piece (head cycler) (show count')
---   return (piece, CyclicTileSack count' (drop 1 cycler))
 
 pieceGeneratorType :: TileSack -> PieceGeneratorType
 pieceGeneratorType (RandomTileSack _ _) = PieceGeneratorType.Random
