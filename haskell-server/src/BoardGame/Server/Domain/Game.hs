@@ -126,22 +126,13 @@ updatePieceGenerator :: Game -> TileSack -> Game
 --   Record update for insufficiently polymorphic field: tileSack.
 updatePieceGenerator game generator = game { tileSack = generator }
 
-mkPiece :: (MonadError GameError m, MonadIO m) => Game -> m (Game, Piece)
-mkPiece (game @ Game {tileSack}) = do
-  (piece, nextGen) <- TileSack.take tileSack
-  let game' = updatePieceGenerator game nextGen
-  -- let game' = game { tileSack = nextGen}
-  -- piece <- liftIO $ Piece.mkRandomPieceForId (show id)
-  return (game', piece)
-
-mkPieces' :: (MonadError GameError m, MonadIO m) => Int -> (Game, [Piece]) -> m (Game, [Piece])
-mkPieces' 0 (game, pieces) = return (game, pieces)
-mkPieces' n (game, pieces) = do
-  (game', piece) <- mkPiece game
-  mkPieces' (n - 1) (game', piece:pieces)
-
 mkPieces :: (MonadError GameError m, MonadIO m) => Int -> Game -> m (Game, [Piece])
-mkPieces num game = mkPieces' num (game, [])
+mkPieces num (game @ Game { tileSack }) = do
+  (pieces, leftTileSack) <- TileSack.takeAvailableTiles tileSack num
+  let game' = game { tileSack = leftTileSack }
+  return (game', pieces)
+
+-- mkPieces num game = mkPieces' num (game, [])
 
 initScore = 0
 initScores = [initScore, initScore]
@@ -210,15 +201,9 @@ summary game @ Game {trays, scores} =
       -- TODO. Update the game with the final score and return so it can be persisted.
   in GameSummary stopData endScores totalScores
 
-defaultInitialGridPieces :: MonadIO m => Board -> m [GridPiece]
-defaultInitialGridPieces board = do
-  let point = Board.centerGridPoint board
-  piece <- liftIO $ Piece.mkPiece 'E' -- TODO. Use Game.mkPiece.
-  return [GridValue piece point]
-
 primeBoard :: MonadIO m => Board -> [GridPiece] -> m Board
 primeBoard board inputGridPieces = do
-  defaultGridPieces <- defaultInitialGridPieces board
+  -- defaultGridPieces <- defaultInitialGridPieces board
   let addGridPiece bd (GridValue.GridValue {value = piece, point}) = Board.setBoardValue bd point piece
       board' = foldl' addGridPiece board inputGridPieces
   return board'
@@ -318,13 +303,16 @@ doExchange (game @ Game {gameId, board, trays, tileSack, numSuccessivePasses}) p
   let whichTray = Player.playerTypeIndex playerType
       tray @ Tray {pieces} = trays !! whichTray
       piece = pieces !! trayPos
-  (piece', sack1) <- TileSack.swapOne tileSack piece
-  -- (game', piece') <- mkPiece game
-  let game' = game { tileSack = sack1 }
-      tray' = Tray.replacePiece tray trayPos piece'
-      game'' = setPlayerTray game' playerType tray'
-      game''' = game'' {lastPlayScore = 0, numSuccessivePasses = numSuccessivePasses + 1}
-  return (game''', piece')
+      succPasses = numSuccessivePasses + 1
+      game' = game { numSuccessivePasses = succPasses }
+  if TileSack.isEmpty tileSack
+    then return (game', piece)
+    else do
+      (piece', sack1) <- TileSack.swapOne tileSack piece
+      let game'' = game' { tileSack = sack1 }
+          tray' = Tray.replacePiece tray trayPos piece'
+          game''' = setPlayerTray game' playerType tray'
+      return (game''', piece')
 
 -- Either is a MonadError - but this generalizes the function.
 -- In general rather than using a specific monad, use an mtl type class

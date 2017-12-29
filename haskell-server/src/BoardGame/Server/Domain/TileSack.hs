@@ -18,6 +18,7 @@ module BoardGame.Server.Domain.TileSack (
   , length'
   , isEmpty
   , BoardGame.Server.Domain.TileSack.take
+  , takeAvailableTiles
   , swapOne
   , pieceGeneratorType
   , mkDefaultPieceGen
@@ -71,7 +72,7 @@ take (sack @ RandomTileSack {initial, current}) =
   if isEmpty sack
     then throwError $ InternalError "attempt to take piece from empty sack" -- TODO. Specific game error.
     else do
-      index <- liftIO $ randomRIO (0, length' sack)
+      index <- liftIO $ randomRIO (0, (length' sack) - 1)
       let piece = current !! index
           current' = delete piece current
           sack' = sack { current = current' }

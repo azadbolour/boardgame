@@ -5,6 +5,13 @@
   to the test itself, so that you can easily add print statements
   without affecting the module under test itself. 
 
+- Stack traces.
+
+  See  https://wiki.haskell.org/Debugging.
+  ghc Crash.hs -prof -fprof-auto -fprof-cafs && ./Crash +RTS -xc
+  But stack only has --profile.
+  See profile-bld.sh and rofile-run.sh.
+
 - Named constructor parameters.
 
     let config = Config {

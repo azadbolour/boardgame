@@ -1,4 +1,18 @@
 
+- Add 2 blank tiles.
+
+- Allow blank to be declared to be a letter. Double click to get a modal dialog
+  for entering the value.
+
+  https://daveceddia.com/open-modal-in-react/
+  https://www.npmjs.com/package/react-modal-dialog
+
+  Pass a callback function to the dialog to get back the input.
+
+- PlayedPiece needs another field - blankValue - Option[Char]. 
+
+- Blanks have 0 worth.
+
 - Make clear where the new word is placed by machine.
 
 - Use smaller amazon machine.

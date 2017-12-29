@@ -256,6 +256,20 @@ swapPieceService gameId (piece @ (Piece {id})) = do
   let miniState = Game.toMiniState game'
   return (miniState, newPiece)
 
+-- | No matches available for machine - do a swap instead.
+exchangeMachinePiece :: Game -> GameTransformerStack Game
+exchangeMachinePiece (game @ Game.Game {gameId, board, trays, playNumber}) = do
+  let (machineTray @ (Tray {pieces})) = trays !! Player.machineIndex
+  if Tray.isEmpty machineTray
+    then return game
+    else do
+      let piece @ Piece { id } = head $ pieces
+      index <- Tray.findPieceIndexById machineTray id
+      (game' @ Game {playNumber}, newPiece) <- Game.doExchange game MachinePlayer index
+      -- TODO. Update play number at the right place before using it here.
+      saveSwap gameId playNumber MachinePlayer piece newPiece
+      return game'
+
 endGameService :: String -> GameTransformerStack GameSummary
 endGameService gameId = do
   gameCache <- asks GameEnv.gameCache
@@ -270,17 +284,15 @@ endGameService gameId = do
 -- TODO. A swap is also a play and should increment the playNumber. For both machine and user.
 -- TODO. play number needs to be updated at the right time.
 
--- | No matches available for machine - do a swap instead.
-exchangeMachinePiece :: Game -> GameTransformerStack Game
-exchangeMachinePiece (game @ Game.Game {gameId, board, trays, playNumber, ..}) = do
-  piece <- liftIO Piece.mkRandomPiece -- TODO. Must get the piece from the game.
-  let (machineTray @ Tray {pieces}) = trays !! Player.machineIndex
-      (Just (_, index)) = Piece.leastFrequentLetter $ Piece.value <$> pieces
-      swappedPiece = pieces !! index
-      tray' = Tray.replacePiece machineTray index piece
-  -- TODO. Update play number at the right place before using it here.
-  saveSwap gameId playNumber MachinePlayer swappedPiece piece
-  return $ Game.setPlayerTray game MachinePlayer tray'
+-- exchangeMachinePiece (game @ Game.Game {gameId, board, trays, playNumber, ..}) = do
+--   piece <- liftIO Piece.mkRandomPiece -- TODO. Must get the piece from the game.
+--   let (machineTray @ Tray {pieces}) = trays !! Player.machineIndex
+--       (Just (_, index)) = Piece.leastFrequentLetter $ Piece.value <$> pieces
+--       swappedPiece = pieces !! index
+--       tray' = Tray.replacePiece machineTray index piece
+--   -- TODO. Update play number at the right place before using it here.
+--   saveSwap gameId playNumber MachinePlayer swappedPiece piece
+--   return $ Game.setPlayerTray game MachinePlayer tray'
 
 saveWordPlay :: String -> Int -> PlayerType -> [PlayPiece] -> [Piece]
   -> GameTransformerStack EntityId
