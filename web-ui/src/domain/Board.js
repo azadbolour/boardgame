@@ -156,61 +156,42 @@ export const mkBoard = function(matrix) {
       return this.isFree(point);
     },
 
-    // legalMove: function(piece, point, numTrayPieces) {
-    //   if (!this.isFree(point))
+    // isCompletable(info, numTrayPieces) {
+    //   let { axis, lineNumber, numMoves, firstMoveIndex, lastMoveIndex,
+    //     nearestLeftNeighbor, nearestRightNeighbor, interMoveFreeSlots, hasInterMoveAnchor } = info;
+    //
+    //   if (numMoves === 0)
     //     return false;
-    //   // For now restrict the very first move to be to the center point.
-    //   if (this.isEmpty())
-    //     return Point.eq(point, centerPoint);
+    //   if (hasInterMoveAnchor)
+    //     return interMoveFreeSlots <= numTrayPieces;
     //
-    //   // Move the piece to the board on a trial basis.
-    //   let testBoard = this.setPlayPiece(mkMovePlayPiece(piece, point));
-    //   let testTrayPieces = numTrayPieces - 1; // Trial tray has lost the moved piece.
-    //   let movesInfoX = testBoard.linesMoveInfo("X");
-    //   let movesInfoY = testBoard.linesMoveInfo("Y");
+    //   let minFreeSlots = interMoveFreeSlots;
     //
-    //   const hasUniqueLegalLine = function(movesInfo) {
-    //     return movesInfo.length === 1 && testBoard.isCompletable(movesInfo[0], testTrayPieces)
+    //   // Line of the very first play has current moves only - no other pieces.
+    //   // So ensure that tray pieces cover inter-move slots.
+    //   if (!this.hasCommittedPlays())
+    //     return minFreeSlots <= numTrayPieces;
+    //
+    //   // Not the very first play and no intern-move anchor.
+    //   // So must have an anchor to the right or to the left.
+    //   if (nearestLeftNeighbor === undefined && nearestRightNeighbor === undefined)
+    //     return false; // Nothing to connect to.
+    //
+    //   let minSlotsToFill = function() {
+    //     let leftSlotsToConnect = firstMoveIndex - nearestLeftNeighbor - 1; // May be NaN. OK.
+    //     let rightSlotsToConnect = nearestRightNeighbor - lastMoveIndex - 1; // ditto
+    //
+    //     if (nearestLeftNeighbor === undefined)
+    //       minFreeSlots += rightSlotsToConnect;
+    //     else if (nearestRightNeighbor === undefined)
+    //       minFreeSlots += leftSlotsToConnect;
+    //     else minFreeSlots += Math.min(leftSlotsToConnect, rightSlotsToConnect);
+    //
+    //     return minFreeSlots;
     //   };
-    //   return hasUniqueLegalLine(movesInfoX) || hasUniqueLegalLine(movesInfoY);
+    //
+    //   return minSlotsToFill() <= numTrayPieces;
     // },
-
-    isCompletable(info, numTrayPieces) {
-      let { axis, lineNumber, numMoves, firstMoveIndex, lastMoveIndex,
-        nearestLeftNeighbor, nearestRightNeighbor, interMoveFreeSlots, hasInterMoveAnchor } = info;
-
-      if (numMoves === 0)
-        return false;
-      if (hasInterMoveAnchor)
-        return interMoveFreeSlots <= numTrayPieces;
-
-      let minFreeSlots = interMoveFreeSlots;
-
-      // Line of the very first play has current moves only - no other pieces.
-      // So ensure that tray pieces cover inter-move slots.
-      if (!this.hasCommittedPlays())
-        return minFreeSlots <= numTrayPieces;
-
-      // Not the very first play and no intern-move anchor.
-      // So must have an anchor to the right or to the left.
-      if (nearestLeftNeighbor === undefined && nearestRightNeighbor === undefined)
-        return false; // Nothing to connect to.
-
-      let minSlotsToFill = function() {
-        let leftSlotsToConnect = firstMoveIndex - nearestLeftNeighbor - 1; // May be NaN. OK.
-        let rightSlotsToConnect = nearestRightNeighbor - lastMoveIndex - 1; // ditto
-
-        if (nearestLeftNeighbor === undefined)
-          minFreeSlots += rightSlotsToConnect;
-        else if (nearestRightNeighbor === undefined)
-          minFreeSlots += leftSlotsToConnect;
-        else minFreeSlots += Math.min(leftSlotsToConnect, rightSlotsToConnect);
-
-        return minFreeSlots;
-      };
-
-      return minSlotsToFill() <= numTrayPieces;
-    },
 
     /**
      * For those lines that contain at least one move,
@@ -456,21 +437,21 @@ export const mkBoard = function(matrix) {
      * If a play strip is completed return the completed strip,
      * otherwise return an empty array.
      */
-    completedPlayPiecesLegacy() {
-      let lineInfos = this.playLineInfo();
-
-      if (lineInfos.length === 0)
-        return [];
-      else if (lineInfos.length === 1)
-        return this.completedPlayPiecesForOneLine(lineInfos[0]);
-      else {
-        let completed0 = this.completedPlayPiecesForOneLine(lineInfos[0]);
-        if (completed0.length > 0)
-          return completed0;
-        else
-          return this.completedPlayPiecesForOneLine(lineInfos[1]);
-      }
-    },
+    // completedPlayPiecesLegacy() {
+    //   let lineInfos = this.playLineInfo();
+    //
+    //   if (lineInfos.length === 0)
+    //     return [];
+    //   else if (lineInfos.length === 1)
+    //     return this.completedPlayPiecesForOneLine(lineInfos[0]);
+    //   else {
+    //     let completed0 = this.completedPlayPiecesForOneLine(lineInfos[0]);
+    //     if (completed0.length > 0)
+    //       return completed0;
+    //     else
+    //       return this.completedPlayPiecesForOneLine(lineInfos[1]);
+    //   }
+    // },
 
     completedPlayPiecesForOneLine(lineInfo) {
       let [axis, lineNumber] = [lineInfo.axis, lineInfo.lineNumber];

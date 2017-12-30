@@ -1,6 +1,4 @@
 
-- Add disconnected error.
-
 - Remove dead code after changes are tested.
 
 - Target container is not a DOM element error in browser console.
