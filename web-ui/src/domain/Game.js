@@ -231,7 +231,7 @@ export const mkGame = function(gameParams, gameId, board, tray, scoreMultipliers
       if (onBoard)
         testGame = this.revertMove(piece);
       let testBoard = testGame.board;
-      let legal = testBoard.legalMove(piece, point, testGame.tray.size());
+      let legal = testBoard.legalMove(point);
       return legal;
     },
 
