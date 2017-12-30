@@ -5,16 +5,14 @@
  */
 
 
-import * as Point from './Point';
 import {stringify} from "../util/Logger";
 import {range} from "../util/MiscUtil";
-import {mkBarePlayPiece, mkMovePlayPiece, mkCommittedPlayPiece, findFilledSegmentBoundary} from './PlayPiece';
-import * as PlayPiece from './PlayPiece';
+import {mkBarePlayPiece, mkCommittedPlayPiece, findFilledSegmentBoundary} from './PlayPiece';
 import * as Piece from './Piece';
 import {mkPoint} from './Point';
 import {mkMatrixFromCoordinates} from './Matrix';
-import * as GameError from './GameError';
-import {disconnectedWordError} from "./GameError";
+import {disconnectedWordError, noMoveError, multiplePlayLinesError,
+  offCenterError, noAdjacentWordError, incompleteWordError} from "./GameError";
 
 export const mkEmptyBoard = function(dimension) {
   let matrix = mkMatrixFromCoordinates(dimension, function(row, col) {
@@ -153,136 +151,42 @@ export const mkBoard = function(matrix) {
       return this.isFree(point);
     },
 
-    playLineData(axis, lineNumber, line) {
-      return {
-        axis,
-        lineNumber,
-        line,
-        hasMoves: line.some(playPiece => playPiece.moved)
-      }
-    },
-
-    lineMoveInfo(playLineData) {
-      let {lineNumber, line} = playLineData;
-      let firstMoveIndex = undefined;
-      let lastMoveIndex = undefined;
-      let hasCenterMove = false;
-      let numMoves = 0;
-      let center = Math.floor(_dimension / 2);
-      for (let i = 0; i < _dimension; i++) {
-        if (line[i].moved) {
-          if (lineNumber === center && i === center)
-            hasCenterMove = true;
-          if (firstMoveIndex === undefined)
-            firstMoveIndex = i;
-          lastMoveIndex = i;
-          numMoves++;
-        }
-      }
-
-      if (numMoves === 0)
-        throw {
-          name: "illegal state",
-          message: `line ${lineNumber} was expected to have moves but contains none`
-        };
-      let interMoveFreeSlots = 0; // Empty slots in-between moves.
-      for (let i = firstMoveIndex + 1; i <= lastMoveIndex - 1; i++)
-        if (this.isFree(line[i].point))
-          interMoveFreeSlots += 1;
-
-      let isContiguous = interMoveFreeSlots === 0;
-
-      return {
-        numMoves,
-        firstMoveIndex,
-        lastMoveIndex,
-        isContiguous,
-        hasCenterMove
-      };
-    },
-
-    getPlayStrip(playLineData) {
-      let {axis, lineNumber, line} = playLineData;
-      let {numMoves, firstMoveIndex, lastMoveIndex, isContiguous, hasCenterMove} =
-        this.lineMoveInfo(playLineData);
-
-      if (!isContiguous)
-        throw GameError.incompleteWordError;
-
-      let beginIndex = this.extendsTo(line, firstMoveIndex, -1);
-      let endIndex = this.extendsTo(line, lastMoveIndex, +1);
-
-      let playStrip = line.slice(beginIndex, endIndex + 1); // Slice is right-exclusive.
-      return playStrip;
-    },
-
     /**
      * Get the play pieces for the supposedly completed play.
      * If the play is incomplete or illegal, throw an appropriate error.
      */
     completedPlayPieces() {
-      let that = this;
-      let lineNumbers = range(_dimension);
-      let playRowsData = lineNumbers
-        .map(r => this.playLineData("X", r, that.rows()[r]))
-        .filter(_ => _.hasMoves);
-      let playColsData = lineNumbers
-        .map(c => this.playLineData("Y", c, that.cols()[c]))
-        .filter(_ => _.hasMoves);
+      let playRowsData = this.playLinesData("X");
+      let playColsData = this.playLinesData("Y");
 
       let numPlayRows = playRowsData.length;
       let numPlayCols = playColsData.length;
 
       if (numPlayRows === 0 || numPlayCols === 0)
-        throw GameError.noMoveError;
+        throw noMoveError;
 
       if (numPlayRows > 1 && numPlayCols > 1)
-        throw GameError.multiplePlayLinesError;
+        throw multiplePlayLinesError;
 
       let playLineData = undefined;
       let playStrip = undefined;
 
-      if (numPlayRows > 1 || numPlayCols > 1) {
+      if (numPlayRows === 1 && numPlayCols === 1)
+        ({playLineData, playStrip} =
+          this.determineSingleMovePlayLine(playRowsData[0], playColsData[0]));
+      else {
         // Play line is the unique line in a given direction that contains all the moves.
-        playLineData = numPlayRows > 1 ? playColsData[0] : playRowsData[0];
+        playLineData = numPlayRows === 1 ? playRowsData[0] : playColsData[0];
         playStrip = this.getPlayStrip(playLineData);
       }
-      else {
-        // There is just one move leading to a unique row and a unique col of play.
-        // One of them must have a play strip that is longer than just the moved position.
-        let rowLineData = playRowsData[0];
-        let rowPlayStrip = this.getPlayStrip(rowLineData);
-        let colLineData = playColsData[0];
-        let colPlayStrip = this.getPlayStrip(colLineData);
 
-        // Only tile in either direction is the moved one - hence disconnected.
-        if (rowPlayStrip.length === 1 && colPlayStrip.length === 1)
-          throw disconnectedWordError;
-        playLineData = rowPlayStrip.length > 1 ? rowLineData : colLineData;
-        playStrip = rowPlayStrip.length > 1 ? rowPlayStrip : colPlayStrip;
-      }
-
-
-      // let playLineData = numPlayCols > 1 ? playRowsData[0] : playColsData[0];
-      // let playStrip = this.getPlayStrip(playLineData);
-
-      let {axis, lineNumber, line} = playLineData;
-      let {numMoves, firstMoveIndex, lastMoveIndex, isContiguous, hasCenterMove} =
-        this.lineMoveInfo(playLineData);
-
-
-      // if (!isContiguous)
-      //   throw GameError.incompleteWordError;
-      //
-      // let beginIndex = this.extendsTo(line, firstMoveIndex, -1);
-      // let endIndex = this.extendsTo(line, lastMoveIndex, +1);
-      //
-      // let playStrip = line.slice(beginIndex, endIndex + 1); // Slice is right-exclusive.
+      let {axis, lineNumber} = playLineData;
+      let {numMoves, hasCenterMove} = this.lineMoveInfo(playLineData);
 
       let isVeryFirstPlay = !this.hasCommittedPlays();
       if (isVeryFirstPlay) {
         if (hasCenterMove) return playStrip;
-        else throw GameError.offCenterError;
+        else throw offCenterError;
       }
 
       let hasAnchor = playStrip.length - numMoves > 0;
@@ -297,12 +201,116 @@ export const mkBoard = function(matrix) {
         this.parallelContacts(axis, lineNumber, playStrip, +1);
 
       if (prevContacts.length === 0 && nextContacts.length === 0)
-        throw GameError.disconnectedWordError;
+        throw disconnectedWordError;
 
       if (!prevContiguous && !nextContiguous)
-        throw GameError.noAdjacentWordError;
+        throw noAdjacentWordError;
 
       return playStrip;
+    },
+
+    /**
+     * Get lines in a given direction that contains moves: the play lines.
+     *
+     * @param axis The direction of the lines.
+     */
+    playLinesData(axis) {
+      let lines = axis === "X" ? this.rows() : this.cols();
+      let lineNumbers = range(_dimension);
+      let linesData = lineNumbers.map(lineNumber => {
+        let line = lines[lineNumber];
+        let hasMoves = line.some(playPiece => playPiece.moved);
+        return { axis, lineNumber, line, hasMoves};
+      });
+      return linesData.filter(_ => _.hasMoves);
+    },
+
+    /**
+     * Get information about the moves in a given line.
+     * @param playLineData Includes the line number and the line.
+     */
+    lineMoveInfo(playLineData) {
+      let {lineNumber, line} = playLineData;
+      let firstMoveIndex = undefined;
+      let lastMoveIndex = undefined;
+      let hasCenterMove = false;
+      let numMoves = 0;
+      let center = Math.floor(_dimension / 2);
+
+      for (let i = 0; i < _dimension; i++) {
+        if (!line[i].moved)
+          continue;
+        if (lineNumber === center && i === center)
+          hasCenterMove = true;
+        if (firstMoveIndex === undefined)
+          firstMoveIndex = i;
+        lastMoveIndex = i;
+        numMoves++;
+      }
+
+      if (numMoves === 0)
+        throw {
+          name: "illegal state",
+          message: `line ${lineNumber} was expected to have moves but contains none`
+        };
+
+      let interMoveFreeSlots = 0; // Empty slots in-between moves.
+      for (let i = firstMoveIndex + 1; i <= lastMoveIndex - 1; i++)
+        if (this.isFree(line[i].point))
+          interMoveFreeSlots += 1;
+
+      let isContiguous = interMoveFreeSlots === 0;
+
+      return {
+        numMoves, firstMoveIndex, lastMoveIndex, isContiguous, hasCenterMove
+      };
+    },
+
+    /**
+     * Get the strip of a line that contains the entire word play,
+     * including moves and existing tiles. Returns the ordered
+     * list of tiles (as play pieces).
+     *
+     * @param playLineData Provides the line.
+     *
+     */
+    getPlayStrip(playLineData) {
+      let {line} = playLineData;
+      let {firstMoveIndex, lastMoveIndex, isContiguous} =
+        this.lineMoveInfo(playLineData);
+
+      if (!isContiguous)
+        throw incompleteWordError;
+
+      let beginIndex = this.extendsTo(line, firstMoveIndex, -1);
+      let endIndex = this.extendsTo(line, lastMoveIndex, +1);
+
+      let playStrip = line.slice(beginIndex, endIndex + 1); // Slice is right-exclusive.
+      return playStrip;
+    },
+
+    /**
+     * In case there is just one move in the play being committed,
+     * determine whether the principle axis of the play is horizontal
+     * or vertical and get the strip of the play. The principle axis
+     * is one in which the move is connected to an existing tile.
+     *
+     * @param rowLineData Data about the unique play row.
+     * @param colLineData Data about the unique play column.
+     */
+    determineSingleMovePlayLine(rowLineData, colLineData) {
+      let rowPlayStrip = this.getPlayStrip(rowLineData);
+      let colPlayStrip = this.getPlayStrip(colLineData);
+
+      // One of the play strips must have move tiles than just the played one.
+      // If not the move is disconnected.
+      if (rowPlayStrip.length === 1 && colPlayStrip.length === 1)
+        throw disconnectedWordError;
+
+      let playLineData = rowPlayStrip.length > 1 ? rowLineData : colLineData;
+      let playStrip = rowPlayStrip.length > 1 ? rowPlayStrip : colPlayStrip;
+
+      return { playLineData, playStrip };
     },
 
     /**
