@@ -14,6 +14,7 @@ import * as PlayPiece from './PlayPiece';
 import * as Piece from './Piece';
 import {mkPoint} from './Point';
 import {mkMatrixFromCoordinates} from './Matrix';
+import * as GameError from './GameError';
 
 export const mkEmptyBoard = function(dimension) {
   let matrix = mkMatrixFromCoordinates(dimension, function(row, col) {
@@ -197,67 +198,67 @@ export const mkBoard = function(matrix) {
      * For those lines that contain at least one move,
      * get the data needed to check legality.
      */
-    linesMoveInfo(axis) {
-      const that = this;
-      return range(this.dimension)
-        .map(lineNumber => that.lineMoveInfo(axis, lineNumber))
-        .filter(function(info) {
-          return info !== undefined;
-        });
-    },
+    // linesMoveInfo(axis) {
+    //   const that = this;
+    //   return range(this.dimension)
+    //     .map(lineNumber => that.lineMoveInfo(axis, lineNumber))
+    //     .filter(function(info) {
+    //       return info !== undefined;
+    //     });
+    // },
 
-    lineMoveInfo: function(axis, lineNumber) {
-      let line = (axis === "X" ? this.rows() : this.cols())[lineNumber];
-      let firstMoveIndex = undefined;
-      let lastMoveIndex = undefined;
-      let hasCenterMove = false;
-      let numMoves = 0;
-      let center = Math.floor(_dimension / 2);
-      for (let i = 0; i < _dimension; i++) {
-        if (line[i].moved) {
-          if (lineNumber === center && i === center)
-            hasCenterMove = true;
-          if (firstMoveIndex === undefined)
-            firstMoveIndex = i;
-          lastMoveIndex = i;
-          numMoves++;
-        }
-      }
+    // lineMoveInfo: function(axis, lineNumber) {
+    //   let line = (axis === "X" ? this.rows() : this.cols())[lineNumber];
+    //   let firstMoveIndex = undefined;
+    //   let lastMoveIndex = undefined;
+    //   let hasCenterMove = false;
+    //   let numMoves = 0;
+    //   let center = Math.floor(_dimension / 2);
+    //   for (let i = 0; i < _dimension; i++) {
+    //     if (line[i].moved) {
+    //       if (lineNumber === center && i === center)
+    //         hasCenterMove = true;
+    //       if (firstMoveIndex === undefined)
+    //         firstMoveIndex = i;
+    //       lastMoveIndex = i;
+    //       numMoves++;
+    //     }
+    //   }
+    //
+    //   if (numMoves === 0)
+    //     return undefined;
+    //
+    //   let interMoveFreeSlots = 0; // Empty slots in-between moves.
+    //   for (let i = firstMoveIndex + 1; i <= lastMoveIndex - 1; i++)
+    //     if (this.isFree(line[i].point))
+    //       interMoveFreeSlots += 1;
+    //
+    //   let interMoveOriginalSlots = numMoves === 1 ? 0 :
+    //     (lastMoveIndex - firstMoveIndex - 1) - (numMoves - 2) - interMoveFreeSlots;
+    //
+    //   let nearLeft = this.nearestOriginalNeighbor(line, firstMoveIndex, -1);
+    //   let nearRight = this.nearestOriginalNeighbor(line, lastMoveIndex, 1);
+    //
+    //   return {
+    //     axis: axis,
+    //     lineNumber: lineNumber,
+    //     numMoves: numMoves,
+    //     firstMoveIndex: firstMoveIndex,
+    //     lastMoveIndex: lastMoveIndex,
+    //     nearestLeftNeighbor: nearLeft,
+    //     nearestRightNeighbor: nearRight,
+    //     interMoveFreeSlots: interMoveFreeSlots,
+    //     hasInterMoveAnchor: interMoveOriginalSlots > 0,
+    //     hasCenterMove: hasCenterMove
+    //   }
+    // },
 
-      if (numMoves === 0)
-        return undefined;
-
-      let interMoveFreeSlots = 0; // Empty slots in-between moves.
-      for (let i = firstMoveIndex + 1; i <= lastMoveIndex - 1; i++)
-        if (this.isFree(line[i].point))
-          interMoveFreeSlots += 1;
-
-      let interMoveOriginalSlots = numMoves === 1 ? 0 :
-        (lastMoveIndex - firstMoveIndex - 1) - (numMoves - 2) - interMoveFreeSlots;
-
-      let nearLeft = this.nearestOriginalNeighbor(line, firstMoveIndex, -1);
-      let nearRight = this.nearestOriginalNeighbor(line, lastMoveIndex, 1);
-
-      return {
-        axis: axis,
-        lineNumber: lineNumber,
-        numMoves: numMoves,
-        firstMoveIndex: firstMoveIndex,
-        lastMoveIndex: lastMoveIndex,
-        nearestLeftNeighbor: nearLeft,
-        nearestRightNeighbor: nearRight,
-        interMoveFreeSlots: interMoveFreeSlots,
-        hasInterMoveAnchor: interMoveOriginalSlots > 0,
-        hasCenterMove: hasCenterMove
-      }
-    },
-
-    nearestOriginalNeighbor: function(playPieces, index, direction) {
-      for (let i = index + direction; inBounds(i); i = i + direction)
-        if (playPieces[i].isOriginal())
-          return i;
-      return undefined;
-    },
+    // nearestOriginalNeighbor: function(playPieces, index, direction) {
+    //   for (let i = index + direction; inBounds(i); i = i + direction)
+    //     if (playPieces[i].isOriginal())
+    //       return i;
+    //   return undefined;
+    // },
 
     playLineData(axis, lineNumber, line) {
       return {
@@ -298,9 +299,6 @@ export const mkBoard = function(matrix) {
 
       let isContiguous = interMoveFreeSlots === 0;
 
-      // let interMoveOriginalSlots = numMoves === 1 ? 0 :
-      //   (lastMoveIndex - firstMoveIndex - 1) - (numMoves - 2) - interMoveFreeSlots;
-
       return {
         numMoves,
         firstMoveIndex,
@@ -310,85 +308,62 @@ export const mkBoard = function(matrix) {
       };
     },
 
+    /**
+     * Get the play pieces for the supposedly completed play.
+     * If the play is incomplete or illegal, throw an appropriate error.
+     */
     completedPlayPieces() {
       let that = this;
-      let indexes = range(_dimension);
-      let playRowsData = indexes
-        .map(lineNumber => this.playLineData("X", lineNumber, that.rows()[lineNumber]))
-        .filter(data => data.hasMoves);
-      let playColsData = indexes
-        .map(lineNumber => this.playLineData("Y", lineNumber, that.cols()[lineNumber]))
-        .filter(data => data.hasMoves);
+      let lineNumbers = range(_dimension);
+      let playRowsData = lineNumbers
+        .map(r => this.playLineData("X", r, that.rows()[r]))
+        .filter(_ => _.hasMoves);
+      let playColsData = lineNumbers
+        .map(c => this.playLineData("Y", c, that.cols()[c]))
+        .filter(_ => _.hasMoves);
 
       let numPlayRows = playRowsData.length;
       let numPlayCols = playColsData.length;
-
       if (numPlayRows === 0 || numPlayCols === 0)
-        throw {
-          name: "no moves",
-          message: "no moves found for play"
-        };
-
+        throw GameError.noMoveError;
       if (numPlayRows > 1 && numPlayCols > 1)
-        throw {
-          name: "multiple play lines",
-          message: "multiple lines in both directions have moves"
-        };
+        throw GameError.multiplePlayLinesError;
 
       let playLineData = numPlayCols > 1 ? playRowsData[0] : playColsData[0];
-
+      let {axis, lineNumber, line} = playLineData;
       let {numMoves, firstMoveIndex, lastMoveIndex, isContiguous, hasCenterMove} =
         this.lineMoveInfo1(playLineData);
 
       if (!isContiguous)
-        throw {
-          name: "incomplete word",
-          message: "moves do not result in a single word"
-        };
+        throw GameError.incompleteWordError;
 
-      let {axis, lineNumber, line} = playLineData;
+      let beginIndex = this.extendsTo(line, firstMoveIndex, -1);
+      let endIndex = this.extendsTo(line, lastMoveIndex, +1);
 
-      let firstPlayIndex = this.extendsTo(line, firstMoveIndex, -1);
-      let lastPlayIndex = this.extendsTo(line, lastMoveIndex, +1);
-
-      let playStrip = line.slice(firstPlayIndex, lastPlayIndex + 1); // Slice is right-exclusive.
+      let playStrip = line.slice(beginIndex, endIndex + 1); // Slice is right-exclusive.
 
       let isVeryFirstPlay = !this.hasCommittedPlays();
-
       if (isVeryFirstPlay) {
-        if (hasCenterMove)
-          return playStrip;
-        else
-          throw {
-            name: "off-center first play",
-            message: "first word of game does not cover the center square"
-          };
+        if (hasCenterMove) return playStrip;
+        else throw GameError.offCenterError;
       }
 
       let hasAnchor = playStrip.length - numMoves > 0;
-
       if (hasAnchor)
         return playStrip;
 
       // It is a parallel play. Check adjacency to a word on either side.
 
-      let {contactPoints: prevLineContactPoints, contiguous: prevContiguous} =
-        this.adjacentParallelContactsExistContiguously(axis, lineNumber, playStrip, -1);
+      let {contactPoints: prevContacts, contiguous: prevContiguous} =
+        this.parallelContacts(axis, lineNumber, playStrip, -1);
+      let {contactPoints: nextContacts, contiguous: nextContiguous} =
+        this.parallelContacts(axis, lineNumber, playStrip, +1);
 
-      let {contactPoints: nextLineContactPoints, contiguous: nextContiguous} =
-        this.adjacentParallelContactsExistContiguously(axis, lineNumber, playStrip, +1);
-
-      if (prevLineContactPoints.length === 0 && nextLineContactPoints.length === 0)
-        throw {
-          name: "disconnected word",
-          message: "played word is not connected to existing tiles"
-        };
+      if (prevContacts.length === 0 && nextContacts.length === 0)
+        throw GameError.disconnectedWordError;
 
       if (!prevContiguous && !nextContiguous)
-        throw {
-          name: "no adjacent word",
-          message: "no unique adjacent word for word composed entirely of new tiles"
-        };
+        throw GameError.noAdjacentWordError;
 
       return playStrip;
     },
@@ -396,7 +371,7 @@ export const mkBoard = function(matrix) {
     /**
      * Get an ordered list of contact points to an adjacent line for a given play.
      */
-    adjacentParallelContactsExistContiguously(axis, lineNumber, playStrip, direction) {
+    parallelContacts(axis, lineNumber, playStrip, direction) {
       let that = this;
       let adjLineNumber = lineNumber + direction;
       if (adjLineNumber < 0 || adjLineNumber >= _dimension)
@@ -433,98 +408,78 @@ export const mkBoard = function(matrix) {
       };
     },
 
-    /**
-     * If a play strip is completed return the completed strip,
-     * otherwise return an empty array.
-     */
-    // completedPlayPiecesLegacy() {
-    //   let lineInfos = this.playLineInfo();
+    // completedPlayPiecesForOneLine(lineInfo) {
+    //   let [axis, lineNumber] = [lineInfo.axis, lineInfo.lineNumber];
+    //   let line = (axis === "X") ? this.rows()[lineNumber] : this.cols()[lineNumber];
     //
-    //   if (lineInfos.length === 0)
+    //   // No original pieces in play line - it can happen only for the first play.
+    //   let numOriginalPieces = sum(line.map(pp => pp.isOriginal() ? 1 : 0));
+    //   if (this.hasCommittedPlays() && numOriginalPieces === 0)
     //     return [];
-    //   else if (lineInfos.length === 1)
-    //     return this.completedPlayPiecesForOneLine(lineInfos[0]);
-    //   else {
-    //     let completed0 = this.completedPlayPiecesForOneLine(lineInfos[0]);
-    //     if (completed0.length > 0)
-    //       return completed0;
-    //     else
-    //       return this.completedPlayPiecesForOneLine(lineInfos[1]);
-    //   }
+    //
+    //   // Gaps remain - play is incomplete.
+    //   if (lineInfo.interMoveFreeSlots > 0)
+    //     return [];
+    //
+    //   // Inter-move slots are filled. Find extent of play to the right and left of moves.
+    //   let leftIndex = this.extendsTo(line, lineInfo.firstMoveIndex, -1);
+    //   let rightIndex = this.extendsTo(line, lineInfo.lastMoveIndex, +1);
+    //
+    //   let strip = line.slice(leftIndex, rightIndex + 1); // Slice is right-exclusive.
+    //   numOriginalPieces = sum(strip.map(pp => pp.isOriginal() ? 1 : 0));
+    //   // Not the first play and has no anchor.
+    //   if (this.hasCommittedPlays() && numOriginalPieces === 0)
+    //     return [];
+    //   return strip;
     // },
-
-    completedPlayPiecesForOneLine(lineInfo) {
-      let [axis, lineNumber] = [lineInfo.axis, lineInfo.lineNumber];
-      let line = (axis === "X") ? this.rows()[lineNumber] : this.cols()[lineNumber];
-
-      // No original pieces in play line - it can happen only for the first play.
-      let numOriginalPieces = sum(line.map(pp => pp.isOriginal() ? 1 : 0));
-      if (this.hasCommittedPlays() && numOriginalPieces === 0)
-        return [];
-
-      // Gaps remain - play is incomplete.
-      if (lineInfo.interMoveFreeSlots > 0)
-        return [];
-
-      // Inter-move slots are filled. Find extent of play to the right and left of moves.
-      let leftIndex = this.extendsTo(line, lineInfo.firstMoveIndex, -1);
-      let rightIndex = this.extendsTo(line, lineInfo.lastMoveIndex, +1);
-
-      let strip = line.slice(leftIndex, rightIndex + 1); // Slice is right-exclusive.
-      numOriginalPieces = sum(strip.map(pp => pp.isOriginal() ? 1 : 0));
-      // Not the first play and has no anchor.
-      if (this.hasCommittedPlays() && numOriginalPieces === 0)
-        return [];
-      return strip;
-    },
 
     /**
      * Get info on possible play lines.
      */
-    playLineInfo() {
-      let hasAnchor = function(lineInfo) {
-        return lineInfo.hasInterMoveAnchor
-          || lineInfo.nearestLeftNeighbor !== undefined
-          || lineInfo.nearestRightNeighbor !== undefined;
-      };
-
-      let isCentered = function(lineInfo) {
-        return lineInfo.hasCenterMove;
-      };
-
-      // If it is the first play, it must have a center move which acts as an anchor.
-      let isPlayLine = this.hasCommittedPlays() ? hasAnchor : isCentered;
-
-      let playRowsInfo = this.linesMoveInfo("X")
-      playRowsInfo = playRowsInfo.filter(isPlayLine);
-      let playColsInfo = this.linesMoveInfo("Y")
-      playColsInfo = playColsInfo.filter(isPlayLine);
-
-      let numPlayRows = playRowsInfo.length;
-      let numPlayCols = playColsInfo.length;
-
-      // No play lines at all.
-      if (numPlayRows === 0 && numPlayCols === 0)
-        return [];
-
-      // The principle play defines a single word in a single line in the principle direction.
-      // But that word may define multiple plays in the cross direction.
-
-      if (numPlayRows > 1 && numPlayCols > 1)
-        throw {
-          name: "illegal state",
-          message: "found multiple play in each direction - not allowed"
-        };
-
-      // A single move may have caused 2 legitimate plays in cross directions.
-      // Just choose the first one as the principle direction.
-
-      if (numPlayRows === 1 && numPlayCols === 1)
-        return [playRowsInfo[0], playColsInfo[0]];
-
-      let movesInfo = numPlayRows === 1 ? playRowsInfo[0] : playColsInfo[0];
-      return [movesInfo];
-    },
+    // playLineInfo() {
+    //   let hasAnchor = function(lineInfo) {
+    //     return lineInfo.hasInterMoveAnchor
+    //       || lineInfo.nearestLeftNeighbor !== undefined
+    //       || lineInfo.nearestRightNeighbor !== undefined;
+    //   };
+    //
+    //   let isCentered = function(lineInfo) {
+    //     return lineInfo.hasCenterMove;
+    //   };
+    //
+    //   // If it is the first play, it must have a center move which acts as an anchor.
+    //   let isPlayLine = this.hasCommittedPlays() ? hasAnchor : isCentered;
+    //
+    //   let playRowsInfo = this.linesMoveInfo("X")
+    //   playRowsInfo = playRowsInfo.filter(isPlayLine);
+    //   let playColsInfo = this.linesMoveInfo("Y")
+    //   playColsInfo = playColsInfo.filter(isPlayLine);
+    //
+    //   let numPlayRows = playRowsInfo.length;
+    //   let numPlayCols = playColsInfo.length;
+    //
+    //   // No play lines at all.
+    //   if (numPlayRows === 0 && numPlayCols === 0)
+    //     return [];
+    //
+    //   // The principle play defines a single word in a single line in the principle direction.
+    //   // But that word may define multiple plays in the cross direction.
+    //
+    //   if (numPlayRows > 1 && numPlayCols > 1)
+    //     throw {
+    //       name: "illegal state",
+    //       message: "found multiple play in each direction - not allowed"
+    //     };
+    //
+    //   // A single move may have caused 2 legitimate plays in cross directions.
+    //   // Just choose the first one as the principle direction.
+    //
+    //   if (numPlayRows === 1 && numPlayCols === 1)
+    //     return [playRowsInfo[0], playColsInfo[0]];
+    //
+    //   let movesInfo = numPlayRows === 1 ? playRowsInfo[0] : playColsInfo[0];
+    //   return [movesInfo];
+    // },
 
     // TODO. Remove. Replace with the inner call.
     extendsTo(playPieces, index, direction) {
