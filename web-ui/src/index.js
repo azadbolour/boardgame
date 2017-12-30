@@ -119,7 +119,7 @@ let startingPlayer = params.getParam('starting-player');
 if (startingPlayer === undefined) {
   let playerType = GameParams.PlayerType;
   startingPlayer = Math.random() < 0.5 ? playerType.userPlayer : playerType.machinePlayer;
-  gameParams['starting-player'] = startingPlayer;
+  gameParams.startingPlayer = startingPlayer;
 }
 
 // TODO. Add language-code to the query parameters and GameParams - default is en.

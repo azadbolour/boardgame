@@ -14,6 +14,7 @@ import * as Piece from './Piece';
 import {mkPoint} from './Point';
 import {mkMatrixFromCoordinates} from './Matrix';
 import * as GameError from './GameError';
+import {disconnectedWordError} from "./GameError";
 
 export const mkEmptyBoard = function(dimension) {
   let matrix = mkMatrixFromCoordinates(dimension, function(row, col) {
@@ -200,6 +201,21 @@ export const mkBoard = function(matrix) {
       };
     },
 
+    getPlayStrip(playLineData) {
+      let {axis, lineNumber, line} = playLineData;
+      let {numMoves, firstMoveIndex, lastMoveIndex, isContiguous, hasCenterMove} =
+        this.lineMoveInfo(playLineData);
+
+      if (!isContiguous)
+        throw GameError.incompleteWordError;
+
+      let beginIndex = this.extendsTo(line, firstMoveIndex, -1);
+      let endIndex = this.extendsTo(line, lastMoveIndex, +1);
+
+      let playStrip = line.slice(beginIndex, endIndex + 1); // Slice is right-exclusive.
+      return playStrip;
+    },
+
     /**
      * Get the play pieces for the supposedly completed play.
      * If the play is incomplete or illegal, throw an appropriate error.
@@ -216,23 +232,52 @@ export const mkBoard = function(matrix) {
 
       let numPlayRows = playRowsData.length;
       let numPlayCols = playColsData.length;
+
       if (numPlayRows === 0 || numPlayCols === 0)
         throw GameError.noMoveError;
+
       if (numPlayRows > 1 && numPlayCols > 1)
         throw GameError.multiplePlayLinesError;
 
-      let playLineData = numPlayCols > 1 ? playRowsData[0] : playColsData[0];
+      let playLineData = undefined;
+      let playStrip = undefined;
+
+      if (numPlayRows > 1 || numPlayCols > 1) {
+        // Play line is the unique line in a given direction that contains all the moves.
+        playLineData = numPlayRows > 1 ? playColsData[0] : playRowsData[0];
+        playStrip = this.getPlayStrip(playLineData);
+      }
+      else {
+        // There is just one move leading to a unique row and a unique col of play.
+        // One of them must have a play strip that is longer than just the moved position.
+        let rowLineData = playRowsData[0];
+        let rowPlayStrip = this.getPlayStrip(rowLineData);
+        let colLineData = playColsData[0];
+        let colPlayStrip = this.getPlayStrip(colLineData);
+
+        // Only tile in either direction is the moved one - hence disconnected.
+        if (rowPlayStrip.length === 1 && colPlayStrip.length === 1)
+          throw disconnectedWordError;
+        playLineData = rowPlayStrip.length > 1 ? rowLineData : colLineData;
+        playStrip = rowPlayStrip.length > 1 ? rowPlayStrip : colPlayStrip;
+      }
+
+
+      // let playLineData = numPlayCols > 1 ? playRowsData[0] : playColsData[0];
+      // let playStrip = this.getPlayStrip(playLineData);
+
       let {axis, lineNumber, line} = playLineData;
       let {numMoves, firstMoveIndex, lastMoveIndex, isContiguous, hasCenterMove} =
         this.lineMoveInfo(playLineData);
 
-      if (!isContiguous)
-        throw GameError.incompleteWordError;
 
-      let beginIndex = this.extendsTo(line, firstMoveIndex, -1);
-      let endIndex = this.extendsTo(line, lastMoveIndex, +1);
-
-      let playStrip = line.slice(beginIndex, endIndex + 1); // Slice is right-exclusive.
+      // if (!isContiguous)
+      //   throw GameError.incompleteWordError;
+      //
+      // let beginIndex = this.extendsTo(line, firstMoveIndex, -1);
+      // let endIndex = this.extendsTo(line, lastMoveIndex, +1);
+      //
+      // let playStrip = line.slice(beginIndex, endIndex + 1); // Slice is right-exclusive.
 
       let isVeryFirstPlay = !this.hasCommittedPlays();
       if (isVeryFirstPlay) {

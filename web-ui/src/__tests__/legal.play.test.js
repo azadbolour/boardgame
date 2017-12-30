@@ -110,6 +110,23 @@ test('parallel play OK 2', () => {
   expect(playPieces.length).toBe(2);
 });
 
+test('make word by adding a single cross letter', () => {
+  let dimension = 5;
+  let board = mkEmptyBoard(dimension);
+  let playPiece1 = mkCommittedPlayPiece(pcs[0], mkPoint(1, 0));
+  let playPiece2 = mkCommittedPlayPiece(pcs[1], mkPoint(2, 0));
+  let playPiece3 = mkCommittedPlayPiece(pcs[2], mkPoint(3, 0));
+  board = board.setPlayPiece(playPiece1);
+  board = board.setPlayPiece(playPiece2);
+  board = board.setPlayPiece(playPiece3);
+
+  let playPiece4 = mkMovePlayPiece(pcs[3], mkPoint(2, 1));
+  board = board.setPlayPiece(playPiece4);
+  let playPieces = board.completedPlayPieces();
+  expect(playPieces.length).toBe(2);
+});
+
+
 test('parallel play straddles multiple adjacent words', () => {
   let dimension = 5;
   let {mid, board} = initBoard(dimension);
