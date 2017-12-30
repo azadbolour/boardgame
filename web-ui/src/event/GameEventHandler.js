@@ -184,17 +184,18 @@ export const mkGameEventHandler = function(gameService) {
      */
     handleCommitPlayInternal: function() {
       if (noGame()) { logNoGame(); return; }
-      let committedPlayPieces = _game.getCompletedPlayPieces();
-      let inComplete = function() {return committedPlayPieces.length === 0};
-
-      if (inComplete()) {
+      let committedPlayPieces = undefined;
+      try {
+        committedPlayPieces = _game.getCompletedPlayPieces();
+      } catch (ex) {
+        let {name, message} = ex;
+        _status = `${name}: ${message}`;
         let response = {
           json: "",
           ok: false,
           status: 422,
-          statusText: "incomplete word"
+          statusText: _status
         };
-        _status = "incomplete word";
         emitChange(systemResponseType(response));
         return Promise.resolve(response);
       }

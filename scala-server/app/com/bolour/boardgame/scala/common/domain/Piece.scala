@@ -11,6 +11,8 @@ case class Piece(value: Char, id: String = stringId()) {
   import Piece._
 
   def isEmpty = this == noPiece
+
+  def worth: Int = worths(value)
 }
 
 object Piece {

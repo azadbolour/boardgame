@@ -46,8 +46,14 @@ case class GameState(
 
   // TODO. May fail. So return a Try for consistency.
   def stop(): (GameState, List[Int]) = {
-    val endOfPlayScores = List(0, 0) // TODO. Compute end of play scores.
-    val newState = this  // TODO. Add end of play scores to total scores.
+    val userSum = trays(playerIndex(UserPlayer)).sumLetterWorths
+    val machineSum = trays(playerIndex(MachinePlayer)).sumLetterWorths
+    def bonus(thisSum: Int, thatSum: Int): Int = if (thisSum > 0) -thisSum else thatSum
+    val userBonus = bonus(userSum, machineSum)
+    val machineBonus = bonus(machineSum, userSum)
+    val endOfPlayScores = List(userBonus, machineBonus)
+    val finalScores = (scores zip endOfPlayScores) map { both => both._1 + both._2 }
+    val newState = this.copy(scores = finalScores)
     (newState, endOfPlayScores)
   }
 
@@ -85,10 +91,10 @@ case class GameState(
   }
 
   def swapPiece(piece: Piece, playerType: PlayerType): Try[(GameState, Piece)] = {
+    val succPasses = numSuccessivePasses + 1
     // Cannot swap if no more pieces in the sack, so for now just return the same piece.
     // This is our way of doing a pass for now.
     if (tileSack.isEmpty) {
-      val succPasses = numSuccessivePasses + 1
       val newState = this.copy(numSuccessivePasses = succPasses)
       return Success((newState, piece))
     }
@@ -97,11 +103,10 @@ case class GameState(
     val tray = trays(trayIndex)
     for {
       tray1 <- tray.removePiece(piece)
-      (nextGen, newPiece) <- tileSack.swapOne(piece)
+      (tileSack1, newPiece) <- tileSack.swapOne(piece)
       tray2 <- tray1.addPiece(newPiece)
       trays2 = trays.updated(playerIndex(playerType), tray2)
-      // newState <- this.copy(trays = trays2, pieceGenerator = nextGen)
-      newState = this.copy(trays = trays2, tileSack = nextGen)
+      newState = this.copy(trays = trays2, tileSack = tileSack1, numSuccessivePasses = succPasses)
     } yield (newState, newPiece)
   }
 

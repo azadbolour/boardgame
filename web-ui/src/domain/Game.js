@@ -140,8 +140,11 @@ export const mkGame = function(gameParams, gameId, board, tray, scoreMultipliers
       return _board.getUserMovePlayPieces();
     },
 
+    /**
+     * Throws exception if play is illegal.
+     */
     getCompletedPlayPieces: function() {
-      return _board.completedPlayPieces();
+      return _board.completedPlayPieces(); // Throws.
     },
 
     commitUserMoves: function(playScore, replacementPieces) {

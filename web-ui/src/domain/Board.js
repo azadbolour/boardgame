@@ -153,23 +153,27 @@ export const mkBoard = function(matrix) {
      * @returns {boolean}
      */
     legalMove: function(piece, point, numTrayPieces) {
-      if (!this.isFree(point))
-        return false;
-      // For now restrict the very first move to be to the center point.
-      if (this.isEmpty())
-        return Point.eq(point, centerPoint);
-
-      // Move the piece to the board on a trial basis.
-      let testBoard = this.setPlayPiece(mkMovePlayPiece(piece, point));
-      let testTrayPieces = numTrayPieces - 1; // Trial tray has lost the moved piece.
-      let movesInfoX = testBoard.linesMoveInfo("X");
-      let movesInfoY = testBoard.linesMoveInfo("Y");
-
-      const hasUniqueLegalLine = function(movesInfo) {
-        return movesInfo.length === 1 && testBoard.isCompletable(movesInfo[0], testTrayPieces)
-      };
-      return hasUniqueLegalLine(movesInfoX) || hasUniqueLegalLine(movesInfoY);
+      return this.isFree(point);
     },
+
+    // legalMove: function(piece, point, numTrayPieces) {
+    //   if (!this.isFree(point))
+    //     return false;
+    //   // For now restrict the very first move to be to the center point.
+    //   if (this.isEmpty())
+    //     return Point.eq(point, centerPoint);
+    //
+    //   // Move the piece to the board on a trial basis.
+    //   let testBoard = this.setPlayPiece(mkMovePlayPiece(piece, point));
+    //   let testTrayPieces = numTrayPieces - 1; // Trial tray has lost the moved piece.
+    //   let movesInfoX = testBoard.linesMoveInfo("X");
+    //   let movesInfoY = testBoard.linesMoveInfo("Y");
+    //
+    //   const hasUniqueLegalLine = function(movesInfo) {
+    //     return movesInfo.length === 1 && testBoard.isCompletable(movesInfo[0], testTrayPieces)
+    //   };
+    //   return hasUniqueLegalLine(movesInfoX) || hasUniqueLegalLine(movesInfoY);
+    // },
 
     isCompletable(info, numTrayPieces) {
       let { axis, lineNumber, numMoves, firstMoveIndex, lastMoveIndex,
@@ -220,17 +224,6 @@ export const mkBoard = function(matrix) {
           return info !== undefined;
         });
     },
-
-    // linesMoveInfo(axis, playPieceLines) {
-    //   const that = this;
-    //   return playPieceLines
-    //     .map(function(line) {
-    //       return that.lineMoveInfo(axis, line);
-    //     })
-    //     .filter(function(info) {
-    //       return info !== undefined;
-    //     });
-    // },
 
     lineMoveInfo: function(axis, lineNumber) {
       let line = (axis === "X" ? this.rows() : this.cols())[lineNumber];
@@ -285,11 +278,185 @@ export const mkBoard = function(matrix) {
       return undefined;
     },
 
+    playLineData(axis, lineNumber, line) {
+      return {
+        axis,
+        lineNumber,
+        line,
+        hasMoves: line.some(playPiece => playPiece.moved)
+      }
+    },
+
+    lineMoveInfo1(playLineData) {
+      let {lineNumber, line} = playLineData;
+      let firstMoveIndex = undefined;
+      let lastMoveIndex = undefined;
+      let hasCenterMove = false;
+      let numMoves = 0;
+      let center = Math.floor(_dimension / 2);
+      for (let i = 0; i < _dimension; i++) {
+        if (line[i].moved) {
+          if (lineNumber === center && i === center)
+            hasCenterMove = true;
+          if (firstMoveIndex === undefined)
+            firstMoveIndex = i;
+          lastMoveIndex = i;
+          numMoves++;
+        }
+      }
+
+      if (numMoves === 0)
+        throw {
+          name: "illegal state",
+          message: `line ${lineNumber} was expected to have moves but contains none`
+        };
+      let interMoveFreeSlots = 0; // Empty slots in-between moves.
+      for (let i = firstMoveIndex + 1; i <= lastMoveIndex - 1; i++)
+        if (this.isFree(line[i].point))
+          interMoveFreeSlots += 1;
+
+      let isContiguous = interMoveFreeSlots === 0;
+
+      // let interMoveOriginalSlots = numMoves === 1 ? 0 :
+      //   (lastMoveIndex - firstMoveIndex - 1) - (numMoves - 2) - interMoveFreeSlots;
+
+      return {
+        numMoves,
+        firstMoveIndex,
+        lastMoveIndex,
+        isContiguous,
+        hasCenterMove
+      };
+    },
+
+    completedPlayPieces() {
+      let that = this;
+      let indexes = range(_dimension);
+      let playRowsData = indexes
+        .map(lineNumber => this.playLineData("X", lineNumber, that.rows()[lineNumber]))
+        .filter(data => data.hasMoves);
+      let playColsData = indexes
+        .map(lineNumber => this.playLineData("Y", lineNumber, that.cols()[lineNumber]))
+        .filter(data => data.hasMoves);
+
+      let numPlayRows = playRowsData.length;
+      let numPlayCols = playColsData.length;
+
+      if (numPlayRows === 0 || numPlayCols === 0)
+        throw {
+          name: "no moves",
+          message: "no moves found for play"
+        };
+
+      if (numPlayRows > 1 && numPlayCols > 1)
+        throw {
+          name: "multiple play lines",
+          message: "multiple lines in both directions have moves"
+        };
+
+      let playLineData = numPlayCols > 1 ? playRowsData[0] : playColsData[0];
+
+      let {numMoves, firstMoveIndex, lastMoveIndex, isContiguous, hasCenterMove} =
+        this.lineMoveInfo1(playLineData);
+
+      if (!isContiguous)
+        throw {
+          name: "incomplete word",
+          message: "moves do not result in a single word"
+        };
+
+      let {axis, lineNumber, line} = playLineData;
+
+      let firstPlayIndex = this.extendsTo(line, firstMoveIndex, -1);
+      let lastPlayIndex = this.extendsTo(line, lastMoveIndex, +1);
+
+      let playStrip = line.slice(firstPlayIndex, lastPlayIndex + 1); // Slice is right-exclusive.
+
+      let isVeryFirstPlay = !this.hasCommittedPlays();
+
+      if (isVeryFirstPlay) {
+        if (hasCenterMove)
+          return playStrip;
+        else
+          throw {
+            name: "off-center first play",
+            message: "first word of game does not cover the center square"
+          };
+      }
+
+      let hasAnchor = playStrip.length - numMoves > 0;
+
+      if (hasAnchor)
+        return playStrip;
+
+      // It is a parallel play. Check adjacency to a word on either side.
+
+      let {contactPoints: prevLineContactPoints, contiguous: prevContiguous} =
+        this.adjacentParallelContactsExistContiguously(axis, lineNumber, playStrip, -1);
+
+      let {contactPoints: nextLineContactPoints, contiguous: nextContiguous} =
+        this.adjacentParallelContactsExistContiguously(axis, lineNumber, playStrip, +1);
+
+      if (prevLineContactPoints.length === 0 && nextLineContactPoints.length === 0)
+        throw {
+          name: "disconnected word",
+          message: "played word is not connected to existing tiles"
+        };
+
+      if (!prevContiguous && !nextContiguous)
+        throw {
+          name: "no adjacent word",
+          message: "no unique adjacent word for word composed entirely of new tiles"
+        };
+
+      return playStrip;
+    },
+
+    /**
+     * Get an ordered list of contact points to an adjacent line for a given play.
+     */
+    adjacentParallelContactsExistContiguously(axis, lineNumber, playStrip, direction) {
+      let that = this;
+      let adjLineNumber = lineNumber + direction;
+      if (adjLineNumber < 0 || adjLineNumber >= _dimension)
+        return {
+          contactPoints: [],
+          contiguous: false
+        }
+
+      let contactPoints = playStrip
+        .map(playPiece => {
+          let point = playPiece.point;
+          let r = axis === "X" ? adjLineNumber : point.row;
+          let c = axis === "Y" ? adjLineNumber : point.col;
+          return mkPoint(r, c);
+        })
+        .filter(p => !that.isFree(p));
+
+      if (contactPoints.length === 0)
+        return {
+          contactPoints,
+          contiguous: false
+        };
+
+      let first = contactPoints[0];
+      let last = contactPoints[contactPoints.length - 1];
+
+      let begin = axis === "X" ? first.col : first.row;
+      let end = axis === "X" ? last.col : last.row;
+
+      let contiguous = (end - begin + 1) === contactPoints.length;
+      return {
+        contactPoints,
+        contiguous
+      };
+    },
+
     /**
      * If a play strip is completed return the completed strip,
      * otherwise return an empty array.
      */
-    completedPlayPieces() {
+    completedPlayPiecesLegacy() {
       let lineInfos = this.playLineInfo();
 
       if (lineInfos.length === 0)
@@ -303,25 +470,6 @@ export const mkBoard = function(matrix) {
         else
           return this.completedPlayPiecesForOneLine(lineInfos[1]);
       }
-
-      // let [axis, lineNumber] = [lineInfo.axis, lineInfo.lineNumber];
-      // let line = (axis === "X") ? this.rows()[lineNumber] : this.cols()[lineNumber];
-      //
-      // // No original pieces. Should not happen. Check for good measure.
-      // let numOriginalPieces = sum(line.map(pp => pp.isOriginal() ? 1 : 0));
-      // if (numOriginalPieces === 0)
-      //   return [];
-      //
-      // // Gaps remain - play is incomplete.
-      // if (lineInfo.interMoveFreeSlots > 0)
-      //   return [];
-      //
-      // // Inter-move slots are filled. Find extent of play to the right and left of moves.
-      // let leftIndex = this.extendsTo(line, lineInfo.firstMoveIndex, -1);
-      // let rightIndex = this.extendsTo(line, lineInfo.lastMoveIndex, +1);
-      //
-      // let strip = line.slice(leftIndex, rightIndex + 1); // Slice is right-exclusive.
-      // return strip;
     },
 
     completedPlayPiecesForOneLine(lineInfo) {
@@ -401,13 +549,5 @@ export const mkBoard = function(matrix) {
     extendsTo(playPieces, index, direction) {
       return findFilledSegmentBoundary(playPieces, index, direction);
     }
-    //   let to = index;
-    //   for (let i = index + direction; inBounds(i); i = i + direction)
-    //     if (!playPieces[i].isFree()) {
-    //       to = i;
-    //       continue;
-    //     }
-    //   return to;
-    // }
   };
 };

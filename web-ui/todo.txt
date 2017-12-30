@@ -1,21 +1,24 @@
 
-- Board.legalMove numTrayPieces - fix comment.
+- Add disconnected error.
 
-  Board.lineMoveInfo returns hasInterMOveAnchor and other info. 
-  Then isCompletable decides if legal. If no inline anchor,
-  then you need a cross anchor. At least one move that touches
-  an existing tile crosswise. If you have that then you need to 
-  have enough tiles for intermove slots. 
+- Remove dead code after changes are tested.
 
-  For one point along the line that touches a neighbor you should 
-  either have an existing move, or add a move there and then 
-  have enough times to complete the play.
-  
-  Need move.anchoredCrosswise
+- Target container is not a DOM element error in browser console.
 
-  But this is getting very complicated. Maybe easiest to require that 
-  all moves be adjacent to an existing tile. Simpler to code and simpler
-  for the user to understand.
+  Both main and index include the script. Only one should I think.
+
+  I ran into this same error, and as others have suggested, it's because your
+  bundle.js file is loading too early. Move your <script> tag into the body (as
+  the last line before the closing </body> tag) to resolve this error. –
+
+- Make clear where the new word is placed by machine.
+
+- Indicate that it is user's turn to drag.
+
+- Catch and log UI errors at highest level - and send to server if possible -
+  indicate error id in UI asking user to report.
+
+- Help for the app.
 
 - Add error boundary.
 
