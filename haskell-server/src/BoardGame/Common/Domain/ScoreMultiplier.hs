@@ -12,8 +12,11 @@
 module BoardGame.Common.Domain.ScoreMultiplier (
     ScoreMultiplier(..)
   , noMultiplier
+  , mkMultiplierGrid
   ) where
 
+import BoardGame.Common.Domain.Grid (Grid)
+import qualified BoardGame.Common.Domain.Grid as Grid
 import BoardGame.Common.Domain.Point (Point, Point(Point))
 import qualified BoardGame.Common.Domain.Point as Point
 import BoardGame.Common.Domain.ScoreMultiplierType (ScoreMultiplierType)
@@ -27,6 +30,11 @@ data ScoreMultiplier = ScoreMultiplier {
   scoreMultiplierType :: ScoreMultiplierType,
   factor :: Int
 }
+
+mkMultiplierGrid :: Int -> Grid ScoreMultiplier
+mkMultiplierGrid dimension =
+  let cellScoreMultiplier row col = scoreMultiplier (Point row col) dimension
+  in Grid.mkGrid cellScoreMultiplier dimension dimension
 
 noMultiplier :: ScoreMultiplier
 noMultiplier = ScoreMultiplier SMType.None 1

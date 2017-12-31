@@ -12,6 +12,7 @@
 
 module BoardGame.Server.Domain.CrossWordFinder (
     findStripCrossWords
+  , findCrossPlays
   ) where
 
 import BoardGame.Common.Domain.Point (Point, Point(Point), Axis)
@@ -26,8 +27,8 @@ findStripCrossWords board strip word = [] -- TODO. Implement.
 findSurroundingWord :: Board -> Point -> Char -> Axis -> String
 findSurroundingWord board point letter axis = ""
 
-findStripCrossPlays :: Board -> [PlayPiece] -> [[(Char, Point, Bool)]]
-findStripCrossPlays board playPieces = []
+findCrossPlays :: Board -> [PlayPiece] -> [[(Char, Point, Bool)]]
+findCrossPlays board playPieces = []
 
 -- TODO. Implement all functions of CrossWordFinder.
 

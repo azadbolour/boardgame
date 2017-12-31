@@ -43,8 +43,8 @@ import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.Point (Coordinate, Height, Width, Axis(..), Point, Point(Point))
 import qualified BoardGame.Common.Domain.Point as Point
-import BoardGame.Server.Domain.Grid (Grid, Grid(Grid))
-import qualified BoardGame.Server.Domain.Grid as Grid
+import BoardGame.Common.Domain.Grid (Grid, Grid(Grid))
+import qualified BoardGame.Common.Domain.Grid as Grid
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
 

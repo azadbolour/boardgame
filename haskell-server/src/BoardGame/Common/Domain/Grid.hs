@@ -16,7 +16,7 @@
 {-|
 Definition of the game grid and its dependencies.
 -}
-module BoardGame.Server.Domain.Grid (
+module BoardGame.Common.Domain.Grid (
     Grid(..)
   , mkGrid
   , mkPointedGrid

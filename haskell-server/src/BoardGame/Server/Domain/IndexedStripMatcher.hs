@@ -34,8 +34,8 @@ import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil
 import BoardGame.Server.Domain.Board (Board, Board(Board))
 import qualified BoardGame.Server.Domain.Board as Board
-import qualified BoardGame.Server.Domain.Grid as Grid
--- import BoardGame.Server.Domain.Grid (Grid, Grid(Grid))
+import qualified BoardGame.Common.Domain.Grid as Grid
+-- import BoardGame.Common.Domain.Grid (Grid, Grid(Grid))
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary(IndexedLanguageDictionary))

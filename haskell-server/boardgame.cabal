@@ -78,8 +78,8 @@ library
       BoardGame.Common.Domain.GameMiniState
       BoardGame.Common.Domain.GameSummary
       BoardGame.Common.Domain.PointSymmetry
+      BoardGame.Common.Domain.Grid
       BoardGame.Server.Domain.TileSack
-      BoardGame.Server.Domain.Grid
       BoardGame.Server.Domain.Core
       BoardGame.Server.Domain.Board
       BoardGame.Server.Domain.GameError
@@ -249,7 +249,7 @@ test-suite spec
       BoardGame.Util.TestUtil
       BoardGame.Integration.GameClientSpec
       BoardGame.Integration.JsonSpec
-      BoardGame.Server.Domain.GridSpec
+      BoardGame.Common.Domain.GridSpec
       BoardGame.Server.Domain.BoardSpec
       BoardGame.Server.Domain.CommonSpec
       BoardGame.Server.Domain.StripMatcherSpec

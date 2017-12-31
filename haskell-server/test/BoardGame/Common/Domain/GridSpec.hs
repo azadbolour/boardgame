@@ -8,11 +8,11 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module BoardGame.Server.Domain.GridSpec where
+module BoardGame.Common.Domain.GridSpec where
 
 import Test.Hspec
 
-import qualified BoardGame.Server.Domain.Grid as Grid
+import qualified BoardGame.Common.Domain.Grid as Grid
 
 spec :: Spec
 spec = do

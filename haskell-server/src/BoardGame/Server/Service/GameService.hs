@@ -73,7 +73,7 @@ import BoardGame.Server.Domain.Play (Play)
 import qualified BoardGame.Server.Domain.Play as Play
 import BoardGame.Server.Domain.Tray (Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
-import qualified BoardGame.Server.Domain.Grid as Grid
+import qualified BoardGame.Common.Domain.Grid as Grid
 import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Board (Board, Board(Board))
 import qualified BoardGame.Server.Domain.GameCache as GameCache
