@@ -6,6 +6,9 @@ case class ScoreMultiplier(scoreMultiplierType: ScoreMultiplierType, factor: Int
   def isWordMultiplier: Boolean = scoreMultiplierType == Word
 }
 
+// Note. Keeping the score multiplier grid logic in the Common package,
+// because it is conceivably useful in client code as well.
+
 object ScoreMultiplier {
   def noMultiplier() = ScoreMultiplier(None, 1)
 
@@ -18,7 +21,7 @@ object ScoreMultiplier {
     Grid(cellScoreMultiplier _, dimension, dimension)
   }
 
-  import PointGeometry._
+  import PointSymmetry._
 
   def scoreMultiplier(point: Point, dimension: Int): ScoreMultiplier = {
     val center = dimension / 2
@@ -95,7 +98,7 @@ object ScoreMultiplier {
     else noMultiplier()
   }
 
-  object PointGeometry {
+  object PointSymmetry {
     /**
       * Invariant return - row, col > 0 && row <= col
       */

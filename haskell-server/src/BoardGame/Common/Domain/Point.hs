@@ -53,8 +53,6 @@ type Height = Coordinate
 type Width = Coordinate
 
 -- | The coordinates of a square on a board.
---   TODO. Refactor to use x and y as coordinates consistent with axes X and Y.
---   BEWARE! That would reverse the roles of the coordinates.
 data Point = Point {
     row :: Coordinate     -- ^ The row index - top-down.
   , col :: Coordinate      -- ^ The column index - left-to-right.
