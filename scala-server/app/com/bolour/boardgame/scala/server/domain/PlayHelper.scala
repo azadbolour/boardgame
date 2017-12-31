@@ -4,6 +4,8 @@ import com.bolour.boardgame.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain.PlayPieceObj.PlayPieces
 import com.bolour.boardgame.scala.common.domain._
 
+// TODO. Rename to CrossWordFinder and use better method names as in Haskell server.
+
 class PlayHelper(board: Board) {
   val dimension = board.dimension
   val grid = board.grid

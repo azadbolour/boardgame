@@ -11,6 +11,7 @@
 
 module BoardGame.Common.Domain.ScoreMultiplier (
     ScoreMultiplier(..)
+  , noMultiplier
   ) where
 
 import BoardGame.Common.Domain.Point (Point, Point(Point))
