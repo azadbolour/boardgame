@@ -8,12 +8,13 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 -- TODO. Implement Scorer functions.
 
 module BoardGame.Server.Domain.Scorer (
     Scorer
-  , Scorer(Scorer)
+  , Scorer(scorePlay, scoreWord)
   , mkScorer
   ) where
 
@@ -32,35 +33,33 @@ import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 bonus = 50
 
 data Scorer = Scorer {
-    dimension :: Int
-  , trayCapacity :: Int
-  , muliplierGrid :: Grid ScoreMultiplier
-  , scorePlay :: Board -> [PlayPiece] -> Int
+    scorePlay :: Board -> [PlayPiece] -> Int
   , scoreWord :: [(Char, Point, Bool)] -> Int
 }
 
+-- TODO. Move MoveInfo to PlayPiece so it can be shared with CrossWordFinder.
+type MoveInfo = (Char, Point, Bool)
+
 mkScorer :: Int -> Int -> Scorer
 mkScorer dimension trayCapacity =
-  Scorer
-    dimension
-    trayCapacity
-    (mkMultiplierGrid dimension)
-    (doScorePlay dimension trayCapacity)
-    (doScoreWord dimension trayCapacity)
+  let multGrid = ScoreMultiplier.mkMultiplierGrid dimension
+  in Scorer
+       (doScorePlay dimension trayCapacity multGrid)
+       (doScoreWord dimension trayCapacity multGrid)
 
-mkMultiplierGrid :: Int -> Grid ScoreMultiplier
-mkMultiplierGrid = ScoreMultiplier.mkMultiplierGrid
-
-doScorePlay :: Int -> Int -> Board -> [PlayPiece] -> Int
-doScorePlay dimension trayCapacity board playPieces =
+doScorePlay :: Int -> Int -> Grid ScoreMultiplier -> Board -> [PlayPiece] -> Int
+doScorePlay dimension trayCapacity multGrid board playPieces =
   let crossPlays = CrossWordFinder.findCrossPlays board playPieces
-      crossScoreList = doScoreWord dimension trayCapacity <$> filter (\list -> length list > 1) crossPlays
-      crossWordsScore = sum crossScoreList
-      wordScore = doScoreWord dimension trayCapacity (playPointToMoveData <$> playPieces)
+      calcWordScore :: [MoveInfo] -> Int = doScoreWord dimension trayCapacity multGrid
+      isCrossWordPlay :: [MoveInfo] -> Bool = (> 1) . length
+      crossScores = calcWordScore <$> filter isCrossWordPlay crossPlays
+      crossWordsScore = sum crossScores
+      wordScore = calcWordScore $ moveInfo <$> playPieces
   in wordScore + crossWordsScore
 
-playPointToMoveData :: PlayPiece -> (Char, Point, Bool)
-playPointToMoveData (PlayPiece { piece, point, moved }) = (Piece.value piece, point, moved)
+-- TODO. Move to PlayPiece.
+moveInfo :: PlayPiece -> MoveInfo
+moveInfo (PlayPiece { piece, point, moved }) = (Piece.value piece, point, moved)
 
-doScoreWord :: Int -> Int -> [(Char, Point, Bool)] -> Int
-doScoreWord dimension trayCapacity playData = 0
+doScoreWord :: Int -> Int -> Grid ScoreMultiplier -> [MoveInfo] -> Int
+doScoreWord dimension trayCapacity multGrid playData = 0
