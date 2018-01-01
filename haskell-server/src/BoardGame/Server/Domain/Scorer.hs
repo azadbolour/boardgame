@@ -10,8 +10,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
--- TODO. Implement Scorer functions.
-
+-- TODO. This module depends on CrossWordFinder which has not been fully implemented.
+-- TODO. Once implemented create tests for it.
+-- Pay particular attention to representation of empty cells in the implementation.
+-- Then connect this module to the rest of the application and use it to compute scores.
 module BoardGame.Server.Domain.Scorer (
     Scorer
   , Scorer(scorePlay, scoreWord)

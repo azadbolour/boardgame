@@ -31,6 +31,7 @@ module BoardGame.Common.Domain.Piece (
   , frequencies
   , worth
   , letterWorth
+  , piecesToString
 ) where
 
 import System.Random
@@ -66,6 +67,13 @@ isPiece = (/= noPiece)
 -- TODO. Bad name. Reserve blank everywhere for ' '.
 charIsBlank :: Char -> Bool
 charIsBlank = (== noPieceValue)
+
+piecesToString :: [Piece] -> String
+piecesToString pieces =
+  let val piece =
+        let v = value piece
+        in if charIsBlank v then ' ' else v
+  in val <$> pieces
 
 asciiA :: Int
 asciiA = ord 'A'

@@ -11,6 +11,7 @@
 module BoardGame.Server.Domain.Strip (
     Strip(..)
   , GroupedStrips
+  , mkStrip
   , allStripsByLengthByBlanks
   , stripPoint
   , lineStrip
@@ -42,6 +43,19 @@ data Strip = Strip {
   , letters :: LetterCombo    -- ^ existing combination of letters in the strip
   , blanks :: BlankCount      -- ^ number of blank spaces in the strip
 } deriving (Eq, Show)
+
+mkStrip :: Axis -> Int -> Int -> Int -> String -> Strip
+mkStrip axis lineNumber begin end stringContent =
+  Strip
+    axis
+    lineNumber
+    begin
+    end
+    content
+    (nonBlankCombo content)
+    (numBlanks content)
+      where content = BS.pack stringContent
+
 
 -- | Strips of a a board grouped by length and by number of blanks.
 --   They are grouped by length to allow longer strips to be matched first (they are of highest value).

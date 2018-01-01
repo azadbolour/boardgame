@@ -27,6 +27,7 @@ module BoardGame.Server.Domain.Board (
   , pointHasNoLineNeighbors
   , charRows
   , isEmpty
+  , stripOfPlay
 )
 where
 
@@ -35,6 +36,8 @@ import qualified Data.ByteString.Char8 as BS
 
 import Control.Monad.Except (MonadError(..))
 
+import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
+import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import qualified BoardGame.Common.Domain.GridPiece as GridPiece
@@ -43,10 +46,13 @@ import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.Point (Coordinate, Height, Width, Axis(..), Point, Point(Point))
 import qualified BoardGame.Common.Domain.Point as Point
+import qualified BoardGame.Common.Domain.Point as Axis
 import BoardGame.Common.Domain.Grid (Grid, Grid(Grid))
 import qualified BoardGame.Common.Domain.Grid as Grid
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
+import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
+import qualified BoardGame.Server.Domain.Strip as Strip
 
 -- | The game board.
 data Board = Board {
@@ -156,6 +162,30 @@ gridPiecesOfPoints Grid {cells} points =
 
 charRows :: Board -> [[Char]]
 charRows Board {grid} = Grid.cells $ GridPiece.gridLetter <$> grid
+
+stripOfPlay :: Board -> [[GridPiece]] -> [PlayPiece] -> Maybe Strip
+stripOfPlay board columns playPieces =
+  if length playPieces < 2 then Nothing
+  else Just $ stripOfPlay' board columns playPieces
+
+-- TODO. Refactor Grid to include columns.
+-- For now caller provides it so it can be reused by caller.
+stripOfPlay' :: Board -> [[GridPiece]] -> [PlayPiece] -> Strip
+stripOfPlay' (board @ Board {grid}) columns playPieces =
+  let points = (\PlayPiece {point} -> point) <$> playPieces
+      hd @ Point {row = rowHead, col = colHead} = head points
+      nxt @ Point {row = rowNext, col = colNext} = head $ tail points
+      Grid {cells} = grid
+      axis = if rowHead == rowNext then Axis.X else Axis.Y
+      (lineNumber, line, begin) =
+        case axis of
+          Axis.X -> (rowHead, cells !! rowHead, colHead)
+          Axis.Y -> (colHead, columns !! colHead, rowHead)
+      end = begin + length points - 1
+      content = Piece.piecesToString ((\GridValue {value = piece} -> piece) <$> line)
+  in Strip.mkStrip axis lineNumber begin end content
+
+
 
 
 
