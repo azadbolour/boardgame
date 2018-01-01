@@ -16,6 +16,7 @@ module BoardGame.Server.Domain.Strip (
   , lineStrip
   , blankPoints
   , hasAnchor
+  , pointAtOffset
   ) where
 
 import qualified Data.List as List
@@ -139,3 +140,9 @@ blankPoints strip @ Strip {content} =
 
 hasAnchor :: Strip -> Bool
 hasAnchor strip @ Strip { letters } = BS.length letters > 0
+
+pointAtOffset :: Strip -> Int -> Point
+pointAtOffset (Strip {lineNumber, begin, axis}) offset =
+  case axis of
+    Axis.X -> Point lineNumber (begin + offset)
+    Axis.Y -> Point (begin + offset) lineNumber

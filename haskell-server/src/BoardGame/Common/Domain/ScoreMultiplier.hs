@@ -13,6 +13,8 @@ module BoardGame.Common.Domain.ScoreMultiplier (
     ScoreMultiplier(..)
   , noMultiplier
   , mkMultiplierGrid
+  , isLetterMultiplier
+  , isWordMultiplier
   ) where
 
 import BoardGame.Common.Domain.Grid (Grid)
@@ -30,6 +32,12 @@ data ScoreMultiplier = ScoreMultiplier {
   scoreMultiplierType :: ScoreMultiplierType,
   factor :: Int
 }
+
+isLetterMultiplier :: ScoreMultiplier -> Bool
+isLetterMultiplier mult = scoreMultiplierType mult == SMType.Letter
+
+isWordMultiplier :: ScoreMultiplier -> Bool
+isWordMultiplier mult = scoreMultiplierType mult == SMType.Word
 
 mkMultiplierGrid :: Int -> Grid ScoreMultiplier
 mkMultiplierGrid dimension =

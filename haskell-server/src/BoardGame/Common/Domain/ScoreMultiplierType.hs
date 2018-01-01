@@ -9,6 +9,7 @@ module BoardGame.Common.Domain.ScoreMultiplierType (
   ) where
 
 data ScoreMultiplierType = Letter | Word | None
+  deriving (Eq, Show)
 
 
 

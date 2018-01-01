@@ -18,7 +18,8 @@ module BoardGame.Server.Domain.Scorer (
   , mkScorer
   ) where
 
-import BoardGame.Common.Domain.ScoreMultiplier (ScoreMultiplier, noMultiplier)
+import Data.Maybe (fromJust)
+import BoardGame.Common.Domain.ScoreMultiplier (ScoreMultiplier, ScoreMultiplier(ScoreMultiplier), noMultiplier)
 import qualified BoardGame.Common.Domain.ScoreMultiplier as ScoreMultiplier
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
@@ -28,7 +29,7 @@ import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.Grid (Grid)
 import BoardGame.Server.Domain.Board (Board)
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
--- import qualified BoardGame.Common.Domain.Grid as Grid
+import qualified BoardGame.Common.Domain.Grid as Grid
 
 bonus = 50
 
@@ -62,4 +63,29 @@ moveInfo :: PlayPiece -> MoveInfo
 moveInfo (PlayPiece { piece, point, moved }) = (Piece.value piece, point, moved)
 
 doScoreWord :: Int -> Int -> Grid ScoreMultiplier -> [MoveInfo] -> Int
-doScoreWord dimension trayCapacity multGrid playData = 0
+doScoreWord dimension trayCapacity multGrid moves =
+  let points = (\(_, point, _) -> point) <$> moves
+      multipliers = Grid.cell multGrid <$> points
+      moveMultipliers = moves `zip` multipliers
+
+      -- Elements of this combined list used to calculate scores look like:
+      --   ((letter, point, moved), scoreMultiplier).
+
+      -- First calculate the base score: the sum of individual letter scores.
+      calcLetterScore ((letter, _, moved), mult @ ScoreMultiplier {factor}) =
+        let w = Piece.letterWorth letter
+        in w * if moved && ScoreMultiplier.isLetterMultiplier mult then factor else 1
+      letterScores = calcLetterScore <$> moveMultipliers
+      baseScore = sum letterScores
+
+      -- Next multiply by the total word multiplier factors for new pieces.
+      calcWordMultFactors ((_, _, moved), mult @ ScoreMultiplier {factor}) =
+        if moved && ScoreMultiplier.isWordMultiplier mult then factor else 0
+      sumWordFactors = max 1 (sum $ calcWordMultFactors <$> moveMultipliers)
+      wordScore = sumWordFactors * baseScore
+
+      -- Finally add the full tray play bonus.
+      numMoves = length $ filter (\(_, _, moved) -> moved) moves
+      bonusScore = if numMoves == trayCapacity then bonus else 0
+      score = wordScore + bonusScore
+  in score

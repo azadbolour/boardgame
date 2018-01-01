@@ -72,7 +72,7 @@ case class GameState(
   def tray(playerType: PlayerType): Tray = trays(playerIndex(playerType))
 
   def computePlayScore(playPieces: List[PlayPiece]): Int = {
-    val playHelper = new PlayHelper(board)
+    val playHelper = new CrossWordFinder(board)
     game.scorer.scorePlay(playHelper, playPieces)
   }
 

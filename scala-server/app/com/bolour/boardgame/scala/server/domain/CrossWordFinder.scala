@@ -4,9 +4,7 @@ import com.bolour.boardgame.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain.PlayPieceObj.PlayPieces
 import com.bolour.boardgame.scala.common.domain._
 
-// TODO. Rename to CrossWordFinder and use better method names as in Haskell server.
-
-class PlayHelper(board: Board) {
+class CrossWordFinder(board: Board) {
   val dimension = board.dimension
   val grid = board.grid
 
@@ -16,26 +14,26 @@ class PlayHelper(board: Board) {
     *
     * All crossings must be legitimate words in the dictionary.
     */
-  def crossingWords(strip: Strip, word: String): List[String] = {
+  def findStripCrossWords(strip: Strip, word: String): List[String] = {
     val l = word.length
     val range = (0 until l).toList
     val crossingIndices = range.filter { i => Piece.isBlank(strip.content(i)) }
     val acrossWordList = crossingIndices.map{ i =>
       val point = strip.point(i)
       val playedChar = word(i)
-      crossingChars(point, playedChar, Axis.crossAxis(strip.axis))
+      findCrossingWord(point, playedChar, Axis.crossAxis(strip.axis))
     }
 
     acrossWordList.filter {word => word.length > 1}
   }
 
-  def crossingPlays(playPieces: List[PlayPiece]): List[List[(Char, Point, Boolean)]] = {
+  def findCrossPlays(playPieces: List[PlayPiece]): List[List[(Char, Point, Boolean)]] = {
     val strip = board.stripOfPlay(playPieces)
     val word = PlayPieceObj.playPiecesToWord(playPieces)
-    crossingPlays(strip, word)
+    findCrossPlays(strip, word)
   }
 
-  def crossingPlays(strip: Strip, word: String): List[List[(Char, Point, Boolean)]] = {
+  def findCrossPlays(strip: Strip, word: String): List[List[(Char, Point, Boolean)]] = {
     val l = word.length
     val range = (0 until l).toList
     val crossingIndices = range.filter { i => Piece.isBlank(strip.content(i)) }
@@ -46,7 +44,7 @@ class PlayHelper(board: Board) {
     plays
   }
 
-  def crossingChars(crossPoint: Point, crossingChar: Char, axis: Axis): String = {
+  def findCrossingWord(crossPoint: Point, crossingChar: Char, axis: Axis): String = {
     val play: List[(Char, Point, Boolean)] = crossingPlay(crossPoint, crossingChar, axis)
     val word = (play map { case (char, _, _) => char } ).mkString
     word

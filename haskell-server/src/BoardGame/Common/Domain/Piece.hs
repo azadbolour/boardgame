@@ -30,6 +30,7 @@ module BoardGame.Common.Domain.Piece (
   , charIsBlank
   , frequencies
   , worth
+  , letterWorth
 ) where
 
 import System.Random
@@ -62,6 +63,7 @@ isNoPiece = (== noPiece)
 isPiece :: Piece -> Bool
 isPiece = (/= noPiece)
 
+-- TODO. Bad name. Reserve blank everywhere for ' '.
 charIsBlank :: Char -> Bool
 charIsBlank = (== noPieceValue)
 
@@ -171,7 +173,10 @@ distribution = tail $ scanl' (\(l1, f1) (l2, f2) -> (l2, f1 + f2)) ('a', 0) freq
 maxDistribution = snd $ last distribution
 
 worth :: Piece -> Int
-worth Piece { value } = Maybe.fromJust $ Map.lookup value worths
+worth Piece { value } = letterWorth value
+
+letterWorth :: Char -> Int
+letterWorth ch = Maybe.fromJust $ Map.lookup ch worths
 
 -- | Get a random letter according to the letter frequencies.
 randomLetter :: IO Char

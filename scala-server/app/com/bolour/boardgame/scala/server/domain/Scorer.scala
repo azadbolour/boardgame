@@ -11,8 +11,8 @@ class Scorer(val dimension: Int, trayCapacity: Int) {
 
   val multiplierGrid: Grid[ScoreMultiplier] = mkMultiplierGrid(dimension)
 
-  def scorePlay(playHelper: PlayHelper, playPieces: List[PlayPiece]): Int = {
-    val crossingPlays = playHelper.crossingPlays(playPieces)
+  def scorePlay(playHelper: CrossWordFinder, playPieces: List[PlayPiece]): Int = {
+    val crossingPlays = playHelper.findCrossPlays(playPieces)
     logger.debug(s"crossing plays: ${crossingPlays}")
     val crossScoreList = crossingPlays filter { cp => cp.length > 1 } map { cp => scoreWord(cp)}
     logger.debug(s"crossing score list: ${crossScoreList}")

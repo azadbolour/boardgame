@@ -1,4 +1,6 @@
 
+- Check use and meaning of blank.
+
 - Write test for final score.
 
 - Use smaller amazon machine. m3.large worked well.

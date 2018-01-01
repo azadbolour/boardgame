@@ -33,7 +33,7 @@ trait StripMatcher {
   val trayLetters = tray.pieces.map(_.value).mkString
   val trayCombosByLength = WordUtil.computeCombosGroupedByLength(trayLetters)
   val playableStrips = computePlayableStrips
-  val playHelper = new PlayHelper(board)
+  val playHelper = new CrossWordFinder(board)
 
   // def bestMatch(): StripMatch = bestMatchUpToLength(dimension)
 
@@ -185,7 +185,7 @@ trait StripMatcher {
 
         val fittingWords = strip.findFittingWords(words)
         val crossCheckedFittingWords = fittingWords.filter { word =>
-          playHelper.crossingWords(strip, word).forall(crossWord => dictionary hasWord crossWord)
+          playHelper.findStripCrossWords(strip, word).forall(crossWord => dictionary hasWord crossWord)
         }
 
         // strip.findFittingWord(words) match {
@@ -197,7 +197,7 @@ trait StripMatcher {
   }
 
   def crossings(strip: Strip, word: String): List[String] =
-    playHelper.crossingWords(strip, word)
+    playHelper.findStripCrossWords(strip, word)
 
   def computePlayableStrips: GroupedStrips = {
     if (board.isEmpty) computePlayableStripsForEmptyBoard

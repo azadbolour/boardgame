@@ -23,6 +23,7 @@ module BoardGame.Common.Domain.Grid (
   , setGridValue
   , setGridValues
   , getValue
+  , cell
   , nextValue
   , prevValue
   , mapMatrixWithCoordinates
@@ -94,6 +95,9 @@ setPointedGridValues =
 -- | Get a cell on the grid.
 getValue :: Grid val -> Coordinate -> Coordinate -> val
 getValue Grid {cells} row col = cells !! row !! col
+
+cell :: Grid val -> Point -> val
+cell grid (Point {row, col}) = getValue grid row col
 
 -- | Get the next cell adjacent to a given cell on the grid.
 nextValue ::
