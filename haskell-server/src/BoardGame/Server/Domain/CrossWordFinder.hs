@@ -20,12 +20,14 @@ module BoardGame.Server.Domain.CrossWordFinder (
   , findCrossPlays
   ) where
 
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, isNothing)
 import Data.List (transpose)
 import qualified BoardGame.Common.Domain.Point as Axis
 import BoardGame.Common.Domain.Point (Point, Point(Point), Axis)
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
+import qualified BoardGame.Common.Domain.GridValue as GridValue
+import qualified BoardGame.Common.Domain.GridPiece as GridPiece
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Server.Domain.Board (Board, Board(Board))
@@ -85,14 +87,18 @@ findCrossPlays' board (strip @ Strip {axis, content}) word =
   in crossingPlays
 
 findSurroundingPlay :: Board -> Point -> Char -> Axis -> [(Char, Point, Bool)]
-findSurroundingPlay board point letter axis =
+findSurroundingPlay (board @ Board { dimension, grid }) point letter axis =
   let closestFilledBoundary :: Point -> Int -> Point =
-        \p i ->
-          let hasNoLetter :: Maybe Piece -> Bool = \maybePiece -> False
-              nextPiece :: Point -> Maybe Piece = \point -> Nothing
-              pointIsEmpty :: Point -> Bool = \point -> False
-              isBoundary :: Point -> Bool = \point -> False
-              inBounds :: Point -> Bool = \point -> True
+        \point direction ->
+          let hasNoLetter :: Maybe Piece -> Bool =
+                \mp -> isNothing mp || Piece.isEmpty (fromJust mp)
+              nextPiece :: Point -> Maybe Piece =
+                \pt -> GridValue.value <$> Grid.adjacentCell grid pt axis direction dimension
+              pointIsEmpty :: Point -> Bool = GridPiece.isEmpty . Grid.cell grid
+              isBoundary :: Point -> Bool =
+                \pt -> not (pointIsEmpty pt) && hasNoLetter (nextPiece pt)
+              inBounds Point { row, col } =
+                row >= 0 && row < dimension && col >= 0 && col < dimension
               crossPoint :: Int -> Point = \i -> Point 0 0
               crossPt1 = crossPoint 1
           in Point 0 0

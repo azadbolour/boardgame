@@ -35,6 +35,7 @@ module BoardGame.Common.Domain.Grid (
   , filterGrid
   , concatGrid
   , concatFilter
+  , adjacentCell
 ) where
 
 import Data.List
@@ -116,6 +117,11 @@ nextValue grid (Point {row, col}) Axis.Y height =
   if row >= height - 1 || row < 0
     then Nothing
     else Just $ getValue grid (row + 1) col
+
+adjacentCell :: Grid val -> Point -> Axis -> Int -> Int -> Maybe val
+adjacentCell grid point axis direction limit =
+  let calcAdj = if direction == 1 then nextValue else prevValue
+  in calcAdj grid point axis limit
 
 -- | Get the previous cell adjacent to a given cell on the grid.
 --   See nextCell.

@@ -11,6 +11,7 @@
 module BoardGame.Common.Domain.GridPiece (
     GridPiece
   , gridLetter
+  , isEmpty
   ) where
 
 import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
@@ -23,5 +24,8 @@ type GridPiece = GridValue Piece
 
 gridLetter :: GridPiece -> Char
 gridLetter GridValue {value = piece} = Piece.value piece
+
+isEmpty :: GridPiece -> Bool
+isEmpty GridValue {value = piece} = Piece.isEmpty piece
 
 

@@ -32,6 +32,7 @@ module BoardGame.Common.Domain.Piece (
   , worth
   , letterWorth
   , piecesToString
+  , isEmpty
 ) where
 
 import System.Random
@@ -63,6 +64,8 @@ isNoPiece :: Piece -> Bool
 isNoPiece = (== noPiece)
 isPiece :: Piece -> Bool
 isPiece = (/= noPiece)
+isEmpty :: Piece -> Bool
+isEmpty = isNoPiece
 
 -- TODO. Bad name. Reserve blank everywhere for ' '.
 charIsBlank :: Char -> Bool
