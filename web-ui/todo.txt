@@ -1,18 +1,5 @@
 
-- adding one letter Q to the right of an existing lone letter I  at the left
-  edge of the board 
-
-  the playpieces found by the UI had only Q
-
-  need a test for extnding a letter by one letter and make sure te word
-  includes both letters
-
-  it thought that the Q was a parallel play - so in the case of 1 line of play 
-  at each axis you need to get one in which the played tile has an adjacent tile
-
-  the case wher ether eis only one move is special - if no neighbors
-  disconnected - a neighbor determines the direction - just extend it
-  in both directions and check size
+- Profiling javascript.
 
 - Target container is not a DOM element error in browser console.
 

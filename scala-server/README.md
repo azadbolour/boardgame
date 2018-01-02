@@ -211,6 +211,9 @@ see its meaning (or a link to search the web for it).
 ## Credits
 
 Test Dictionary - http://www-personal.umich.edu/~jlawler/wordlist.html
-compiled by John Lawler and put in the public domain with no restrictions
-of use.
+compiled by John Lawler.
+
+Production Dictionary - Project Gutenberge crossword dictionary 
+http://www.gutenberg.org/files/3201/3201.txt
+http://www.gutenberg.org/files/3201/files/CROSSWD.TXT.
 

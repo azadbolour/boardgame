@@ -14,12 +14,16 @@ link as follows:
 
 - moby-english.txt - 
     
-    Derived from word list file mwords/354984si.ngl of the 
-    Moby project - http://icon.shef.ac.uk/Moby/. Convert eols and 
-    remove special characters.
+    Derived from CROSSWD.TXT of the project Gutenberg Moby free ebook: 
+    http://www.gutenberg.org/files/3201/3201.txt
+    http://www.gutenberg.org/files/3201/files/CROSSWD.TXT.
+      
+      `dos2unix CROSSWD.TXT`
+
+    Note other files in the ebook may contain special characters. If you 
+    decide to use them, remove the words with special characters:
     
-      `dos2unix 354984si.ngl`
-      `egrep "^[a-zA-Z]+$" 354984si.ngl > moby-english.txt 
+      `egrep "^[a-zA-Z]+$" file 
 
 
 
