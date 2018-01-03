@@ -21,10 +21,10 @@ module BoardGame.Server.Domain.CrossWordFinder (
   ) where
 
 import Data.Maybe (fromJust, isNothing)
-import Data.List (transpose)
+import Data.List (transpose, find)
 import qualified BoardGame.Common.Domain.Point as Axis
 import BoardGame.Common.Domain.Point (Point, Point(Point), Axis)
-import BoardGame.Common.Domain.Piece (Piece)
+import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import qualified BoardGame.Common.Domain.GridValue as GridValue
 import qualified BoardGame.Common.Domain.GridPiece as GridPiece
@@ -88,8 +88,17 @@ findCrossPlays' board (strip @ Strip {axis, content}) word =
 
 findSurroundingPlay :: Board -> Point -> Char -> Axis -> [(Char, Point, Bool)]
 findSurroundingPlay (board @ Board { dimension, grid }) point letter axis =
-  let closestFilledBoundary :: Point -> Int -> Point =
-        \point direction ->
+  let crossPlayPoint :: Point -> Int -> Point = \Point { row, col } crossIndex ->
+        case axis of
+          Axis.X -> Point row crossIndex
+          Axis.Y -> Point crossIndex col
+
+      crossPlayInfo crossIndex =
+        let crossPoint = crossPlayPoint point crossIndex
+        in boardPointInfo board crossPoint
+
+      closestFilledBoundary :: Point -> Int -> Point =
+        \Point {row, col} direction ->
           let hasNoLetter :: Maybe Piece -> Bool =
                 \mp -> isNothing mp || Piece.isEmpty (fromJust mp)
               nextPiece :: Point -> Maybe Piece =
@@ -97,13 +106,27 @@ findSurroundingPlay (board @ Board { dimension, grid }) point letter axis =
               pointIsEmpty :: Point -> Bool = GridPiece.isEmpty . Grid.cell grid
               isBoundary :: Point -> Bool =
                 \pt -> not (pointIsEmpty pt) && hasNoLetter (nextPiece pt)
-              inBounds Point { row, col } =
-                row >= 0 && row < dimension && col >= 0 && col < dimension
-              crossPoint :: Int -> Point = \i -> Point 0 0
-              crossPt1 = crossPoint 1
-          in Point 0 0
-  in [] -- TODO. Implement.
+              inBounds Point { row = r, col = c } =
+                r >= 0 && r < dimension && c >= 0 && c < dimension
+              crossPoint :: Int -> Point =
+                \i -> let offset = i * direction
+                      in case axis of
+                        Axis.X -> Point row (col + offset)
+                        Axis.Y -> Point (row + offset) col
+          in let crossPt1 = crossPoint 1
+             in if not (inBounds crossPt1 || pointIsEmpty crossPt1)
+                -- The starting point is special since it is empty.
+                then point
+                else
+                  let crossPoints = crossPoint <$> [1 .. dimension - 1]
+                  in fromJust $ find isBoundary crossPoints
+  in let Point {row = beforeRow, col = beforeCol} = closestFilledBoundary point (-1)
+         Point {row = afterRow, col = afterCol} = closestFilledBoundary point 1
+     in [] -- TODO. map the points on each side by crossPlayInfo and concatenate.
+           -- See scala server.
 
-
-
+boardPointInfo :: Board -> Point -> (Char, Point, Bool)
+boardPointInfo board point =
+  let Piece { value } = Board.getPiece board point
+  in (value, point, False) -- Filled position across play direction could not have moved.
 

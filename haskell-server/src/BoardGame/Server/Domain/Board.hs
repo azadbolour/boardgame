@@ -28,6 +28,7 @@ module BoardGame.Server.Domain.Board (
   , charRows
   , isEmpty
   , stripOfPlay
+  , getPiece
 )
 where
 
@@ -60,6 +61,11 @@ data Board = Board {
   , grid :: Grid GridPiece
 }
   deriving (Show)
+
+getPiece :: Board -> Point -> Piece
+getPiece Board { grid } point =
+  let GridValue {value = piece} = Grid.cell grid point
+  in piece
 
 isEmpty :: Board -> Bool
 isEmpty Board{grid} = null $ Grid.concatFilter (\GridValue{value} -> Piece.isPiece value) grid

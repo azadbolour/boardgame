@@ -100,7 +100,6 @@ class CrossWordFinder(board: Board) {
 
       def crossPoint(i: Int): Point = {
         val offset = i * direction
-        // TODO. Unify with crossPlayPoint below.
         axis match {
           case Axis.X => Point(row, col + offset)
           case Axis.Y => Point(row + offset, col)
@@ -133,7 +132,7 @@ class CrossWordFinder(board: Board) {
 
     def boardPointInfo(p: Point): (Char, Point, Boolean) = {
       val piece = board.get(p)
-      val info = (piece.value, p, false)
+      val info = (piece.value, p, false) // Filled position across play direction cannot have moved.
       info
     }
 
