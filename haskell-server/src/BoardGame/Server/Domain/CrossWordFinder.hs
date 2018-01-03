@@ -38,6 +38,10 @@ import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import qualified BoardGame.Server.Domain.Strip as Strip
 import qualified Data.ByteString.Char8 as BS
 
+-- TODO. Move direction constants to a util module.
+forwardDir = 1
+backwardDir = -1
+
 -- TODO. StripMatcher should use this. See Scala version.
 findStripCrossWords :: Board -> Strip -> String -> [String]
 findStripCrossWords board (strip @ Strip {axis, content}) word =
@@ -58,7 +62,7 @@ findStripCrossWords board (strip @ Strip {axis, content}) word =
 
 findSurroundingWord :: Board -> Point -> Char -> Axis -> String
 findSurroundingWord board point letter axis =
-  let play = findSurroundingPlay board point letter axis
+  let play = findCrossPlay board point letter axis
   in (\(char, _, _) -> char) <$> play
 
 findCrossPlays :: Board -> [PlayPiece] -> [[(Char, Point, Bool)]]
@@ -82,68 +86,65 @@ findCrossPlays' board (strip @ Strip {axis, content}) word =
       calcCrossing :: Int -> [(Char, Point, Bool)] = \i ->
         let point = Strip.pointAtOffset strip i
             playedChar = word !! i
-        in findSurroundingPlay board point playedChar (Axis.crossAxis axis)
+        in findCrossPlay board point playedChar (Axis.crossAxis axis)
       crossingPlays = calcCrossing <$> crossingIndices
   in crossingPlays
 
-findSurroundingPlay :: Board -> Point -> Char -> Axis -> [(Char, Point, Bool)]
-findSurroundingPlay (board @ Board { dimension, grid }) point letter axis =
-  let crossPlayPoint :: Point -> Int -> Point = \Point { row, col } crossIndex ->
-        case axis of
-          Axis.X -> Point row crossIndex
-          Axis.Y -> Point crossIndex col
+-- | Find the surrounding cross play to a given move (provided as the point and letter parameters).
+--   Note that the only moved piece in a cross play is the one at the given crossing point.
+findCrossPlay :: Board -> Point -> Char -> Axis -> [(Char, Point, Bool)]
+findCrossPlay board point letter axis =
 
-      crossPlayInfo crossIndex =
-        let crossPoint = crossPlayPoint point crossIndex
-        in boardPointInfo board crossPoint
+  let Point {row = beforeRow, col = beforeCol} = findBoundary backwardDir
+      Point {row = afterRow, col = afterCol} = findBoundary forwardDir
+      surroundingRange = case axis of
+        Axis.X -> [beforeCol, afterCol]
+        Axis.Y -> [beforeRow, afterRow]
 
-      closestFilledBoundary :: Point -> Int -> Point =
-        \Point {row, col} direction ->
-          let hasNoLetter :: Maybe Piece -> Bool =
-                \mp -> isNothing mp || Piece.isEmpty (fromJust mp)
+  in playInfo <$> surroundingRange
 
-              nextPiece :: Point -> Maybe Piece =
-                \pt -> GridValue.value <$> Grid.adjacentCell grid pt axis direction dimension
+     where findBoundary = farthestNeighbor board point axis
+           playInfo stepsToNeighbor =
+              let neighbor = colinearPoint point axis stepsToNeighbor
+                  moved = neighbor == point -- The only moved point in a cross play.
+              in boardPointInfo board neighbor moved
 
-              pointIsEmpty :: Point -> Bool = GridPiece.isEmpty . Grid.cell grid
-
-              isBoundary :: Point -> Bool =
-                \pt -> not (pointIsEmpty pt) && hasNoLetter (nextPiece pt)
-
-              inBounds Point { row = r, col = c } =
-                r >= 0 && r < dimension && c >= 0 && c < dimension
-
-              crossPoint :: Int -> Point =
-                \i -> let offset = i * direction
-                      in case axis of
-                        Axis.X -> Point row (col + offset)
-                        Axis.Y -> Point (row + offset) col
-
-          in let crossPt1 = crossPoint 1
-             in if not (inBounds crossPt1 || pointIsEmpty crossPt1)
-                -- The starting point is special since it is empty.
-                then point
-                else
-                  let crossPoints = crossPoint <$> [1 .. dimension - 1]
-                  in fromJust $ find isBoundary crossPoints
-
-  in let Point {row = beforeRow, col = beforeCol} = closestFilledBoundary point (-1)
-         Point {row = afterRow, col = afterCol} = closestFilledBoundary point 1
-         Point {row, col} = point
-         (beforeInfo, afterInfo) = case axis of
-           Axis.X -> (
-               crossPlayInfo <$> [beforeCol .. col - 1],
-               crossPlayInfo <$> [col + 1 .. afterCol]
-            )
-           Axis.Y -> (
-               crossPlayInfo <$> [beforeRow .. row - 1],
-               crossPlayInfo <$> [row + 1 .. afterRow]
-            )
-         crossingInfo = (letter, point, True) -- Letter is moving to the crossing point.
-     in beforeInfo ++ [crossingInfo] ++ afterInfo
-
-boardPointInfo :: Board -> Point -> (Char, Point, Bool)
-boardPointInfo board point =
+boardPointInfo :: Board -> Point -> Bool -> (Char, Point, Bool)
+boardPointInfo board point moved =
   let Piece { value } = Board.getPiece board point
-  in (value, point, False) -- Filled position across play direction could not have moved.
+  in (value, point, moved)
 
+nthNeighbor :: Point -> Axis -> Int -> Int -> Point
+nthNeighbor Point {row, col} axis steps direction =
+  let offset = steps * direction
+  in case axis of
+       Axis.X -> Point row (col + offset)
+       Axis.Y -> Point (row + offset) col
+
+inBounds :: Point -> Int -> Bool
+inBounds Point {row, col} dimension =
+  row >= 0 && row < dimension && col >= 0 && col < dimension
+
+hasNoLetter :: Maybe Piece -> Bool
+hasNoLetter maybePiece = isNothing maybePiece || Piece.isEmpty (fromJust maybePiece)
+
+colinearPoint :: Point -> Axis -> Int -> Point
+colinearPoint Point { row, col } axis lineCoordinate =
+  case axis of
+    Axis.X -> Point row lineCoordinate
+    Axis.Y -> Point lineCoordinate col
+
+farthestNeighbor :: Board -> Point -> Axis -> Int -> Point
+farthestNeighbor (board @ Board {dimension, grid}) point axis direction =
+   -- The starting point is special since it is empty. TODO. Is it really? Check.
+   if not (inBounds neighbor dimension || Board.pointIsEmpty board neighbor)
+   then point
+   else
+      let neighbors = nthNeighbor point axis direction <$> [1 .. dimension - 1]
+      in fromJust $ find isBoundary neighbors
+         where
+           neighbor = nthNeighbor point axis direction 1
+           isBoundary pt =
+             let maybeCell = Grid.adjacentCell grid pt axis direction dimension
+                 maybeNextPiece = GridValue.value <$> maybeCell
+             in not (Board.pointIsEmpty board pt) && hasNoLetter maybeNextPiece

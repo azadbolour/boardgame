@@ -29,6 +29,8 @@ module BoardGame.Server.Domain.Board (
   , isEmpty
   , stripOfPlay
   , getPiece
+  , pointIsEmpty
+  , cell
 )
 where
 
@@ -67,8 +69,14 @@ getPiece Board { grid } point =
   let GridValue {value = piece} = Grid.cell grid point
   in piece
 
+cell :: Board -> Point -> GridPiece
+cell Board {grid} = Grid.cell grid
+
 isEmpty :: Board -> Bool
 isEmpty Board{grid} = null $ Grid.concatFilter (\GridValue{value} -> Piece.isPiece value) grid
+
+pointIsEmpty :: Board -> Point -> Bool
+pointIsEmpty Board {grid} = GridPiece.isEmpty . Grid.cell grid
 
 -- Assumes valid coordinates.
 getValidGridPiece :: Board -> Point -> GridPiece

@@ -50,6 +50,7 @@ class CrossWordFinder(board: Board) {
     word
   }
 
+  // TODO. Too much going on within this function. Make it more readable as in Haskell server.
   /**
     * Get information about a particular crossword created as a result of
     * playing a letter on a point.
@@ -112,6 +113,7 @@ class CrossWordFinder(board: Board) {
       if (!inBounds(crossPt1) || pointIsEmpty(crossPt1))
         return point
 
+      // TODO. Use find.
       var lastPoint = point // Not strictly necessary. Being extra defensive.
       for (i <- 1 until dimension) {
         val pt = crossPoint(i)
