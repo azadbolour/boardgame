@@ -101,18 +101,24 @@ findSurroundingPlay (board @ Board { dimension, grid }) point letter axis =
         \Point {row, col} direction ->
           let hasNoLetter :: Maybe Piece -> Bool =
                 \mp -> isNothing mp || Piece.isEmpty (fromJust mp)
+
               nextPiece :: Point -> Maybe Piece =
                 \pt -> GridValue.value <$> Grid.adjacentCell grid pt axis direction dimension
+
               pointIsEmpty :: Point -> Bool = GridPiece.isEmpty . Grid.cell grid
+
               isBoundary :: Point -> Bool =
                 \pt -> not (pointIsEmpty pt) && hasNoLetter (nextPiece pt)
+
               inBounds Point { row = r, col = c } =
                 r >= 0 && r < dimension && c >= 0 && c < dimension
+
               crossPoint :: Int -> Point =
                 \i -> let offset = i * direction
                       in case axis of
                         Axis.X -> Point row (col + offset)
                         Axis.Y -> Point (row + offset) col
+
           in let crossPt1 = crossPoint 1
              in if not (inBounds crossPt1 || pointIsEmpty crossPt1)
                 -- The starting point is special since it is empty.
@@ -120,10 +126,21 @@ findSurroundingPlay (board @ Board { dimension, grid }) point letter axis =
                 else
                   let crossPoints = crossPoint <$> [1 .. dimension - 1]
                   in fromJust $ find isBoundary crossPoints
+
   in let Point {row = beforeRow, col = beforeCol} = closestFilledBoundary point (-1)
          Point {row = afterRow, col = afterCol} = closestFilledBoundary point 1
-     in [] -- TODO. map the points on each side by crossPlayInfo and concatenate.
-           -- See scala server.
+         Point {row, col} = point
+         (beforeInfo, afterInfo) = case axis of
+           Axis.X -> (
+               crossPlayInfo <$> [beforeCol .. col - 1],
+               crossPlayInfo <$> [col + 1 .. afterCol]
+            )
+           Axis.Y -> (
+               crossPlayInfo <$> [beforeRow .. row - 1],
+               crossPlayInfo <$> [row + 1 .. afterRow]
+            )
+         crossingInfo = (letter, point, True) -- Letter is moving to the crossing point.
+     in beforeInfo ++ [crossingInfo] ++ afterInfo
 
 boardPointInfo :: Board -> Point -> (Char, Point, Bool)
 boardPointInfo board point =
