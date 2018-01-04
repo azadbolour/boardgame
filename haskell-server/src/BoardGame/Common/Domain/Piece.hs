@@ -142,7 +142,6 @@ frequencies = [
 frequencyMap :: Map.Map Char Int
 frequencyMap = Map.fromList frequencies
 
--- TODO. blank: 0.
 worths :: Map.Map Char Int
 worths = Map.fromList [
     ('A', 1),

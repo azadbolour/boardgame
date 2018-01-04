@@ -72,8 +72,8 @@ case class GameState(
   def tray(playerType: PlayerType): Tray = trays(playerIndex(playerType))
 
   def computePlayScore(playPieces: List[PlayPiece]): Int = {
-    val playHelper = new CrossWordFinder(board)
-    game.scorer.scorePlay(playHelper, playPieces)
+    val crossWordFinder = new CrossWordFinder(board)
+    game.scorer.scorePlay(crossWordFinder, playPieces)
   }
 
   private def addGoodPlay(playerType: PlayerType, gridPieces: List[GridPiece], score: Int): Try[(GameState, List[Piece])] = {

@@ -15,7 +15,7 @@ module BoardGame.Server.Domain.Strip (
   , allStripsByLengthByBlanks
   , stripPoint
   , lineStrip
-  , blankPoints
+  , emptyPoints
   , hasAnchor
   , pointAtOffset
   ) where
@@ -79,14 +79,14 @@ matchWordsToStrip :: Strip -> [DictWord] -> Maybe (Strip, DictWord)
 
 matchWordsToStrip strip words = Nothing
 
-blank = Piece.emptyChar
+emptyChar = Piece.emptyChar
 
 numBlanks :: ByteString -> Int
-numBlanks string = BS.length $ BS.filter (== blank) string
+numBlanks string = BS.length $ BS.filter (== emptyChar) string
 
 nonBlankCombo :: ByteString -> LetterCombo
 nonBlankCombo string =
-  let nonBlanks = BS.filter (/= blank) string
+  let nonBlanks = BS.filter (/= emptyChar) string
   in WordUtil.mkLetterCombo nonBlanks
 
 lineStrip :: Axis -> Coordinate -> String -> Int -> ByteCount -> Strip
@@ -144,13 +144,13 @@ stripPoint (Strip {axis, lineNumber, begin}) offset =
   Axis.X -> Point lineNumber (begin + offset)
   Axis.Y -> Point (begin + offset) lineNumber
 
--- TODO. For better performance consider including blank points in Strip data structure.
+-- TODO. For better performance consider including emptyChar points in Strip data structure.
 
-blankPoints :: Strip -> [Point]
-blankPoints strip @ Strip {content} =
+emptyPoints :: Strip -> [Point]
+emptyPoints strip @ Strip {content} =
   let indexedContent = [0 .. BS.length content] `zip` BS.unpack content
-      blankIndexes = fst <$> ((Piece.isEmptyChar . snd) `filter` indexedContent)
-  in stripPoint strip <$> blankIndexes
+      emptyIndexes = fst <$> ((Piece.isEmptyChar . snd) `filter` indexedContent)
+  in stripPoint strip <$> emptyIndexes
 
 hasAnchor :: Strip -> Bool
 hasAnchor strip @ Strip { letters } = BS.length letters > 0

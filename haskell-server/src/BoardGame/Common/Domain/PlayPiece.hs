@@ -11,8 +11,10 @@
 
 module BoardGame.Common.Domain.PlayPiece (
     PlayPiece(..)
+  , MoveInfo
   , playPiecesToWord
   , getGridPiece
+  , toMoveInfo
 )
 where
 
@@ -34,6 +36,13 @@ data PlayPiece = PlayPiece {
 
 instance FromJSON PlayPiece
 instance ToJSON PlayPiece
+
+type Moved = Bool
+type Letter = Char
+type MoveInfo = (Letter, Point, Moved)
+
+toMoveInfo :: PlayPiece -> MoveInfo
+toMoveInfo (PlayPiece { piece, point, moved }) = (Piece.value piece, point, moved)
 
 -- | Convenience function to get the play piece's location on the board.
 getGridPiece :: PlayPiece -> GridValue Piece

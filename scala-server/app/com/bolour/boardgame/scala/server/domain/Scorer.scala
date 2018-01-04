@@ -5,14 +5,31 @@ import com.bolour.boardgame.scala.common.domain.ScoreMultiplierType._
 import com.bolour.boardgame.scala.common.domain.ScoreMultiplier._
 import org.slf4j.LoggerFactory
 
+/**
+  * Scores plays.
+  *
+  * Note that a play is scored before its moved pieces are
+  * laid down on the board.
+  *
+  * @param dimension Needed for determining cross words to be scored.
+  * @param trayCapacity Need to add the bonus when all tiles are used in a play.
+  */
 class Scorer(val dimension: Int, trayCapacity: Int) {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
   val multiplierGrid: Grid[ScoreMultiplier] = mkMultiplierGrid(dimension)
 
-  def scorePlay(playHelper: CrossWordFinder, playPieces: List[PlayPiece]): Int = {
-    val crossingPlays = playHelper.findCrossPlays(playPieces)
+  /**
+    * Score a play.
+    *
+    * @param crossWordFinder Finds newly-created crosswords to be included in scoring.
+    * @param playPieces Consecutive list of all play pieces for a play.
+    *                   Includes both moved and existing pieces forming the play word.
+    * @return The complete score of the play.
+    */
+  def scorePlay(crossWordFinder: CrossWordFinder, playPieces: List[PlayPiece]): Int = {
+    val crossingPlays = crossWordFinder.findCrossPlays(playPieces)
     logger.debug(s"crossing plays: ${crossingPlays}")
     val crossScoreList = crossingPlays filter { cp => cp.length > 1 } map { cp => scoreWord(cp)}
     logger.debug(s"crossing score list: ${crossScoreList}")
@@ -22,6 +39,12 @@ class Scorer(val dimension: Int, trayCapacity: Int) {
     wordScore + crossWordsScore
   }
 
+  /**
+    * Low-level method for scoring individual words formed in a play.
+    *
+    * @param playInfo List of data about the positions and movements of the word's letters.
+    * @return The score of the word.
+    */
   def scoreWord(playInfo: List[(Char, Point, Boolean)]): Int = {
     val multipliers = playInfo map {_._2} map { multiplierGrid.cell(_) }
     val playPieceMultipliers = playInfo zip multipliers

@@ -127,7 +127,7 @@ spec = do
   describe "compute playable strips" $ do
     it "get playable strips" $ do
       let playableStrips = Matcher.computePlayableStrips testBoard1 trayCapacity1
-      -- print $ (fmap . fmap) ((\s -> (Strip.content s, Strip.blankPoints s)) <$>) playableStrips
+      -- print $ (fmap . fmap) ((\s -> (Strip.content s, Strip.emptyPoints s)) <$>) playableStrips
           stripsLength5Blanks4 = Maybe.fromJust $ Map.lookup 4 (Maybe.fromJust $ Map.lookup 5 playableStrips)
       mapM_ print stripsLength5Blanks4
       stripsLength5Blanks4 `shouldBe` []

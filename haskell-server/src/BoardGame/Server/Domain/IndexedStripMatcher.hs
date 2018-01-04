@@ -196,9 +196,9 @@ allStripsFilter stripFilter = (fmap . fmap) (filter stripFilter)
 --   Simplifies the search initially.
 stripBlanksAreFreeCrosswise :: Board -> Strip -> Bool
 stripBlanksAreFreeCrosswise board (strip @ Strip {axis}) =
-  let blankPoints = Strip.blankPoints strip
+  let emptyPoints = Strip.emptyPoints strip
       crossAxis = Axis.crossAxis axis
-  in all (\point -> Board.pointHasNoLineNeighbors board point crossAxis) blankPoints
+  in all (\point -> Board.pointHasNoLineNeighbors board point crossAxis) emptyPoints
 
 -- | Check that a strip has no neighbors on either side - is disconnected
 --   from the rest of its line. If it is has neighbors, it is not playable

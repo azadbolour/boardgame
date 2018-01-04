@@ -1,4 +1,12 @@
 
+- Document the matchin algorithm.
+
+- Distinguish between blank and empty - should not be using blanks
+  in strip content. StripMatcher, CrossWordFinder, ScorerSpec.
+
+  In most contexts blank means empty. Is there a context in which blank means
+  the blank character ' '?
+
 - Check use and meaning of blank.
 
 - Write test for final score.

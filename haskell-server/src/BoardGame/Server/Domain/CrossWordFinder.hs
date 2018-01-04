@@ -28,7 +28,7 @@ import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import qualified BoardGame.Common.Domain.GridValue as GridValue
 import qualified BoardGame.Common.Domain.GridPiece as GridPiece
-import BoardGame.Common.Domain.PlayPiece (PlayPiece)
+import BoardGame.Common.Domain.PlayPiece (PlayPiece, MoveInfo)
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Server.Domain.Board (Board, Board(Board))
 import qualified BoardGame.Server.Domain.Board as Board
@@ -48,9 +48,6 @@ findStripCrossWords board (strip @ Strip {axis, content}) word =
   let l = length word
       range = [0 .. l - 1]
       unpacked = BS.unpack content
-      -- TODO. Should really check for blank.
-      -- Do not use isEmptyChar which checks for null.
-      -- Clean up the mess.
       crossingIndices = filter (\i -> Piece.isEmptyChar $ unpacked !! i) range
       calcCrossing :: Int -> String = \i ->
         let point = Strip.pointAtOffset strip i
@@ -65,7 +62,7 @@ findSurroundingWord board point letter axis =
   let play = findCrossPlay board point letter axis
   in (\(char, _, _) -> char) <$> play
 
-findCrossPlays :: Board -> [PlayPiece] -> [[(Char, Point, Bool)]]
+findCrossPlays :: Board -> [PlayPiece] -> [[MoveInfo]]
 findCrossPlays (board @ Board {grid}) playPieces =
   let Grid {cells} = grid
       -- TODO. Columns should be a member of grid. Refactor grid.
@@ -76,14 +73,14 @@ findCrossPlays (board @ Board {grid}) playPieces =
       word = PlayPiece.playPiecesToWord playPieces
   in findCrossPlays' board strip word
 
-findCrossPlays' :: Board -> Strip -> String -> [[(Char, Point, Bool)]]
+findCrossPlays' :: Board -> Strip -> String -> [[MoveInfo]]
 findCrossPlays' board (strip @ Strip {axis, content}) word =
   let l = length word
       range = [0 .. l - 1]
       unpacked = BS.unpack content
       -- TODO. Clean up isEmptyChar. As defined it is not what we need here.
       crossingIndices = filter (\i -> Piece.isEmptyChar $ unpacked !! i) range
-      calcCrossing :: Int -> [(Char, Point, Bool)] = \i ->
+      calcCrossing :: Int -> [MoveInfo] = \i ->
         let point = Strip.pointAtOffset strip i
             playedChar = word !! i
         in findCrossPlay board point playedChar (Axis.crossAxis axis)
@@ -92,7 +89,7 @@ findCrossPlays' board (strip @ Strip {axis, content}) word =
 
 -- | Find the surrounding cross play to a given move (provided as the point and letter parameters).
 --   Note that the only moved piece in a cross play is the one at the given crossing point.
-findCrossPlay :: Board -> Point -> Char -> Axis -> [(Char, Point, Bool)]
+findCrossPlay :: Board -> Point -> Char -> Axis -> [MoveInfo]
 findCrossPlay board point letter axis =
 
   let Point {row = beforeRow, col = beforeCol} = findBoundary backwardDir
@@ -109,7 +106,7 @@ findCrossPlay board point letter axis =
                   moved = neighbor == point -- The only moved point in a cross play.
               in boardPointInfo board neighbor moved
 
-boardPointInfo :: Board -> Point -> Bool -> (Char, Point, Bool)
+boardPointInfo :: Board -> Point -> Bool -> MoveInfo
 boardPointInfo board point moved =
   let Piece { value } = Board.getPiece board point
   in (value, point, moved)
