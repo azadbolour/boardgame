@@ -16,7 +16,7 @@ import com.bolour.util.BasicUtil.{ID, readConfigStringList}
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType._
 import com.bolour.boardgame.scala.common.domain.Piece.Pieces
-import com.bolour.boardgame.scala.common.domain.Piece.noPiece
+import com.bolour.boardgame.scala.common.domain.Piece.emptyPiece
 import com.bolour.boardgame.scala.common.domain.PlayPieceObj.PlayPieces
 import com.bolour.boardgame.scala.server.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions._

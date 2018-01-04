@@ -42,7 +42,7 @@ import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDiction
 import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as IndexedLanguageDictionary
 import Bolour.Util.MiscUtil as MiscUtil
 
-blank = Piece.noPieceValue
+blank = Piece.emptyChar
 
 -- | We know that the word and the strip have the same length.
 --   So just check that the word matches the non-blank positions of the strip.
@@ -223,7 +223,7 @@ emptyCenterStrip :: ByteCount -> Coordinate -> Strip
 emptyCenterStrip len dimension =
   let center = dimension `div` 2
       mid = len `div` 2
-      line = List.replicate dimension Piece.noPieceValue
+      line = List.replicate dimension Piece.emptyChar
   in Strip.lineStrip Axis.X center line (center - mid) len
 
 mkEmptyCenterStripMapElement :: ByteCount -> Coordinate -> (ByteCount, Map BlankCount [Strip])

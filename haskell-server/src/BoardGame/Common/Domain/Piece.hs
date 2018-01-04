@@ -19,7 +19,7 @@ module BoardGame.Common.Domain.Piece (
   , mkPiece
   , isPiece
   , noPiece
-  , noPieceValue
+  , emptyChar
   , isNoPiece
   , mkRandomPiece
   , mkRandomPieces
@@ -58,8 +58,8 @@ data Piece = Piece {
 instance FromJSON Piece
 instance ToJSON Piece
 
-noPieceValue = '\0'
-noPiece = Piece noPieceValue "-1"
+emptyChar = '\0'
+noPiece = Piece emptyChar "-1"
 isNoPiece :: Piece -> Bool
 isNoPiece = (== noPiece)
 isPiece :: Piece -> Bool
@@ -69,7 +69,7 @@ isEmpty = isNoPiece
 
 -- TODO. Bad name. Reserve blank everywhere for ' '.
 charIsBlank :: Char -> Bool
-charIsBlank = (== noPieceValue)
+charIsBlank = (== emptyChar)
 
 piecesToString :: [Piece] -> String
 piecesToString pieces =

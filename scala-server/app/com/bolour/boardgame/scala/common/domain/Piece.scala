@@ -10,20 +10,20 @@ import com.bolour.util.BasicUtil._
 case class Piece(value: Char, id: String = stringId()) {
   import Piece._
 
-  def isEmpty = this == noPiece
+  def isEmpty = this == emptyPiece
 
   def worth: Int = worths(value)
 }
 
 object Piece {
   type Pieces = List[Piece]
-  val noPieceValue = '\u0000'
-  val blank = ' '
-  val noPieceId = "-1"
-  val noPiece = Piece(noPieceValue, noPieceId)
-  def isBlank(ch: Char) = ch == blank
 
-  def notPieceValue(ch: Char): Boolean = ch != noPieceValue
+  val emptyChar = '\u0000'
+  val emptyPieceId = "-1"
+  val emptyPiece = Piece(emptyChar, emptyPieceId)
+
+  val blank = ' '
+  def isBlank(ch: Char) = ch == blank
 
   /** get list of characters for pieces and convert null characters to blanks */
   def piecesToString(pieces: List[Piece]): String =

@@ -58,7 +58,7 @@ object Board {
   }
 
   def apply(dimension: Int) : Board = {
-    def cellMaker(row: Int)(col: Int) = GridPiece(Piece.noPiece, Point(row, col))
+    def cellMaker(row: Int)(col: Int) = GridPiece(Piece.emptyPiece, Point(row, col))
     Board(dimension, cellMaker _)
   }
 
@@ -74,7 +74,7 @@ object Board {
     Board(dimension, cellMaker _)
   }
 
-  def isEmpty(row: Int, col: Int) = GridPiece(Piece.noPiece, Point(row, col))
+  def isEmpty(row: Int, col: Int) = GridPiece(Piece.emptyPiece, Point(row, col))
 
 }
 
