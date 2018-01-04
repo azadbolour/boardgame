@@ -149,7 +149,7 @@ stripPoint (Strip {axis, lineNumber, begin}) offset =
 blankPoints :: Strip -> [Point]
 blankPoints strip @ Strip {content} =
   let indexedContent = [0 .. BS.length content] `zip` BS.unpack content
-      blankIndexes = fst <$> ((Piece.charIsBlank . snd) `filter` indexedContent)
+      blankIndexes = fst <$> ((Piece.isEmptyChar . snd) `filter` indexedContent)
   in stripPoint strip <$> blankIndexes
 
 hasAnchor :: Strip -> Bool

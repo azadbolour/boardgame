@@ -17,22 +17,22 @@
 module BoardGame.Common.Domain.Piece (
     Piece(..)
   , mkPiece
-  , isPiece
-  , noPiece
   , emptyChar
-  , isNoPiece
+  , isEmptyChar
+  , emptyPiece
+  , isEmpty
+  , isNonEmpty
+  , eqValue
   , mkRandomPiece
   , mkRandomPieces
-  , eqValue
   , leastFrequentLetter
   , randomLetter
   , mkRandomPieceForId
-  , charIsBlank
+  , isEmptyChar
   , frequencies
   , worth
   , letterWorth
   , piecesToString
-  , isEmpty
 ) where
 
 import System.Random
@@ -59,23 +59,19 @@ instance FromJSON Piece
 instance ToJSON Piece
 
 emptyChar = '\0'
-noPiece = Piece emptyChar "-1"
-isNoPiece :: Piece -> Bool
-isNoPiece = (== noPiece)
-isPiece :: Piece -> Bool
-isPiece = (/= noPiece)
+emptyPiece = Piece emptyChar "-1"
+isEmptyChar :: Char -> Bool
+isEmptyChar = (== emptyChar)
 isEmpty :: Piece -> Bool
-isEmpty = isNoPiece
-
--- TODO. Bad name. Reserve blank everywhere for ' '.
-charIsBlank :: Char -> Bool
-charIsBlank = (== emptyChar)
+isEmpty = (== emptyPiece)
+isNonEmpty :: Piece -> Bool
+isNonEmpty = (/= emptyPiece)
 
 piecesToString :: [Piece] -> String
 piecesToString pieces =
   let val piece =
         let v = value piece
-        in if charIsBlank v then ' ' else v
+        in if isEmptyChar v then ' ' else v
   in val <$> pieces
 
 asciiA :: Int

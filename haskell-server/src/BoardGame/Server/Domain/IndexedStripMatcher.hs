@@ -216,7 +216,7 @@ stripIsDisconnectedInLine (Board {dimension, grid}) (strip @ Strip {axis, begin,
           isSeparator maybeGridPiece =
             case maybeGridPiece of
               Nothing -> True
-              Just (GridValue.GridValue {value = piece}) -> Piece.isNoPiece piece
+              Just (GridValue.GridValue {value = piece}) -> Piece.isEmpty piece
       in isSeparator maybePrevGridPiece && isSeparator maybeNextGridPiece
 
 emptyCenterStrip :: ByteCount -> Coordinate -> Strip

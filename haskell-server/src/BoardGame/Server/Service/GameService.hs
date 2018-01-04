@@ -370,7 +370,7 @@ stripMatchAsPlay (board @ Board {grid}) tray strip word = do
       playPiecePeeler (wordHead : wordTail) position (playPieces, tray) = do
         let point @ Point {row, col} = stripPoint strip position
             gridPiece @ GridValue {value = piece} = Grid.getValue grid row col
-            moved = Piece.isNoPiece piece
+            moved = Piece.isEmpty piece
         (piece', tray') <- if not moved then return (piece, tray)
                              else Tray.removePieceByValue tray wordHead
         let playPiece = PlayPiece piece' point moved

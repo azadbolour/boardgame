@@ -62,7 +62,7 @@ baseTestGrid1 = Grid [
 
 testGrid1 :: Grid GridPiece
 testGrid1 =
-  let cellMaker r c = Maybe.fromMaybe Piece.noPiece (Grid.getValue baseTestGrid1 r c)
+  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (Grid.getValue baseTestGrid1 r c)
   in Grid.mkPointedGrid cellMaker 7 7
 
 testBoard1 = Board 7 testGrid1
@@ -70,13 +70,13 @@ gridRows1 = Board.charRows testBoard1
 
 testGrid :: Grid GridPiece
 testGrid =
-  let cellMaker r c = Maybe.fromMaybe Piece.noPiece (Grid.getValue baseTestGrid r c)
+  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (Grid.getValue baseTestGrid r c)
   in Grid.mkPointedGrid cellMaker 6 6
 
 testBoard = Board 6 testGrid
 gridRows = Board.charRows testBoard
 
-blank = Piece.noPieceValue
+emptyChar = Piece.emptyChar
 
 trayCapacity :: Int
 trayCapacity = 5
@@ -101,11 +101,11 @@ spec = do
 
   describe "check word against strip" $ do
     it "matching word" $ do
-      let content = BS.pack ['A', 'B', blank, blank, 'N', 'D']
+      let content = BS.pack ['A', 'B', emptyChar, emptyChar, 'N', 'D']
           word = BS.pack "ABOUND"
       Matcher.wordFitsContent content word `shouldBe` True
     it "non-matching word" $ do
-      let content = BS.pack ['A', blank, 'E']
+      let content = BS.pack ['A', emptyChar, 'E']
           word = BS.pack "ARK"
       Matcher.wordFitsContent content word `shouldBe` False
 
@@ -132,7 +132,7 @@ spec = do
       mapM_ print stripsLength5Blanks4
       stripsLength5Blanks4 `shouldBe` []
 
-    it "gets strip with blank cross-neighbors" $ do
+    it "gets strip with empty cross-neighbors" $ do
       let lineNumber = 5
           row = 2
           size = 5

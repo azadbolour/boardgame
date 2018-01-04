@@ -73,7 +73,7 @@ cell :: Board -> Point -> GridPiece
 cell Board {grid} = Grid.cell grid
 
 isEmpty :: Board -> Bool
-isEmpty Board{grid} = null $ Grid.concatFilter (\GridValue{value} -> Piece.isPiece value) grid
+isEmpty Board{grid} = null $ Grid.concatFilter (\GridValue{value} -> Piece.isNonEmpty value) grid
 
 pointIsEmpty :: Board -> Point -> Bool
 pointIsEmpty Board {grid} = GridPiece.isEmpty . Grid.cell grid
@@ -89,12 +89,12 @@ gridPiecesToGrid :: Coordinate -> [GridPiece] -> Grid GridPiece
 gridPiecesToGrid dimension gridPieces =
   let findGridPiece point = find ((== point) . GridValue.point) gridPieces
       cellMaker r c = case findGridPiece $ Point r c of
-                        Nothing -> Piece.noPiece
+                        Nothing -> Piece.emptyPiece
                         Just GridValue.GridValue {value} -> value
   in Grid.mkPointedGrid cellMaker dimension dimension
 
 filterNonEmptyGridPieces :: [GridPiece] -> [GridPiece]
-filterNonEmptyGridPieces = filter ((/= Piece.noPiece) . GridValue.value)
+filterNonEmptyGridPieces = filter ((/= Piece.emptyPiece) . GridValue.value)
 
 getGridPieces :: Board -> [GridPiece]
 getGridPieces Board {grid} =
@@ -118,7 +118,7 @@ mkOutOfBounds (board @ Board { dimension }) axis pos =
 mkBoard :: MonadError GameError m => Int -> m Board
 mkBoard dimension
   | Util.nonPositive dimension = throwInvalid dimension
-  | otherwise = return $ Board dimension (Grid.mkPointedGrid (\row col -> Piece.noPiece) dimension dimension)
+  | otherwise = return $ Board dimension (Grid.mkPointedGrid (\row col -> Piece.emptyPiece) dimension dimension)
       where throwInvalid size = throwError $ InvalidDimensionError size
 
 mkOKBoard :: Coordinate -> Board
@@ -127,7 +127,7 @@ mkOKBoard dimension = Util.fromRight $ mkBoard dimension
 validPositionIsFree :: Board -> Point -> Bool
 validPositionIsFree board validPos =
   let GridValue {value, point} = getValidGridPiece board validPos
-  in value == Piece.noPiece
+  in value == Piece.emptyPiece
 
 validPositionIsTaken :: Board -> Point -> Bool
 validPositionIsTaken board point = not $ validPositionIsFree board point

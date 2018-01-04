@@ -49,9 +49,9 @@ findStripCrossWords board (strip @ Strip {axis, content}) word =
       range = [0 .. l - 1]
       unpacked = BS.unpack content
       -- TODO. Should really check for blank.
-      -- Do not use charIsBlank which checks for null.
+      -- Do not use isEmptyChar which checks for null.
       -- Clean up the mess.
-      crossingIndices = filter (\i -> Piece.charIsBlank $ unpacked !! i) range
+      crossingIndices = filter (\i -> Piece.isEmptyChar $ unpacked !! i) range
       calcCrossing :: Int -> String = \i ->
         let point = Strip.pointAtOffset strip i
             playedChar = word !! i
@@ -81,8 +81,8 @@ findCrossPlays' board (strip @ Strip {axis, content}) word =
   let l = length word
       range = [0 .. l - 1]
       unpacked = BS.unpack content
-      -- TODO. Clean up charIsBlank. As defined it is not what we need here.
-      crossingIndices = filter (\i -> Piece.charIsBlank $ unpacked !! i) range
+      -- TODO. Clean up isEmptyChar. As defined it is not what we need here.
+      crossingIndices = filter (\i -> Piece.isEmptyChar $ unpacked !! i) range
       calcCrossing :: Int -> [(Char, Point, Bool)] = \i ->
         let point = Strip.pointAtOffset strip i
             playedChar = word !! i
