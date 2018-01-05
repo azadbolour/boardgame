@@ -69,15 +69,9 @@ case class Strip(
 object Strip {
   type GroupedStrips = Map[Length, Map[NumBlanks, List[Strip]]]
 
-  def apply(axis: Axis, lineNumber: Int, line: String, begin: Int, end: Int): Strip = {
+  def lineStrip(axis: Axis, lineNumber: Int, line: String, begin: Int, end: Int): Strip = {
     val content = line.slice(begin, end + 1)
-    Strip(
-      axis,
-      lineNumber,
-      begin,
-      end,
-      content
-    )
+    Strip(axis, lineNumber, begin, end, content)
   }
 
   def fitsSlot(slotLetter: Char, wordLetter: Char): Boolean =
@@ -89,14 +83,14 @@ object Strip {
       // TODO. Call stripsInLine.
       begin <- 0 until dimension
       end <- (begin + 1) until dimension
-    } yield Strip(axis, lineNumber, lines(lineNumber), begin, end)
+    } yield Strip.lineStrip(axis, lineNumber, lines(lineNumber), begin, end)
   }
 
   def stripsInLine(axis: Axis, dimension: Int, lineNumber: Int, line: String): List[Strip] = {
     for {
       begin <- (0 until dimension).toList
       end <- (begin + 1) until dimension
-    } yield Strip(axis, lineNumber, line, begin, end)
+    } yield Strip.lineStrip(axis, lineNumber, line, begin, end)
   }
 
 }

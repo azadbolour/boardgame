@@ -1,7 +1,26 @@
 
+- Add scorer test. Add crosswordfilder test.
+  Copy from Haskell.
 
+- Had to change signatures of CrossWordFinder to Maybe in case 
+  there is a blank but no cross word around it.
 
-- Document the matchin algorithm.
+  Need to make sure Scala does the same thing.
+
+  Does it make sense to simplify crosswordfinder in Scala
+  like in Haskell?
+
+- How does the matching algorithm use strip? Does it rely on blanks?
+  It looks like nobody is using blanks. So changed piecesToString
+  not to convert nul chars to blanks.
+
+  But in Scala the strinMatcher is using blanks. It looks as if it 
+  is cleanest not use blanks in scala either.
+
+  For now it all seems to work find with blanks. But check matching
+  algorithm to make sure.
+
+- Document the matching algorithm.
 
 - Distinguish between blank and empty - should not be using blanks
   in strip content. StripMatcher, CrossWordFinder, ScorerSpec.

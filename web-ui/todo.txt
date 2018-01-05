@@ -1,4 +1,8 @@
 
+- Should second click on start should be a no-op.
+  The user is tempted to clicj again if start takes a long time. 
+  Need an hourglass or something.
+
 - Profiling javascript.
 
 - Target container is not a DOM element error in browser console.
