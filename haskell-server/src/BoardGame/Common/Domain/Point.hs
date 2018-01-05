@@ -22,6 +22,7 @@ module BoardGame.Common.Domain.Point (
   , Point(..)
   , Height
   , Width
+  , colinearPoint
 ) where
 
 import GHC.Generics (Generic)
@@ -61,6 +62,12 @@ data Point = Point {
 
 instance FromJSON Point
 instance ToJSON Point
+
+colinearPoint :: Point -> Axis -> Int -> Point
+colinearPoint Point { row, col } axis lineCoordinate =
+  case axis of
+    X -> Point row lineCoordinate
+    Y -> Point lineCoordinate col
 
 
 

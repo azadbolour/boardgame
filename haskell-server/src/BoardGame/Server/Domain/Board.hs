@@ -30,7 +30,10 @@ module BoardGame.Server.Domain.Board (
   , stripOfPlay
   , getPiece
   , pointIsEmpty
+  , pointIsNonEmpty
   , cell
+  , inBounds
+  , nthNeighbor
 )
 where
 
@@ -47,7 +50,7 @@ import qualified BoardGame.Common.Domain.GridPiece as GridPiece
 import qualified BoardGame.Common.Domain.GridValue as GridValue
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Common.Domain.Point (Coordinate, Height, Width, Axis(..), Point, Point(Point))
+import BoardGame.Common.Domain.Point (Coordinate, Axis(..), Point, Point(Point))
 import qualified BoardGame.Common.Domain.Point as Point
 import qualified BoardGame.Common.Domain.Point as Axis
 import BoardGame.Common.Domain.Grid (Grid, Grid(Grid))
@@ -77,6 +80,16 @@ isEmpty Board{grid} = null $ Grid.concatFilter (\GridValue{value} -> Piece.isNon
 
 pointIsEmpty :: Board -> Point -> Bool
 pointIsEmpty Board {grid} = GridPiece.isEmpty . Grid.cell grid
+
+pointIsNonEmpty :: Board -> Point -> Bool
+pointIsNonEmpty board point = not $ pointIsEmpty board point
+
+nthNeighbor :: Point -> Axis -> Int -> Int -> Point
+nthNeighbor Point {row, col} axis steps direction =
+  let offset = steps * direction
+  in case axis of
+       Axis.X -> Point row (col + offset)
+       Axis.Y -> Point (row + offset) col
 
 -- Assumes valid coordinates.
 getValidGridPiece :: Board -> Point -> GridPiece
@@ -140,6 +153,10 @@ checkAxisPosition (board @ Board { dimension }) axis position =
   else
     return position
 
+inBounds :: Board -> Point -> Bool
+inBounds Board {dimension} Point {row, col} =
+  row >= 0 && row < dimension && col >= 0 && col < dimension
+
 checkGridPoint :: MonadError GameError m => Board -> Point -> m Point
 checkGridPoint board (point @ Point { row, col }) = do
   _ <- checkAxisPosition board Y row
@@ -195,9 +212,10 @@ stripOfPlay' (board @ Board {grid}) columns playPieces =
         case axis of
           Axis.X -> (rowHead, cells !! rowHead, colHead)
           Axis.Y -> (colHead, columns !! colHead, rowHead)
-      end = begin + length points - 1
-      content = Piece.piecesToString ((\GridValue {value = piece} -> piece) <$> line)
-  in Strip.mkStrip axis lineNumber begin end content
+      -- end = begin + length points - 1
+      lineAsString = Piece.piecesToString ((\GridValue {value = piece} -> piece) <$> line)
+    in Strip.lineStrip axis lineNumber lineAsString begin (length points)
+  -- in Strip.mkStrip axis lineNumber begin end content
 
 
 

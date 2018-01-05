@@ -91,34 +91,19 @@ nonBlankCombo string =
 
 lineStrip :: Axis -> Coordinate -> String -> Int -> ByteCount -> Strip
 lineStrip axis lineNumber line offset size =
-  Strip
-    axis
-    lineNumber
-    offset
-    (offset + size - 1)
-    content
-    (nonBlankCombo content)
-    (numBlanks content)
-      where content = BS.pack $ (take size . drop offset) line
+  mkStrip axis lineNumber offset (offset + size - 1) stringContent
+    where stringContent = (take size . drop offset) line
 
 lineStripsForLength :: Axis -> Int -> String -> ByteCount -> [Strip]
 lineStripsForLength axis lineNumber line size =
-  let mkStrip from = Strip -- TODO. Use lineStrip.
-                        axis
-                        lineNumber
-                        from
-                        (from + size - 1)
-                        content
-                        (nonBlankCombo content)
-                        (numBlanks content)
-                          where content = BS.pack $ (take size . drop from) line
-  in mkStrip <$> [0 .. length line - size]
+  let stripMaker offset = lineStrip axis lineNumber line offset size
+  in stripMaker <$> [0 .. length line - size]
 
 allStripsForLengthAndAxis :: Axis -> [String] -> ByteCount -> [Strip]
 allStripsForLengthAndAxis axis lines size = do
   numberedLine <- zip [0 .. length lines - 1] lines
-  let mkStrip (lineNumber, line) = lineStripsForLength axis lineNumber line size
-  mkStrip numberedLine
+  let mkStrips (lineNumber, line) = lineStripsForLength axis lineNumber line size
+  mkStrips numberedLine
 
 allStripsForLength :: [String] -> ByteCount -> [Strip]
 allStripsForLength rows size =

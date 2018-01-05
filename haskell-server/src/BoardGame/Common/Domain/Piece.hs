@@ -68,11 +68,11 @@ isNonEmpty :: Piece -> Bool
 isNonEmpty = (/= emptyPiece)
 
 piecesToString :: [Piece] -> String
-piecesToString pieces =
-  let val piece =
-        let v = value piece
-        in if isEmptyChar v then ' ' else v
-  in val <$> pieces
+piecesToString pieces = value <$> pieces
+--   let val piece =
+--         let v = value piece
+--         in if isEmptyChar v then ' ' else v
+--   in val <$> pieces
 
 asciiA :: Int
 asciiA = ord 'A'

@@ -12,6 +12,11 @@
   But stack only has --profile.
   See profile-bld.sh and rofile-run.sh.
 
+  Best way to get stack trace from tests?
+
+  For now I just copy the test code into a main program at trial/TempTrial.hs,
+  whose executable is called 'temp-trial'. Then build and run with profiling.
+
 - Named constructor parameters.
 
     let config = Config {
