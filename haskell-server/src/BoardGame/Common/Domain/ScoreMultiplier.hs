@@ -15,8 +15,10 @@ module BoardGame.Common.Domain.ScoreMultiplier (
   , mkMultiplierGrid
   , isLetterMultiplier
   , isWordMultiplier
+  , scoreMultiplier
   ) where
 
+import Debug.Trace as Trace
 import BoardGame.Common.Domain.Grid (Grid)
 import qualified BoardGame.Common.Domain.Grid as Grid
 import BoardGame.Common.Domain.Point (Point, Point(Point))
@@ -86,10 +88,9 @@ multiplierForFirstOctantRelativeToCenter (point @ Point {row, col}) dimension =
           _ -> wordMultiplier 2
       else if isDiagonalPoint (quarter + 1) then
         let nextToMiddle = bound - 1
-        in case col of
-             bound -> noMultiplier
-             nextToMiddle -> letterMultiplier 3 -- TODO. Generates overlapped pattern warning.
-             _ -> letterMultiplier 2
+        in if col == bound then noMultiplier
+           else if col == nextToMiddle then letterMultiplier 3
+           else letterMultiplier 2
       else
         noMultiplier
 

@@ -21,7 +21,7 @@ import qualified BoardGame.Common.Domain.Point as Point
 reflectOnFirstOctant :: Point -> Point
 reflectOnFirstOctant point =
   let p @ Point {row, col} = reflectOnPositiveQuadrant point
-  in if row <= col then p else Point row col
+  in if row <= col then p else Point col row
 
 reflectOnPositiveQuadrant :: Point -> Point
 reflectOnPositiveQuadrant point @ Point {row, col} = Point (abs row) (abs col)

@@ -22,6 +22,7 @@ import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
 import qualified BoardGame.Common.Domain.GridValue as GridValue
+import BoardGame.Common.Domain.ScoreMultiplier (ScoreMultiplier, ScoreMultiplier(ScoreMultiplier))
 import qualified BoardGame.Common.Domain.ScoreMultiplier as ScoreMultiplier
 import BoardGame.Server.Domain.Board (Board(Board))
 import qualified BoardGame.Server.Domain.Board as Board
@@ -68,6 +69,11 @@ toPlayPiece (ch, point, moved) = PlayPiece (Piece ch "") point moved
 
 spec :: Spec
 spec = do
+  describe "get score multipliers" $
+    it "should get correct multiplers" $ do
+       let mult @ ScoreMultiplier {factor} = ScoreMultiplier.scoreMultiplier (Point 7 4) 9
+       print mult
+       factor `shouldBe` 3
   describe "calculate word scores" $ do
     it "should find score for 1 move play" $ do
        let wordInfo = [

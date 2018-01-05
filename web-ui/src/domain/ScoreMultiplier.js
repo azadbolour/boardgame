@@ -65,14 +65,15 @@ const multiplierRelativeToCenter = function (point, dimension) {
 
 const multiplierForFirstOctantRelativeToCenter = function (point, dimension) {
   let bound = Math.floor(dimension / 2);
+  let quarter = Math.floor(bound / 2);
   let {row, col} = point;
 
   const isCornerPoint = Point.eq(point, mkPoint(bound, bound));
   const isMidEdgePoint = Point.eq(point, mkPoint(0, bound));
   const isCenterPoint = Point.eq(point, mkPoint(0, 0));
-  const isQuarterEdgePoint = row === Math.floor(bound / 2) && col === bound;
+  const isQuarterEdgePoint = row === quarter && col === bound;
   const isDiagonalPoint = function (centerOffset) {
-    return col - row == centerOffset
+    return col - row === centerOffset
   };
 
   const multiplier = function () {
@@ -90,7 +91,7 @@ const multiplierForFirstOctantRelativeToCenter = function (point, dimension) {
           return wordMultiplier(2);
       }
     }
-    else if (isDiagonalPoint(Math.floor(bound / 2) + 1)) {
+    else if (isDiagonalPoint(quarter + 1)) {
       let nextToMiddle = bound - 1;
       switch (col) {
         case bound:

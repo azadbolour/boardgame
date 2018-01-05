@@ -57,6 +57,8 @@ import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.GameError
 import BoardGame.Server.Domain.TileSack
 import qualified BoardGame.Server.Domain.TileSack as TileSack
+import BoardGame.Server.Domain.Scorer (Scorer)
+import qualified BoardGame.Server.Domain.Scorer as Scorer
 
 -- TODO. Separate out Game from GameState. See Scala version.
 
@@ -69,6 +71,7 @@ data Game = Game {
   , playNumber :: Int
   , playTurn :: PlayerType
   , tileSack :: TileSack
+  , scorePlay :: [PlayPiece] -> Int
   , lastPlayScore :: Int
   , numSuccessivePasses :: Int
   , scores :: [Int]
@@ -156,6 +159,7 @@ mkInitialGame gameParams tileSack initGridPieces initUserPieces initMachinePiece
   now <- liftIO getCurrentTime
   let emptyTray = Tray trayCapacity []
       emptyTrays = [emptyTray, emptyTray]
+      scorePlay = Scorer.scorePlay $ Scorer.mkScorer dimension trayCapacity
       game = Game
                 gameId
                 languageCode
@@ -165,6 +169,7 @@ mkInitialGame gameParams tileSack initGridPieces initUserPieces initMachinePiece
                 0
                 Player.UserPlayer
                 tileSack
+                (scorePlay board')
                 initScore
                 0
                 initScores
@@ -282,7 +287,7 @@ checkPlayBoardPieces Game {board} playPieces =
        Just gridPiece -> throwError $ UnmatchedBoardPlayPieceError gridPiece
 
 reflectPlayOnGame :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> [PlayPiece] -> m (Game, [Piece])
-reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, scores}) playerType playPieces = do
+reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, scorePlay, scores}) playerType playPieces = do
   playPieces' <- validatePlayAgainstGame game playPieces
   let movedPlayPieces = filter PlayPiece.moved playPieces'
       movedGridPieces = PlayPiece.getGridPiece <$> movedPlayPieces
@@ -294,9 +299,12 @@ reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, s
       tray' = Tray.replacePieces tray usedPieces newPieces
       trays' = Util.setListElement trays playerIndex tray'
       playNumber' = playNumber + 1
-      score' = length playPieces -- TODO. Compute real score.
+      -- score' = length playPieces -- TODO. Compute real score.
+      earlierScore = scores !! playerIndex
+      thisScore = scorePlay playPieces
+      score' = earlierScore + thisScore
       scores' = Util.setListElement scores playerIndex score'
-  return (game' { board = b, trays = trays', playNumber = playNumber', lastPlayScore = score', numSuccessivePasses = 0, scores = scores' }, newPieces)
+  return (game' { board = b, trays = trays', playNumber = playNumber', lastPlayScore = thisScore, numSuccessivePasses = 0, scores = scores' }, newPieces)
 
 doExchange :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> Int -> m (Game, Piece)
 doExchange (game @ Game {gameId, board, trays, tileSack, numSuccessivePasses}) playerType trayPos = do
