@@ -19,7 +19,7 @@ module Main (
 import Test.Hspec
 
 import qualified BoardGame.Server.Domain.TileSackSpec as Test1
-import qualified BoardGame.Server.Domain.CrossWordFinderSpec as Test2
+import qualified BoardGame.Server.Domain.ScorerSpec as Test2
 import qualified BoardGame.Server.Web.GameEndPointSpec as Test3
 import qualified BoardGame.Server.Service.GameServiceSpec as Test4
 

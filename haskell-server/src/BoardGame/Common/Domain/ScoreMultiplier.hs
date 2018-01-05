@@ -31,7 +31,7 @@ import BoardGame.Common.Domain.PointSymmetry (
 data ScoreMultiplier = ScoreMultiplier {
   scoreMultiplierType :: ScoreMultiplierType,
   factor :: Int
-}
+} deriving (Eq, Show)
 
 isLetterMultiplier :: ScoreMultiplier -> Bool
 isLetterMultiplier mult = scoreMultiplierType mult == SMType.Letter

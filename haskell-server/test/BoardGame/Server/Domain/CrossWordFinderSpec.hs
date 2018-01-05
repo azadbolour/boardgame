@@ -87,7 +87,7 @@ spec = do
        hd `shouldBe` ('O', Point 2 3, False)
        let last = crossPlay !! 2
        last `shouldBe` ('E', Point 2 5, True)
-  describe "find cross plays" $ do
+  describe "find cross plays" $
     it "should find vertical cross plays" $ do
        let GridValue {value = piece3, point = point3} = Grid.getValue testGrid 2 3
            GridValue {value = piece4, point = point4} = Grid.getValue testGrid 2 4

@@ -36,7 +36,7 @@ bonus = 50
 
 data Scorer = Scorer {
     scorePlay :: Board -> [PlayPiece] -> Int
-  , scoreWord :: [(Char, Point, Bool)] -> Int
+  , scoreWord :: [MoveInfo] -> Int
 }
 
 mkScorer :: Int -> Int -> Scorer
