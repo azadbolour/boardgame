@@ -5,6 +5,7 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
+import com.bolour.boardgame.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
 
@@ -46,6 +47,27 @@ case class Board(dimension: Int, grid: Grid[GridPiece]) {
     val end = begin + points.length - 1
     val content = Piece.piecesToString(line.map(_.piece)) // converts null chars to blanks
     Strip.lineStrip(axis, lineNumber, content, begin, end)
+  }
+
+  def pointIsEmpty(point: Point): Boolean = grid.cell(point).piece.isEmpty
+
+  def inBounds(point: Point): Boolean = {
+    val Point(row, col) = point
+    inBounds(row) && inBounds(col)
+  }
+
+  def inBounds(coordinate: Int): Boolean = coordinate >= 0 && coordinate < dimension
+
+  // TODO. Should really check in bounds and return Option[Point].
+  def nthNeighbor(point: Point, axis: Axis, direction: Int)(steps: Int): Option[Point] = {
+    val offset = steps * direction
+    val Point(row, col) = point
+    val nth = axis match {
+      case Axis.X => Point(row, col + offset)
+      case Axis.Y => Point(row + offset, col)
+    }
+
+    if (!inBounds(nth)) None else Some(nth)
   }
 
 }

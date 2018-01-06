@@ -1,4 +1,6 @@
 
+- Undo comments in ScorerTest.
+
 - Add scorer test. Add crosswordfilder test.
   Copy from Haskell.
 

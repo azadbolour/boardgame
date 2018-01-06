@@ -8,6 +8,40 @@ class CrossWordFinder(board: Board) {
   val dimension = board.dimension
   val grid = board.grid
 
+  // TODO. Move direction constants to a utility object.
+
+  val ForwardDir = 1
+  val BackwardDir = -1
+
+  /**
+    * Considering a point to be a neighbor if it is recursively adjacent to
+    * the given point in the given direction, find the farthest one in that direction.
+    * This is a helper method for finding surrounding plays and words.
+    *
+    * @param point The point whose farthest neighbor is being sought.
+    * @param axis The axis along which we are looking for the neighbor.
+    * @param direction The direction along the axis to look.
+    * @return The farthest (recursive) neighbor.
+    */
+  private def farthestNeighbor(point: Point, axis: Axis, direction: Int): Point = {
+
+    def outOfBoundsOrEmpty(oPoint: Option[Point]): Boolean =
+      oPoint.isEmpty || board.pointIsEmpty(oPoint.get)
+
+    def adjacent(p: Point): Option[Point] = board.nthNeighbor(p, axis, direction)(1)
+
+    def isBoundary(p: Point): Boolean =
+      !board.pointIsEmpty(p) && outOfBoundsOrEmpty(adjacent(p))
+
+    // The starting point is special because it is empty.
+    if (outOfBoundsOrEmpty(adjacent(point)))
+      return point
+
+    val neighbors = (1 until dimension).toList map board.nthNeighbor(point, axis, direction)
+    val farthest = neighbors find (_.exists(isBoundary))
+    farthest.get.get // A boundary always exists.
+  }
+
   /**
     * A crossing is cross word that includes one of the new
     * letters played on a strip.
@@ -82,55 +116,55 @@ class CrossWordFinder(board: Board) {
       * @return The coordinate (row or column number) of the last contiguous
       *         filled position along the given direction.
       */
-    def filledUpTo(point: Point, direction: Int): Point = {
-
-      // logger.info(s"filledUpTo - point ${point}, axis: ${axis}, direction: ${direction}")
-
-      def hasNoLetter(op: Option[Piece]) = op.isEmpty || op.get.isEmpty
-
-      def nextPiece(p: Point) = grid.adjacentCell(p, axis, direction).map(_.piece)
-
-      def pointIsEmpty(p: Point): Boolean = grid.cell(p).piece.isEmpty
-
-      def isBoundary(p: Point): Boolean = !pointIsEmpty(p) && hasNoLetter(nextPiece(p))
-
-      def inBounds(point: Point): Boolean = {
-        val Point(row, col) = point
-        row >= 0 && row < dimension && col >= 0 && col < dimension
-      }
-
-      def crossPoint(i: Int): Point = {
-        val offset = i * direction
-        axis match {
-          case Axis.X => Point(row, col + offset)
-          case Axis.Y => Point(row + offset, col)
-        }
-      }
-
-      // The starting point is special because it is empty.
-      val crossPt1 = crossPoint(1)
-      // logger.info(s"first cross point: ${crossPt1}")
-      if (!inBounds(crossPt1) || pointIsEmpty(crossPt1))
-        return point
-
-      // TODO. Use find.
-      var lastPoint = point // Not strictly necessary. Being extra defensive.
-      for (i <- 1 until dimension) {
-        val pt = crossPoint(i)
-        // logger.info(s"cross point for ${i} is ${pt}")
-
-        // Begin defensive.
-        // Redundant check. Boundary should be reached before cross point goes out of bounds.
-        if (!inBounds(pt))
-          return lastPoint
-        lastPoint = pt
-        // End defensive.
-
-        if (isBoundary(pt))
-          return pt
-      }
-      point // Should never be reached. Keep compiler happy.
-    }
+//    def filledUpTo(point: Point, direction: Int): Point = {
+//
+//      // logger.info(s"filledUpTo - point ${point}, axis: ${axis}, direction: ${direction}")
+//
+//      def hasNoLetter(op: Option[Piece]) = op.isEmpty || op.get.isEmpty
+//
+//      def nextPiece(p: Point) = grid.adjacentCell(p, axis, direction).map(_.piece)
+//
+//      def pointIsEmpty(p: Point): Boolean = grid.cell(p).piece.isEmpty
+//
+//      def isBoundary(p: Point): Boolean = !pointIsEmpty(p) && hasNoLetter(nextPiece(p))
+//
+//      def inBounds(point: Point): Boolean = {
+//        val Point(row, col) = point
+//        row >= 0 && row < dimension && col >= 0 && col < dimension
+//      }
+//
+//      def crossPoint(i: Int): Point = {
+//        val offset = i * direction
+//        axis match {
+//          case Axis.X => Point(row, col + offset)
+//          case Axis.Y => Point(row + offset, col)
+//        }
+//      }
+//
+//      // The starting point is special because it is empty.
+//      val crossPt1 = crossPoint(1)
+//      // logger.info(s"first cross point: ${crossPt1}")
+//      if (!inBounds(crossPt1) || pointIsEmpty(crossPt1))
+//        return point
+//
+//      // TODO. Use find.
+//      var lastPoint = point // Not strictly necessary. Being extra defensive.
+//      for (i <- 1 until dimension) {
+//        val pt = crossPoint(i)
+//        // logger.info(s"cross point for ${i} is ${pt}")
+//
+//        // Begin defensive.
+//        // Redundant check. Boundary should be reached before cross point goes out of bounds.
+//        if (!inBounds(pt))
+//          return lastPoint
+//        lastPoint = pt
+//        // End defensive.
+//
+//        if (isBoundary(pt))
+//          return pt
+//      }
+//      point // Should never be reached. Keep compiler happy.
+//    }
 
     def boardPointInfo(p: Point): (Char, Point, Boolean) = {
       val piece = board.get(p)
@@ -138,8 +172,10 @@ class CrossWordFinder(board: Board) {
       info
     }
 
-    val Point(beforeRow, beforeCol) = filledUpTo(crossPoint, -1)
-    val Point(afterRow, afterCol) = filledUpTo(crossPoint, +1)
+    val Point(beforeRow, beforeCol) = farthestNeighbor(crossPoint, axis, -1)
+    val Point(afterRow, afterCol) = farthestNeighbor(crossPoint, axis, +1)
+//    val Point(beforeRow, beforeCol) = filledUpTo(crossPoint, -1)
+//    val Point(afterRow, afterCol) = filledUpTo(crossPoint, +1)
 
     def crossPlayPoint(i: Int): Point = axis match {
       case Axis.X => Point(row, i)

@@ -35,18 +35,24 @@ class ScorerSpec extends FlatSpec with Matchers {
   val x2Word = wordMultiplier(2)
   val x3Word = wordMultiplier(3)
 
-  val scorer = Scorer(dimension, trayCapacity)
-  val multiplierGrid = scorer.multiplierGrid
+   val scorer = Scorer(dimension, trayCapacity)
+   val multiplierGrid = scorer.multiplierGrid
 
-  def multiplier(row: Int, col: Int): ScoreMultiplier = multiplierGrid.cell(Point(row, col))
+   def multiplier(row: Int, col: Int): ScoreMultiplier = multiplierGrid.cell(Point(row, col))
 
-  "score multipliers" should "follow the rules" in {
+  "specific score multipliers" should "check" in {
+    val m82_9 = ScoreMultiplier.scoreMultiplier(Point(8, 2), 9)
+    println(m82_9)
+    m82_9 shouldEqual x2Letter
+  }
+
+   "score multipliers" should "follow the rules" in {
     multiplier(middle, middle) shouldEqual x2Word
     multiplier(0, 0) shouldEqual x3Word
     multiplier(0, 1) shouldEqual x1
     multiplier(0, 2) shouldEqual x1
-    multiplier(0, 3) shouldEqual x2Letter
-    multiplier(0, 4) shouldEqual x1
+    multiplier(0, 3) shouldEqual x1
+    multiplier(0, 4) shouldEqual x2Letter
     multiplier(0, 5) shouldEqual x1
     multiplier(0, 6) shouldEqual x1
     multiplier(0, 7) shouldEqual x3Word
@@ -74,13 +80,13 @@ class ScorerSpec extends FlatSpec with Matchers {
     val info = playInfo("JOIN", Strip(Axis.X, 0, 0, 3, " O  "))
     logger.info(s"play pieces: ${info}")
     scorer.scoreWord(info) shouldEqual
-      (3 * ( (worth('J') + worth('O') + worth('I') + 2 * worth('N'))))
+      (3 * ( (worth('J') + worth('O') + worth('I') + worth('N'))))
   }
 
   "scoring with 2 time letter score" should "score correctly based on worth of letters" in {
     val info = playInfo("JOIN", Strip(Axis.X, 0, 0, 3, "J   "))
     scorer.scoreWord(info) shouldEqual
-      (worth('J') + worth('O') + worth('I') + 2 * worth('N'))
+      (worth('J') + worth('O') + worth('I') + worth('N'))
   }
 
 

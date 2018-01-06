@@ -85,7 +85,7 @@ pointIsNonEmpty :: Board -> Point -> Bool
 pointIsNonEmpty board point = not $ pointIsEmpty board point
 
 nthNeighbor :: Point -> Axis -> Int -> Int -> Point
-nthNeighbor Point {row, col} axis steps direction =
+nthNeighbor Point {row, col} axis direction steps =
   let offset = steps * direction
   in case axis of
        Axis.X -> Point row (col + offset)

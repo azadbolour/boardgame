@@ -59,6 +59,7 @@ object ScoreMultiplier {
       */
     val bound = dimension / 2
     // logger.info(s"point on first octant: ${point}")
+    val quarter = bound / 2
 
     val Point(row, col) = point
 
@@ -70,7 +71,7 @@ object ScoreMultiplier {
 
     def isDiagonalPoint(centerOffset: Int): Boolean = col - row == centerOffset
 
-    def isQuarterEdgePoint: Boolean = row == bound/2 + 1 && col == bound
+    def isQuarterEdgePoint: Boolean = row == quarter && col == bound
 
     if (isCenterPoint)
       wordMultiplier(2)
@@ -87,7 +88,7 @@ object ScoreMultiplier {
         case _ => wordMultiplier(2)
       }
     }
-    else if (isDiagonalPoint(bound/2 + 1)) {
+    else if (isDiagonalPoint(quarter + 1)) {
       val nextToMiddle = bound - 1
       col match {
         case `bound` => noMultiplier()
