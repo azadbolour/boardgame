@@ -90,7 +90,7 @@ library
       BoardGame.Server.Domain.PlayInfo
       BoardGame.Server.Domain.PlayDetails
       BoardGame.Server.Domain.IndexedStripMatcher
-      BoardGame.Server.Domain.IndexedLanguageDictionary
+      BoardGame.Server.Domain.WordDictionary
       BoardGame.Server.Domain.GameCache
       BoardGame.Server.Domain.GameEnv
       BoardGame.Server.Domain.DictionaryCache
@@ -253,7 +253,7 @@ test-suite spec
       BoardGame.Server.Domain.BoardSpec
       BoardGame.Server.Domain.CommonSpec
       BoardGame.Server.Domain.StripMatcherSpec
-      BoardGame.Server.Domain.IndexedDictionarySpec
+      BoardGame.Server.Domain.WordDictionarySpec
       BoardGame.Server.Domain.DictionaryCacheSpec
       BoardGame.Server.Domain.ServerParametersSpec
       BoardGame.Server.Domain.TileSackSpec
@@ -291,7 +291,7 @@ test-suite infocus
       BoardGame.Util.TestUtil
       BoardGame.Server.Web.WebTestFixtures
       BoardGame.Server.Domain.StripMatcherSpec
-      BoardGame.Server.Domain.IndexedDictionarySpec
+      BoardGame.Server.Domain.WordDictionarySpec
       BoardGame.Server.Domain.DictionaryCacheSpec
       BoardGame.Server.Service.GameServiceSpec
       BoardGame.Server.Domain.ServerParametersSpec

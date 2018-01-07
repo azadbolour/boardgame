@@ -9,8 +9,8 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
 
-module BoardGame.Server.Domain.IndexedLanguageDictionary (
-    IndexedLanguageDictionary(IndexedLanguageDictionary, languageCode)
+module BoardGame.Server.Domain.WordDictionary (
+    WordDictionary(WordDictionary, languageCode)
   , mkDictionary
   , validateWord
   , defaultLanguageCode
@@ -42,35 +42,35 @@ defaultLanguageCode :: String
 defaultLanguageCode = english
 
 -- | A dictionary of words in a given language (identified by language code).
-data IndexedLanguageDictionary = IndexedLanguageDictionary {
+data WordDictionary = WordDictionary {
     languageCode :: String  -- ^ public
   , words :: Set ByteString -- ^ private
   , index :: WordIndex      -- ^ private
 }
 
-mkDictionary :: String -> [DictWord] -> IndexedLanguageDictionary
-mkDictionary languageCode words = IndexedLanguageDictionary languageCode (Set.fromList words) (mkWordIndex words)
+mkDictionary :: String -> [DictWord] -> WordDictionary
+mkDictionary languageCode words = WordDictionary languageCode (Set.fromList words) (mkWordIndex words)
 
 -- | Return all words of the dictionary as a set.
-getAllWords :: IndexedLanguageDictionary -> Set ByteString
-getAllWords IndexedLanguageDictionary {words} = words
+getAllWords :: WordDictionary -> Set ByteString
+getAllWords WordDictionary {words} = words
 
 -- | True iff given string represents a word.
-isWord :: IndexedLanguageDictionary -> ByteString -> Bool
-isWord (IndexedLanguageDictionary {words}) word = word `Set.member` words
+isWord :: WordDictionary -> ByteString -> Bool
+isWord (WordDictionary {words}) word = word `Set.member` words
 
 -- | Right iff given string represents a word.
-validateWord :: (MonadError GameError m, MonadIO m) => IndexedLanguageDictionary -> ByteString -> m ByteString
+validateWord :: (MonadError GameError m, MonadIO m) => WordDictionary -> ByteString -> m ByteString
 validateWord languageDictionary word = do
   let valid = isWord languageDictionary word
   bool (throwError $ InvalidWordError $ BS.unpack word) (return word) valid
 
 -- | Look up the words that are permutations of a given combination of letters.
 getWordPermutations ::
-     IndexedLanguageDictionary -- ^ The dictionary.
+     WordDictionary -- ^ The dictionary.
   -> LetterCombo -- ^ Combinations of letters represented as a SORTED byte string.
   -> [DictWord]  -- ^ Permutations of the given combination that are in the dictionary.
-getWordPermutations (dictionary @ IndexedLanguageDictionary {index}) combo =
+getWordPermutations (dictionary @ WordDictionary {index}) combo =
   Maybe.fromMaybe [] (Map.lookup combo index)
 
 -- Private functions.

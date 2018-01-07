@@ -30,7 +30,7 @@ import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Server.Domain.GameCache as GameCache
 import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
-import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.WordDictionary as Dict
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 import qualified Bolour.Util.PersistRunner as PersistRunner
 import qualified BoardGame.Server.Service.GameDao as GameDao

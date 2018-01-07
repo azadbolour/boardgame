@@ -27,15 +27,15 @@ import Control.Monad.IO.Class (liftIO)
 import Bolour.Util.Cache (Cache)
 import qualified Bolour.Util.Cache as Cache
 import Bolour.Util.MiscUtil (IOEither, IOExceptT)
-import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
-import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import BoardGame.Server.Domain.WordDictionary (WordDictionary)
+import qualified BoardGame.Server.Domain.WordDictionary as Dict
 
 import qualified Paths_boardgame as ResourcePaths
 
 -- | Cache of language dictionaries identified by language code.
 data DictionaryCache = DictionaryCache { -- private constructor
     dictionaryDirectory :: String -- private
-  , cache :: Cache String IndexedLanguageDictionary -- private
+  , cache :: Cache String WordDictionary -- private
 }
 
 -- | Factory function (constructor is private).
@@ -45,18 +45,18 @@ mkCache dictionaryDirectory capacity = do
   return $ DictionaryCache dictionaryDirectory theCache
 
 -- Look up a dictionary by language code.
-lookup :: String -> DictionaryCache -> IOExceptT String IndexedLanguageDictionary
+lookup :: String -> DictionaryCache -> IOExceptT String WordDictionary
 lookup languageCode (dictionaryCache @ DictionaryCache {dictionaryDirectory, cache}) = do
   let code = if null languageCode then Dict.defaultLanguageCode else languageCode
   Cache.lookup code cache `catchError` (\_ -> readDictionaryFile dictionaryCache code)
 
--- Get the dictionary for the default language (defined in IndexedLanguageDictionary).
-lookupDefault :: DictionaryCache -> IOExceptT String IndexedLanguageDictionary
+-- Get the dictionary for the default language (defined in WordDictionary).
+lookupDefault :: DictionaryCache -> IOExceptT String WordDictionary
 lookupDefault = lookup Dict.defaultLanguageCode
 
 -- Private functions.
 
-readDictionaryFile :: DictionaryCache -> String -> IOExceptT String IndexedLanguageDictionary
+readDictionaryFile :: DictionaryCache -> String -> IOExceptT String WordDictionary
 readDictionaryFile DictionaryCache {dictionaryDirectory, cache} languageCode = do
   path <- liftIO $ mkDictionaryPath dictionaryDirectory languageCode
   lines <- ExceptT $ catchAny (readDictionaryInternal path) showException

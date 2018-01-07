@@ -17,11 +17,11 @@ import qualified Data.ByteString.Char8 as BS
 import qualified Data.Either as Either
 import Control.Monad.Except (runExceptT)
 
-import BoardGame.Server.Domain.IndexedLanguageDictionary (
-    IndexedLanguageDictionary
-  , IndexedLanguageDictionary(IndexedLanguageDictionary)
+import BoardGame.Server.Domain.WordDictionary (
+    WordDictionary
+  , WordDictionary(WordDictionary)
   )
-import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.WordDictionary as Dict
 import BoardGame.Server.Domain.DictionaryCache (DictionaryCache)
 import qualified BoardGame.Server.Domain.DictionaryCache as Cache
 

@@ -27,7 +27,7 @@ import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Web.Converters(gameToStartGameResponse)
 import Bolour.Util.SpecUtil (satisfiesRight)
-import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.WordDictionary as Dict
 import qualified BoardGame.Server.Domain.TileSack as TileSack
 import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
 

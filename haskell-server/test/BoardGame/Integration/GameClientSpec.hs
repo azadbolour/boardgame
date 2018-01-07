@@ -59,9 +59,8 @@ import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import BoardGame.Server.Domain.GameEnv (GameEnv(GameEnv))
 import Bolour.Util.WaiUtil
 import qualified BoardGame.Client.GameClient as Client
-import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.WordDictionary as Dict
 import qualified BoardGame.Server.Domain.GameCache as GameCache
--- import qualified Bolour.Util.StaticTextFileCache as FileCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
 

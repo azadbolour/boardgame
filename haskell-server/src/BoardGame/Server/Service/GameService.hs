@@ -78,8 +78,8 @@ import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Board (Board, Board(Board))
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictionaryCache
-import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
-import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary)
+import qualified BoardGame.Server.Domain.WordDictionary as Dict
+import BoardGame.Server.Domain.WordDictionary (WordDictionary)
 import BoardGame.Server.Domain.PlayInfo (PlayInfo, PlayInfo(PlayInfo))
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack, liftGameExceptToStack)
@@ -150,7 +150,7 @@ stringExceptLifter except =
       exceptGame = errorMapper `withExceptT` except
   in lift (lift exceptGame)
 
-lookupDictionary :: String -> GameTransformerStack IndexedLanguageDictionary
+lookupDictionary :: String -> GameTransformerStack WordDictionary
 lookupDictionary languageCode = do
   GameEnv {dictionaryCache} <- ask
   stringExceptLifter $ DictionaryCache.lookup languageCode dictionaryCache

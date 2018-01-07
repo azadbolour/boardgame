@@ -8,7 +8,7 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module BoardGame.Server.Domain.IndexedDictionarySpec where
+module BoardGame.Server.Domain.WordDictionarySpec where
 
 import Test.Hspec
 
@@ -16,8 +16,8 @@ import qualified Data.List as List
 import qualified Data.ByteString.Char8 as BS
 import Data.ByteString.Char8 (ByteString)
 
-import BoardGame.Server.Domain.IndexedLanguageDictionary (IndexedLanguageDictionary, IndexedLanguageDictionary(IndexedLanguageDictionary))
-import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import BoardGame.Server.Domain.WordDictionary (WordDictionary, WordDictionary(WordDictionary))
+import qualified BoardGame.Server.Domain.WordDictionary as Dict
 
 stringWords :: [String]
 stringWords = ["GLASS", "TABLE", "SCREEN", "NO", "ON"]

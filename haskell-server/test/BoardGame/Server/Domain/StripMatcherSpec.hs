@@ -32,7 +32,7 @@ import qualified BoardGame.Server.Domain.IndexedStripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil
-import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
+import qualified BoardGame.Server.Domain.WordDictionary as Dict
 
 pce :: Char -> Maybe Piece
 pce s = Just $ Piece s "" -- Ignore id.
