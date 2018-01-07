@@ -19,18 +19,18 @@ Definition of the game grid and its dependencies.
 module BoardGame.Common.Domain.Grid (
     Grid(..)
   , mkGrid
-  , mkPointedGrid
-  , set
-  , setN
   , get
   , cell
+  , set
+  , setN
   , next
   , prev
-  , setPointedGridValues
   , filterGrid
   , concatGrid
   , concatFilter
   , adjacentCell
+  , mkPointedGrid
+  , setPointedGridValues
 ) where
 
 import Data.List
@@ -67,15 +67,6 @@ mkPointedGrid :: (Height -> Width -> val) -> Height -> Width -> Grid (GridValue 
 mkPointedGrid cellMaker =
   let pointedCellMaker row col = GridValue (cellMaker row col) (Point row col)
   in mkGrid pointedCellMaker
-
-filterGrid :: (val -> Bool) -> Grid val -> Grid val
-filterGrid predicate grid @ Grid{cells} = grid { cells = filter predicate <$> cells }
-
-concatGrid :: Grid val -> [val]
-concatGrid Grid{cells} = concat cells
-
-concatFilter :: (val -> Bool) -> Grid val -> [val]
-concatFilter predicate grid = concatGrid $ filterGrid predicate grid
 
 -- | Get a cell on the grid.
 get :: Grid val -> Point -> Maybe val
@@ -147,6 +138,15 @@ adjacentCell :: Grid val -> Point -> Axis -> Int -> Int -> Maybe val
 adjacentCell grid point axis direction limit =
   let calcAdj = if direction == 1 then next else prev
   in calcAdj grid point axis
+
+filterGrid :: (val -> Bool) -> Grid val -> Grid val
+filterGrid predicate grid @ Grid{cells} = grid { cells = filter predicate <$> cells }
+
+concatGrid :: Grid val -> [val]
+concatGrid Grid{cells} = concat cells
+
+concatFilter :: (val -> Bool) -> Grid val -> [val]
+concatFilter predicate grid = concatGrid $ filterGrid predicate grid
 
 
 
