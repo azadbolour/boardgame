@@ -93,7 +93,7 @@ nthNeighbor Point {row, col} axis direction steps =
 
 -- Assumes valid coordinates.
 getValidGridPiece :: Board -> Point -> GridPiece
-getValidGridPiece Board {grid} Point {row, col} = Grid.getValue grid row col
+getValidGridPiece Board {grid} point = Grid.cell grid point
 
 centerGridPoint :: Board -> Point
 centerGridPoint Board {dimension} = Point (dimension `div` 2) (dimension `div` 2)

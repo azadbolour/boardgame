@@ -14,8 +14,6 @@
 
 - Use smaller amazon machine. m3.large worked well.
 
-- Remove non-word double letters from the dictionary. WS, YE.
-
 - Create cleanup scripts for docker container and image.
 
 - App logs in docker should go to the data area so you can see them easily from the
@@ -54,7 +52,3 @@
 
 - Update root level README file.
 
-- Change docker names to reflect type of server -
-  
-    azadbolour/haskell-boardgame:0.2
-    azadbolour/scala-boardgame:0.2

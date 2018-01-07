@@ -95,11 +95,3 @@ multiplierForFirstOctantRelativeToCenter (point @ Point {row, col}) dimension =
         noMultiplier
 
 -- TODO. Best practices for alternatives of Int based on other ints.
-
-
-
-
-
-
-
-

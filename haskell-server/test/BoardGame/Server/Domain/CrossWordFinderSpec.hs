@@ -33,8 +33,8 @@ import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 pce :: Char -> Maybe Piece
 pce s = Just $ Piece s "" -- Ignore id.
 
-baseGrid :: Grid (Maybe Piece)
-baseGrid = Grid [
+baseGrid :: [[Maybe Piece]]
+baseGrid = [
 --        0        1        2        3        4        5
       [Nothing, Nothing, Nothing, Nothing, Nothing, Nothing] -- 0
     , [pce 'C', pce 'A', pce 'R', Nothing, Nothing, Nothing] -- 1
@@ -46,7 +46,7 @@ baseGrid = Grid [
 
 testGrid :: Grid GridPiece
 testGrid =
-  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (Grid.getValue baseGrid r c)
+  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseGrid !! r !! c)
   in Grid.mkPointedGrid cellMaker 6 6
 
 board = Board 6 testGrid
@@ -89,8 +89,8 @@ spec = do
        last `shouldBe` ('E', Point 2 5, True)
   describe "find cross plays" $
     it "should find vertical cross plays" $ do
-       let GridValue {value = piece3, point = point3} = Grid.getValue testGrid 2 3
-           GridValue {value = piece4, point = point4} = Grid.getValue testGrid 2 4
+       let GridValue {value = piece3, point = point3} = Grid.cell testGrid $ Point 2 3
+           GridValue {value = piece4, point = point4} = Grid.cell testGrid $ Point 2 4
            playPiece1 = PlayPiece (Piece 'L' "") (Point 2 1) True
            playPiece2 = PlayPiece (Piece 'O' "") (Point 2 2) True
            playPiece3 = PlayPiece piece3 point3 False

@@ -37,8 +37,8 @@ import qualified BoardGame.Server.Domain.IndexedLanguageDictionary as Dict
 pce :: Char -> Maybe Piece
 pce s = Just $ Piece s "" -- Ignore id.
 
-baseTestGrid :: Grid (Maybe Piece)
-baseTestGrid = Grid [
+baseTestGrid :: [[Maybe Piece]]
+baseTestGrid = [
 --        0        1        2        3        4        5
       [Nothing, Nothing, Nothing, pce 'C', Nothing, Nothing] -- 0
     , [Nothing, pce 'A', pce 'C', pce 'E', Nothing, Nothing] -- 1
@@ -48,8 +48,8 @@ baseTestGrid = Grid [
     , [Nothing, Nothing, Nothing, pce 'I', Nothing, Nothing] -- 5
   ]
 
-baseTestGrid1 :: Grid (Maybe Piece)
-baseTestGrid1 = Grid [
+baseTestGrid1 :: [[Maybe Piece]]
+baseTestGrid1 = [
 --        0        1        2        3        4        5        6
       [pce 'A', pce 'S', pce 'Q', pce 'U', pce 'A', pce 'R', pce 'E'] -- 0
     , [pce 'X', Nothing, Nothing, pce 'N', Nothing, Nothing, Nothing] -- 1
@@ -62,7 +62,7 @@ baseTestGrid1 = Grid [
 
 testGrid1 :: Grid GridPiece
 testGrid1 =
-  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (Grid.getValue baseTestGrid1 r c)
+  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseTestGrid1 !! r !! c)
   in Grid.mkPointedGrid cellMaker 7 7
 
 testBoard1 = Board 7 testGrid1
@@ -70,7 +70,7 @@ gridRows1 = Board.charRows testBoard1
 
 testGrid :: Grid GridPiece
 testGrid =
-  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (Grid.getValue baseTestGrid r c)
+  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseTestGrid !! r !! c)
   in Grid.mkPointedGrid cellMaker 6 6
 
 testBoard = Board 6 testGrid

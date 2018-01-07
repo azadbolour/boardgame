@@ -40,8 +40,8 @@ pce s = Just $ Piece s "" -- Ignore id.
 dimension = 5
 trayCapacity = 3
 
-baseGrid :: Grid (Maybe Piece)
-baseGrid = Grid [
+baseGrid :: [[Maybe Piece]]
+baseGrid = [
 --        0        1        2        3        4
       [Nothing, Nothing, Nothing, Nothing, Nothing] -- 0
     , [pce 'C', pce 'A', pce 'R', Nothing, Nothing] -- 1
@@ -52,7 +52,7 @@ baseGrid = Grid [
 
 testGrid :: Grid GridPiece
 testGrid =
-  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (Grid.getValue baseGrid r c)
+  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseGrid !! r !! c)
   in Grid.mkPointedGrid cellMaker dimension dimension
 
 board = Board dimension testGrid

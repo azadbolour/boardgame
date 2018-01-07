@@ -75,6 +75,8 @@ replacePiece (tray @ Tray {pieces}) index piece =
   let pieces' = setListElement pieces index piece
   in tray {pieces = pieces'}
 
+-- TODO. Check for existence.
+-- If non-existence is harmful, throw error. Else should not be monadic.
 removePieceByValue :: (MonadError GameError m) => Tray -> Char -> m (Piece, Tray)
 removePieceByValue tray @ Tray {capacity, pieces} letter = do
   index <- findPieceIndexByValue tray letter

@@ -368,8 +368,8 @@ stripMatchAsPlay :: (MonadError GameError m, MonadIO m) => Board -> Tray -> Stri
 stripMatchAsPlay (board @ Board {grid}) tray strip word = do
   let playPiecePeeler [] position (playPieces, tray) = return (playPieces, tray)
       playPiecePeeler (wordHead : wordTail) position (playPieces, tray) = do
-        let point @ Point {row, col} = stripPoint strip position
-            gridPiece @ GridValue {value = piece} = Grid.getValue grid row col
+        let point = stripPoint strip position
+            gridPiece @ GridValue {value = piece} = Grid.cell grid point
             moved = Piece.isEmpty piece
         (piece', tray') <- if not moved then return (piece, tray)
                              else Tray.removePieceByValue tray wordHead

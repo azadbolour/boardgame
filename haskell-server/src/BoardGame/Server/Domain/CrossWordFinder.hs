@@ -68,8 +68,6 @@ findSurroundingWord board point letter axis =
 findCrossPlays :: Board -> [PlayPiece] -> [[MoveInfo]]
 findCrossPlays (board @ Board {grid}) playPieces =
   let Grid {cells} = grid
-      -- TODO. Columns should be a member of grid. Refactor grid.
-      -- So columns computation can be reused.
       columns = transpose cells
       -- TODO. Internal error if fromJust fails.
       strip = fromJust $ Board.stripOfPlay board columns playPieces

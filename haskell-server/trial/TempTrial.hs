@@ -23,8 +23,8 @@ import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 pce :: Char -> Maybe Piece
 pce s = Just $ Piece s "" -- Ignore id.
 
-baseGrid :: Grid (Maybe Piece)
-baseGrid = Grid [
+baseGrid :: [[Maybe Piece]]
+baseGrid = [
 --        0        1        2        3        4
       [Nothing, Nothing, Nothing, Nothing, Nothing] -- 0
     , [pce 'C', pce 'A', pce 'R', Nothing, Nothing] -- 1
@@ -36,11 +36,10 @@ baseGrid = Grid [
 
 testGrid :: Grid GridPiece
 testGrid =
-  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (Grid.getValue baseGrid r c)
+  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseGrid !! r !! c)
   in Grid.mkPointedGrid cellMaker 5 5
 
 board = Board 5 testGrid
-
 
 main :: IO ()
 
