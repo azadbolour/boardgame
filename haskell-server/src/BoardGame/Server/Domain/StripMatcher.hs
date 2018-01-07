@@ -211,8 +211,8 @@ stripIsDisconnectedInLine (Board {dimension, grid}) (strip @ Strip {axis, begin,
       let f = Strip.stripPoint strip 0
           l = Strip.stripPoint strip (end - begin)
           -- limit = dimension
-          maybePrevGridPiece = Grid.prevValue grid f axis
-          maybeNextGridPiece = Grid.nextValue grid l axis
+          maybePrevGridPiece = Grid.prev grid f axis
+          maybeNextGridPiece = Grid.next grid l axis
           isSeparator maybeGridPiece =
             case maybeGridPiece of
               Nothing -> True

@@ -24,13 +24,8 @@ module BoardGame.Common.Domain.Grid (
   , setN
   , get
   , cell
-  , nextValue
-  , prevValue
-  -- , mapMatrixWithCoordinates
-  -- , kStrips
---   , stripsByLength
---   , matrixStrips
---   , matrixStripsByLength
+  , next
+  , prev
   , setPointedGridValues
   , filterGrid
   , concatGrid
@@ -115,39 +110,39 @@ inBounds Grid {height, width} row col =
   row >= 0 && row < height && col >= 0 && col < width
 
 -- | Get the next cell adjacent to a given cell on the grid.
-nextValue ::
+next ::
      Grid val           -- ^ The grid.
   -> Point              -- ^ The position of the anchor.
   -> Axis               -- ^ Horizontal or vertical next.
   -> Maybe val          -- ^ Next cell if there is one - Nothing if along the edge or out of bounds.
 
-nextValue (grid @ Grid {height, width}) (Point {row, col}) Axis.X =
+next (grid @ Grid {height, width}) (Point {row, col}) Axis.X =
   if not (inBounds grid row col) || col == width - 1
     then Nothing
     else get grid row (col + 1)
 
-nextValue (grid @ Grid {height, width}) (Point {row, col}) Axis.Y =
+next (grid @ Grid {height, width}) (Point {row, col}) Axis.Y =
   if not (inBounds grid row col) || row == height - 1
     then Nothing
     else get grid (row + 1) col
 
 -- | Get the previous cell adjacent to a given cell on the grid.
 --   See nextCell.
-prevValue :: Grid val -> Point -> Axis -> Maybe val
+prev :: Grid val -> Point -> Axis -> Maybe val
 
-prevValue (grid @ Grid {height, width}) (Point {row, col}) Axis.X =
+prev (grid @ Grid {height, width}) (Point {row, col}) Axis.X =
   if not (inBounds grid row col) || col == 0
     then Nothing
     else get grid row (col - 1)
 
-prevValue (grid @ Grid {height, width}) (Point {row, col}) Axis.Y =
+prev (grid @ Grid {height, width}) (Point {row, col}) Axis.Y =
   if not (inBounds grid row col) || row == 0
     then Nothing
     else get grid (row - 1) col
 
 adjacentCell :: Grid val -> Point -> Axis -> Int -> Int -> Maybe val
 adjacentCell grid point axis direction limit =
-  let calcAdj = if direction == 1 then nextValue else prevValue
+  let calcAdj = if direction == 1 then next else prev
   in calcAdj grid point axis
 
 
