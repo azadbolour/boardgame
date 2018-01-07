@@ -165,7 +165,7 @@ checkGridPoint board (point @ Point { row, col }) = do
 
 setBoardValue :: Board -> Point -> Piece -> Board
 setBoardValue board point piece =
-  board { grid = Grid.setGridValue (grid board) point (GridValue piece point) }
+  board { grid = Grid.set (grid board) point (GridValue piece point) }
 
 setBoardPieces :: Board -> [GridPiece] -> Board
 setBoardPieces board gridPieces =

@@ -20,17 +20,17 @@ module BoardGame.Common.Domain.Grid (
     Grid(..)
   , mkGrid
   , mkPointedGrid
-  , setGridValue
-  , setGridValues
-  , getValue
+  , set
+  , setN
+  , get
   , cell
   , nextValue
   , prevValue
-  , mapMatrixWithCoordinates
-  , kStrips
-  , stripsByLength
-  , matrixStrips
-  , matrixStripsByLength
+  -- , mapMatrixWithCoordinates
+  -- , kStrips
+--   , stripsByLength
+--   , matrixStrips
+--   , matrixStripsByLength
   , setPointedGridValues
   , filterGrid
   , concatGrid
@@ -83,32 +83,32 @@ concatFilter :: (val -> Bool) -> Grid val -> [val]
 concatFilter predicate grid = concatGrid $ filterGrid predicate grid
 
 -- | Update the value of a cell on the grid.
-setGridValue ::
+set ::
      Grid val     -- ^ The grid.
   -> Point        -- ^ The coordinates of the cell being updated.
   -> val          -- ^ The new value of the grid cell.
   -> Grid val     -- ^ The updated grid.
 
-setGridValue grid Point { row, col } value =
+set grid Point { row, col } value =
   let contents = cells grid
       updated = Util.setListElement contents row (Util.setListElement (contents !! row) col value)
   in grid { cells = updated }
 
-setGridValues :: Grid val -> [GridValue val] -> Grid val
-setGridValues = foldl' (\grid GridValue {value, point} -> setGridValue grid point value)
+setN :: Grid val -> [GridValue val] -> Grid val
+setN = foldl' (\grid GridValue {value, point} -> set grid point value)
 
 setPointedGridValues :: Grid (GridValue val) -> [GridValue val] -> Grid (GridValue val)
 setPointedGridValues =
-  foldl' (\grid gridVal -> setGridValue grid (GridValue.point gridVal) gridVal)
+  foldl' (\grid gridVal -> set grid (GridValue.point gridVal) gridVal)
 
 -- | Get a cell on the grid.
-getValue :: Grid val -> Height -> Width -> Maybe val
-getValue grid @ Grid {cells} row col =
+get :: Grid val -> Height -> Width -> Maybe val
+get grid @ Grid {cells} row col =
   if not (inBounds grid row col) then Nothing
   else Just $ cells !! row !! col
 
 cell :: Grid val -> Point -> val
-cell grid (Point {row, col}) = fromJust $ getValue grid row col
+cell grid (Point {row, col}) = fromJust $ get grid row col
 
 inBounds :: Grid val -> Height -> Width -> Bool
 inBounds Grid {height, width} row col =
@@ -124,12 +124,12 @@ nextValue ::
 nextValue (grid @ Grid {height, width}) (Point {row, col}) Axis.X =
   if not (inBounds grid row col) || col == width - 1
     then Nothing
-    else getValue grid row (col + 1)
+    else get grid row (col + 1)
 
 nextValue (grid @ Grid {height, width}) (Point {row, col}) Axis.Y =
   if not (inBounds grid row col) || row == height - 1
     then Nothing
-    else getValue grid (row + 1) col
+    else get grid (row + 1) col
 
 -- | Get the previous cell adjacent to a given cell on the grid.
 --   See nextCell.
@@ -138,12 +138,12 @@ prevValue :: Grid val -> Point -> Axis -> Maybe val
 prevValue (grid @ Grid {height, width}) (Point {row, col}) Axis.X =
   if not (inBounds grid row col) || col == 0
     then Nothing
-    else getValue grid row (col - 1)
+    else get grid row (col - 1)
 
 prevValue (grid @ Grid {height, width}) (Point {row, col}) Axis.Y =
   if not (inBounds grid row col) || row == 0
     then Nothing
-    else getValue grid (row - 1) col
+    else get grid (row - 1) col
 
 adjacentCell :: Grid val -> Point -> Axis -> Int -> Int -> Maybe val
 adjacentCell grid point axis direction limit =
@@ -152,33 +152,34 @@ adjacentCell grid point axis direction limit =
 
 
 
--- TODO. Move the functions below to separate list utility class.
+-- TODO. If needed, move the functions below to separate list utility class.
+-- They could be useful in cleaning up strip code.
 -- | Map a function of coordinates and cells onto a matrix.
-mapMatrixWithCoordinates :: [[a]] -> (Coordinate -> Coordinate -> a -> b) -> [[b]]
-mapMatrixWithCoordinates matrix mapper =
-  zipWith rowAdder [0 .. length matrix - 1] matrix
-  where rowAdder rowNum line = zipWith (mapper rowNum) [0 .. length line - 1] line
+-- mapMatrixWithCoordinates :: [[a]] -> (Coordinate -> Coordinate -> a -> b) -> [[b]]
+-- mapMatrixWithCoordinates matrix mapper =
+--   zipWith rowAdder [0 .. length matrix - 1] matrix
+--   where rowAdder rowNum line = zipWith (mapper rowNum) [0 .. length line - 1] line
 
 -- | Get contiguous sub-lists (strips) of a given length k.
-kStrips :: [a] -> Int -> [[a]]
-kStrips list size = (\i -> (take size . drop i) list) <$> [0 .. length list - size]
+-- kStrips :: [a] -> Int -> [[a]]
+-- kStrips list size = (\i -> (take size . drop i) list) <$> [0 .. length list - size]
 
 -- V.generate (V.length vector - size + 1) (\pos -> V.slice pos size vector)
 
 -- | Get sets of strips of a vector indexed by length.
 --   Zero is included as a length, so that the resulting vector
 --   can be indexed simply by length.
-stripsByLength :: [a] -> [[[a]]]
-stripsByLength list = kStrips list <$> [0 .. length list]
+-- stripsByLength :: [a] -> [[[a]]]
+-- stripsByLength list = kStrips list <$> [0 .. length list]
 
 -- | Get all strips of a matrix - indexed by row, then by strip length.
 --   The indexing dimensions are: row, length, col, position in strip.
-matrixStrips :: [[a]] -> [[[[a]]]]
-matrixStrips matrix = stripsByLength <$> matrix
+-- matrixStrips :: [[a]] -> [[[[a]]]]
+-- matrixStrips matrix = stripsByLength <$> matrix
 
 -- | Get all the strips of a matrix indexed by length.
 --   The indexing dimensions are length, strip-number, position in strip.
-matrixStripsByLength :: [[a]] -> [[[a]]]
-matrixStripsByLength matrix =
-  foldl1' pairwiseConcat (matrixStrips matrix)
-  where pairwiseConcat = zipWith (++)
+-- matrixStripsByLength :: [[a]] -> [[[a]]]
+-- matrixStripsByLength matrix =
+--   foldl1' pairwiseConcat (matrixStrips matrix)
+--   where pairwiseConcat = zipWith (++)
