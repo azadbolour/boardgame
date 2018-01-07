@@ -95,7 +95,7 @@ import qualified BoardGame.Server.Domain.PlayDetails as PlayDetails
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv (GameEnv(..))
 import BoardGame.Server.Domain.ServerConfig as ServerConfig
 import qualified BoardGame.Server.Domain.ServerConfig as ServerParameters
-import qualified BoardGame.Server.Domain.IndexedStripMatcher as Matcher
+import qualified BoardGame.Server.Domain.StripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import qualified BoardGame.Server.Domain.TileSack as TileSack

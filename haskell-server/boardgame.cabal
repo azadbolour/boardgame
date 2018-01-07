@@ -89,7 +89,7 @@ library
       BoardGame.Server.Domain.Tray
       BoardGame.Server.Domain.PlayInfo
       BoardGame.Server.Domain.PlayDetails
-      BoardGame.Server.Domain.IndexedStripMatcher
+      BoardGame.Server.Domain.StripMatcher
       BoardGame.Server.Domain.WordDictionary
       BoardGame.Server.Domain.GameCache
       BoardGame.Server.Domain.GameEnv

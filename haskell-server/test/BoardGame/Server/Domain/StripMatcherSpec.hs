@@ -28,7 +28,7 @@ import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
 import BoardGame.Server.Domain.Board (Board(Board))
 import qualified BoardGame.Server.Domain.Board as Board
-import qualified BoardGame.Server.Domain.IndexedStripMatcher as Matcher
+import qualified BoardGame.Server.Domain.StripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil

@@ -7,7 +7,7 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module BoardGame.Server.Domain.IndexedStripMatcher (
+module BoardGame.Server.Domain.StripMatcher (
     wordFitsContent
   , findFittingWord
   , matchFittingCombos
