@@ -33,10 +33,8 @@ import qualified BoardGame.Common.Domain.GridValue as GridValue
 import qualified BoardGame.Common.Domain.GridPiece as GridPiece
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, MoveInfo)
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
-import BoardGame.Server.Domain.Board (Board, Board(Board))
+import BoardGame.Server.Domain.Board (Board)
 import qualified BoardGame.Server.Domain.Board as Board
-import BoardGame.Common.Domain.Grid (Grid, Grid(Grid))
-import qualified BoardGame.Common.Domain.Grid as Grid
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import qualified BoardGame.Server.Domain.Strip as Strip
 import qualified Data.ByteString.Char8 as BS
@@ -66,9 +64,8 @@ findSurroundingWord board point letter axis =
   in ((\(char, _, _) -> char) <$>) <$> play
 
 findCrossPlays :: Board -> [PlayPiece] -> [[MoveInfo]]
-findCrossPlays (board @ Board {grid}) playPieces =
-  let Grid {cells} = grid
-      columns = transpose cells
+findCrossPlays board playPieces =
+  let columns = Board.cols board
       -- TODO. Internal error if fromJust fails.
       strip = fromJust $ Board.stripOfPlay board columns playPieces
       word = PlayPiece.playPiecesToWord playPieces
@@ -110,18 +107,20 @@ findCrossPlay board point letter axis =
               in (ch, neighbor, moved)
 
 farthestNeighbor :: Board -> Point -> Axis -> Int -> Point
-farthestNeighbor (board @ Board {dimension, grid}) point axis direction =
+farthestNeighbor board point axis direction =
    -- The starting point is special since it is empty.
    -- Crossword analysis is done before the new tiles of a play are laid down.
    if (not $ Board.inBounds board neighbor) || Board.pointIsEmpty board neighbor
    then point
    else
-      let neighbors = Board.nthNeighbor point axis direction <$> [1 .. dimension - 1]
+      let dimension = Board.dimension board
+          neighbors = Board.nthNeighbor point axis direction <$> [1 .. dimension - 1]
       in fromJust $ find isBoundary neighbors
          where
            neighbor = Board.nthNeighbor point axis direction 1
            isBoundary pt =
-             let maybeCell = Grid.adjacentCell grid pt axis direction dimension
+             let dimension = Board.dimension board
+                 maybeCell = Board.adjacentCell board pt axis direction dimension
                  maybeNextPiece = GridValue.value <$> maybeCell
                  nextPtIsEmpty = case maybeNextPiece of
                                   Nothing -> True

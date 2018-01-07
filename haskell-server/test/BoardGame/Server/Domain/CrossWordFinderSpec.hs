@@ -22,7 +22,6 @@ import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
 import qualified BoardGame.Common.Domain.GridValue as GridValue
-import BoardGame.Server.Domain.Board (Board(Board))
 import qualified BoardGame.Server.Domain.Board as Board
 
 import BoardGame.Common.Domain.Point (Point, Point(Point))
@@ -44,12 +43,13 @@ baseGrid = [
     , [Nothing, Nothing, Nothing, Nothing, Nothing, Nothing] -- 5
   ]
 
-testGrid :: Grid GridPiece
-testGrid =
-  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseGrid !! r !! c)
-  in Grid.mkPointedGrid cellMaker 6 6
+-- testGrid :: Grid GridPiece
+-- testGrid =
+--   let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseGrid !! r !! c)
+--   in Grid.mkPointedGrid cellMaker 6 6
 
-board = Board 6 testGrid
+-- board = Board 6 testGrid
+board = Board.mkBoardFromPieces baseGrid 6
 
 findExpectedCrossPlay board point ch axis = fromJust $ CrossWordFinder.findCrossPlay board point ch axis
 
@@ -89,8 +89,8 @@ spec = do
        last `shouldBe` ('E', Point 2 5, True)
   describe "find cross plays" $
     it "should find vertical cross plays" $ do
-       let GridValue {value = piece3, point = point3} = Grid.cell testGrid $ Point 2 3
-           GridValue {value = piece4, point = point4} = Grid.cell testGrid $ Point 2 4
+       let GridValue {value = piece3, point = point3} = Board.cell board $ Point 2 3
+           GridValue {value = piece4, point = point4} = Board.cell board $ Point 2 4
            playPiece1 = PlayPiece (Piece 'L' "") (Point 2 1) True
            playPiece2 = PlayPiece (Piece 'O' "") (Point 2 2) True
            playPiece3 = PlayPiece piece3 point3 False

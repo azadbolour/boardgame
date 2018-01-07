@@ -24,7 +24,6 @@ import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
 import qualified BoardGame.Common.Domain.GridValue as GridValue
 import BoardGame.Common.Domain.ScoreMultiplier (ScoreMultiplier, ScoreMultiplier(ScoreMultiplier))
 import qualified BoardGame.Common.Domain.ScoreMultiplier as ScoreMultiplier
-import BoardGame.Server.Domain.Board (Board(Board))
 import qualified BoardGame.Server.Domain.Board as Board
 
 import BoardGame.Common.Domain.Point (Point, Point(Point))
@@ -50,12 +49,12 @@ baseGrid = [
     , [Nothing, Nothing, Nothing, pce 'E', pce 'X'] -- 4
   ]
 
-testGrid :: Grid GridPiece
-testGrid =
-  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseGrid !! r !! c)
-  in Grid.mkPointedGrid cellMaker dimension dimension
+-- testGrid :: Grid GridPiece
+-- testGrid =
+--   let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseGrid !! r !! c)
+--   in Grid.mkPointedGrid cellMaker dimension dimension
 
-board = Board dimension testGrid
+board = Board.mkBoardFromPieces baseGrid dimension
 
 scorer = Scorer.mkScorer dimension trayCapacity
 scoreWord = Scorer.scoreWord scorer

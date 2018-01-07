@@ -73,9 +73,8 @@ import BoardGame.Server.Domain.Play (Play)
 import qualified BoardGame.Server.Domain.Play as Play
 import BoardGame.Server.Domain.Tray (Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
-import qualified BoardGame.Common.Domain.Grid as Grid
 import qualified BoardGame.Server.Domain.Board as Board
-import BoardGame.Server.Domain.Board (Board, Board(Board))
+import BoardGame.Server.Domain.Board (Board)
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictionaryCache
 import qualified BoardGame.Server.Domain.WordDictionary as Dict
@@ -365,11 +364,11 @@ stripPoint (strip @ Strip {axis, lineNumber, begin}) offset =
 -- | Effect of a strip match in terms of play pieces.
 stripMatchAsPlay :: (MonadError GameError m, MonadIO m) => Board -> Tray -> Strip -> DictWord -> m ([PlayPiece], Tray)
 
-stripMatchAsPlay (board @ Board {grid}) tray strip word = do
+stripMatchAsPlay board tray strip word = do
   let playPiecePeeler [] position (playPieces, tray) = return (playPieces, tray)
       playPiecePeeler (wordHead : wordTail) position (playPieces, tray) = do
         let point = stripPoint strip position
-            gridPiece @ GridValue {value = piece} = Grid.cell grid point
+            gridPiece @ GridValue {value = piece} = Board.cell board point
             moved = Piece.isEmpty piece
         (piece', tray') <- if not moved then return (piece, tray)
                              else Tray.removePieceByValue tray wordHead

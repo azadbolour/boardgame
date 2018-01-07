@@ -24,18 +24,13 @@ import qualified Data.ByteString.Char8 as BS
 import Data.ByteString.Char8 (ByteString)
 
 import qualified BoardGame.Common.Domain.Piece as Piece
--- import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
--- import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
 import qualified BoardGame.Common.Domain.GridValue as GridValue
--- import BoardGame.Common.Domain.GridPiece (GridPiece)
 import qualified BoardGame.Common.Domain.Point as Axis
 import BoardGame.Common.Domain.Point (Coordinate)
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil
-import BoardGame.Server.Domain.Board (Board, Board(Board))
+import BoardGame.Server.Domain.Board (Board)
 import qualified BoardGame.Server.Domain.Board as Board
-import qualified BoardGame.Common.Domain.Grid as Grid
--- import BoardGame.Common.Domain.Grid (Grid, Grid(Grid))
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.WordDictionary (WordDictionary(WordDictionary))
@@ -155,8 +150,9 @@ findOptimalMatch ::
   -> String     -- ^ available characters that can be played
   -> Maybe (Strip, DictWord)
 
-findOptimalMatch dictionary (board @ Board {dimension}) trayContent =
-  let trayLength = length trayContent
+findOptimalMatch dictionary board trayContent =
+  let dimension = Board.dimension board
+      trayLength = length trayContent
       playableStrips = computePlayableStrips board trayLength
       trayBytes = BS.pack trayContent
       playableCombos = WordUtil.computeCombosGroupedByLength trayBytes
@@ -171,7 +167,9 @@ computePlayableStrips ::
   -> Map ByteCount (Map BlankCount [Strip])
 
 -- TODO. Assume for now that height and width are the same. Fix.
-computePlayableStrips (board @ Board {dimension}) trayCapacity =
+computePlayableStrips board trayCapacity =
+  let dimension = Board.dimension board
+  in
   if Board.isEmpty board then
     emptyCenterStripsByLengthByBlanks dimension
   else
@@ -205,14 +203,14 @@ stripBlanksAreFreeCrosswise board (strip @ Strip {axis}) =
 --   since a matching word will run into the neighbors. However, a containing
 --   strip will be playable and so we can forget about this strip.
 stripIsDisconnectedInLine :: Board -> Strip -> Bool
-stripIsDisconnectedInLine (Board {dimension, grid}) (strip @ Strip {axis, begin, end, content})
+stripIsDisconnectedInLine board (strip @ Strip {axis, begin, end, content})
   | (BS.null content) = False
   | otherwise =
       let f = Strip.stripPoint strip 0
           l = Strip.stripPoint strip (end - begin)
           -- limit = dimension
-          maybePrevGridPiece = Grid.prev grid f axis
-          maybeNextGridPiece = Grid.next grid l axis
+          maybePrevGridPiece = Board.prev board f axis
+          maybeNextGridPiece = Board.next board l axis
           isSeparator maybeGridPiece =
             case maybeGridPiece of
               Nothing -> True

@@ -11,7 +11,14 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module BoardGame.Server.Domain.Board (
-    Board(..)
+    Board
+  , Board(dimension)
+  , rows
+  , cols
+  , next
+  , prev
+  , cell
+  , adjacentCell
   , mkBoard
   , mkOKBoard
   , mkBoardGridPoint
@@ -19,7 +26,7 @@ module BoardGame.Server.Domain.Board (
   , setBoardValue
   , getValidGridPiece
   , getGridPieces
-  , mkBoardFromGridPieces
+  , mkBoardFromPieces
   , setBoardPieces
   , centerGridPoint
   , validPositionIsFree
@@ -38,6 +45,7 @@ module BoardGame.Server.Domain.Board (
 where
 
 import Data.List
+import qualified Data.Maybe as Maybe
 import qualified Data.ByteString.Char8 as BS
 
 import Control.Monad.Except (MonadError(..))
@@ -66,6 +74,30 @@ data Board = Board {
   , grid :: Grid GridPiece
 }
   deriving (Show)
+
+-- TODO. Check rectangular. Check parameters.
+mkBoardFromPieces :: [[Maybe Piece]] -> Coordinate -> Board
+mkBoardFromPieces cells dimension =
+  let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (cells !! r !! c)
+      grid = Grid.mkPointedGrid cellMaker dimension dimension
+  in Board dimension grid
+
+rows :: Board -> [[GridPiece]]
+rows Board {grid} = Grid.cells grid
+
+cols :: Board -> [[GridPiece]]
+cols = transpose . rows
+
+next :: Board -> Point -> Axis -> Maybe GridPiece
+next Board {grid} = Grid.next grid
+
+prev :: Board -> Point -> Axis -> Maybe GridPiece
+prev Board {grid} = Grid.prev grid
+
+-- TODO. No need for limit!
+adjacentCell :: Board -> Point -> Axis -> Int -> Int -> Maybe GridPiece
+adjacentCell Board {grid} = Grid.adjacentCell grid
+
 
 getPiece :: Board -> Point -> Piece
 getPiece Board { grid } point =
@@ -98,13 +130,13 @@ getValidGridPiece Board {grid} point = Grid.cell grid point
 centerGridPoint :: Board -> Point
 centerGridPoint Board {dimension} = Point (dimension `div` 2) (dimension `div` 2)
 
-gridPiecesToGrid :: Coordinate -> [GridPiece] -> Grid GridPiece
-gridPiecesToGrid dimension gridPieces =
-  let findGridPiece point = find ((== point) . GridValue.point) gridPieces
-      cellMaker r c = case findGridPiece $ Point r c of
-                        Nothing -> Piece.emptyPiece
-                        Just GridValue.GridValue {value} -> value
-  in Grid.mkPointedGrid cellMaker dimension dimension
+-- gridPiecesToGrid :: Coordinate -> [GridPiece] -> Grid GridPiece
+-- gridPiecesToGrid dimension gridPieces =
+--   let findGridPiece point = find ((== point) . GridValue.point) gridPieces
+--       cellMaker r c = case findGridPiece $ Point r c of
+--                         Nothing -> Piece.emptyPiece
+--                         Just GridValue.GridValue {value} -> value
+--   in Grid.mkPointedGrid cellMaker dimension dimension
 
 filterNonEmptyGridPieces :: [GridPiece] -> [GridPiece]
 filterNonEmptyGridPieces = filter ((/= Piece.emptyPiece) . GridValue.value)
@@ -117,8 +149,8 @@ getGridPieces Board {grid} =
 getGridPiecesOfCells :: [[GridPiece]] -> [GridPiece]
 getGridPiecesOfCells cells = concat $ filterNonEmptyGridPieces <$> cells
 
-mkBoardFromGridPieces :: Coordinate -> [GridPiece] -> Board
-mkBoardFromGridPieces dimension gridPieces = Board dimension $ gridPiecesToGrid dimension gridPieces
+-- mkBoardFromGridPieces :: Coordinate -> [GridPiece] -> Board
+-- mkBoardFromGridPieces dimension gridPieces = Board dimension $ gridPiecesToGrid dimension gridPieces
 
 mkBoardGridPoint :: Board -> Coordinate -> Coordinate -> Either GameError Point
 mkBoardGridPoint board row col =
