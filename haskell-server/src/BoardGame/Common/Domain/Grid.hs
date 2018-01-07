@@ -77,6 +77,15 @@ concatGrid Grid{cells} = concat cells
 concatFilter :: (val -> Bool) -> Grid val -> [val]
 concatFilter predicate grid = concatGrid $ filterGrid predicate grid
 
+-- | Get a cell on the grid.
+get :: Grid val -> Point -> Maybe val
+get grid @ Grid {cells} Point {row, col} = get' grid row col
+
+get' :: Grid val -> Height -> Width -> Maybe val
+get' grid @ Grid {cells} row col =
+  if not (inBounds grid row col) then Nothing
+  else Just $ cells !! row !! col
+
 -- | Update the value of a cell on the grid.
 set ::
      Grid val     -- ^ The grid.
@@ -96,14 +105,8 @@ setPointedGridValues :: Grid (GridValue val) -> [GridValue val] -> Grid (GridVal
 setPointedGridValues =
   foldl' (\grid gridVal -> set grid (GridValue.point gridVal) gridVal)
 
--- | Get a cell on the grid.
-get :: Grid val -> Height -> Width -> Maybe val
-get grid @ Grid {cells} row col =
-  if not (inBounds grid row col) then Nothing
-  else Just $ cells !! row !! col
-
 cell :: Grid val -> Point -> val
-cell grid (Point {row, col}) = fromJust $ get grid row col
+cell grid = fromJust . get grid
 
 inBounds :: Grid val -> Height -> Width -> Bool
 inBounds Grid {height, width} row col =
@@ -119,12 +122,12 @@ next ::
 next (grid @ Grid {height, width}) (Point {row, col}) Axis.X =
   if not (inBounds grid row col) || col == width - 1
     then Nothing
-    else get grid row (col + 1)
+    else get' grid row (col + 1)
 
 next (grid @ Grid {height, width}) (Point {row, col}) Axis.Y =
   if not (inBounds grid row col) || row == height - 1
     then Nothing
-    else get grid (row + 1) col
+    else get' grid (row + 1) col
 
 -- | Get the previous cell adjacent to a given cell on the grid.
 --   See nextCell.
@@ -133,12 +136,12 @@ prev :: Grid val -> Point -> Axis -> Maybe val
 prev (grid @ Grid {height, width}) (Point {row, col}) Axis.X =
   if not (inBounds grid row col) || col == 0
     then Nothing
-    else get grid row (col - 1)
+    else get' grid row (col - 1)
 
 prev (grid @ Grid {height, width}) (Point {row, col}) Axis.Y =
   if not (inBounds grid row col) || row == 0
     then Nothing
-    else get grid (row - 1) col
+    else get' grid (row - 1) col
 
 adjacentCell :: Grid val -> Point -> Axis -> Int -> Int -> Maybe val
 adjacentCell grid point axis direction limit =
