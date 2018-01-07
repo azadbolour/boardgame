@@ -79,12 +79,12 @@ concatFilter predicate grid = concatGrid $ filterGrid predicate grid
 
 -- | Get a cell on the grid.
 get :: Grid val -> Point -> Maybe val
-get grid @ Grid {cells} Point {row, col} = get' grid row col
+get grid @ Grid {cells} (point @ Point {row, col}) =
+  if not (inBounds grid point) then Nothing
+  else Just $ cells !! row !! col
 
 get' :: Grid val -> Height -> Width -> Maybe val
-get' grid @ Grid {cells} row col =
-  if not (inBounds grid row col) then Nothing
-  else Just $ cells !! row !! col
+get' grid @ Grid {cells} row col = get grid $ Point row col
 
 -- | Update the value of a cell on the grid.
 set ::
@@ -108,8 +108,8 @@ setPointedGridValues =
 cell :: Grid val -> Point -> val
 cell grid = fromJust . get grid
 
-inBounds :: Grid val -> Height -> Width -> Bool
-inBounds Grid {height, width} row col =
+inBounds :: Grid val -> Point -> Bool
+inBounds Grid {height, width} Point {row, col} =
   row >= 0 && row < height && col >= 0 && col < width
 
 -- | Get the next cell adjacent to a given cell on the grid.
@@ -119,13 +119,13 @@ next ::
   -> Axis               -- ^ Horizontal or vertical next.
   -> Maybe val          -- ^ Next cell if there is one - Nothing if along the edge or out of bounds.
 
-next (grid @ Grid {height, width}) (Point {row, col}) Axis.X =
-  if not (inBounds grid row col) || col == width - 1
+next (grid @ Grid {height, width}) (point @ (Point {row, col})) Axis.X =
+  if not (inBounds grid point) || col == width - 1
     then Nothing
     else get' grid row (col + 1)
 
-next (grid @ Grid {height, width}) (Point {row, col}) Axis.Y =
-  if not (inBounds grid row col) || row == height - 1
+next (grid @ Grid {height, width}) (point @ (Point {row, col})) Axis.Y =
+  if not (inBounds grid point) || row == height - 1
     then Nothing
     else get' grid (row + 1) col
 
@@ -133,13 +133,13 @@ next (grid @ Grid {height, width}) (Point {row, col}) Axis.Y =
 --   See nextCell.
 prev :: Grid val -> Point -> Axis -> Maybe val
 
-prev (grid @ Grid {height, width}) (Point {row, col}) Axis.X =
-  if not (inBounds grid row col) || col == 0
+prev (grid @ Grid {height, width}) (point @ (Point {row, col})) Axis.X =
+  if not (inBounds grid point) || col == 0
     then Nothing
     else get' grid row (col - 1)
 
-prev (grid @ Grid {height, width}) (Point {row, col}) Axis.Y =
-  if not (inBounds grid row col) || row == 0
+prev (grid @ Grid {height, width}) (point @ (Point {row, col})) Axis.Y =
+  if not (inBounds grid point) || row == 0
     then Nothing
     else get' grid (row - 1) col
 
