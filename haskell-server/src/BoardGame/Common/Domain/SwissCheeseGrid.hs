@@ -14,18 +14,24 @@
 
 module BoardGame.Common.Domain.SwissCheeseGrid (
       SwissCheeseGrid
-    , mkSwissCheeseGrid
+    , mkGrid
+    , mkEmptyGrid
     , height
     , width
     , cells
     , get
+    , getJusts
     , set
+    , setN
     , next
     , prev
     , adjacent
+    , isolatedInLine
     , inBounds
   ) where
 
+import Data.List
+import Data.Maybe (isJust, fromJust, isNothing)
 import BoardGame.Common.Domain.Point (Point, Point(Point), Axis, Coordinate, Height, Width)
 import qualified BoardGame.Common.Domain.Point as Axis
 import qualified BoardGame.Common.Domain.Point as Point
@@ -39,25 +45,34 @@ data SwissCheeseGrid val = SwissCheeseGrid {
   , width :: Width
   , cells :: [[LocatedValue val]]
   , get :: Point -> Maybe val
+  , getJusts :: [(val, Point)]
   , set :: Point -> Maybe val -> SwissCheeseGrid val
+  , setN :: [(Maybe val, Point)] -> SwissCheeseGrid val
   , next :: Point -> Axis -> Maybe val
   , prev :: Point -> Axis -> Maybe val
   , adjacent :: Point -> Axis -> Int -> Maybe val
+  , isolatedInLine :: Point -> Axis -> Bool
   , inBounds :: Point -> Bool
 }
 
 instance (Show val) => Show (SwissCheeseGrid val)
   where show SwissCheeseGrid {cells} = show cells
 
-mkSwissCheeseGrid :: (Height -> Width -> Maybe val) -> Height -> Width -> SwissCheeseGrid val
-mkSwissCheeseGrid cellMaker height width =
+mkGrid :: (Height -> Width -> Maybe val) -> Height -> Width -> SwissCheeseGrid val
+mkGrid cellMaker height width =
   let pointedCellMaker row col = (cellMaker row col, Point row col)
       grid = Grid.mkGrid pointedCellMaker height width
   in mkInternal grid
 
+mkEmptyGrid :: Height -> Width -> SwissCheeseGrid val
+mkEmptyGrid = mkGrid (\height width -> Nothing)
+
+-- TODO. Any way to add type signatures to functions below for clarity.
+-- Compiler did not accept scoped types with type parameters.
+
 mkInternal :: Grid (LocatedValue val) -> SwissCheeseGrid val
 mkInternal grid @ Grid {height, width, cells} =
-  SwissCheeseGrid height width cells get set next prev adjacent inBounds
+  SwissCheeseGrid height width cells get getJusts set setN next prev adjacent isolated inBounds
     where get point = do
             (maybeVal, _) <- Grid.get grid point
             maybeVal
@@ -74,5 +89,15 @@ mkInternal grid @ Grid {height, width, cells} =
             let calcAdj = if direction == 1 then next else prev
             in calcAdj point axis
           inBounds = Grid.inBounds grid
-
+          setN locatedPoints =
+            let addPoint located @ (value, point) = (located, point)
+                locatedPoints' = addPoint <$> locatedPoints
+                grid' = Grid.setN grid locatedPoints'
+            in mkInternal grid'
+          getJusts =
+            let justs = filter (\(may, point) -> isJust may) (Grid.concatGrid grid)
+                mapper (may, point) = (fromJust may, point)
+            in mapper <$> justs
+          isolated point axis =
+             isNothing (next point axis) && isNothing (prev point axis)
 

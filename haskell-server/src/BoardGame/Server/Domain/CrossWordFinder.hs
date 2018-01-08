@@ -65,7 +65,7 @@ findSurroundingWord board point letter axis =
 
 findCrossPlays :: Board -> [PlayPiece] -> [[MoveInfo]]
 findCrossPlays board playPieces =
-  let columns = Board.cols board
+  let columns = Board.colsAsPieces board
       -- TODO. Internal error if fromJust fails.
       strip = fromJust $ Board.stripOfPlay board columns playPieces
       word = PlayPiece.playPiecesToWord playPieces
@@ -101,8 +101,10 @@ findCrossPlay board point letter axis =
      where findBoundary = farthestNeighbor board point axis
            playInfo lineIndex =
               let neighbor = Point.colinearPoint point axis lineIndex
-                  moved = neighbor == point -- The only moved point in a cross play.
-                  Piece { value } = Board.getPiece board neighbor
+                  -- The only moved point in a cross play is the point itself.
+                  moved = neighbor == point
+                  -- lineIndex is always valid - hence so is the neighbor
+                  Piece { value } = fromJust $ Board.get board neighbor
                   ch = if moved then letter else value
               in (ch, neighbor, moved)
 
@@ -120,8 +122,8 @@ farthestNeighbor board point axis direction =
            neighbor = Board.nthNeighbor point axis direction 1
            isBoundary pt =
              let dimension = Board.dimension board
-                 maybeCell = Board.adjacentCell board pt axis direction dimension
-                 maybeNextPiece = GridValue.value <$> maybeCell
+                 maybeNextPiece = Board.adjacent board pt axis direction
+                 -- maybeNextPiece = GridValue.value <$> maybeCell
                  nextPtIsEmpty = case maybeNextPiece of
                                   Nothing -> True
                                   Just piece -> Piece.isEmpty piece

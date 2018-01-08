@@ -154,7 +154,7 @@ mkInitialGame :: (MonadError GameError m, MonadIO m) =>
 mkInitialGame gameParams tileSack initGridPieces initUserPieces initMachinePieces playerName = do
   let GameParams.GameParams { dimension, trayCapacity, languageCode } = gameParams
   gameId <- Util.mkUuid
-  board <- Board.mkBoard dimension
+  let board = Board.mkEmptyBoard dimension
   board' <- primeBoard board initGridPieces
   now <- liftIO getCurrentTime
   let emptyTray = Tray trayCapacity []
@@ -209,7 +209,7 @@ summary game @ Game {trays, scores} =
 primeBoard :: MonadIO m => Board -> [GridPiece] -> m Board
 primeBoard board inputGridPieces = do
   -- defaultGridPieces <- defaultInitialGridPieces board
-  let addGridPiece bd (GridValue.GridValue {value = piece, point}) = Board.setBoardValue bd point piece
+  let addGridPiece bd (GridValue.GridValue {value = piece, point}) = Board.set bd point piece
       board' = foldl' addGridPiece board inputGridPieces
   return board'
 
@@ -242,15 +242,15 @@ checkContiguousPlay playPieces =
 checkPlayLineInBounds :: MonadError GameError m => Game -> [PlayPiece] -> m [PlayPiece]
 checkPlayLineInBounds _ [] = return []
 checkPlayLineInBounds (Game { board }) playPieces = do
-  Board.checkGridPoint board (PlayPiece.point (head playPieces))
-  Board.checkGridPoint board (PlayPiece.point (last playPieces))
+  Board.validatePoint board (PlayPiece.point (head playPieces))
+  Board.validatePoint board (PlayPiece.point (last playPieces))
   return playPieces
 
 -- Assume grid points have been checked to be in bounds.
 checkMoveDestinationsEmpty :: MonadError GameError m => Game -> [PlayPiece] -> m [PlayPiece]
 checkMoveDestinationsEmpty Game {board} playPieces =
   let gridPoints = PlayPiece.point <$> filter PlayPiece.moved playPieces
-      maybeTaken = find (Board.validPositionIsTaken board) gridPoints
+      maybeTaken = find (Board.pointIsNonEmpty board) gridPoints
   in case maybeTaken of
      Nothing -> return playPieces
      Just taken -> throwError $ OccupiedMoveDestinationError taken
@@ -268,7 +268,7 @@ checkMoveTrayPieces game = return
 checkPlayPositionsOccupied :: MonadError GameError m => Game -> [PlayPiece] -> m [PlayPiece]
 checkPlayPositionsOccupied Game {board} playPieces =
   let boardPlayPieces = filter (not . PlayPiece.moved) playPieces
-      maybeFreePlayPiece = find (Board.validPositionIsFree board . PlayPiece.point) boardPlayPieces
+      maybeFreePlayPiece = find (Board.pointIsEmpty board . PlayPiece.point) boardPlayPieces
   in case maybeFreePlayPiece of
      Nothing -> return playPieces
      Just freePlayPiece -> throwError $ MissingBoardPlayPieceError $ PlayPiece.getGridPiece freePlayPiece
@@ -279,9 +279,12 @@ checkPlayBoardPieces :: MonadError GameError m => Game -> [PlayPiece] -> m [Play
 checkPlayBoardPieces Game {board} playPieces =
   let boardPlayPieces = filter (not . PlayPiece.moved) playPieces
       gridPieces = PlayPiece.getGridPiece <$> boardPlayPieces
-      boardPiece point = GridValue.value $ Board.getValidGridPiece board point
-      matchesBoard GridValue {value = piece, point} = Piece.eqValue (boardPiece point) piece
-      maybeMismatch = find (not . matchesBoard) gridPieces
+      gridPieceMatchesBoard GridValue {value = piece, point} =
+        let maybePiece = Board.get board point
+        in case maybePiece of
+           Nothing -> False
+           Just boardPiece -> boardPiece == piece
+      maybeMismatch = find (not . gridPieceMatchesBoard) gridPieces
   in case maybeMismatch of
        Nothing -> return playPieces
        Just gridPiece -> throwError $ UnmatchedBoardPlayPieceError gridPiece
@@ -291,7 +294,7 @@ reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, s
   playPieces' <- validatePlayAgainstGame game playPieces
   let movedPlayPieces = filter PlayPiece.moved playPieces'
       movedGridPieces = PlayPiece.getGridPiece <$> movedPlayPieces
-      b = Board.setBoardPieces board movedGridPieces
+      b = Board.setN board movedGridPieces
       usedPieces = GridValue.value <$> movedGridPieces
       playerIndex = Player.playerTypeIndex playerType
   (game', newPieces) <- mkPieces (length usedPieces) game

@@ -30,8 +30,6 @@ module BoardGame.Common.Domain.Grid (
   , concatGrid
   , concatFilter
   , adjacentCell
-  , mkPointedGrid
-  , setPointedGridValues
 ) where
 
 import Data.List
@@ -42,8 +40,6 @@ import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Common.Domain.Point (Point, Point(Point), Axis, Coordinate, Height, Width)
 import qualified BoardGame.Common.Domain.Point as Axis
 import qualified BoardGame.Common.Domain.Point as Point
-import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
-import qualified BoardGame.Common.Domain.GridValue as GridValue
 
 -- |The 2-dimensional grid of squares on a game board.
 data Grid val = Grid {
@@ -64,10 +60,10 @@ mkGrid cellMaker height width =
 mkRow :: (Width -> val) -> Width -> [val]
 mkRow cellMaker width = cellMaker <$> [0 .. width - 1]
 
-mkPointedGrid :: (Height -> Width -> val) -> Height -> Width -> Grid (GridValue val)
-mkPointedGrid cellMaker =
-  let pointedCellMaker row col = GridValue (cellMaker row col) (Point row col)
-  in mkGrid pointedCellMaker
+-- mkPointedGrid :: (Height -> Width -> val) -> Height -> Width -> Grid (GridValue val)
+-- mkPointedGrid cellMaker =
+--   let pointedCellMaker row col = GridValue (cellMaker row col) (Point row col)
+--   in mkGrid pointedCellMaker
 
 -- | Get a cell on the grid.
 get :: Grid val -> Point -> Maybe val
@@ -90,12 +86,12 @@ set grid Point { row, col } value =
       updated = Util.setListElement contents row (Util.setListElement (contents !! row) col value)
   in grid { cells = updated }
 
-setN :: Grid val -> [GridValue val] -> Grid val
-setN = foldl' (\grid GridValue {value, point} -> set grid point value)
+setN :: Grid val -> [(val, Point)] -> Grid val
+setN = foldl' (\grid (value, point) -> set grid point value)
 
-setPointedGridValues :: Grid (GridValue val) -> [GridValue val] -> Grid (GridValue val)
-setPointedGridValues =
-  foldl' (\grid gridVal -> set grid (GridValue.point gridVal) gridVal)
+-- setPointedGridValues :: Grid (GridValue val) -> [GridValue val] -> Grid (GridValue val)
+-- setPointedGridValues =
+--   foldl' (\grid gridVal -> set grid (GridValue.point gridVal) gridVal)
 
 cell :: Grid val -> Point -> val
 cell grid = fromJust . get grid

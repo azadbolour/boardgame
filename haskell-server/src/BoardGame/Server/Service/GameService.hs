@@ -368,10 +368,10 @@ stripMatchAsPlay board tray strip word = do
   let playPiecePeeler [] position (playPieces, tray) = return (playPieces, tray)
       playPiecePeeler (wordHead : wordTail) position (playPieces, tray) = do
         let point = stripPoint strip position
-            gridPiece @ GridValue {value = piece} = Board.cell board point
+            piece = fromJust $ Board.get board point
             moved = Piece.isEmpty piece
         (piece', tray') <- if not moved then return (piece, tray)
-                             else Tray.removePieceByValue tray wordHead
+                           else Tray.removePieceByValue tray wordHead
         let playPiece = PlayPiece piece' point moved
         playPiecePeeler wordTail (position + 1) (playPiece : playPieces, tray')
   (reversePlayPieces, depletedTray) <- playPiecePeeler (BS.unpack word) 0 ([], tray)

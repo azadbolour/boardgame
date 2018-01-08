@@ -66,7 +66,7 @@ baseTestGrid1 = [
 
 -- testBoard1 = Board 7 testGrid1
 testBoard1 = Board.mkBoardFromPieces baseTestGrid1 7
-gridRows1 = Board.charRows testBoard1
+gridRows1 = Board.rowsAsStrings testBoard1
 
 -- testGrid :: Grid GridPiece
 -- testGrid =
@@ -75,7 +75,7 @@ gridRows1 = Board.charRows testBoard1
 
 -- testBoard = Board 6 testGrid
 testBoard = Board.mkBoardFromPieces baseTestGrid 6
-gridRows = Board.charRows testBoard
+gridRows = Board.rowsAsStrings testBoard
 
 emptyChar = Piece.emptyChar
 
@@ -133,26 +133,18 @@ spec = do
       mapM_ print stripsLength5Blanks4
       stripsLength5Blanks4 `shouldBe` []
 
-    it "gets strip with empty cross-neighbors" $ do
-      let lineNumber = 5
-          row = 2
-          size = 5
-          strip = Strip.lineStrip Point.Y lineNumber (List.transpose gridRows1 !! lineNumber) row size
-      print strip
-      Matcher.stripBlanksAreFreeCrosswise testBoard1 strip `shouldBe` False
-
   describe "check line neighbours" $ do
     it "has X neighbors" $ do
-      Board.pointHasNoLineNeighbors testBoard (Point 3 2) Point.X `shouldBe` False
-      Board.pointHasNoLineNeighbors testBoard (Point 3 2) Point.X `shouldBe` False
+      Board.pointIsIsolatedInLine testBoard (Point 3 2) Point.X `shouldBe` False
+      Board.pointIsIsolatedInLine testBoard (Point 3 2) Point.X `shouldBe` False
     it "has no X neighbors" $ do
-      Board.pointHasNoLineNeighbors testBoard (Point 3 1) Point.X `shouldBe` True
+      Board.pointIsIsolatedInLine testBoard (Point 3 1) Point.X `shouldBe` True
 
     it "has Y neighbors" $ do
-      Board.pointHasNoLineNeighbors testBoard (Point 4 5) Point.Y `shouldBe` False
+      Board.pointIsIsolatedInLine testBoard (Point 4 5) Point.Y `shouldBe` False
     it "has no Y neighbors" $ do
-      Board.pointHasNoLineNeighbors testBoard (Point 0 5) Point.Y `shouldBe` True
-      Board.pointHasNoLineNeighbors testBoard (Point 3 2) Point.Y `shouldBe` True
+      Board.pointIsIsolatedInLine testBoard (Point 0 5) Point.Y `shouldBe` True
+      Board.pointIsIsolatedInLine testBoard (Point 3 2) Point.Y `shouldBe` True
 
   describe "make strip point" $ do
     it "X strip has correct strip point" $ do
@@ -171,17 +163,3 @@ spec = do
           offset = 0
           point = Strip.stripPoint strip offset
       point `shouldBe` Point (row + offset) lineNumber
-
-  describe "strip blanks are not free cross-wise" $ do
-    it "not free" $ do
-      let lineNumber = 2
-          row = 1
-          size = 4
-          strip = Strip.lineStrip Point.Y lineNumber (List.transpose gridRows !! lineNumber) row size
-      Matcher.stripBlanksAreFreeCrosswise testBoard strip `shouldBe` False
-    it "not free" $ do
-      let lineNumber = 4
-          col = 3
-          size = 3
-          strip = Strip.lineStrip Point.X lineNumber (gridRows !! lineNumber) col size
-      Matcher.stripBlanksAreFreeCrosswise testBoard strip `shouldBe` False

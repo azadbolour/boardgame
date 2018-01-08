@@ -13,7 +13,6 @@ module BoardGame.Server.Domain.StripMatcher (
   , matchFittingCombos
   , findOptimalMatch
   , computePlayableStrips
-  , stripBlanksAreFreeCrosswise
   , computePlayableStrips -- expose for testing
   ) where
 
@@ -23,6 +22,7 @@ import qualified Data.Map as Map
 import qualified Data.ByteString.Char8 as BS
 import Data.ByteString.Char8 (ByteString)
 
+import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import qualified BoardGame.Common.Domain.GridValue as GridValue
 import qualified BoardGame.Common.Domain.Point as Axis
@@ -166,22 +166,20 @@ computePlayableStrips ::
   -> Int          -- ^ tray capacity - maximum number of blanks in a play strip
   -> Map ByteCount (Map BlankCount [Strip])
 
--- TODO. Assume for now that height and width are the same. Fix.
 computePlayableStrips board trayCapacity =
   let dimension = Board.dimension board
   in
   if Board.isEmpty board then
     emptyCenterStripsByLengthByBlanks dimension
   else
-    let rows = Board.charRows board
-        allStrips = Strip.allStripsByLengthByBlanks rows dimension
+    let rowsAsStrings = Board.rowsAsStrings board
+        allStrips = Strip.allStripsByLengthByBlanks rowsAsStrings dimension
         blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
         filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
         playableStrips = filterPlayableBlanks <$> allStrips
         playableStrips' = allStripsFilter Strip.hasAnchor playableStrips
-        playableStrips'' = allStripsFilter (stripBlanksAreFreeCrosswise board) playableStrips'
-        playableStrips''' = allStripsFilter (stripIsDisconnectedInLine board) playableStrips''
-    in playableStrips'''
+        playableStrips'' = allStripsFilter (stripIsDisconnectedInLine board) playableStrips'
+    in playableStrips''
 
 -- GroupedStrips is doubly-nested map of strips.
 allStripsFilter :: (Strip -> Bool) -> GroupedStrips -> GroupedStrips
@@ -192,11 +190,11 @@ allStripsFilter stripFilter = (fmap . fmap) (filter stripFilter)
 --   do not have neighbors in the cross direction.
 --   Hence we don't have to bother checking for any newly-created cross words.
 --   Simplifies the search initially.
-stripBlanksAreFreeCrosswise :: Board -> Strip -> Bool
-stripBlanksAreFreeCrosswise board (strip @ Strip {axis}) =
-  let emptyPoints = Strip.emptyPoints strip
-      crossAxis = Axis.crossAxis axis
-  in all (\point -> Board.pointHasNoLineNeighbors board point crossAxis) emptyPoints
+-- stripBlanksAreFreeCrosswise :: Board -> Strip -> Bool
+-- stripBlanksAreFreeCrosswise board (strip @ Strip {axis}) =
+--   let emptyPoints = Strip.emptyPoints strip
+--       crossAxis = Axis.crossAxis axis
+--   in all (\point -> Board.pointHasNoLineNeighbors board point crossAxis) emptyPoints
 
 -- | Check that a strip has no neighbors on either side - is disconnected
 --   from the rest of its line. If it is has neighbors, it is not playable
@@ -209,13 +207,13 @@ stripIsDisconnectedInLine board (strip @ Strip {axis, begin, end, content})
       let f = Strip.stripPoint strip 0
           l = Strip.stripPoint strip (end - begin)
           -- limit = dimension
-          maybePrevGridPiece = Board.prev board f axis
-          maybeNextGridPiece = Board.next board l axis
-          isSeparator maybeGridPiece =
-            case maybeGridPiece of
+          maybePrevPiece = Board.prev board f axis
+          maybeNextPiece = Board.next board l axis
+          isSeparator maybePiece =
+            case maybePiece of
               Nothing -> True
-              Just (GridValue.GridValue {value = piece}) -> Piece.isEmpty piece
-      in isSeparator maybePrevGridPiece && isSeparator maybeNextGridPiece
+              Just piece -> Piece.isEmpty piece
+      in isSeparator maybePrevPiece && isSeparator maybeNextPiece
 
 emptyCenterStrip :: ByteCount -> Coordinate -> Strip
 emptyCenterStrip len dimension =

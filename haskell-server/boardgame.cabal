@@ -83,7 +83,6 @@ library
       BoardGame.Server.Domain.TileSack
       BoardGame.Server.Domain.Core
       BoardGame.Server.Domain.Board
-      BoardGame.Server.Domain.SwissBoard
       BoardGame.Server.Domain.GameError
       BoardGame.Server.Domain.Game
       BoardGame.Server.Domain.Play
@@ -260,6 +259,7 @@ test-suite spec
       BoardGame.Server.Domain.ServerParametersSpec
       BoardGame.Server.Domain.TileSackSpec
       BoardGame.Server.Domain.CrossWordFinderSpec
+      BoardGame.Server.Domain.ScorerSpec
       BoardGame.Server.Service.BaseServiceFixtures
       BoardGame.Server.Service.ServiceTestFixtures
       BoardGame.Server.Service.GameServiceSpec

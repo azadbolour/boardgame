@@ -89,8 +89,13 @@ spec = do
        last `shouldBe` ('E', Point 2 5, True)
   describe "find cross plays" $
     it "should find vertical cross plays" $ do
-       let GridValue {value = piece3, point = point3} = Board.cell board $ Point 2 3
-           GridValue {value = piece4, point = point4} = Board.cell board $ Point 2 4
+       let
+           point3 = Point 2 3
+           point4 = Point 2 4
+           piece3 = fromJust $ Board.get board point3
+           piece4 = fromJust $ Board.get board point4
+           -- GridValue {value = piece3, point = point3} = Board.cell board $ Point 2 3
+           -- GridValue {value = piece4, point = point4} = Board.cell board $ Point 2 4
            playPiece1 = PlayPiece (Piece 'L' "") (Point 2 1) True
            playPiece2 = PlayPiece (Piece 'O' "") (Point 2 2) True
            playPiece3 = PlayPiece piece3 point3 False
