@@ -125,14 +125,6 @@ spec = do
           optimal = Maybe.fromJust $ Matcher.findOptimalMatch dictionary testBoard trayContents
       snd optimal `shouldBe` BS.pack "PACKER"
 
-  describe "compute playable strips" $ do
-    it "get playable strips" $ do
-      let playableStrips = Matcher.computePlayableStrips testBoard1 trayCapacity1
-      -- print $ (fmap . fmap) ((\s -> (Strip.content s, Strip.emptyPoints s)) <$>) playableStrips
-          stripsLength5Blanks4 = Maybe.fromJust $ Map.lookup 4 (Maybe.fromJust $ Map.lookup 5 playableStrips)
-      mapM_ print stripsLength5Blanks4
-      stripsLength5Blanks4 `shouldBe` []
-
   describe "check line neighbours" $ do
     it "has X neighbors" $ do
       Board.pointIsIsolatedInLine testBoard (Point 3 2) Point.X `shouldBe` False
