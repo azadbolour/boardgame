@@ -40,8 +40,8 @@ import qualified BoardGame.Server.Domain.Strip as Strip
 import qualified Data.ByteString.Char8 as BS
 
 -- TODO. Move direction constants to a util module.
-forwardDir = 1
-backwardDir = -1
+forward = Axis.forward
+backward = Axis.backward
 
 -- TODO. StripMatcher should use this. See Scala version.
 findStripCrossWords :: Board -> Strip -> String -> [String]
@@ -89,8 +89,8 @@ findCrossPlays' board (strip @ Strip {axis, content}) word =
 findCrossPlay :: Board -> Point -> Char -> Axis -> Maybe [MoveInfo]
 findCrossPlay board point letter axis =
 
-  let Point {row = crossWordBeginRow, col = crossWordBeginCol} = findBoundary backwardDir
-      Point {row = crossWordEndRow, col = crossWordEndCol} = findBoundary forwardDir
+  let Point {row = crossWordBeginRow, col = crossWordBeginCol} = findBoundary backward
+      Point {row = crossWordEndRow, col = crossWordEndCol} = findBoundary forward
       surroundingRange = case axis of
         Axis.X -> [crossWordBeginCol .. crossWordEndCol]
         Axis.Y -> [crossWordBeginRow .. crossWordEndRow]
@@ -116,10 +116,10 @@ farthestNeighbor board point axis direction =
    then point
    else
       let dimension = Board.dimension board
-          neighbors = Board.nthNeighbor point axis direction <$> [1 .. dimension - 1]
+          neighbors = Point.nthNeighbor point axis direction <$> [1 .. dimension - 1]
       in fromJust $ find isBoundary neighbors
          where
-           neighbor = Board.nthNeighbor point axis direction 1
+           neighbor = Point.nthNeighbor point axis direction 1
            isBoundary pt =
              let dimension = Board.dimension board
                  maybeNextPiece = Board.adjacent board pt axis direction

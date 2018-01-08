@@ -22,7 +22,11 @@ module BoardGame.Common.Domain.Point (
   , Point(..)
   , Height
   , Width
+  , forward
+  , backward
   , colinearPoint
+  , nthNeighbor
+  , axisOfLine
 ) where
 
 import GHC.Generics (Generic)
@@ -48,6 +52,13 @@ crossAxis :: Axis -> Axis
 crossAxis X = Y
 crossAxis Y = X
 
+-- | Increment for going forward in a line.
+forward :: Int
+forward = 1
+-- | Increment for going backward in a line.
+backward :: Int
+backward = -1
+
 -- | A value of a board coordinate.
 type Coordinate = Int
 type Height = Coordinate
@@ -56,7 +67,7 @@ type Width = Coordinate
 -- | The coordinates of a square on a board.
 data Point = Point {
     row :: Coordinate     -- ^ The row index - top-down.
-  , col :: Coordinate      -- ^ The column index - left-to-right.
+  , col :: Coordinate     -- ^ The column index - left-to-right.
 }
   deriving (Eq, Show, Generic, NFData)
 
@@ -68,6 +79,25 @@ colinearPoint Point { row, col } axis lineCoordinate =
   case axis of
     X -> Point row lineCoordinate
     Y -> Point lineCoordinate col
+
+nthNeighbor :: Point -> Axis -> Int -> Int -> Point
+nthNeighbor Point {row, col} axis direction steps =
+  let offset = steps * direction
+  in case axis of
+    X -> Point row (col + offset)
+    Y -> Point (row + offset) col
+
+axisOfLine :: [Point] -> Maybe Axis
+axisOfLine [] = Nothing
+axisOfLine line =
+  let Point {row = r, col = c} = head line
+      rows = row <$> line
+      isXAxis = all (r ==) rows
+      cols = col <$> line
+      isYAxis = all (c ==) cols
+  in if isXAxis && isYAxis then Nothing
+     else Just $ if isXAxis then X else Y
+
 
 
 
