@@ -33,6 +33,8 @@ module BoardGame.Common.Domain.Piece (
   , worth
   , letterWorth
   , piecesToString
+  , toMaybe
+  , fromMaybe
 ) where
 
 import System.Random
@@ -66,6 +68,13 @@ isEmpty :: Piece -> Bool
 isEmpty = (== emptyPiece)
 isNonEmpty :: Piece -> Bool
 isNonEmpty = (/= emptyPiece)
+
+toMaybe :: Piece -> Maybe Piece
+toMaybe piece = if isEmpty piece then Nothing else Just piece
+
+fromMaybe :: Maybe Piece -> Piece
+fromMaybe Nothing = emptyPiece
+fromMaybe (Just piece) = piece
 
 piecesToString :: [Piece] -> String
 piecesToString pieces = value <$> pieces

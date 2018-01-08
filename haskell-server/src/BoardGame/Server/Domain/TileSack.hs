@@ -14,7 +14,6 @@
 module BoardGame.Server.Domain.TileSack (
     TileSack(..),
     TileSack(RandomTileSack, CyclicTileSack)
-  -- , next
   , length'
   , isEmpty
   , BoardGame.Server.Domain.TileSack.take

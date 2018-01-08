@@ -25,6 +25,7 @@ module BoardGame.Common.Domain.Grid (
   , setN
   , next
   , prev
+  , inBounds
   , filterGrid
   , concatGrid
   , concatFilter
