@@ -35,7 +35,7 @@ import Data.List
 import Data.Maybe (fromJust)
 import Data.Time (getCurrentTime)
 -- import Data.ByteString.Char8 (ByteString)
-import qualified Data.ByteString.Char8 as BS
+-- import qualified Data.ByteString.Char8 as BS
 
 import Control.Monad (when)
 import Control.Monad.IO.Class (MonadIO(..))
@@ -193,7 +193,7 @@ commitPlayService gmId playPieces = do
   game @ Game {languageCode} <- liftGameExceptToStack $ GameCache.lookup gmId gameCache
   let playWord = PlayPiece.playPiecesToWord playPieces
   dictionary <- lookupDictionary languageCode
-  Dict.validateWord dictionary (BS.pack playWord)
+  Dict.validateWord dictionary playWord
   (game' @ Game {playNumber}, refills)
     <- Game.reflectPlayOnGame game UserPlayer playPieces
   saveWordPlay gmId playNumber UserPlayer playPieces refills
@@ -374,7 +374,7 @@ stripMatchAsPlay board tray strip word = do
                            else Tray.removePieceByValue tray wordHead
         let playPiece = PlayPiece piece' point moved
         playPiecePeeler wordTail (position + 1) (playPiece : playPieces, tray')
-  (reversePlayPieces, depletedTray) <- playPiecePeeler (BS.unpack word) 0 ([], tray)
+  (reversePlayPieces, depletedTray) <- playPiecePeeler word 0 ([], tray)
   return (reverse reversePlayPieces, depletedTray)
 
 

@@ -22,7 +22,7 @@ module BoardGame.Server.Domain.Strip (
 
 import qualified Data.List as List
 import Data.ByteString.Char8 (ByteString)
-import qualified Data.ByteString.Char8 as BS
+-- import qualified Data.ByteString.Char8 as BS
 import Data.Map (Map)
 import qualified Data.Map as Map
 
@@ -39,13 +39,13 @@ data Strip = Strip {
   , lineNumber :: Coordinate  -- ^ position of the strip's line within all lines in teh same direction
   , begin :: Coordinate       -- ^ beginning index of the strip
   , end :: Coordinate         -- ^ ending index of the strip
-  , content :: ByteString     -- ^ letters and blanks
+  , content :: String         -- ^ letters and blanks
   , letters :: LetterCombo    -- ^ existing combination of letters in the strip
   , blanks :: BlankCount      -- ^ number of blank spaces in the strip
 } deriving (Eq, Show)
 
 mkStrip :: Axis -> Int -> Int -> Int -> String -> Strip
-mkStrip axis lineNumber begin end stringContent =
+mkStrip axis lineNumber begin end content =
   Strip
     axis
     lineNumber
@@ -54,8 +54,6 @@ mkStrip axis lineNumber begin end stringContent =
     content
     (nonBlankCombo content)
     (numBlanks content)
-      where content = BS.pack stringContent
-
 
 -- | Strips of a a board grouped by length and by number of blanks.
 --   They are grouped by length to allow longer strips to be matched first (they are of highest value).
@@ -81,12 +79,12 @@ matchWordsToStrip strip words = Nothing
 
 emptyChar = Piece.emptyChar
 
-numBlanks :: ByteString -> Int
-numBlanks string = BS.length $ BS.filter (== emptyChar) string
+numBlanks :: String -> Int
+numBlanks string = length $ filter (== emptyChar) string
 
-nonBlankCombo :: ByteString -> LetterCombo
+nonBlankCombo :: String -> LetterCombo
 nonBlankCombo string =
-  let nonBlanks = BS.filter (/= emptyChar) string
+  let nonBlanks = filter (/= emptyChar) string
   in WordUtil.mkLetterCombo nonBlanks
 
 lineStrip :: Axis -> Coordinate -> String -> Int -> ByteCount -> Strip
@@ -133,12 +131,12 @@ stripPoint (Strip {axis, lineNumber, begin}) offset =
 
 emptyPoints :: Strip -> [Point]
 emptyPoints strip @ Strip {content} =
-  let indexedContent = [0 .. BS.length content] `zip` BS.unpack content
+  let indexedContent = [0 .. length content] `zip` content
       emptyIndexes = fst <$> ((Piece.isEmptyChar . snd) `filter` indexedContent)
   in stripPoint strip <$> emptyIndexes
 
 hasAnchor :: Strip -> Bool
-hasAnchor strip @ Strip { letters } = BS.length letters > 0
+hasAnchor strip @ Strip { letters } = length letters > 0
 
 pointAtOffset :: Strip -> Int -> Point
 pointAtOffset (Strip {lineNumber, begin, axis}) offset =

@@ -12,8 +12,8 @@ module BoardGame.Server.Domain.DictionaryCacheSpec where
 
 import Test.Hspec
 
-import Data.ByteString.Char8 (ByteString)
-import qualified Data.ByteString.Char8 as BS
+-- import Data.ByteString.Char8 (ByteString)
+-- import qualified Data.ByteString.Char8 as BS
 import qualified Data.Either as Either
 import Control.Monad.Except (runExceptT)
 
@@ -32,7 +32,7 @@ spec = do
       cache <- Cache.mkCache "" 20
       eitherDictionary <- runExceptT $ Cache.lookup "" cache
       let dictionary = head $ Either.rights [eitherDictionary]
-      Dict.isWord dictionary (BS.pack "TEST") `shouldBe` True
+      Dict.isWord dictionary "TEST" `shouldBe` True
 
 
 

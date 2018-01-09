@@ -17,8 +17,8 @@ module BoardGame.Server.Domain.DictionaryCache (
 
 import Prelude hiding (lookup)
 import qualified Data.Char as Char
-import Data.ByteString.Char8 (ByteString)
-import qualified Data.ByteString.Char8 as BS
+-- import Data.ByteString.Char8 (ByteString)
+-- import qualified Data.ByteString.Char8 as BS
 
 import Control.Exception (SomeException)
 import Control.Exception.Enclosed (catchAny)
@@ -60,16 +60,16 @@ readDictionaryFile :: DictionaryCache -> String -> IOExceptT String WordDictiona
 readDictionaryFile DictionaryCache {dictionaryDirectory, cache} languageCode = do
   path <- liftIO $ mkDictionaryPath dictionaryDirectory languageCode
   lines <- ExceptT $ catchAny (readDictionaryInternal path) showException
-  let words = BS.map Char.toUpper <$> lines
+  let words = (Char.toUpper <$>) <$> lines
       dictionary = Dict.mkDictionary languageCode words
   Cache.insert languageCode dictionary cache
   return dictionary
 
-readDictionaryInternal :: String -> IOEither String [ByteString]
+readDictionaryInternal :: String -> IOEither String [String]
 readDictionaryInternal path = do
   -- print $ "reading file: " ++ path
-  contents <- BS.readFile path
-  return $ Right $ BS.lines contents
+  contents <- readFile path
+  return $ Right $ lines contents
 
 mkDictionaryPath :: String -> String -> IO String
 mkDictionaryPath dictionaryDirectory languageCode = do
@@ -84,7 +84,7 @@ mkDictionaryPath dictionaryDirectory languageCode = do
   let fileName = languageCode ++ "-words.txt"
   return $ directory ++ "/" ++ fileName
 
-showException :: SomeException -> IOEither String [ByteString]
+showException :: SomeException -> IOEither String [String]
 showException someExc = return $ Left $ show someExc
 
 

@@ -13,28 +13,28 @@ module BoardGame.Server.Domain.WordDictionarySpec where
 import Test.Hspec
 
 import qualified Data.List as List
-import qualified Data.ByteString.Char8 as BS
-import Data.ByteString.Char8 (ByteString)
+-- import qualified Data.ByteString.Char8 as BS
+-- import Data.ByteString.Char8 (ByteString)
 
 import BoardGame.Server.Domain.WordDictionary (WordDictionary, WordDictionary(WordDictionary))
 import qualified BoardGame.Server.Domain.WordDictionary as Dict
 
 stringWords :: [String]
 stringWords = ["GLASS", "TABLE", "SCREEN", "NO", "ON"]
-byteWords = BS.pack <$> stringWords
+byteWords = stringWords
 dictionary = Dict.mkDictionary "en" byteWords
 
 spec :: Spec
 spec = do
   describe "test finding word in dictionary" $ do
     it "check existing word" $ do
-      Dict.isWord dictionary (BS.pack "GLASS") `shouldBe` True
+      Dict.isWord dictionary "GLASS" `shouldBe` True
     it "check non-existent word" $ do
-      Dict.isWord dictionary (BS.pack "GLAS") `shouldBe` False
+      Dict.isWord dictionary "GLAS" `shouldBe` False
   describe "test finding word permutations" $ do
     it "find existing word permutation" $ do
-      Dict.getWordPermutations dictionary (BS.pack "ABELT") `shouldBe` [BS.pack "TABLE"]
+      Dict.getWordPermutations dictionary "ABELT" `shouldBe` ["TABLE"]
     it "no word permutations" $ do
-      Dict.getWordPermutations dictionary (BS.pack "ABEL") `shouldBe` []
+      Dict.getWordPermutations dictionary "ABEL" `shouldBe` []
     it "2 word permutations" $ do
-      (List.sort $ Dict.getWordPermutations dictionary (BS.pack "NO")) `shouldBe` [BS.pack "NO", BS.pack "ON"]
+      (List.sort $ Dict.getWordPermutations dictionary "NO") `shouldBe` ["NO", "ON"]

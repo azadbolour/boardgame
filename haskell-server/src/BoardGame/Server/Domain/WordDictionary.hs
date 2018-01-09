@@ -23,8 +23,8 @@ import Data.Bool (bool)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Maybe as Maybe
-import Data.ByteString.Char8 (ByteString)
-import qualified Data.ByteString.Char8 as BS
+-- import Data.ByteString.Char8 (ByteString)
+-- import qualified Data.ByteString.Char8 as BS
 import qualified Data.Map as Map
 
 import Control.Monad.IO.Class (MonadIO(..))
@@ -44,7 +44,7 @@ defaultLanguageCode = english
 -- | A dictionary of words in a given language (identified by language code).
 data WordDictionary = WordDictionary {
     languageCode :: String  -- ^ public
-  , words :: Set ByteString -- ^ private
+  , words :: Set String     -- ^ private
   , index :: WordIndex      -- ^ private
 }
 
@@ -52,18 +52,18 @@ mkDictionary :: String -> [DictWord] -> WordDictionary
 mkDictionary languageCode words = WordDictionary languageCode (Set.fromList words) (mkWordIndex words)
 
 -- | Return all words of the dictionary as a set.
-getAllWords :: WordDictionary -> Set ByteString
+getAllWords :: WordDictionary -> Set String
 getAllWords WordDictionary {words} = words
 
 -- | True iff given string represents a word.
-isWord :: WordDictionary -> ByteString -> Bool
+isWord :: WordDictionary -> String -> Bool
 isWord (WordDictionary {words}) word = word `Set.member` words
 
 -- | Right iff given string represents a word.
-validateWord :: (MonadError GameError m, MonadIO m) => WordDictionary -> ByteString -> m ByteString
+validateWord :: (MonadError GameError m, MonadIO m) => WordDictionary -> String -> m String
 validateWord languageDictionary word = do
   let valid = isWord languageDictionary word
-  bool (throwError $ InvalidWordError $ BS.unpack word) (return word) valid
+  bool (throwError $ InvalidWordError $ word) (return word) valid
 
 -- | Look up the words that are permutations of a given combination of letters.
 getWordPermutations ::

@@ -15,8 +15,8 @@ import Test.Hspec
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.List as List
-import qualified Data.ByteString.Char8 as BS
-import Data.ByteString.Char8 (ByteString)
+-- import qualified Data.ByteString.Char8 as BS
+-- import Data.ByteString.Char8 (ByteString)
 
 import BoardGame.Common.Domain.Grid (Grid, Grid(Grid))
 import qualified BoardGame.Common.Domain.Grid as Grid
@@ -86,11 +86,11 @@ trayCapacity1 = 7
 
 stringWords :: [String]
 stringWords = ["FAN", "PICK", "PACKER", "SCREEN", "POTENT"]
-byteWords = BS.pack <$> stringWords
+byteWords = stringWords
 dictionary = Dict.mkDictionary "en" byteWords
 
-mkCombo :: String -> ByteString
-mkCombo string = WordUtil.mkLetterCombo $ BS.pack string
+mkCombo :: String -> String
+mkCombo string = WordUtil.mkLetterCombo string
 
 spec :: Spec
 spec = do
@@ -102,12 +102,12 @@ spec = do
 
   describe "check word against strip" $ do
     it "matching word" $ do
-      let content = BS.pack ['A', 'B', emptyChar, emptyChar, 'N', 'D']
-          word = BS.pack "ABOUND"
+      let content = ['A', 'B', emptyChar, emptyChar, 'N', 'D']
+          word = "ABOUND"
       Matcher.wordFitsContent content word `shouldBe` True
     it "non-matching word" $ do
-      let content = BS.pack ['A', emptyChar, 'E']
-          word = BS.pack "ARK"
+      let content = ['A', emptyChar, 'E']
+          word = "ARK"
       Matcher.wordFitsContent content word `shouldBe` False
 
   describe "find fitting word given combinations of letters" $ do
@@ -123,7 +123,7 @@ spec = do
     it "find optimal match" $ do
       let trayContents = "PCKER"
           optimal = Maybe.fromJust $ Matcher.findOptimalMatch dictionary testBoard trayContents
-      snd optimal `shouldBe` BS.pack "PACKER"
+      snd optimal `shouldBe` "PACKER"
 
   describe "check line neighbours" $ do
     it "has X neighbors" $ do

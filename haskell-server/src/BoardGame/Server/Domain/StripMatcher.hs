@@ -19,8 +19,8 @@ module BoardGame.Server.Domain.StripMatcher (
 import Data.Map (Map)
 import qualified Data.List as List
 import qualified Data.Map as Map
-import qualified Data.ByteString.Char8 as BS
-import Data.ByteString.Char8 (ByteString)
+-- import qualified Data.ByteString.Char8 as BS
+-- import Data.ByteString.Char8 (ByteString)
 
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
@@ -42,15 +42,15 @@ blank = Piece.emptyChar
 -- | We know that the word and the strip have the same length.
 --   So just check that the word matches the non-blank positions of the strip.
 --   TODO. Inner loop. Should be made as efficient as possible.
-wordFitsContent :: ByteString -> DictWord -> Bool
+wordFitsContent :: String -> DictWord -> Bool
 wordFitsContent stripContent word
-  | BS.null stripContent && BS.null word = True
-  | BS.null stripContent || BS.null word = False -- TODO. This case should not be necessary. Assert equal length.
+  | null stripContent && null word = True
+  | null stripContent || null word = False -- TODO. This case should not be necessary. Assert equal length.
   | otherwise =
-     let stripHead = BS.head stripContent
-         stripTail = BS.tail stripContent
-         wordHead = BS.head word
-         wordTail = BS.tail word
+     let stripHead = head stripContent
+         stripTail = tail stripContent
+         wordHead = head word
+         wordTail = tail word
      in (stripHead == blank || stripHead == wordHead) && wordFitsContent stripTail wordTail
      -- TODO. Does the compiler optimize this to tail-recursive? Otherwise use explicit if-then-else.
 
@@ -154,8 +154,7 @@ findOptimalMatch dictionary board trayContent =
   let dimension = Board.dimension board
       trayLength = length trayContent
       playableStrips = computePlayableStrips board trayLength
-      trayBytes = BS.pack trayContent
-      playableCombos = WordUtil.computeCombosGroupedByLength trayBytes
+      playableCombos = WordUtil.computeCombosGroupedByLength trayContent
   in findOptimalMatchForStripsOfLimitedLength dictionary dimension playableStrips playableCombos
 
 -- | Get the strips of a two-dimensional grid of characters that can potentially house a word.
@@ -185,24 +184,13 @@ computePlayableStrips board trayCapacity =
 allStripsFilter :: (Strip -> Bool) -> GroupedStrips -> GroupedStrips
 allStripsFilter stripFilter = (fmap . fmap) (filter stripFilter)
 
-
--- | The blanks of this strip that are supposed to be filled
---   do not have neighbors in the cross direction.
---   Hence we don't have to bother checking for any newly-created cross words.
---   Simplifies the search initially.
--- stripBlanksAreFreeCrosswise :: Board -> Strip -> Bool
--- stripBlanksAreFreeCrosswise board (strip @ Strip {axis}) =
---   let emptyPoints = Strip.emptyPoints strip
---       crossAxis = Axis.crossAxis axis
---   in all (\point -> Board.pointHasNoLineNeighbors board point crossAxis) emptyPoints
-
 -- | Check that a strip has no neighbors on either side - is disconnected
 --   from the rest of its line. If it is has neighbors, it is not playable
 --   since a matching word will run into the neighbors. However, a containing
 --   strip will be playable and so we can forget about this strip.
 stripIsDisconnectedInLine :: Board -> Strip -> Bool
 stripIsDisconnectedInLine board (strip @ Strip {axis, begin, end, content})
-  | (BS.null content) = False
+  | (null content) = False
   | otherwise =
       let f = Strip.stripPoint strip 0
           l = Strip.stripPoint strip (end - begin)
