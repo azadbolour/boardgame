@@ -10,6 +10,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module BoardGame.Common.Domain.SwissCheeseGrid (
@@ -32,6 +33,8 @@ module BoardGame.Common.Domain.SwissCheeseGrid (
 
 import Data.List
 import Data.Maybe (isJust, fromJust, isNothing)
+import Control.Monad (join)
+import qualified Bolour.Util.Empty as Empty
 import BoardGame.Common.Domain.Point (Point, Point(Point), Axis, Coordinate, Height, Width)
 import qualified BoardGame.Common.Domain.Point as Axis
 import qualified BoardGame.Common.Domain.Point as Point
@@ -48,11 +51,13 @@ data SwissCheeseGrid val = SwissCheeseGrid {
   , getJusts :: [(val, Point)]
   , set :: Point -> Maybe val -> SwissCheeseGrid val
   , setN :: [(Maybe val, Point)] -> SwissCheeseGrid val
-  , next :: Point -> Axis -> Maybe val
-  , prev :: Point -> Axis -> Maybe val
-  , adjacent :: Point -> Axis -> Int -> Maybe val
+  , next :: Point -> Axis -> Maybe (LocatedValue val)
+  , prev :: Point -> Axis -> Maybe (LocatedValue val)
+  , adjacent :: Point -> Axis -> Int -> Maybe (LocatedValue val)
+  , pointIsEmpty :: Point -> Bool
   , isolatedInLine :: Point -> Axis -> Bool
   , inBounds :: Point -> Bool
+  , farthestNeighbor :: Point -> Axis -> Int -> Maybe (LocatedValue val)
 }
 
 instance (Show val) => Show (SwissCheeseGrid val)
@@ -72,22 +77,34 @@ mkEmptyGrid = mkGrid (\height width -> Nothing)
 
 mkInternal :: Grid (LocatedValue val) -> SwissCheeseGrid val
 mkInternal grid @ Grid {height, width, cells} =
-  SwissCheeseGrid height width cells get getJusts set setN next prev adjacent isolated inBounds
+  SwissCheeseGrid
+      height
+      width
+      cells
+      get
+      getJusts
+      set
+      setN
+      next
+      prev
+      adjacent
+      pointIsEmpty
+      isolated
+      inBounds
+      farthestNeighbor
+
     where get point = do
             (maybeVal, _) <- Grid.get grid point
             maybeVal
           set point value =
             let grid' = Grid.set grid point (value, point)
             in mkInternal grid'
-          next point axis = do
-            (maybeVal, _) <- Grid.next grid point axis
-            maybeVal
-          prev point axis = do
-            (maybeVal, _) <- Grid.prev grid point axis
-            maybeVal
+          next = Grid.next grid
+          prev = Grid.prev grid
           adjacent point axis direction =
             let calcAdj = if direction == 1 then next else prev
             in calcAdj point axis
+          pointIsEmpty = isNothing . get
           inBounds = Grid.inBounds grid
           setN locatedPoints =
             let addPoint located @ (value, point) = (located, point)
@@ -98,6 +115,16 @@ mkInternal grid @ Grid {height, width, cells} =
             let justs = filter (\(may, point) -> isJust may) (Grid.concatGrid grid)
                 mapper (may, point) = (fromJust may, point)
             in mapper <$> justs
-          isolated point axis =
-             isNothing (next point axis) && isNothing (prev point axis)
+          isolated point axis = Empty.isEmpty (next point axis) && Empty.isEmpty (prev point axis)
+          farthestNeighbor point axis direction = Grid.get grid point -- TODO. Implement.
+
+instance Empty.Empty (Maybe (LocatedValue val))
+  where isEmpty x = isNothing $ join $ fst <$> x
+
+instance Empty.Empty (SwissCheeseGrid val)
+  where isEmpty = null . getJusts
+
+instance Empty.Empty (Maybe val, Point)
+  where isEmpty x = let maybe = fst x in isNothing maybe
+
 

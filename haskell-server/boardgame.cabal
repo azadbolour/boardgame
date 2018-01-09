@@ -57,6 +57,7 @@ library
       Bolour.Util.HttpUtil
       Bolour.Util.WaiUtil
       Bolour.Util.FileUtil
+      Bolour.Util.Empty
       BoardGame.Common.GameApi
       BoardGame.Server.Domain.ServerConfig
       BoardGame.Common.Domain.Player

@@ -101,13 +101,19 @@ colsAsPieces Board {grid} =
   in lineMapper <$> transpose (SwissCheeseGrid.cells grid)
 
 next :: Board -> Point -> Axis -> Maybe Piece
-next Board {grid} = SwissCheeseGrid.next grid
+next Board {grid} point axis = do
+  (maybePiece, _) <- SwissCheeseGrid.next grid point axis
+  maybePiece
 
 prev :: Board -> Point -> Axis -> Maybe Piece
-prev Board {grid} = SwissCheeseGrid.prev grid
+prev Board {grid} point axis = do
+  (maybePiece, _) <- SwissCheeseGrid.prev grid point axis
+  maybePiece
 
 adjacent :: Board -> Point -> Axis -> Int -> Maybe Piece
-adjacent Board {grid} = SwissCheeseGrid.adjacent grid
+adjacent Board {grid} point axis direction = do
+  (maybePiece, _) <- SwissCheeseGrid.adjacent grid point axis direction
+  maybePiece
 
 -- | Nothing if out of bounds, noPiece if empty but in bounds.
 get :: Board -> Point -> Maybe Piece
