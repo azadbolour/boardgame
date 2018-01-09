@@ -35,7 +35,7 @@ import qualified BoardGame.Common.Domain.Piece as Piece
 
 -- | A horizontal or vertical strip of the board.
 data Strip = Strip {
-    axis :: Axis              -- ^ direction of the strip - X = horizontal, Y = vertical - TODO. Consistent use of axis.
+    axis :: Axis              -- ^ direction of the strip - X = horizontal, Y = vertical.
   , lineNumber :: Coordinate  -- ^ position of the strip's line within all lines in teh same direction
   , begin :: Coordinate       -- ^ beginning index of the strip
   , end :: Coordinate         -- ^ ending index of the strip

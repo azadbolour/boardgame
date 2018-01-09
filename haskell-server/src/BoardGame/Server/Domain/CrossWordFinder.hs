@@ -10,11 +10,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
--- TODO. This module is an initial draft - not tested or used yet.
--- TODO. Implement the low-level function: findSurroundingPlay. See Scala server.
--- TODO. Make sure blanks vs null chars are treated properly.
--- See comments below.
--- TODO. Then create tests for it.
 module BoardGame.Server.Domain.CrossWordFinder (
     findStripCrossWords
   , findCrossPlays
