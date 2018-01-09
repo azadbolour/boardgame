@@ -35,6 +35,8 @@ module BoardGame.Server.Domain.Board (
   , validateCoordinate
   , validatePoint
   , farthestNeighbor
+  , surroundingRange
+  , getLetter
 )
 where
 
@@ -124,6 +126,11 @@ get board @ Board { grid } point =
     let maybeVal = SwissCheeseGrid.get grid point
     in Just $ Piece.fromMaybe maybeVal
 
+-- | Assume point is valid.
+getLetter :: Board -> Point -> Char
+getLetter board point =
+  Piece.value $ Maybe.fromJust $ get board point
+
 getGridPieces :: Board -> [GridPiece]
 getGridPieces Board {grid} =
   let locatedPieces = SwissCheeseGrid.getJusts grid
@@ -204,7 +211,8 @@ stripOfPlay' board cols playPieces =
            in Strip.lineStrip axis lineNumber lineAsString begin (length points)
     in mkStrip <$> maybeAxis
 
-
+surroundingRange :: Board -> Point -> Axis -> [Point]
+surroundingRange Board {grid} = SwissCheeseGrid.surroundingRange grid
 
 
 

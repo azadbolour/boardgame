@@ -30,6 +30,8 @@ module BoardGame.Common.Domain.SwissCheeseGrid (
     , isolatedInLine
     , inBounds
     , farthestNeighbor
+    , numLines
+    , surroundingRange
   ) where
 
 import Data.List
@@ -61,6 +63,7 @@ data SwissCheeseGrid val = SwissCheeseGrid {
   -- Point itself is considered a degenerate neighbour.
   , farthestNeighbor :: Point -> Axis -> Int -> Point
   , numLines :: Axis -> Int
+  , surroundingRange :: Point -> Axis -> [Point]
 }
 
 instance (Show val) => Show (SwissCheeseGrid val)
@@ -75,6 +78,8 @@ instance Empty.Empty (SwissCheeseGrid val)
 instance Empty.Empty (Maybe val, Point)
   where isEmpty x = let maybe = fst x in isNothing maybe
 
+forward = Axis.forward
+backward = Axis.backward
 
 mkGrid :: (Height -> Width -> Maybe val) -> Height -> Width -> SwissCheeseGrid val
 mkGrid cellMaker height width =
@@ -104,6 +109,7 @@ mkInternal grid =
       (Grid.inBounds grid)
       (farthestNeighbor' grid)
       (Grid.numLines grid)
+      (surroundingRange' grid)
 
 type Grid' val = Grid (LocatedValue val)
 
@@ -157,3 +163,11 @@ farthestNeighbor' grid point axis direction =
         dimension = Grid.numLines grid axis
         neighbors = Point.nthNeighbor point axis direction <$> [1 .. dimension - 1]
 
+surroundingRange' :: Grid' val -> Point -> Axis -> [Point]
+surroundingRange' grid point axis =
+  let rangeLimit = farthestNeighbor' grid point axis
+      Point {row = row1, col = col1} = rangeLimit backward
+      Point {row = rowN, col = colN} = rangeLimit forward
+  in case axis of
+       Axis.X -> Point row1 <$> [col1 .. colN]
+       Axis.Y -> flip Point col1 <$> [row1 .. rowN]
