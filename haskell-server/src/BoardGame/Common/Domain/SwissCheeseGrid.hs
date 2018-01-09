@@ -57,7 +57,9 @@ data SwissCheeseGrid val = SwissCheeseGrid {
   , pointIsEmpty :: Point -> Bool
   , isolatedInLine :: Point -> Axis -> Bool
   , inBounds :: Point -> Bool
-  , farthestNeighbor :: Point -> Axis -> Int -> Maybe (LocatedValue val)
+  -- Point itself is considered a degenerate neighbour.
+  , farthestNeighbor :: Point -> Axis -> Int -> Point
+  , numLines :: Axis -> Int
 }
 
 instance (Show val) => Show (SwissCheeseGrid val)
@@ -100,6 +102,7 @@ mkInternal grid =
       (isolatedInLine' grid)
       (Grid.inBounds grid)
       (farthestNeighbor' grid)
+      (Grid.numLines grid)
 
 type Grid' val = Grid (LocatedValue val)
 
@@ -129,11 +132,27 @@ getJusts' grid =
 pointIsEmpty' :: Grid' val -> Point -> Bool
 pointIsEmpty' grid = isNothing . get' grid
 
+pointIsNonEmpty' :: Grid' val -> Point -> Bool
+pointIsNonEmpty' grid point = not (pointIsEmpty' grid point)
+
 isolatedInLine' :: Grid' val -> Point -> Axis -> Bool
 isolatedInLine' grid point axis =
   Empty.isEmpty (Grid.next grid point axis)
     && Empty.isEmpty (Grid.prev grid point axis)
 
-farthestNeighbor' :: Grid' val -> Point -> Axis -> Int -> Maybe (LocatedValue val)
-farthestNeighbor' grid point axis direction = Nothing -- TODO. Implement.
+nonEmptyToEmptyTransitionPoint :: Grid' val -> Point -> Axis -> Int -> Bool
+nonEmptyToEmptyTransitionPoint grid point axis direction =
+  let dimension = Grid.numLines grid axis
+      maybeAdjLocatedValue = adjacent' grid point axis direction
+  in pointIsNonEmpty' grid point && Empty.isEmpty maybeAdjLocatedValue
+
+-- | Point itself is considered a degenerate neighbor.
+farthestNeighbor' :: Grid' val -> Point -> Axis -> Int -> Point
+farthestNeighbor' grid point axis direction =
+   if Empty.isEmpty $ adjacent' grid point axis direction then point
+   else fromJust $ find nonEmptyToEmpty neighbors
+      where
+        nonEmptyToEmpty pnt = nonEmptyToEmptyTransitionPoint grid pnt axis direction
+        dimension = Grid.numLines grid axis
+        neighbors = Point.nthNeighbor point axis direction <$> [1 .. dimension - 1]
 

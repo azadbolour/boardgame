@@ -30,6 +30,7 @@ module BoardGame.Common.Domain.Grid (
   , concatGrid
   , concatFilter
   , adjacentCell
+  , numLines
 ) where
 
 import Data.List
@@ -144,6 +145,10 @@ concatGrid Grid{cells} = concat cells
 
 concatFilter :: (val -> Bool) -> Grid val -> [val]
 concatFilter predicate grid = concatGrid $ filterGrid predicate grid
+
+numLines :: Grid val -> Axis -> Int
+numLines grid Axis.X = height grid
+numLines grid Axis.Y = width grid
 
 
 

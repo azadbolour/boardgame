@@ -89,11 +89,13 @@ findCrossPlays' board (strip @ Strip {axis, content}) word =
 findCrossPlay :: Board -> Point -> Char -> Axis -> Maybe [MoveInfo]
 findCrossPlay board point letter axis =
 
+  -- TODO. Move to a function findSurroundingRange in SwissCheeseGrid.
   let Point {row = crossWordBeginRow, col = crossWordBeginCol} = findBoundary backward
       Point {row = crossWordEndRow, col = crossWordEndCol} = findBoundary forward
       surroundingRange = case axis of
         Axis.X -> [crossWordBeginCol .. crossWordEndCol]
         Axis.Y -> [crossWordBeginRow .. crossWordEndRow]
+  -- End to do.
 
   in if length surroundingRange < 2 then Nothing
      else Just $ playInfo <$> surroundingRange
@@ -108,6 +110,8 @@ findCrossPlay board point letter axis =
                   ch = if moved then letter else value
               in (ch, neighbor, moved)
 
+-- TODO. This functionality was moved to SwissCheeseGrid.
+-- Remove from here and add a relay call in Board.
 farthestNeighbor :: Board -> Point -> Axis -> Int -> Point
 farthestNeighbor board point axis direction =
    -- The starting point is special since it is empty.
