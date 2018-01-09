@@ -32,6 +32,7 @@ module BoardGame.Common.Domain.SwissCheeseGrid (
     , farthestNeighbor
     , numLines
     , surroundingRange
+    , strips
   ) where
 
 import Data.List
@@ -64,6 +65,7 @@ data SwissCheeseGrid val = SwissCheeseGrid {
   , farthestNeighbor :: Point -> Axis -> Int -> Point
   , numLines :: Axis -> Int
   , surroundingRange :: Point -> Axis -> [Point]
+  , strips :: [(Axis, Coordinate, Coordinate, Int, [Maybe val])]
 }
 
 instance (Show val) => Show (SwissCheeseGrid val)
@@ -110,6 +112,7 @@ mkInternal grid =
       (farthestNeighbor' grid)
       (Grid.numLines grid)
       (surroundingRange' grid)
+      (strips' grid)
 
 type Grid' val = Grid (LocatedValue val)
 
@@ -171,3 +174,26 @@ surroundingRange' grid point axis =
   in case axis of
        Axis.X -> Point row1 <$> [col1 .. colN]
        Axis.Y -> flip Point col1 <$> [row1 .. rowN]
+
+strips' :: Grid' val -> [(Axis, Coordinate, Coordinate, Int, [Maybe val])]
+strips' grid = stripsAlong grid Axis.X ++ stripsAlong grid Axis.Y
+
+stripsAlong :: Grid' val -> Axis -> [(Axis, Coordinate, Coordinate, Int, [Maybe val])]
+stripsAlong Grid {cells = rows, height, width} axis =
+  let lineCoordinates Point {row, col} =    -- (lineNumber, offset)
+        case axis of
+          Axis.X -> (row, col)
+          Axis.Y -> (col, row)
+      (lines, len) =
+        case axis of
+          Axis.X -> (rows, width)
+          Axis.Y -> (transpose rows, height)
+  in do
+       line <- lines
+       begin <- [0 .. len - 1]
+       size <- [1 .. len - begin]
+       let segment = take size (drop begin line)
+       let content = fst <$> segment
+       let (lineNumber, offset) = lineCoordinates $ snd $ head segment
+       return (axis, lineNumber, offset, size, content)
+

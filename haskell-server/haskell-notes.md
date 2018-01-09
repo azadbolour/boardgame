@@ -1,4 +1,8 @@
 
+- `sequence_ $ print <$> outputLines`
+
+  Just returns: m () - useful in spec tests.
+
 - Debugging technique - when a function from a module under test is 
   called from a test and its behavior is leading to a test failure,
   copy the implementaiton of that function from the module under test

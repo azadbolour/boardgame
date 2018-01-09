@@ -138,6 +138,7 @@ emptyPoints strip @ Strip {content} =
 hasAnchor :: Strip -> Bool
 hasAnchor strip @ Strip { letters } = length letters > 0
 
+-- TODO. Use Point colinearPoint.
 pointAtOffset :: Strip -> Int -> Point
 pointAtOffset (Strip {lineNumber, begin, axis}) offset =
   case axis of
