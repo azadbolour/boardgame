@@ -34,6 +34,7 @@ module BoardGame.Server.Domain.Board (
   , pointIsIsolatedInLine
   , validateCoordinate
   , validatePoint
+  , farthestNeighbor
 )
 where
 
@@ -178,6 +179,9 @@ rowsAsStrings board = ((\Piece {value} -> value) <$>) <$> rowsAsPieces board
 
 pointIsIsolatedInLine :: Board -> Point -> Axis -> Bool
 pointIsIsolatedInLine Board {grid} = SwissCheeseGrid.isolatedInLine grid
+
+farthestNeighbor :: Board -> Point -> Axis -> Int -> Point
+farthestNeighbor Board {grid} = SwissCheeseGrid.farthestNeighbor grid
 
 stripOfPlay :: Board -> [[Piece]] -> [PlayPiece] -> Maybe Strip
 stripOfPlay board columns playPieces =

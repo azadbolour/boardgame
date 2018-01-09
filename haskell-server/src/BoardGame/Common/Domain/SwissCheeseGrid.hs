@@ -29,6 +29,7 @@ module BoardGame.Common.Domain.SwissCheeseGrid (
     , adjacent
     , isolatedInLine
     , inBounds
+    , farthestNeighbor
   ) where
 
 import Data.List
