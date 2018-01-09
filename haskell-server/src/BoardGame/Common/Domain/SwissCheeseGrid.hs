@@ -83,11 +83,12 @@ mkEmptyGrid :: Height -> Width -> SwissCheeseGrid val
 mkEmptyGrid = mkGrid (\height width -> Nothing)
 
 mkInternal :: Grid (LocatedValue val) -> SwissCheeseGrid val
-mkInternal grid @ Grid {height, width, cells} =
+
+mkInternal grid =
   SwissCheeseGrid
-      height
-      width
-      cells
+      (Grid.height grid)
+      (Grid.width grid)
+      (Grid.cells grid)
       (get' grid)
       (getJusts' grid)
       (set' grid)
