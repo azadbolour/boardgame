@@ -61,8 +61,8 @@ import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.Point (Coordinate, Axis(..), Point, Point(Point))
 import qualified BoardGame.Common.Domain.Point as Point
 import qualified BoardGame.Common.Domain.Point as Axis
-import BoardGame.Common.Domain.SwissCheeseGrid (SwissCheeseGrid)
-import qualified BoardGame.Common.Domain.SwissCheeseGrid as SwissCheeseGrid
+import BoardGame.Common.Domain.SparseGrid (SparseGrid)
+import qualified BoardGame.Common.Domain.SparseGrid as SparseGrid
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
@@ -71,7 +71,7 @@ import qualified BoardGame.Server.Domain.Strip as Strip
 -- | The game board.
 data Board = Board {
     dimension :: Int
-  , grid :: SwissCheeseGrid Piece
+  , grid :: SparseGrid Piece
 }
   deriving (Show)
 
@@ -89,37 +89,37 @@ mkBoard pieceMaker =
 
 mkEmptyBoard :: Int -> Board
 mkEmptyBoard dimension =
-  let grid = SwissCheeseGrid.mkEmptyGrid dimension dimension
+  let grid = SparseGrid.mkEmptyGrid dimension dimension
   in Board dimension grid
 
 mkBoard' :: (Int -> Int -> Maybe Piece) -> Int -> Board
 mkBoard' cellMaker dimension =
-  let grid = SwissCheeseGrid.mkGrid cellMaker dimension dimension
+  let grid = SparseGrid.mkGrid cellMaker dimension dimension
   in Board dimension grid
 
 rowsAsPieces :: Board -> [[Piece]]
 rowsAsPieces Board {grid} =
   let lineMapper row = (Piece.fromMaybe . fst) <$> row
-  in lineMapper <$> SwissCheeseGrid.cells grid
+  in lineMapper <$> SparseGrid.cells grid
 
 colsAsPieces :: Board -> [[Piece]]
 colsAsPieces Board {grid} =
   let lineMapper row = (Piece.fromMaybe . fst) <$> row
-  in lineMapper <$> transpose (SwissCheeseGrid.cells grid)
+  in lineMapper <$> transpose (SparseGrid.cells grid)
 
 next :: Board -> Point -> Axis -> Maybe Piece
 next Board {grid} point axis = do
-  (maybePiece, _) <- SwissCheeseGrid.next grid point axis
+  (maybePiece, _) <- SparseGrid.next grid point axis
   maybePiece
 
 prev :: Board -> Point -> Axis -> Maybe Piece
 prev Board {grid} point axis = do
-  (maybePiece, _) <- SwissCheeseGrid.prev grid point axis
+  (maybePiece, _) <- SparseGrid.prev grid point axis
   maybePiece
 
 adjacent :: Board -> Point -> Axis -> Int -> Maybe Piece
 adjacent Board {grid} point axis direction = do
-  (maybePiece, _) <- SwissCheeseGrid.adjacent grid point axis direction
+  (maybePiece, _) <- SparseGrid.adjacent grid point axis direction
   maybePiece
 
 -- | Nothing if out of bounds, noPiece if empty but in bounds.
@@ -127,7 +127,7 @@ get :: Board -> Point -> Maybe Piece
 get board @ Board { grid } point =
   if not (inBounds board point) then Nothing
   else
-    let maybeVal = SwissCheeseGrid.get grid point
+    let maybeVal = SparseGrid.get grid point
     in Just $ Piece.fromMaybe maybeVal
 
 -- | Assume point is valid.
@@ -137,14 +137,14 @@ getLetter board point =
 
 getGridPieces :: Board -> [GridPiece]
 getGridPieces Board {grid} =
-  let locatedPieces = SwissCheeseGrid.getJusts grid
+  let locatedPieces = SparseGrid.getJusts grid
       toGridPiece (piece, point) = GridValue piece point
   in toGridPiece <$> locatedPieces
 
 set :: Board -> Point -> Piece -> Board
 set Board { dimension, grid } point piece =
   let maybePiece = Piece.toMaybe piece
-      grid' = SwissCheeseGrid.set grid point maybePiece
+      grid' = SparseGrid.set grid point maybePiece
   in Board dimension grid'
 
 setN :: Board -> [GridPiece] -> Board
@@ -152,23 +152,23 @@ setN board @ Board {dimension, grid} gridPoints =
   let toLocatedPoint GridValue {value = piece, point} =
         (Piece.toMaybe piece, point)
       locatedPoints = toLocatedPoint <$> gridPoints
-      grid' = SwissCheeseGrid.setN grid locatedPoints
+      grid' = SparseGrid.setN grid locatedPoints
   in Board dimension grid'
 
 isEmpty :: Board -> Bool
 isEmpty Board { grid } =
-  let cellList = concat $ SwissCheeseGrid.cells grid
+  let cellList = concat $ SparseGrid.cells grid
   in all (Maybe.isNothing . fst) cellList
 
 pointIsEmpty :: Board -> Point -> Bool
 pointIsEmpty Board {grid} point =
-  Maybe.isNothing $ SwissCheeseGrid.get grid point
+  Maybe.isNothing $ SparseGrid.get grid point
 
 pointIsNonEmpty :: Board -> Point -> Bool
 pointIsNonEmpty board point = not $ pointIsEmpty board point
 
 inBounds :: Board -> Point -> Bool
-inBounds Board {grid} = SwissCheeseGrid.inBounds grid
+inBounds Board {grid} = SparseGrid.inBounds grid
 
 validateCoordinate :: MonadError GameError m =>
   Board -> Axis -> Coordinate -> m Coordinate
@@ -189,10 +189,10 @@ rowsAsStrings :: Board -> [String]
 rowsAsStrings board = ((\Piece {value} -> value) <$>) <$> rowsAsPieces board
 
 pointIsIsolatedInLine :: Board -> Point -> Axis -> Bool
-pointIsIsolatedInLine Board {grid} = SwissCheeseGrid.isolatedInLine grid
+pointIsIsolatedInLine Board {grid} = SparseGrid.isolatedInLine grid
 
 farthestNeighbor :: Board -> Point -> Axis -> Int -> Point
-farthestNeighbor Board {grid} = SwissCheeseGrid.farthestNeighbor grid
+farthestNeighbor Board {grid} = SparseGrid.farthestNeighbor grid
 
 stripOfPlay :: Board -> [[Piece]] -> [PlayPiece] -> Maybe Strip
 stripOfPlay board columns playPieces =
@@ -216,7 +216,7 @@ stripOfPlay' board cols playPieces =
     in mkStrip <$> maybeAxis
 
 surroundingRange :: Board -> Point -> Axis -> [Point]
-surroundingRange Board {grid} = SwissCheeseGrid.surroundingRange grid
+surroundingRange Board {grid} = SparseGrid.surroundingRange grid
 
 -- TODO. Import type GroupedStrips.
 

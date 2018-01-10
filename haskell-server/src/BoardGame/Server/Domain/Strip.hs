@@ -33,8 +33,8 @@ import BoardGame.Common.Domain.Point (Point, Point(Point), Axis, Coordinate)
 import qualified BoardGame.Common.Domain.Point as Axis
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
-import qualified BoardGame.Common.Domain.SwissCheeseGrid as SwissCheeseGrid
-import BoardGame.Common.Domain.SwissCheeseGrid(SwissCheeseGrid)
+import qualified BoardGame.Common.Domain.SparseGrid as SparseGrid
+import BoardGame.Common.Domain.SparseGrid(SparseGrid)
 
 -- | A horizontal or vertical strip of the board.
 data Strip = Strip {
@@ -117,9 +117,9 @@ pointAtOffset (Strip {lineNumber, begin, axis}) offset =
 stripLength :: Strip -> Int
 stripLength Strip {begin, end} = end - begin + 1
 
-groupedStrips :: SwissCheeseGrid Piece -> GroupedStrips
+groupedStrips :: SparseGrid Piece -> GroupedStrips
 groupedStrips grid =
-  let gridStrips = SwissCheeseGrid.strips grid
+  let gridStrips = SparseGrid.strips grid
       strips = gridStripToStrip <$> gridStrips
       mapByLength = MiscUtil.mapFromValueList stripLength strips
       blankMapMaker = MiscUtil.mapFromValueList blanks

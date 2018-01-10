@@ -13,8 +13,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module BoardGame.Common.Domain.SwissCheeseGrid (
-      SwissCheeseGrid
+module BoardGame.Common.Domain.SparseGrid (
+      SparseGrid
     , mkGrid
     , mkEmptyGrid
     , height
@@ -47,14 +47,28 @@ import BoardGame.Common.Domain.Grid (Grid, Grid(Grid))
 
 type LocatedValue val = (Maybe val, Point)
 
-data SwissCheeseGrid val = SwissCheeseGrid {
+-- | A grid that may have some empty slots.
+--
+--   The term 'sparse' is used to signify that this grid is aware of
+--   emptiness in some slots, not that there are necessarily
+--   relatively few non-empty slots.
+--
+--   The slots of a sparse grid have the type:
+--      LocatedValue: (Maybe val, Point).
+--
+--   This allows compact implementations of a sparse grid in
+--   cases where the grid is in fact expected to be sparse.
+--   The current implementation in this module, however,
+--   is not a 'sparse' implementation as such. But it retains
+--   the LocatedValue representation in its interface.
+data SparseGrid val = SparseGrid {
     height :: Height
   , width :: Width
   , cells :: [[LocatedValue val]]
   , get :: Point -> Maybe val
   , getJusts :: [(val, Point)]
-  , set :: Point -> Maybe val -> SwissCheeseGrid val
-  , setN :: [(Maybe val, Point)] -> SwissCheeseGrid val
+  , set :: Point -> Maybe val -> SparseGrid val
+  , setN :: [(Maybe val, Point)] -> SparseGrid val
   , next :: Point -> Axis -> Maybe (LocatedValue val)
   , prev :: Point -> Axis -> Maybe (LocatedValue val)
   , adjacent :: Point -> Axis -> Int -> Maybe (LocatedValue val)
@@ -68,13 +82,13 @@ data SwissCheeseGrid val = SwissCheeseGrid {
   , strips :: [(Axis, Coordinate, Coordinate, Int, [Maybe val])]
 }
 
-instance (Show val) => Show (SwissCheeseGrid val)
-  where show SwissCheeseGrid {cells} = show cells
+instance (Show val) => Show (SparseGrid val)
+  where show SparseGrid {cells} = show cells
 
 instance Empty.Empty (Maybe (LocatedValue val))
   where isEmpty x = isNothing $ join $ fst <$> x
 
-instance Empty.Empty (SwissCheeseGrid val)
+instance Empty.Empty (SparseGrid val)
   where isEmpty = null . getJusts
 
 instance Empty.Empty (Maybe val, Point)
@@ -83,19 +97,19 @@ instance Empty.Empty (Maybe val, Point)
 forward = Axis.forward
 backward = Axis.backward
 
-mkGrid :: (Height -> Width -> Maybe val) -> Height -> Width -> SwissCheeseGrid val
+mkGrid :: (Height -> Width -> Maybe val) -> Height -> Width -> SparseGrid val
 mkGrid cellMaker height width =
   let pointedCellMaker row col = (cellMaker row col, Point row col)
       grid = Grid.mkGrid pointedCellMaker height width
   in mkInternal grid
 
-mkEmptyGrid :: Height -> Width -> SwissCheeseGrid val
+mkEmptyGrid :: Height -> Width -> SparseGrid val
 mkEmptyGrid = mkGrid (\height width -> Nothing)
 
-mkInternal :: Grid (LocatedValue val) -> SwissCheeseGrid val
+mkInternal :: Grid (LocatedValue val) -> SparseGrid val
 
 mkInternal grid =
-  SwissCheeseGrid
+  SparseGrid
       (Grid.height grid)
       (Grid.width grid)
       (Grid.cells grid)
@@ -121,14 +135,14 @@ get' grid point = do
   (maybeVal, _) <- Grid.get grid point
   maybeVal
 
-set' :: Grid' val -> Point -> Maybe val -> SwissCheeseGrid val
+set' :: Grid' val -> Point -> Maybe val -> SparseGrid val
 set' grid point value = mkInternal $ Grid.set grid point (value, point)
 
 adjacent' :: Grid' val -> Point -> Axis -> Int -> Maybe (LocatedValue val)
 adjacent' grid point axis direction =
   (if direction == 1 then Grid.next else Grid.prev) grid point axis
 
-setN' :: Grid' val -> [(Maybe val, Point)] -> SwissCheeseGrid val
+setN' :: Grid' val -> [(Maybe val, Point)] -> SparseGrid val
 setN' grid locatedValues =
   mkInternal (Grid.setN grid (addPoint <$> locatedValues))
     where addPoint (value, point) = ((value, point), point)
