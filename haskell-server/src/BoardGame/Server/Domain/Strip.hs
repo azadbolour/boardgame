@@ -119,7 +119,7 @@ stripLength Strip {begin, end} = end - begin + 1
 
 groupedStrips :: SparseGrid Piece -> GroupedStrips
 groupedStrips grid =
-  let gridStrips = SparseGrid.strips grid
+  let gridStrips = SparseGrid.lineSegments grid
       strips = gridStripToStrip <$> gridStrips
       mapByLength = MiscUtil.mapFromValueList stripLength strips
       blankMapMaker = MiscUtil.mapFromValueList blanks

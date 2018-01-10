@@ -32,7 +32,7 @@ module BoardGame.Common.Domain.SparseGrid (
     , farthestNeighbor
     , numLines
     , surroundingRange
-    , strips
+    , lineSegments
   ) where
 
 import Data.List
@@ -60,26 +60,61 @@ type LocatedValue val = (Maybe val, Point)
 --   cases where the grid is in fact expected to be sparse.
 --   The current implementation in this module, however,
 --   is not a 'sparse' implementation as such. But it retains
---   the LocatedValue representation in its interface.
+--   the LocatedValue representation.
 data SparseGrid val = SparseGrid {
+    -- | Grid height: number of rows.
     height :: Height
+    -- | Grid width: number of columns.
   , width :: Width
+    -- 2D array of all located values.
   , cells :: [[LocatedValue val]]
+    -- | Get the value of a point - 'Nothing' means empty.
   , get :: Point -> Maybe val
+    -- | Get the non-empty values in the grid together with their locations.
   , getJusts :: [(val, Point)]
+    -- | Set the value of a point on the grid.
   , set :: Point -> Maybe val -> SparseGrid val
+    -- | Set multiple values.
   , setN :: [(Maybe val, Point)] -> SparseGrid val
+    -- | Get the next located value on a grid line. Axis X/Y horizontal/vertical.
+    --   Nothing means the point has no next (is the last point on a line).
   , next :: Point -> Axis -> Maybe (LocatedValue val)
+    -- | Get the previous located value on a grid line. Axis X/Y horizontal/vertical.
+    --   Nothing means the point has no next (is the first point on a line).
   , prev :: Point -> Axis -> Maybe (LocatedValue val)
+    -- | Get an adjacent located value on a grid line in a given direction.
+    --   Axis X/Y horizontal/vertical. Direction Axis.forward or Axis.backward.
+    --   Nothing means the point does not have the requested neighbor (is on a boundary).
   , adjacent :: Point -> Axis -> Int -> Maybe (LocatedValue val)
+    -- | The point is empty or does not exist in the grid.
+    --   Intended to simplify the use case where the caller knows the point exists.
   , pointIsEmpty :: Point -> Bool
+    -- | The point is isolated in its horizontal (X) or vertical (Y) line.
+    --   It has no neighbors on either side on the line.
   , isolatedInLine :: Point -> Axis -> Bool
+    -- | The point exists on the grid.
   , inBounds :: Point -> Bool
-  -- Point itself is considered a degenerate neighbour.
+    -- | Get the farthest neighbor of a point along a given axis in a given direction.
+    --
+    --   Given a point p on a line, a point q on that line
+    --   is considered to be a neighbor of p if there is a contiguous
+    --   non-empty line segment between p and q (excluding p itself).
+    --   Axis X/Y horizontal/vertical. Direction Axis.forward or Axis.backward.
+    --   The point itself is considered a degenerate neighbour if it has no
+    --   line neighbor in the given direction.
   , farthestNeighbor :: Point -> Axis -> Int -> Point
+    -- | Get the number of lines of the grid parallel to a given axis:
+    --   X (number of horizontal lines: height), Y (number of vertical lines: width).
   , numLines :: Axis -> Int
+    -- | Get the range of non-empty points surrounding a point on a line.
+    --   The point itself is always counted as part of the range whether
+    --   not it is empty.
   , surroundingRange :: Point -> Axis -> [Point]
-  , strips :: [(Axis, Coordinate, Coordinate, Int, [Maybe val])]
+    -- | Get a list of all horizontal or vertical line segments
+    --   of the grid.
+    --
+    --   Returns: [(axis, lineNumber, start, size, [Maybe val])]
+  , lineSegments :: [(Axis, Coordinate, Coordinate, Int, [Maybe val])]
 }
 
 instance (Show val) => Show (SparseGrid val)
@@ -126,7 +161,7 @@ mkInternal grid =
       (farthestNeighbor' grid)
       (Grid.numLines grid)
       (surroundingRange' grid)
-      (strips' grid)
+      (lineSegments' grid)
 
 type Grid' val = Grid (LocatedValue val)
 
@@ -189,11 +224,11 @@ surroundingRange' grid point axis =
        Axis.X -> Point row1 <$> [col1 .. colN]
        Axis.Y -> flip Point col1 <$> [row1 .. rowN]
 
-strips' :: Grid' val -> [(Axis, Coordinate, Coordinate, Int, [Maybe val])]
-strips' grid = stripsAlong grid Axis.X ++ stripsAlong grid Axis.Y
+lineSegments' :: Grid' val -> [(Axis, Coordinate, Coordinate, Int, [Maybe val])]
+lineSegments' grid = lineSegmentsAlong grid Axis.X ++ lineSegmentsAlong grid Axis.Y
 
-stripsAlong :: Grid' val -> Axis -> [(Axis, Coordinate, Coordinate, Int, [Maybe val])]
-stripsAlong Grid {cells = rows, height, width} axis =
+lineSegmentsAlong :: Grid' val -> Axis -> [(Axis, Coordinate, Coordinate, Int, [Maybe val])]
+lineSegmentsAlong Grid {cells = rows, height, width} axis =
   let lineCoordinates Point {row, col} =    -- (lineNumber, offset)
         case axis of
           Axis.X -> (row, col)

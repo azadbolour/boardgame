@@ -149,37 +149,3 @@ concatFilter predicate grid = concatGrid $ filterGrid predicate grid
 numLines :: Grid val -> Axis -> Int
 numLines grid Axis.X = height grid
 numLines grid Axis.Y = width grid
-
-
-
--- TODO. If needed, move the functions below to separate list utility class.
--- They could be useful in cleaning up strip code.
--- | Map a function of coordinates and cells onto a matrix.
--- mapMatrixWithCoordinates :: [[a]] -> (Coordinate -> Coordinate -> a -> b) -> [[b]]
--- mapMatrixWithCoordinates matrix mapper =
---   zipWith rowAdder [0 .. length matrix - 1] matrix
---   where rowAdder rowNum line = zipWith (mapper rowNum) [0 .. length line - 1] line
-
--- | Get contiguous sub-lists (strips) of a given length k.
--- kStrips :: [a] -> Int -> [[a]]
--- kStrips list size = (\i -> (take size . drop i) list) <$> [0 .. length list - size]
-
--- V.generate (V.length vector - size + 1) (\pos -> V.slice pos size vector)
-
--- | Get sets of strips of a vector indexed by length.
---   Zero is included as a length, so that the resulting vector
---   can be indexed simply by length.
--- stripsByLength :: [a] -> [[[a]]]
--- stripsByLength list = kStrips list <$> [0 .. length list]
-
--- | Get all strips of a matrix - indexed by row, then by strip length.
---   The indexing dimensions are: row, length, col, position in strip.
--- matrixStrips :: [[a]] -> [[[[a]]]]
--- matrixStrips matrix = stripsByLength <$> matrix
-
--- | Get all the strips of a matrix indexed by length.
---   The indexing dimensions are length, strip-number, position in strip.
--- matrixStripsByLength :: [[a]] -> [[[a]]]
--- matrixStripsByLength matrix =
---   foldl1' pairwiseConcat (matrixStrips matrix)
---   where pairwiseConcat = zipWith (++)

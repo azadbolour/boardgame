@@ -39,7 +39,7 @@ spec :: Spec
 spec =
   describe "strips of grid" $
     it "should get strips of 4x5 grid" $ do
-      let strips = SparseGrid.strips grid
+      let strips = SparseGrid.lineSegments grid
       -- sequence_ $ (print . show) <$> strips
       elem (Axis.Y,4,3,1,[Nothing]) strips `shouldBe` True
       elem (Axis.X,2,2,3,[Nothing,Just 'O',Just 'N']) strips `shouldBe` True
