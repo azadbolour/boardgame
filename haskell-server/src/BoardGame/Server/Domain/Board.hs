@@ -37,12 +37,16 @@ module BoardGame.Server.Domain.Board (
   , farthestNeighbor
   , surroundingRange
   , getLetter
+  , groupedStrips
 )
 where
 
 import Data.List
 import qualified Data.Maybe as Maybe
-import qualified Data.ByteString.Char8 as BS
+import Data.Map (Map)
+import qualified Data.Map as Map
+
+-- import qualified Data.ByteString.Char8 as BS
 
 import Control.Monad.Except (MonadError(..))
 
@@ -214,8 +218,10 @@ stripOfPlay' board cols playPieces =
 surroundingRange :: Board -> Point -> Axis -> [Point]
 surroundingRange Board {grid} = SwissCheeseGrid.surroundingRange grid
 
+-- TODO. Import type GroupedStrips.
 
-
+groupedStrips :: Board -> Map Int (Map Int [Strip])
+groupedStrips Board {grid} = Strip.groupedStrips grid
 
 
 

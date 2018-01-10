@@ -12,7 +12,7 @@ module BoardGame.Server.Domain.Strip (
     Strip(..)
   , GroupedStrips
   , mkStrip
-  , allStripsByLengthByBlanks
+  , groupedStrips
   , stripPoint
   , lineStrip
   , emptyPoints
@@ -32,6 +32,9 @@ import qualified Bolour.Util.MiscUtil as MiscUtil
 import BoardGame.Common.Domain.Point (Point, Point(Point), Axis, Coordinate)
 import qualified BoardGame.Common.Domain.Point as Axis
 import qualified BoardGame.Common.Domain.Piece as Piece
+import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
+import qualified BoardGame.Common.Domain.SwissCheeseGrid as SwissCheeseGrid
+import BoardGame.Common.Domain.SwissCheeseGrid(SwissCheeseGrid)
 
 -- | A horizontal or vertical strip of the board.
 data Strip = Strip {
@@ -46,14 +49,7 @@ data Strip = Strip {
 
 mkStrip :: Axis -> Int -> Int -> Int -> String -> Strip
 mkStrip axis lineNumber begin end content =
-  Strip
-    axis
-    lineNumber
-    begin
-    end
-    content
-    (nonBlankCombo content)
-    (numBlanks content)
+  Strip axis lineNumber begin end content (nonBlankCombo content) (numBlanks content)
 
 -- | Strips of a a board grouped by length and by number of blanks.
 --   They are grouped by length to allow longer strips to be matched first (they are of highest value).
@@ -92,35 +88,6 @@ lineStrip axis lineNumber line offset size =
   mkStrip axis lineNumber offset (offset + size - 1) stringContent
     where stringContent = (take size . drop offset) line
 
-lineStripsForLength :: Axis -> Int -> String -> ByteCount -> [Strip]
-lineStripsForLength axis lineNumber line size =
-  let stripMaker offset = lineStrip axis lineNumber line offset size
-  in stripMaker <$> [0 .. length line - size]
-
-allStripsForLengthAndAxis :: Axis -> [String] -> ByteCount -> [Strip]
-allStripsForLengthAndAxis axis lines size = do
-  numberedLine <- zip [0 .. length lines - 1] lines
-  let mkStrips (lineNumber, line) = lineStripsForLength axis lineNumber line size
-  mkStrips numberedLine
-
-allStripsForLength :: [String] -> ByteCount -> [Strip]
-allStripsForLength rows size =
-  let horizontals = allStripsForLengthAndAxis Axis.X rows size
-      verticals = allStripsForLengthAndAxis Axis.Y (List.transpose rows) size
-  in horizontals ++ verticals
-
-allStripsForLengthByBlanks :: [String] -> ByteCount -> Map BlankCount [Strip]
-allStripsForLengthByBlanks rows size =
-  let strips = allStripsForLength rows size
-  in MiscUtil.mapFromValueList blanks strips
-
-allStripsByLengthByBlanks :: [String] -> ByteCount -> Map ByteCount (Map BlankCount [Strip])
-allStripsByLengthByBlanks rows maxSize =
-  let byBlankMaker = allStripsForLengthByBlanks rows
-      keyValueMaker size = (size, byBlankMaker size)
-      keyValueList = keyValueMaker <$> [2 .. maxSize] -- word needs at least 2 letters
-  in Map.fromList keyValueList
-
 stripPoint :: Strip -> Coordinate -> Point
 stripPoint (Strip {axis, lineNumber, begin}) offset =
   case axis of
@@ -144,3 +111,22 @@ pointAtOffset (Strip {lineNumber, begin, axis}) offset =
   case axis of
     Axis.X -> Point lineNumber (begin + offset)
     Axis.Y -> Point (begin + offset) lineNumber
+
+-- type GroupedStrips = Map ByteCount (Map BlankCount [Strip])
+
+stripLength :: Strip -> Int
+stripLength Strip {begin, end} = end - begin + 1
+
+groupedStrips :: SwissCheeseGrid Piece -> GroupedStrips
+groupedStrips grid =
+  let gridStrips = SwissCheeseGrid.strips grid
+      strips = gridStripToStrip <$> gridStrips
+      mapByLength = MiscUtil.mapFromValueList stripLength strips
+      blankMapMaker = MiscUtil.mapFromValueList blanks
+  in blankMapMaker <$> mapByLength
+
+gridStripToStrip :: (Axis, Coordinate, Coordinate, Int, [Maybe Piece]) -> Strip
+gridStripToStrip (axis, lineNumber, offset, size, maybeCharList) =
+  mkStrip axis lineNumber offset (offset + size - 1) content
+    where content = (Piece.value . Piece.fromMaybe) <$> maybeCharList
+

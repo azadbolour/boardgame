@@ -171,8 +171,7 @@ computePlayableStrips board trayCapacity =
   if Board.isEmpty board then
     emptyCenterStripsByLengthByBlanks dimension
   else
-    let rowsAsStrings = Board.rowsAsStrings board
-        allStrips = Strip.allStripsByLengthByBlanks rowsAsStrings dimension
+    let allStrips = Board.groupedStrips board
         blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
         filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
         playableStrips = filterPlayableBlanks <$> allStrips

@@ -1,0 +1,328 @@
+name:           boardgame
+version:        0.5.0
+build-type:     Simple
+cabal-version:  >= 1.10
+data-files:     data/*.txt
+
+library
+  hs-source-dirs:
+      src
+  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+  build-depends:
+      base
+    , containers
+    , vector
+    , random
+    , servant == 0.6.*
+    , servant-server
+    , servant-client
+    , transformers
+    , resourcet
+    , aeson
+    , wai
+    , wai-extra
+    , wai-cors
+    , warp
+    , persistent
+    , persistent-template
+    , persistent-sqlite
+    , persistent-postgresql
+    , text
+    , string-conversions
+    , monad-logger
+    , monad-control
+    , mtl
+    , bytestring
+    , here
+    , safe
+    , esqueleto
+    , http-client
+    , http-types
+    , network
+    , case-insensitive
+    , uuid
+    , logging-effect >= 1.1
+    , time
+    , enclosed-exceptions
+    , deepseq
+    , yaml
+  exposed-modules:
+      -- TODO. Separate out util, common, client, and server into different packages.
+      Bolour.Util.Cache
+      Bolour.Util.DbConfig
+      Bolour.Util.PersistRunner
+      Bolour.Util.EnvUtil
+      Bolour.Util.MiscUtil
+      Bolour.Util.Middleware
+      Bolour.Util.HttpUtil
+      Bolour.Util.WaiUtil
+      Bolour.Util.FileUtil
+      Bolour.Util.Empty
+      BoardGame.Common.GameApi
+      BoardGame.Server.Domain.ServerConfig
+      BoardGame.Common.Domain.Player
+      BoardGame.Common.Domain.Piece
+      BoardGame.Common.Domain.Point
+      BoardGame.Common.Domain.GridValue
+      BoardGame.Common.Domain.GridPiece
+      BoardGame.Common.Domain.PieceGeneratorType
+      BoardGame.Common.Domain.GameParams
+      BoardGame.Common.Message.StartGameRequest
+      BoardGame.Common.Message.StartGameResponse
+      BoardGame.Common.Message.CommitPlayResponse
+      BoardGame.Common.Message.MachinePlayResponse
+      BoardGame.Common.Message.SwapPieceResponse
+      BoardGame.Common.Domain.PlayPiece
+      BoardGame.Common.Domain.ScoreMultiplierType
+      BoardGame.Common.Domain.ScoreMultiplier
+      BoardGame.Common.Domain.StopInfo
+      BoardGame.Common.Domain.GameMiniState
+      BoardGame.Common.Domain.GameSummary
+      BoardGame.Common.Domain.PointSymmetry
+      BoardGame.Common.Domain.Grid
+      BoardGame.Common.Domain.SwissCheeseGrid
+      BoardGame.Server.Domain.TileSack
+      BoardGame.Server.Domain.Core
+      BoardGame.Server.Domain.Board
+      BoardGame.Server.Domain.GameError
+      BoardGame.Server.Domain.Game
+      BoardGame.Server.Domain.Play
+      BoardGame.Server.Domain.Strip
+      BoardGame.Server.Domain.Tray
+      BoardGame.Server.Domain.PlayInfo
+      BoardGame.Server.Domain.PlayDetails
+      BoardGame.Server.Domain.StripMatcher
+      BoardGame.Server.Domain.WordDictionary
+      BoardGame.Server.Domain.GameCache
+      BoardGame.Server.Domain.GameEnv
+      BoardGame.Server.Domain.DictionaryCache
+      BoardGame.Server.Domain.CrossWordFinder
+      BoardGame.Server.Domain.Scorer
+      BoardGame.Server.Web.GameEndPoint
+      BoardGame.Server.Web.Converters
+      BoardGame.Server.Service.GameTransformerStack
+      BoardGame.Server.Service.GameService
+      BoardGame.Server.Service.GameDao
+      BoardGame.Util.WordUtil
+      BoardGame.Client.GameClient
+  other-modules:
+      Paths_boardgame
+  default-language: Haskell2010
+
+executable boardgame-database-migrator
+  main-is: app/DatabaseMigrator.hs
+  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+  build-depends:
+      base
+    , boardgame
+  default-language: Haskell2010
+
+executable boardgame-seed-data-populator
+  main-is: app/SeedDataPopulator.hs
+  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+  build-depends:
+      base
+    , transformers
+    , boardgame
+  default-language: Haskell2010
+
+executable boardgame-sample-client
+  main-is: app/SampleClient.hs
+  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+  build-depends:
+      base
+    , boardgame
+    , servant-client
+    , mtl
+    , aeson
+    , wai-cors
+    , http-client
+  default-language: Haskell2010
+
+executable boardgame-server
+  main-is: app/Main.hs
+  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+  build-depends:
+      base
+    , wai
+    , wai-cors
+    , warp
+    , here
+    , http-types
+    , boardgame
+    , containers
+    , mtl
+  default-language: Haskell2010
+
+--executable trial
+--  main-is: app/DistributionTrial.hs
+--  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+--  build-depends:
+--      base
+--    , wai
+--    , wai-cors
+--    , warp
+--    , aeson
+--    , here
+--    , http-types
+--    , bytestring
+--    , boardgame
+--    , containers
+--  default-language: Haskell2010
+
+--executable sqlite-memory-trial
+--  main-is: trial/SqliteTrial.hs
+--  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+--  build-depends:
+--      base
+--    , wai
+--    , aeson
+--    , here
+--    , http-types
+--    , bytestring
+--    , boardgame
+--    , containers
+--    , persistent
+--    , persistent-template
+--    , persistent-sqlite
+--    , transformers
+--  default-language: Haskell2010
+
+--executable async-sample
+--  main-is: trial/AsyncSample.hs
+--  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+--  build-depends:
+--      base
+--    , async
+--  default-language: Haskell2010
+
+--executable mvar-sample
+--  main-is: trial/MvarSample.hs
+--  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+--  build-depends:
+--      base
+--  default-language: Haskell2010
+
+test-suite spec
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  hs-source-dirs:
+      test
+  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+  build-depends:
+      base
+    , servant == 0.6.*
+    , servant-server
+    , servant-client
+    , transformers
+    , resourcet
+    , aeson
+    , wai
+    , wai-extra
+    , warp
+    , persistent
+    , persistent-template
+    , persistent-sqlite
+    , persistent-postgresql
+    , text
+    , string-conversions
+    , monad-logger
+    , monad-control
+    , mtl
+    , bytestring
+    , here
+    , safe
+    , esqueleto
+    , http-client
+    , http-types
+    , network
+    , case-insensitive
+    , hspec
+    , boardgame
+    , servant-client
+    , warp >= 3.2.4
+    , http-client
+    , http-types
+    , logging-effect >= 1.1
+    , containers
+  other-modules:
+      Bolour.Util.DataFileSpec
+      Bolour.Util.SpecUtil
+      BoardGame.Util.TestUtil
+      BoardGame.Integration.GameClientSpec
+      BoardGame.Integration.JsonSpec
+      BoardGame.Common.Domain.GridSpec
+      BoardGame.Server.Domain.BoardSpec
+      BoardGame.Server.Domain.CommonSpec
+      BoardGame.Server.Domain.StripMatcherSpec
+      BoardGame.Server.Domain.WordDictionarySpec
+      BoardGame.Server.Domain.DictionaryCacheSpec
+      BoardGame.Server.Domain.ServerParametersSpec
+      BoardGame.Server.Domain.TileSackSpec
+      BoardGame.Server.Domain.CrossWordFinderSpec
+      BoardGame.Server.Domain.ScorerSpec
+      BoardGame.Server.Domain.SwissCheeseGridSpec
+      BoardGame.Server.Service.BaseServiceFixtures
+      BoardGame.Server.Service.ServiceTestFixtures
+      BoardGame.Server.Service.GameServiceSpec
+      BoardGame.Server.Service.NegativeGameServiceSpec
+      BoardGame.Server.Web.GameEndPointSpec
+      BoardGame.Server.Web.ConvertersSpec
+      BoardGame.Server.Web.WebTestFixtures
+  default-language: Haskell2010
+
+test-suite infocus
+  type: exitcode-stdio-1.0
+  main-is: InFocus/Main.hs
+  hs-source-dirs:
+      test
+  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+  build-depends:
+      base
+    , hspec
+    , boardgame
+    , transformers, mtl
+    , servant == 0.6.*
+    , servant-server
+    , servant-client
+    , http-client
+    , aeson
+    , logging-effect >= 1.1
+    , containers
+    , bytestring
+  other-modules:
+      Bolour.Util.SpecUtil
+      BoardGame.Util.TestUtil
+      BoardGame.Server.Web.WebTestFixtures
+      BoardGame.Server.Domain.StripMatcherSpec
+      BoardGame.Server.Domain.WordDictionarySpec
+      BoardGame.Server.Domain.DictionaryCacheSpec
+      BoardGame.Server.Service.GameServiceSpec
+      BoardGame.Server.Domain.ServerParametersSpec
+      BoardGame.Server.Domain.CrossWordFinderSpec
+      BoardGame.Server.Domain.SwissCheeseGridSpec
+  default-language: Haskell2010
+
+--executable uuid
+--  main-is: trial/UUIDTrial.hs
+--  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+--  build-depends:
+--      base
+--    , uuid
+--  default-language: Haskell2010
+--
+--executable ioref
+--  main-is: trial/IORefSample.hs
+--  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+--  build-depends:
+--      base
+--  default-language: Haskell2010
+--
+--executable temp-trial
+--  main-is: trial/TempTrial.hs
+--  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+--  build-depends:
+--      base
+--    , boardgame
+--  default-language: Haskell2010
+--
