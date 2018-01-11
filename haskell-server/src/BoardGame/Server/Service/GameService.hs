@@ -34,10 +34,7 @@ import Data.Ord
 import Data.List
 import Data.Maybe (fromJust)
 import Data.Time (getCurrentTime)
--- import Data.ByteString.Char8 (ByteString)
--- import qualified Data.ByteString.Char8 as BS
 
-import Control.Monad (when)
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..), withExceptT)
 import Control.Monad.Reader (MonadReader(..), asks, ask)
@@ -59,8 +56,8 @@ import qualified Bolour.Grid.Point as Axis
 import BoardGame.Common.Domain.GameMiniState (GameMiniState)
 import BoardGame.Common.Domain.GameSummary (GameSummary)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
-import qualified Bolour.Grid.GridValue as GridValue
+-- import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
+-- import qualified Bolour.Grid.GridValue as GridValue
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameParams (GameParams)
@@ -99,7 +96,7 @@ import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
 import BoardGame.Util.WordUtil (DictWord)
-import qualified Bolour.Util.DbConfig as DbConfig
+-- import qualified Bolour.Util.DbConfig as DbConfig
 
 unknownPlayerName = "You"
 unknownPlayer = Player unknownPlayerName
