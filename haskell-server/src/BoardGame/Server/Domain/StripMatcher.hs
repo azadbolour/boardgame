@@ -33,6 +33,7 @@ import BoardGame.Server.Domain.Board (Board)
 import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
 import qualified BoardGame.Server.Domain.Strip as Strip
+import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 import BoardGame.Server.Domain.WordDictionary (WordDictionary(WordDictionary))
 import qualified BoardGame.Server.Domain.WordDictionary as WordDictionary
 import Bolour.Util.MiscUtil as MiscUtil
@@ -59,89 +60,99 @@ wordFitsContent stripContent word
 --   which is the length of the given strip. The combinations to try
 --   are all of the right length to cover the strip's blanks.
 findFittingWord ::
-     WordDictionary  -- ^ the word dictionary to use
+     Board
+  -> WordDictionary
   -> BlankCount
   -> Strip                      -- ^ the strip
   -> [LetterCombo]              -- ^ combinations of letters to try on the strip's blanks
   -> Maybe (Strip, DictWord)    -- ^ longest word found if any
 
-findFittingWord dictionary numBlanks strip [] = Nothing
-findFittingWord dictionary numBlanks (strip @ Strip {letters, content}) (combo : combos) =
+findFittingWord board dictionary numBlanks strip [] = Nothing
+findFittingWord board dictionary numBlanks (strip @ Strip {letters, content}) (combo : combos) =
   let completeWordCombo = WordUtil.mergeLetterCombos letters combo
       words = WordDictionary.getWordPermutations dictionary completeWordCombo
       fittingWords = filter (wordFitsContent content) words
+      crossWordFittingWords =
+        filter crossWordsInDictionary fittingWords
+          where crossWordsInDictionary word =
+                  let crossWords = CrossWordFinder.findStripCrossWords board strip word
+                  in all (WordDictionary.isWord dictionary) crossWords
    in case fittingWords of
-      [] -> findFittingWord dictionary numBlanks strip combos
+      [] -> findFittingWord board dictionary numBlanks strip combos
       first : rest -> Just (strip, first)
 
 matchFittingCombos ::
-     WordDictionary
+     Board
+  -> WordDictionary
   -> BlankCount
   -> [Strip]
   -> [LetterCombo]
   -> Maybe (Strip, DictWord)
 
-matchFittingCombos dictionary numBlanks [] combos = Nothing
-matchFittingCombos dictionary numBlanks (strip : strips) combos =
-  let maybeMatch = findFittingWord dictionary numBlanks strip combos
+matchFittingCombos board dictionary numBlanks [] combos = Nothing
+matchFittingCombos board dictionary numBlanks (strip : strips) combos =
+  let maybeMatch = findFittingWord board dictionary numBlanks strip combos
   in case maybeMatch of
-     Nothing -> matchFittingCombos dictionary numBlanks strips combos
+     Nothing -> matchFittingCombos board dictionary numBlanks strips combos
      Just match -> maybeMatch
 
 -- | The fitting combos appears in descending order.
 --   Each combo has exactly the same number of letters as needed to complete the corresponding strips.
 findOptimalMatchForFittingCombos ::
-     WordDictionary
+     Board
+  -> WordDictionary
   -> [(BlankCount, ([Strip], [LetterCombo]))]
   -> Maybe (Strip, DictWord)
 
-findOptimalMatchForFittingCombos dictionary [] = Nothing
-findOptimalMatchForFittingCombos dictionary ((count, (strips, combos)) : tail) =
-  let maybeMatch = matchFittingCombos dictionary count strips combos
+findOptimalMatchForFittingCombos board dictionary [] = Nothing
+findOptimalMatchForFittingCombos board dictionary ((count, (strips, combos)) : tail) =
+  let maybeMatch = matchFittingCombos board dictionary count strips combos
   in case maybeMatch of
-     Nothing -> findOptimalMatchForFittingCombos dictionary tail
+     Nothing -> findOptimalMatchForFittingCombos board dictionary tail
      Just match -> maybeMatch
 
 -- | Find a best match (if any) for strips of a given length.
 findOptimalMatchForStripsByLength ::
-     WordDictionary
+     Board
+  -> WordDictionary
   -> Map BlankCount [Strip]         -- ^ strips of a given length grouped by number of blanks
   -> Map ByteCount [LetterCombo]    -- ^ combinations of letters grouped by count
   -> Maybe (Strip, DictWord)
 
-findOptimalMatchForStripsByLength dictionary stripsByBlanks combosByLength =
+findOptimalMatchForStripsByLength board dictionary stripsByBlanks combosByLength =
   -- Create a descending list of all: [(blanks, ([Strip], [combos]))] for strips of a given length.
   -- The strips have the given number of blanks.
   -- And the number of letters in each combo is also the number of blanks.
   -- So the combos can be used to fill the strips exactly.
   let matchedStripsAndCombos = Map.toDescList $ MiscUtil.zipMaps stripsByBlanks combosByLength
   in if null matchedStripsAndCombos then Nothing
-     else findOptimalMatchForFittingCombos dictionary matchedStripsAndCombos
+     else findOptimalMatchForFittingCombos board dictionary matchedStripsAndCombos
 
 -- | Find a best match (if any) for strips of at most a given length.
 --   Recursive on the length limit.
 --   Recursion allows us to break out as soon as we find a match at the limit.
 --   Recursive matches will all be shorter and therefore inferior.
 findOptimalMatchForStripsOfLimitedLength ::
-     WordDictionary
+     Board
+  -> WordDictionary
   -> ByteCount
   -> GroupedStrips
   -> Map ByteCount [LetterCombo]
   -> Maybe (Strip, DictWord)
 
-findOptimalMatchForStripsOfLimitedLength dictionary limit groupedStrips combosByLength
+findOptimalMatchForStripsOfLimitedLength board dictionary limit groupedStrips combosByLength
   | limit <= 1 = Nothing
   | limit == 2 =
      do
        stripsByBlanks <- Map.lookup 2 groupedStrips
-       findOptimalMatchForStripsByLength dictionary stripsByBlanks combosByLength
+       findOptimalMatchForStripsByLength board dictionary stripsByBlanks combosByLength
   | otherwise =
        let foundAtLimit =
              do
                 stripsByBlanks <- Map.lookup limit groupedStrips
-                findOptimalMatchForStripsByLength dictionary stripsByBlanks combosByLength
+                findOptimalMatchForStripsByLength board dictionary stripsByBlanks combosByLength
        in case foundAtLimit of
-            Nothing -> findOptimalMatchForStripsOfLimitedLength dictionary (limit - 1) groupedStrips combosByLength
+            Nothing -> findOptimalMatchForStripsOfLimitedLength board dictionary (limit - 1) groupedStrips combosByLength
             Just found -> return found
 
 findOptimalMatch ::
@@ -155,7 +166,7 @@ findOptimalMatch dictionary board trayContent =
       trayLength = length trayContent
       playableStrips = computePlayableStrips board trayLength
       playableCombos = WordUtil.computeCombosGroupedByLength trayContent
-  in findOptimalMatchForStripsOfLimitedLength dictionary dimension playableStrips playableCombos
+  in findOptimalMatchForStripsOfLimitedLength board dictionary dimension playableStrips playableCombos
 
 -- | Get the strips of a two-dimensional grid of characters that can potentially house a word.
 --   A strip is playable iff it has at least 1 anchor letter,

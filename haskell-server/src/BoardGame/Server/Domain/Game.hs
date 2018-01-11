@@ -219,6 +219,8 @@ setPlayerTray (game @ Game {trays}) playerType tray =
       trays' = Util.setListElement trays whichTray tray
   in game {trays = trays'}
 
+-- TODO. The following are only needed for player play.
+-- Machine play already satisfies them.
 -- TODO. The following are basic sanity checks. Not exhaustive yet. And some may be stubbed. Fix.
 -- | Make sure the incoming play is consistent with the state of the game.
 validatePlayAgainstGame :: MonadError GameError m => Game -> [PlayPiece] -> m [PlayPiece]
@@ -255,7 +257,7 @@ checkMoveDestinationsEmpty Game {board} playPieces =
      Nothing -> return playPieces
      Just taken -> throwError $ OccupiedMoveDestinationError taken
 
--- TODO. Implement validation.
+-- TODO. Check cross words.
 checkMoveDestinationsFreeCrossWise :: MonadError GameError m => Game -> [PlayPiece] -> m [PlayPiece]
 checkMoveDestinationsFreeCrossWise game = return
 
