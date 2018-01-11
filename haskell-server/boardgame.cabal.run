@@ -255,6 +255,7 @@ test-suite spec
       BoardGame.Server.Domain.BoardSpec
       BoardGame.Server.Domain.CommonSpec
       BoardGame.Server.Domain.StripMatcherSpec
+      BoardGame.Server.Domain.StripMatcherSpec2
       BoardGame.Server.Domain.WordDictionarySpec
       BoardGame.Server.Domain.DictionaryCacheSpec
       BoardGame.Server.Domain.ServerParametersSpec

@@ -59,21 +59,10 @@ baseTestGrid1 = [
     , [Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, pce 'E'] -- 6
   ]
 
--- testGrid1 :: Grid GridPiece
--- testGrid1 =
---   let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseTestGrid1 !! r !! c)
---   in Grid.mkPointedGrid cellMaker 7 7
-
 -- testBoard1 = Board 7 testGrid1
 testBoard1 = Board.mkBoardFromPieces baseTestGrid1 7
 gridRows1 = Board.rowsAsStrings testBoard1
 
--- testGrid :: Grid GridPiece
--- testGrid =
---   let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseTestGrid !! r !! c)
---   in Grid.mkPointedGrid cellMaker 6 6
-
--- testBoard = Board 6 testGrid
 testBoard = Board.mkBoardFromPieces baseTestGrid 6
 gridRows = Board.rowsAsStrings testBoard
 

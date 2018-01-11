@@ -77,7 +77,7 @@ findFittingWord board dictionary numBlanks (strip @ Strip {letters, content}) (c
           where crossWordsInDictionary word =
                   let crossWords = CrossWordFinder.findStripCrossWords board strip word
                   in all (WordDictionary.isWord dictionary) crossWords
-   in case fittingWords of
+   in case crossWordFittingWords of
       [] -> findFittingWord board dictionary numBlanks strip combos
       first : rest -> Just (strip, first)
 
