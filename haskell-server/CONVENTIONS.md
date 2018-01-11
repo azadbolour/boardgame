@@ -1,6 +1,34 @@
 
 # Hasell Coding Conventions
 
+## Source Hierarchy
+
+Add generally useful modules not necessarily specific to the board game 
+to the Bolour hierarchy. These can be shared by clients.
+
+Add game-specific functions that can be useful to both client and server
+to Boardgame.Common. This includes all on-the-wire message data structures
+between server and clients as well as the board game api.
+
+Test directories and module names follow the corresponding source locations
+and names (modulo addition of Spec suffix).
+
+Make sure dependencies between higher-level packages remain non-cyclic and
+minimal. Here is the general dependency structure:
+
+  `
+    BoardGame.Server << Bolour
+    BoardGame.Server: Web << Service << Domain
+    BoardGame.Server << BoardGame.Common
+
+    BoardGame.Common << Bolour
+    BoardGame.Common: Messages << Domain 
+    BoardGame.Common << GameApi << [Domain, Messages]
+
+    BoardGame.Client << Bolour
+    BoardGame.Client << BoardGame.Common
+  `
+
 ## Type and Constructor Naming
 
 Types and constructor names are generally chosen not to clash with 
@@ -75,14 +103,12 @@ in the English language or in general software practice).
 
 ## Exceptions
 
-Do not use exceptions in application code. But exceptions may arise
-from runtime issues in application code not uncovered by tests, 
-and possibly from lower level libraries. Therefore, we catch 
-all exceptions when we run the game transformer stack, and 
-convert them to internal errors which are then treated normally
-as ExceptT within the game transformer stack. Note that generally
-exceptions may be caught only in the IO monad. However, we need
-to catch them in the game transformer stack.
+But exceptions may arise from runtime issues in application code not uncovered
+by tests, and possibly from lower level libraries. Therefore, we catch all
+exceptions when we run the game transformer stack, and convert them to internal
+errors which are then treated normally as ExceptT within the game transformer
+stack. Note that generally exceptions may be caught only in the IO monad.
+However, we need to catch them in the game transformer stack.
 
 For details of catching exceptions and catching them in particulat 
 in monad transformer stacks, see the following:

@@ -36,6 +36,12 @@ import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified Bolour.Grid.SparseGrid as SparseGrid
 import Bolour.Grid.SparseGrid(SparseGrid)
 
+{--
+  In this module the term 'blank' means an empty slot on the board.
+  Blanks, however, are not represented by the blank character ' '.
+  Blanks are represented by the null character '\0'.
+--}
+
 -- | A horizontal or vertical strip of the board.
 data Strip = Strip {
     axis :: Axis              -- ^ direction of the strip - X = horizontal, Y = vertical.
@@ -44,7 +50,7 @@ data Strip = Strip {
   , end :: Coordinate         -- ^ ending index of the strip
   , content :: String         -- ^ letters and blanks
   , letters :: LetterCombo    -- ^ existing combination of letters in the strip
-  , blanks :: BlankCount      -- ^ number of blank spaces in the strip
+  , blanks :: BlankCount      -- ^ number of blank spaces ('\0') in the strip
 } deriving (Eq, Show)
 
 mkStrip :: Axis -> Int -> Int -> Int -> String -> Strip

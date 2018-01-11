@@ -12,7 +12,6 @@ module BoardGame.Server.Domain.StripMatcher (
   , findFittingWord
   , matchFittingCombos
   , findOptimalMatch
-  , computePlayableStrips
   , computePlayableStrips -- expose for testing
   ) where
 
@@ -22,9 +21,9 @@ import qualified Data.Map as Map
 -- import qualified Data.ByteString.Char8 as BS
 -- import Data.ByteString.Char8 (ByteString)
 
-import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
+-- import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import qualified Bolour.Grid.GridValue as GridValue
+-- import qualified Bolour.Grid.GridValue as GridValue
 import qualified Bolour.Grid.Point as Axis
 import Bolour.Grid.Point (Coordinate)
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
@@ -34,7 +33,7 @@ import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
 import qualified BoardGame.Server.Domain.Strip as Strip
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
-import BoardGame.Server.Domain.WordDictionary (WordDictionary(WordDictionary))
+import BoardGame.Server.Domain.WordDictionary (WordDictionary)
 import qualified BoardGame.Server.Domain.WordDictionary as WordDictionary
 import Bolour.Util.MiscUtil as MiscUtil
 

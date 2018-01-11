@@ -68,6 +68,15 @@ import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import qualified BoardGame.Server.Domain.Strip as Strip
 
+{--
+   A Board uses a SparseGrid to represent the contents of the board.
+   Within a sparse grid, an empty slot is represented
+   by Maybe.Nothing. But Board exposes pieces that represent
+   emptiness by their value being null: '\0'. Where necessary,
+   this module translates between these two representations of
+   emptiness.
+--}
+
 -- | The game board.
 data Board = Board {
     dimension :: Int

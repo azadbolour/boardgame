@@ -11,27 +11,17 @@
 module BoardGame.Server.Domain.ScorerSpec where
 
 import Test.Hspec
-import Data.Maybe (fromJust)
-import qualified Data.Maybe as Maybe
 
-import Bolour.Grid.Grid (Grid, Grid(Grid))
-import qualified Bolour.Grid.Grid as Grid
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece), MoveInfo)
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Common.Domain.GridPiece (GridPiece)
-import Bolour.Grid.GridValue (GridValue(GridValue))
-import qualified Bolour.Grid.GridValue as GridValue
-import BoardGame.Common.Domain.ScoreMultiplier (ScoreMultiplier, ScoreMultiplier(ScoreMultiplier))
+import BoardGame.Common.Domain.ScoreMultiplier (ScoreMultiplier(ScoreMultiplier))
 import qualified BoardGame.Common.Domain.ScoreMultiplier as ScoreMultiplier
 import qualified BoardGame.Server.Domain.Board as Board
 
-import Bolour.Grid.Point (Point, Point(Point))
-import qualified Bolour.Grid.Point as Point
+import Bolour.Grid.Point (Point(Point))
 import qualified Bolour.Grid.Point as Axis
-import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 import qualified BoardGame.Server.Domain.Scorer as Scorer
-import BoardGame.Server.Domain.Scorer (Scorer)
 
 pce :: Char -> Maybe Piece
 pce s = Just $ Piece s "" -- Ignore id.
@@ -48,11 +38,6 @@ baseGrid = [
     , [pce 'E', pce 'A', pce 'R', Nothing, Nothing] -- 3
     , [Nothing, Nothing, Nothing, pce 'E', pce 'X'] -- 4
   ]
-
--- testGrid :: Grid GridPiece
--- testGrid =
---   let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseGrid !! r !! c)
---   in Grid.mkPointedGrid cellMaker dimension dimension
 
 board = Board.mkBoardFromPieces baseGrid dimension
 
