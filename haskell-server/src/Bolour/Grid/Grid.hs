@@ -10,13 +10,10 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE DeriveFunctor #-}
 
--- TODO. Move to package Bolour.General.Domain. TODO. What is the naming convention for this type of thing?
--- Point and GridValue would also move to a more generic place.
-
 {-|
 Definition of the game grid and its dependencies.
 -}
-module BoardGame.Common.Domain.Grid (
+module Bolour.Grid.Grid (
     Grid(..)
   , mkGrid
   , get
@@ -38,9 +35,9 @@ import Data.Maybe (fromJust)
 
 import qualified Bolour.Util.MiscUtil as Util
 
-import BoardGame.Common.Domain.Point (Point, Point(Point), Axis, Coordinate, Height, Width)
-import qualified BoardGame.Common.Domain.Point as Axis
-import qualified BoardGame.Common.Domain.Point as Point
+import Bolour.Grid.Point (Point, Point(Point), Axis, Coordinate, Height, Width)
+import qualified Bolour.Grid.Point as Axis
+import qualified Bolour.Grid.Point as Point
 
 -- |The 2-dimensional grid of squares on a game board.
 data Grid val = Grid {

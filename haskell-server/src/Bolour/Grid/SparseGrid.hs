@@ -13,7 +13,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module BoardGame.Common.Domain.SparseGrid (
+module Bolour.Grid.SparseGrid (
       SparseGrid
     , mkGrid
     , mkEmptyGrid
@@ -39,11 +39,11 @@ import Data.List
 import Data.Maybe (isJust, fromJust, isNothing)
 import Control.Monad (join)
 import qualified Bolour.Util.Empty as Empty
-import BoardGame.Common.Domain.Point (Point, Point(Point), Axis, Coordinate, Height, Width)
-import qualified BoardGame.Common.Domain.Point as Axis
-import qualified BoardGame.Common.Domain.Point as Point
-import qualified BoardGame.Common.Domain.Grid as Grid
-import BoardGame.Common.Domain.Grid (Grid, Grid(Grid))
+import Bolour.Grid.Point (Point, Point(Point), Axis, Coordinate, Height, Width)
+import qualified Bolour.Grid.Point as Axis
+import qualified Bolour.Grid.Point as Point
+import qualified Bolour.Grid.Grid as Grid
+import Bolour.Grid.Grid (Grid, Grid(Grid))
 
 type LocatedValue val = (Maybe val, Point)
 

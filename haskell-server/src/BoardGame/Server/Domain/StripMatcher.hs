@@ -24,9 +24,9 @@ import qualified Data.Map as Map
 
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import qualified BoardGame.Common.Domain.GridValue as GridValue
-import qualified BoardGame.Common.Domain.Point as Axis
-import BoardGame.Common.Domain.Point (Coordinate)
+import qualified Bolour.Grid.GridValue as GridValue
+import qualified Bolour.Grid.Point as Axis
+import Bolour.Grid.Point (Coordinate)
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil
 import BoardGame.Server.Domain.Board (Board)

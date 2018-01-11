@@ -36,14 +36,14 @@ import Control.Monad.Except (MonadError(..))
 import qualified Bolour.Util.MiscUtil as Util
 
 import BoardGame.Common.Domain.GameParams as GameParams -- allows both qualified and unqualified names
-import qualified BoardGame.Common.Domain.Point as Point
+import qualified Bolour.Grid.Point as Point
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.Player (PlayerType(..))
 import qualified BoardGame.Common.Domain.Player as Player
-import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
+import Bolour.Grid.GridValue (GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import qualified BoardGame.Common.Domain.GridValue as GridValue
+import qualified Bolour.Grid.GridValue as GridValue
 import BoardGame.Common.Domain.PlayPiece (PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameMiniState (GameMiniState, GameMiniState(GameMiniState))
@@ -55,8 +55,8 @@ import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.GameError
-import BoardGame.Server.Domain.TileSack
-import qualified BoardGame.Server.Domain.TileSack as TileSack
+import BoardGame.Server.Domain.PieceProvider
+import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
 import BoardGame.Server.Domain.Scorer (Scorer)
 import qualified BoardGame.Server.Domain.Scorer as Scorer
 
@@ -70,7 +70,7 @@ data Game = Game {
   , playerName :: Player.PlayerName
   , playNumber :: Int
   , playTurn :: PlayerType
-  , tileSack :: TileSack
+  , tileSack :: PieceProvider
   , scorePlay :: [PlayPiece] -> Int
   , lastPlayScore :: Int
   , numSuccessivePasses :: Int
@@ -93,7 +93,7 @@ passesMaxedOut :: Game -> Bool
 passesMaxedOut Game { numSuccessivePasses } = numSuccessivePasses == maxSuccessivePasses
 
 isSackEmpty :: Game -> Bool
-isSackEmpty Game { tileSack } = TileSack.isEmpty tileSack
+isSackEmpty Game { tileSack } = PieceProvider.isEmpty tileSack
 
 isUserTrayEmpty :: Game -> Bool
 isUserTrayEmpty Game { trays } = Tray.isEmpty $ trays !! Player.userIndex
@@ -122,7 +122,7 @@ initTray (game @ Game { trays }) playerType initPieces = do
       game'' = setPlayerTray game' playerType tray
   return game''
 
-updatePieceGenerator :: Game -> TileSack -> Game
+updatePieceGenerator :: Game -> PieceProvider -> Game
 
 -- | Explicit record update for fieldGenerator.
 --   Cannot do normal update: game {tileSack = nextGen} gets compiler error:
@@ -131,7 +131,7 @@ updatePieceGenerator game generator = game { tileSack = generator }
 
 mkPieces :: (MonadError GameError m, MonadIO m) => Int -> Game -> m (Game, [Piece])
 mkPieces num (game @ Game { tileSack }) = do
-  (pieces, leftTileSack) <- TileSack.takeAvailableTiles tileSack num
+  (pieces, leftTileSack) <- PieceProvider.takeAvailableTiles tileSack num
   let game' = game { tileSack = leftTileSack }
   return (game', pieces)
 
@@ -143,7 +143,7 @@ initScores = [initScore, initScore]
 -- | Note. Validation of player name does not happen here.
 mkInitialGame :: (MonadError GameError m, MonadIO m) =>
   GameParams
-  -> TileSack
+  -> PieceProvider
   -> [GridPiece]
   -> [Piece]
   -> [Piece]
@@ -180,7 +180,7 @@ mkInitialGame gameParams tileSack initGridPieces initUserPieces initMachinePiece
 toMiniState :: Game -> GameMiniState
 toMiniState game @ Game {tileSack, lastPlayScore, scores} =
   let
-      tilesLeft = TileSack.length' tileSack
+      tilesLeft = PieceProvider.length' tileSack
       gameEnded = noMorePlays game
   in GameMiniState lastPlayScore scores tilesLeft gameEnded
 
@@ -316,10 +316,10 @@ doExchange (game @ Game {gameId, board, trays, tileSack, numSuccessivePasses}) p
       piece = pieces !! trayPos
       succPasses = numSuccessivePasses + 1
       game' = game { numSuccessivePasses = succPasses }
-  if TileSack.isEmpty tileSack
+  if PieceProvider.isEmpty tileSack
     then return (game', piece)
     else do
-      (piece', sack1) <- TileSack.swapOne tileSack piece
+      (piece', sack1) <- PieceProvider.swapOne tileSack piece
       let game'' = game' { tileSack = sack1 }
           tray' = Tray.replacePiece tray trayPos piece'
           game''' = setPlayerTray game' playerType tray'

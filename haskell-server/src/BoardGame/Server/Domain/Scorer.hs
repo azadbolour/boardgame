@@ -24,13 +24,13 @@ import BoardGame.Common.Domain.ScoreMultiplier (ScoreMultiplier, ScoreMultiplier
 import qualified BoardGame.Common.Domain.ScoreMultiplier as ScoreMultiplier
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Common.Domain.Point (Point)
+import Bolour.Grid.Point (Point)
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece), MoveInfo)
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
-import BoardGame.Common.Domain.Grid (Grid)
+import Bolour.Grid.Grid (Grid)
 import BoardGame.Server.Domain.Board (Board)
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
-import qualified BoardGame.Common.Domain.Grid as Grid
+import qualified Bolour.Grid.Grid as Grid
 
 bonus = 50
 

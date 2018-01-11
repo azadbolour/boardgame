@@ -13,24 +13,24 @@ import Data.Aeson
 import Control.Monad.Trans.Except (runExceptT)
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import BoardGame.Common.Domain.Piece (Piece)
-import BoardGame.Common.Domain.Point (Point, Point(Point))
+import Bolour.Grid.Point (Point, Point(Point))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Server.Domain.Game (Game, Game(Game))
 import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.GameError
 import qualified Bolour.Util.SpecUtil as SpecUtil
 import qualified BoardGame.Server.Domain.WordDictionary as Dict
-import qualified BoardGame.Server.Domain.TileSack as TileSack
-import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
+import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
+import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 
 spec :: Spec
 
 name = "You"
 
-pieceGeneratorType = PieceGeneratorType.Cyclic
+pieceGeneratorType = PieceProviderType.Cyclic
 params :: GameParams
 params = GameParams 9 12 Dict.defaultLanguageCode name pieceGeneratorType
-tileSack = TileSack.mkDefaultPieceGen PieceGeneratorType.Cyclic 9
+tileSack = PieceProvider.mkDefaultPieceGen PieceProviderType.Cyclic 9
 
 game :: IO Game
 game = do

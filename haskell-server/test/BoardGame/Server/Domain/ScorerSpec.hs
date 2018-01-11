@@ -14,21 +14,21 @@ import Test.Hspec
 import Data.Maybe (fromJust)
 import qualified Data.Maybe as Maybe
 
-import BoardGame.Common.Domain.Grid (Grid, Grid(Grid))
-import qualified BoardGame.Common.Domain.Grid as Grid
+import Bolour.Grid.Grid (Grid, Grid(Grid))
+import qualified Bolour.Grid.Grid as Grid
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece), MoveInfo)
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
-import qualified BoardGame.Common.Domain.GridValue as GridValue
+import Bolour.Grid.GridValue (GridValue(GridValue))
+import qualified Bolour.Grid.GridValue as GridValue
 import BoardGame.Common.Domain.ScoreMultiplier (ScoreMultiplier, ScoreMultiplier(ScoreMultiplier))
 import qualified BoardGame.Common.Domain.ScoreMultiplier as ScoreMultiplier
 import qualified BoardGame.Server.Domain.Board as Board
 
-import BoardGame.Common.Domain.Point (Point, Point(Point))
-import qualified BoardGame.Common.Domain.Point as Point
-import qualified BoardGame.Common.Domain.Point as Axis
+import Bolour.Grid.Point (Point, Point(Point))
+import qualified Bolour.Grid.Point as Point
+import qualified Bolour.Grid.Point as Axis
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 import qualified BoardGame.Server.Domain.Scorer as Scorer
 import BoardGame.Server.Domain.Scorer (Scorer)

@@ -27,13 +27,13 @@ import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.PlayPiece (PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
-import qualified BoardGame.Common.Domain.GridValue as GridValue
+import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
+import qualified Bolour.Grid.GridValue as GridValue
 import qualified BoardGame.Common.Domain.GridPiece as GridPiece
 
-import BoardGame.Common.Domain.Point (Point(Point))
-import qualified BoardGame.Common.Domain.Point as Point
--- import qualified BoardGame.Common.Domain.Point as Point
+import Bolour.Grid.Point (Point(Point))
+import qualified Bolour.Grid.Point as Point
+-- import qualified Bolour.Grid.Point as Point
 import BoardGame.Common.Domain.GameParams (GameParams(GameParams))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Common.Domain.Player (Player(Player))
@@ -62,7 +62,7 @@ import qualified BoardGame.Client.GameClient as Client
 import qualified BoardGame.Server.Domain.WordDictionary as Dict
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
-import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
+import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 
 
 -- TODO. Start the server within the test - just copy main and test against it.
@@ -99,7 +99,7 @@ startApp = do
 dimension = 9
 center = dimension `div` 2
 thePlayer = "You"
-pieceGeneratorType = PieceGeneratorType.Cyclic
+pieceGeneratorType = PieceProviderType.Cyclic
 params = GameParams dimension 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
 playerJohn = Player thePlayer
 

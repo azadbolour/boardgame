@@ -25,10 +25,10 @@ import BoardGame.Server.Domain.Tray as Tray
 
 import qualified BoardGame.Common.Domain.Player as Player
 import qualified BoardGame.Server.Domain.Game as Game
-import qualified BoardGame.Server.Domain.TileSack as TileSack
-import BoardGame.Server.Domain.TileSack
-import BoardGame.Common.Domain.PieceGeneratorType
-import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
+import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
+import BoardGame.Server.Domain.PieceProvider
+import BoardGame.Common.Domain.PieceProviderType
+import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 
 dummyDay :: Day
 dummyDay = fromGregorian 2000 1 1
@@ -45,7 +45,7 @@ class Converter entity dto where
 
 gameToStartGameResponse (Game {gameId, languageCode, board, trays, playerName, tileSack}) =
    let dimension = Board.dimension board
-       genType = TileSack.pieceGeneratorType tileSack
+       genType = PieceProvider.pieceGeneratorType tileSack
        Tray {capacity, pieces = trayPieces} = trays !! Player.userIndex
        gameParams = GameParams dimension capacity languageCode playerName genType
    in StartGameResponse gameId gameParams (Board.getGridPieces board) trayPieces

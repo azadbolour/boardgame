@@ -15,8 +15,8 @@ module BoardGame.Common.Domain.PointSymmetry (
   , translateOrigin
   ) where
 
-import BoardGame.Common.Domain.Point (Point, Point(Point))
-import qualified BoardGame.Common.Domain.Point as Point
+import Bolour.Grid.Point (Point, Point(Point))
+import qualified Bolour.Grid.Point as Point
 
 reflectOnFirstOctant :: Point -> Point
 reflectOnFirstOctant point =

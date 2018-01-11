@@ -16,10 +16,10 @@ import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import BoardGame.Common.Domain.Player (userIndex)
-import BoardGame.Common.Domain.Point (Point, Point(Point))
-import qualified BoardGame.Common.Domain.Point as Point
-import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
-import qualified BoardGame.Common.Domain.GridValue as GridValue
+import Bolour.Grid.Point (Point, Point(Point))
+import qualified Bolour.Grid.Point as Point
+import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
+import qualified Bolour.Grid.GridValue as GridValue
 import BoardGame.Common.Message.StartGameResponse as StartGameResponse
 import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
@@ -28,16 +28,16 @@ import BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Web.Converters(gameToStartGameResponse)
 import Bolour.Util.SpecUtil (satisfiesRight)
 import qualified BoardGame.Server.Domain.WordDictionary as Dict
-import qualified BoardGame.Server.Domain.TileSack as TileSack
-import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
+import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
+import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 
 dim = 9
 mid = dim `div` 2
 thePlayer = "You"
 
-pieceGeneratorType = PieceGeneratorType.Cyclic
+pieceGeneratorType = PieceProviderType.Cyclic
 params = GameParams dim 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
-tileSack = TileSack.mkDefaultPieceGen PieceGeneratorType.Cyclic dim
+tileSack = PieceProvider.mkDefaultPieceGen PieceProviderType.Cyclic dim
 
 spec :: Spec
 spec = do

@@ -58,14 +58,16 @@ library
       Bolour.Util.WaiUtil
       Bolour.Util.FileUtil
       Bolour.Util.Empty
+      Bolour.Grid.Point
+      Bolour.Grid.GridValue
+      Bolour.Grid.Grid
+      Bolour.Grid.SparseGrid
       BoardGame.Common.GameApi
       BoardGame.Server.Domain.ServerConfig
       BoardGame.Common.Domain.Player
       BoardGame.Common.Domain.Piece
-      BoardGame.Common.Domain.Point
-      BoardGame.Common.Domain.GridValue
       BoardGame.Common.Domain.GridPiece
-      BoardGame.Common.Domain.PieceGeneratorType
+      BoardGame.Common.Domain.PieceProviderType
       BoardGame.Common.Domain.GameParams
       BoardGame.Common.Message.StartGameRequest
       BoardGame.Common.Message.StartGameResponse
@@ -79,9 +81,7 @@ library
       BoardGame.Common.Domain.GameMiniState
       BoardGame.Common.Domain.GameSummary
       BoardGame.Common.Domain.PointSymmetry
-      BoardGame.Common.Domain.Grid
-      BoardGame.Common.Domain.SparseGrid
-      BoardGame.Server.Domain.TileSack
+      BoardGame.Server.Domain.PieceProvider
       BoardGame.Server.Domain.Core
       BoardGame.Server.Domain.Board
       BoardGame.Server.Domain.GameError
@@ -164,7 +164,7 @@ test-suite spec
       BoardGame.Server.Domain.WordDictionarySpec
       BoardGame.Server.Domain.DictionaryCacheSpec
       BoardGame.Server.Domain.ServerParametersSpec
-      BoardGame.Server.Domain.TileSackSpec
+      BoardGame.Server.Domain.PieceProviderSpec
       BoardGame.Server.Domain.CrossWordFinderSpec
       BoardGame.Server.Domain.ScorerSpec
       BoardGame.Server.Domain.SparseGridSpec

@@ -19,10 +19,10 @@ module BoardGame.Common.Domain.ScoreMultiplier (
   ) where
 
 import Debug.Trace as Trace
-import BoardGame.Common.Domain.Grid (Grid)
-import qualified BoardGame.Common.Domain.Grid as Grid
-import BoardGame.Common.Domain.Point (Point, Point(Point))
-import qualified BoardGame.Common.Domain.Point as Point
+import Bolour.Grid.Grid (Grid)
+import qualified Bolour.Grid.Grid as Grid
+import Bolour.Grid.Point (Point, Point(Point))
+import qualified Bolour.Grid.Point as Point
 import BoardGame.Common.Domain.ScoreMultiplierType (ScoreMultiplierType)
 import qualified BoardGame.Common.Domain.ScoreMultiplierType as SMType
 import BoardGame.Common.Domain.PointSymmetry (

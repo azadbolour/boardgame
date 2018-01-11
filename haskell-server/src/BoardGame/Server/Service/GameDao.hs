@@ -70,7 +70,7 @@ import Database.Persist.Sql (
 import Database.Persist.TH
 import BoardGame.Server.Domain.Core(EntityId)
 import BoardGame.Server.Domain.GameError(GameError(..))
-import BoardGame.Common.Domain.Point(Coordinate)
+import Bolour.Grid.Point(Coordinate)
 import BoardGame.Common.Domain.Player (PlayerName)
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv(GameEnv(..))
 

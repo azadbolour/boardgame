@@ -14,8 +14,8 @@ module BoardGame.Common.Domain.GameParams (
 import GHC.Generics (Generic)
 import Data.Aeson (FromJSON, ToJSON)
 import Control.DeepSeq (NFData)
-import BoardGame.Common.Domain.Point (Coordinate)
-import BoardGame.Common.Domain.PieceGeneratorType
+import Bolour.Grid.Point (Coordinate)
+import BoardGame.Common.Domain.PieceProviderType
 
 -- | Parameters used in creating a new game - provided by API clients.
 --   Note. The Haskell standard for language code uses an underscore to
@@ -28,7 +28,7 @@ data GameParams = GameParams {
   , trayCapacity :: Int   -- ^ Number of letters in a user or machine tray.
   , languageCode :: String -- ^ Language code for the language of the word list to use, e.g. "en".
   , playerName :: String  -- ^ Name of user initiating a game. TODO. Expedient. Not a game parameter per se. Move it out.
-  , pieceGeneratorType :: PieceGeneratorType -- ^ Determines how to generate pieces for a game.
+  , pieceGeneratorType :: PieceProviderType -- ^ Determines how to generate pieces for a game.
 }
   deriving (Eq, Show, Generic, NFData)
 

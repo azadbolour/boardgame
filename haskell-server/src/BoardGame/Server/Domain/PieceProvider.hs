@@ -11,12 +11,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module BoardGame.Server.Domain.TileSack (
-    TileSack(..),
-    TileSack(RandomTileSack, CyclicTileSack)
+module BoardGame.Server.Domain.PieceProvider (
+    PieceProvider(..),
+    PieceProvider(RandomPieceProvider, CyclicPieceProvider)
   , length'
   , isEmpty
-  , BoardGame.Server.Domain.TileSack.take
+  , BoardGame.Server.Domain.PieceProvider.take
   , takeAvailableTiles
   , swapOne
   , pieceGeneratorType
@@ -31,8 +31,8 @@ import Control.Monad.Except (MonadError(..))
 
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
-import BoardGame.Common.Domain.PieceGeneratorType
+import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
+import BoardGame.Common.Domain.PieceProviderType
 import Bolour.Util.MiscUtil (IOEither)
 import BoardGame.Server.Domain.GameError (GameError, GameError(InternalError))
 
@@ -51,23 +51,25 @@ type InitialSackContents = SackContents
 --   Included in the common package to allow client tests
 --   to generate pieces consistently with the server.
 --   The string used in the cyclic generator has to be infinite.
-data TileSack = RandomTileSack { initial :: InitialSackContents, current :: SackContents} | CyclicTileSack Integer String
+data PieceProvider =
+  RandomPieceProvider { initial :: InitialSackContents, current :: SackContents} |
+  CyclicPieceProvider Integer String
 
-isEmpty :: TileSack -> Bool
-isEmpty (RandomTileSack initial current) = null current
-isEmpty (CyclicTileSack count cycler) = False
+isEmpty :: PieceProvider -> Bool
+isEmpty (RandomPieceProvider initial current) = null current
+isEmpty (CyclicPieceProvider count cycler) = False
 
-isFull :: TileSack -> Bool
-isFull (RandomTileSack initial current) = length initial == length current
-isFull (CyclicTileSack count cycler) = False
+isFull :: PieceProvider -> Bool
+isFull (RandomPieceProvider initial current) = length initial == length current
+isFull (CyclicPieceProvider count cycler) = False
 
-length' :: TileSack -> Int
-length' (RandomTileSack initial current) = length current
-length' (CyclicTileSack count cycler) = maxBound :: Int
+length' :: PieceProvider -> Int
+length' (RandomPieceProvider initial current) = length current
+length' (CyclicPieceProvider count cycler) = maxBound :: Int
 
-take :: (MonadError GameError m, MonadIO m) => TileSack -> m (Piece, TileSack)
+take :: (MonadError GameError m, MonadIO m) => PieceProvider -> m (Piece, PieceProvider)
 
-take (sack @ RandomTileSack {initial, current}) =
+take (sack @ RandomPieceProvider {initial, current}) =
   if isEmpty sack
     then throwError $ InternalError "attempt to take piece from empty sack" -- TODO. Specific game error.
     else do
@@ -77,16 +79,16 @@ take (sack @ RandomTileSack {initial, current}) =
           sack' = sack { current = current' }
       return (piece, sack')
 
-take (CyclicTileSack count cycler) = do
+take (CyclicPieceProvider count cycler) = do
   let count' = count + 1
       piece = Piece (head cycler) (show count')
-  return (piece, CyclicTileSack count' (drop 1 cycler))
+  return (piece, CyclicPieceProvider count' (drop 1 cycler))
 
 -- TODO. Better way to disambiguate?
-take' :: (MonadError GameError m, MonadIO m) => TileSack -> m (Piece, TileSack)
-take' = BoardGame.Server.Domain.TileSack.take
+take' :: (MonadError GameError m, MonadIO m) => PieceProvider -> m (Piece, PieceProvider)
+take' = BoardGame.Server.Domain.PieceProvider.take
 
-takeAvailableTilesToList :: (MonadError GameError m, MonadIO m) => TileSack -> [Piece] -> Int -> m ([Piece], TileSack)
+takeAvailableTilesToList :: (MonadError GameError m, MonadIO m) => PieceProvider -> [Piece] -> Int -> m ([Piece], PieceProvider)
 takeAvailableTilesToList sack list n =
   if n == 0 || isEmpty sack
     then return (list, sack)
@@ -95,36 +97,36 @@ takeAvailableTilesToList sack list n =
       (pieces, sack2) <- takeAvailableTilesToList sack1 (piece:list) (n - 1)
       return (pieces, sack2)
 
-takeAvailableTiles :: (MonadError GameError m, MonadIO m) => TileSack -> Int -> m ([Piece], TileSack)
+takeAvailableTiles :: (MonadError GameError m, MonadIO m) => PieceProvider -> Int -> m ([Piece], PieceProvider)
 takeAvailableTiles sack max = takeAvailableTilesToList sack [] max
 
-give :: (MonadError GameError m, MonadIO m) => TileSack -> Piece -> m TileSack
-give (sack @ RandomTileSack {initial, current}) piece =
+give :: (MonadError GameError m, MonadIO m) => PieceProvider -> Piece -> m PieceProvider
+give (sack @ RandomPieceProvider {initial, current}) piece =
   if isFull sack
     then throwError $ InternalError "attempt to give piece to a full sack" -- TODO. Specific game error.
     else return $ sack { current = piece:current }
     -- TODO. Check that piece belongs to initial contents.
 
-give (sack @ (CyclicTileSack count cycler)) piece = return sack
+give (sack @ (CyclicPieceProvider count cycler)) piece = return sack
 
 -- give sack piece = return sack
 
-swapOne :: (MonadError GameError m, MonadIO m) => TileSack -> Piece -> m (Piece, TileSack)
+swapOne :: (MonadError GameError m, MonadIO m) => PieceProvider -> Piece -> m (Piece, PieceProvider)
 swapOne sack piece = do
   (swappedPiece, sack1) <- take' sack
   sack2 <- give sack1 piece
   return (swappedPiece, sack2)
 
-pieceGeneratorType :: TileSack -> PieceGeneratorType
-pieceGeneratorType (RandomTileSack _ _) = PieceGeneratorType.Random
-pieceGeneratorType (CyclicTileSack _ _) = PieceGeneratorType.Cyclic
+pieceGeneratorType :: PieceProvider -> PieceProviderType
+pieceGeneratorType (RandomPieceProvider _ _) = PieceProviderType.Random
+pieceGeneratorType (CyclicPieceProvider _ _) = PieceProviderType.Cyclic
 
 caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-mkDefaultPieceGen :: PieceGeneratorType -> Int -> TileSack
-mkDefaultPieceGen PieceGeneratorType.Random dimension =
+mkDefaultPieceGen :: PieceProviderType -> Int -> PieceProvider
+mkDefaultPieceGen PieceProviderType.Random dimension =
   let init = mkInitialRandomSackContent dimension
-  in RandomTileSack init init
-mkDefaultPieceGen PieceGeneratorType.Cyclic dimension = CyclicTileSack 0 (cycle caps)
+  in RandomPieceProvider init init
+mkDefaultPieceGen PieceProviderType.Cyclic dimension = CyclicPieceProvider 0 (cycle caps)
 
 mkInitialRandomSackContent :: Int -> [Piece]
 mkInitialRandomSackContent dimension =

@@ -15,7 +15,7 @@ A point of a grid and related definitions.
 These are very unlikely to change over time and are therefore
 shared with the web interface layer and with clients.
 -}
-module BoardGame.Common.Domain.Point (
+module Bolour.Grid.Point (
     Axis(..)
   , crossAxis
   , Coordinate

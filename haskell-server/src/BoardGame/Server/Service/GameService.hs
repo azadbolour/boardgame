@@ -52,15 +52,15 @@ import BoardGame.Common.Domain.Player (Player(Player), PlayerType(..))
 import qualified BoardGame.Common.Domain.Player as Player
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Common.Domain.Point (Point, Point(Point))
--- import qualified BoardGame.Common.Domain.Point as Point
--- import BoardGame.Common.Domain.Point (Axis)
-import qualified BoardGame.Common.Domain.Point as Axis
+import Bolour.Grid.Point (Point, Point(Point))
+-- import qualified Bolour.Grid.Point as Point
+-- import Bolour.Grid.Point (Axis)
+import qualified Bolour.Grid.Point as Axis
 import BoardGame.Common.Domain.GameMiniState (GameMiniState)
 import BoardGame.Common.Domain.GameSummary (GameSummary)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
-import qualified BoardGame.Common.Domain.GridValue as GridValue
+import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
+import qualified Bolour.Grid.GridValue as GridValue
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameParams (GameParams)
@@ -97,7 +97,7 @@ import qualified BoardGame.Server.Domain.ServerConfig as ServerParameters
 import qualified BoardGame.Server.Domain.StripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
-import qualified BoardGame.Server.Domain.TileSack as TileSack
+import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
 import BoardGame.Util.WordUtil (DictWord)
 import qualified Bolour.Util.DbConfig as DbConfig
 
@@ -170,7 +170,7 @@ startGameService gameParams initGridPieces initUserPieces initMachinePieces = do
   playerRowId <- GameDao.findExistingPlayerRowIdByName connectionProvider playerName
   dictionary <- lookupDictionary languageCode
   -- let tileSack = RandomPieceGenerator.mkRandomPieceGenerator
-  let tileSack = TileSack.mkDefaultPieceGen pieceGeneratorType dimension
+  let tileSack = PieceProvider.mkDefaultPieceGen pieceGeneratorType dimension
   game @ Game{ gameId } <- Game.mkInitialGame params tileSack initGridPieces initUserPieces initMachinePieces playerName
   GameDao.addGame connectionProvider $ gameToRow playerRowId game
   liftGameExceptToStack $ GameCache.insert game gameCache

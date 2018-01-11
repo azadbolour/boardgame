@@ -52,17 +52,17 @@ import Control.Monad.Except (MonadError(..))
 
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
-import BoardGame.Common.Domain.GridValue (GridValue(GridValue))
+import Bolour.Grid.GridValue (GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import qualified BoardGame.Common.Domain.GridPiece as GridPiece
-import qualified BoardGame.Common.Domain.GridValue as GridValue
+import qualified Bolour.Grid.GridValue as GridValue
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Common.Domain.Point (Coordinate, Axis(..), Point, Point(Point))
-import qualified BoardGame.Common.Domain.Point as Point
-import qualified BoardGame.Common.Domain.Point as Axis
-import BoardGame.Common.Domain.SparseGrid (SparseGrid)
-import qualified BoardGame.Common.Domain.SparseGrid as SparseGrid
+import Bolour.Grid.Point (Coordinate, Axis(..), Point, Point(Point))
+import qualified Bolour.Grid.Point as Point
+import qualified Bolour.Grid.Point as Axis
+import Bolour.Grid.SparseGrid (SparseGrid)
+import qualified Bolour.Grid.SparseGrid as SparseGrid
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))

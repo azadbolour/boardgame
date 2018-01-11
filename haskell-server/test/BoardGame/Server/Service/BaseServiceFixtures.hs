@@ -23,9 +23,9 @@ import BoardGame.Common.Domain.Player (Player, Player(Player))
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import BoardGame.Common.Domain.GridValue (GridValue, GridValue(GridValue))
-import qualified BoardGame.Common.Domain.GridValue as GridValue
-import BoardGame.Common.Domain.Point (Point, Point(Point))
+import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
+import qualified Bolour.Grid.GridValue as GridValue
+import Bolour.Grid.Point (Point, Point(Point))
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Server.Domain.GameCache as GameCache
@@ -34,14 +34,14 @@ import qualified BoardGame.Server.Domain.WordDictionary as Dict
 import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
 import qualified Bolour.Util.PersistRunner as PersistRunner
 import qualified BoardGame.Server.Service.GameDao as GameDao
-import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
+import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 
 testConfigPath = "test-data/test-config.yml"
 thePlayer = "You"
 testDimension = 5
 center = testDimension `div` 2
 testTrayCapacity = 3
-pieceGeneratorType = PieceGeneratorType.Cyclic
+pieceGeneratorType = PieceProviderType.Cyclic
 
 gameParams = GameParams testDimension testTrayCapacity Dict.defaultLanguageCode thePlayer pieceGeneratorType
 

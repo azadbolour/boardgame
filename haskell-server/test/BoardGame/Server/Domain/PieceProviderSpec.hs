@@ -8,21 +8,21 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module BoardGame.Server.Domain.TileSackSpec where
+module BoardGame.Server.Domain.PieceProviderSpec where
 
 import Test.Hspec
-import BoardGame.Common.Domain.PieceGeneratorType (PieceGeneratorType, PieceGeneratorType(Random, Cyclic))
+import BoardGame.Common.Domain.PieceProviderType (PieceProviderType, PieceProviderType(Random, Cyclic))
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import qualified BoardGame.Server.Domain.TileSack as TileSack
-import BoardGame.Server.Domain.TileSack (TileSack, TileSack(RandomTileSack))
+import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
+import BoardGame.Server.Domain.PieceProvider (PieceProvider, PieceProvider(RandomPieceProvider))
 
 spec :: Spec
 spec = do
   describe "Tile Sack" $ do
     it "has expected tiles" $ do
-       let (sack @ RandomTileSack {initial, current}) = TileSack.mkDefaultPieceGen Random 15
-       (TileSack.length' sack) `shouldSatisfy` (== 98)
+       let (sack @ RandomPieceProvider {initial, current}) = PieceProvider.mkDefaultPieceGen Random 15
+       (PieceProvider.length' sack) `shouldSatisfy` (== 98)
        print $ Piece.value <$> initial
 
 

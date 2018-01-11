@@ -12,7 +12,7 @@ module BoardGame.Common.Domain.GridSpec where
 
 import Test.Hspec
 
-import qualified BoardGame.Common.Domain.Grid as Grid
+import qualified Bolour.Grid.Grid as Grid
 
 spec :: Spec
 spec = do

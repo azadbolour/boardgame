@@ -194,7 +194,7 @@ where
 import Servant
 import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
-import BoardGame.Common.Domain.GridValue (GridValue)
+import Bolour.Grid.GridValue (GridValue)
 import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse)
 import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse)
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest)

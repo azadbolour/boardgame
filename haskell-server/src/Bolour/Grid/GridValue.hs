@@ -8,7 +8,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
-module BoardGame.Common.Domain.GridValue (
+module Bolour.Grid.GridValue (
     GridValue(..)
 )
 where
@@ -16,7 +16,7 @@ where
 import GHC.Generics (Generic)
 import Control.DeepSeq (NFData)
 import Data.Aeson (FromJSON, ToJSON)
-import BoardGame.Common.Domain.Point (Point)
+import Bolour.Grid.Point (Point)
 
 -- | A value located on a grid.
 data GridValue val = GridValue {

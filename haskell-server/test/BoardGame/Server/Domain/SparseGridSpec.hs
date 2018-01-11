@@ -13,11 +13,11 @@ module BoardGame.Server.Domain.SparseGridSpec where
 import Data.Maybe
 import Test.Hspec
 
-import BoardGame.Common.Domain.Point (Point, Point(Point), Axis)
-import qualified BoardGame.Common.Domain.Point as Axis
-import qualified BoardGame.Common.Domain.Point as Point
-import BoardGame.Common.Domain.SparseGrid
-import qualified BoardGame.Common.Domain.SparseGrid as SparseGrid
+import Bolour.Grid.Point (Point, Point(Point), Axis)
+import qualified Bolour.Grid.Point as Axis
+import qualified Bolour.Grid.Point as Point
+import Bolour.Grid.SparseGrid
+import qualified Bolour.Grid.SparseGrid as SparseGrid
 
 jst = Just
 baseGrid :: [[Maybe Char]]

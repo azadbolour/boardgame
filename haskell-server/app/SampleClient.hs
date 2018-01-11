@@ -9,19 +9,19 @@ import Servant.Common.BaseUrl()
 import BoardGame.Common.Domain.Player (Player(Player))
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Common.Domain.Point (Point(Point))
-import qualified BoardGame.Common.Domain.Point as Point
+import Bolour.Grid.Point (Point(Point))
+import qualified Bolour.Grid.Point as Point
 import BoardGame.Common.Domain.GameParams (GameParams(GameParams))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 import qualified BoardGame.Client.GameClient as Client
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest(StartGameRequest))
-import qualified BoardGame.Common.Domain.PieceGeneratorType as PieceGeneratorType
+import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 
 dimension = 9
 name = "John"
 player = Player name
-pieceGeneratorType = PieceGeneratorType.Cyclic
+pieceGeneratorType = PieceProviderType.Cyclic
 gameParams = GameParams dimension 12 "en" name pieceGeneratorType
 
 mkPiece = Piece.mkPiece
