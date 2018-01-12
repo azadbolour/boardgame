@@ -5,7 +5,7 @@
  */
 package com.bolour.boardgame.scala.common.domain
 
-object PieceGeneratorType extends Enumeration {
-  type PieceGeneratorType = Value
+object PieceProviderType extends Enumeration {
+  type PieceProviderType = Value
   val Random, Cyclic = Value
 }

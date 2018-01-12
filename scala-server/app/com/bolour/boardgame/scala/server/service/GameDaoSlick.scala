@@ -13,7 +13,7 @@ import slick.jdbc.JdbcProfile
 import slick.jdbc.JdbcBackend.Database
 import com.typesafe.config.Config
 import com.bolour.util.BasicUtil.ID
-import com.bolour.boardgame.scala.common.domain.{PieceGeneratorType, PlayPiece}
+import com.bolour.boardgame.scala.common.domain.{PieceProviderType, PlayPiece}
 import com.bolour.boardgame.scala.server.domain.{Game, GameState, Player, TileSack}
 import com.bolour.util.SlickUtil.{CustomColumnTypes, configuredDbAndProfile, tableNames}
 import org.slf4j.LoggerFactory
@@ -69,10 +69,10 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   def gameRows = TableQuery[GameTable]
 
   def toGameRow(game: Game): GameRow = {
-    GameRow(game.id, game.dimension, game.trayCapacity, game.languageCode, game.pieceGeneratorType.toString, game.playerId, game.startTime, game.endTime)
+    GameRow(game.id, game.dimension, game.trayCapacity, game.languageCode, game.pieceProviderType.toString, game.playerId, game.startTime, game.endTime)
   }
   def fromGameRow(row: GameRow): Game =
-    Game(row.id, row.dimension, row.trayCapacity, row.languageCode, PieceGeneratorType.withName(row.sackType), row.playerId, row.startTime, row.endTime)
+    Game(row.id, row.dimension, row.trayCapacity, row.languageCode, PieceProviderType.withName(row.sackType), row.playerId, row.startTime, row.endTime)
 
   // TODO. Add game and play tables.
 

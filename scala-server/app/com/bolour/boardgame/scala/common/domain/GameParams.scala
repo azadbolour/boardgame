@@ -5,12 +5,12 @@
  */
 package com.bolour.boardgame.scala.common.domain
 
-import com.bolour.boardgame.scala.common.domain.PieceGeneratorType.PieceGeneratorType
+import com.bolour.boardgame.scala.common.domain.PieceProviderType.PieceProviderType
 
 case class GameParams(
   dimension: Int,
   trayCapacity: Int,
   languageCode: String,
   playerName: String, // TODO. Does not belong here.
-  pieceGeneratorType: PieceGeneratorType
+  pieceProviderType: PieceProviderType
 )

@@ -237,11 +237,11 @@ object GameState {
     initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[GameState] = {
 
     val board = Board(game.dimension, gridPieces)
-    // val pieceGenerator = TileSack(game.pieceGeneratorType)
+    // val pieceGenerator = TileSack(game.pieceProviderType)
 
-    val pieceGenerator = game.pieceGeneratorType match {
-      case PieceGeneratorType.Random => RandomTileSack(game.dimension)
-      case PieceGeneratorType.Cyclic => CyclicTileSack()
+    val pieceGenerator = game.pieceProviderType match {
+      case PieceProviderType.Random => RandomTileSack(game.dimension)
+      case PieceProviderType.Cyclic => CyclicTileSack()
     }
 
     val lastPlayScore = 0

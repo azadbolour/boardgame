@@ -13,7 +13,7 @@ import scala.util.{Failure, Success}
 class GameStateSpec extends FlatSpec with Matchers {
 
   val logger = LoggerFactory.getLogger(this.getClass)
-  val genType = PieceGeneratorType.Random
+  val genType = PieceProviderType.Random
   val name = "John"
 
   def mkPlayPieces(startingPoint: Point, axis: Axis, length: Int, pieces: Vector[Piece]): List[PlayPiece] = {
@@ -91,7 +91,7 @@ class GameStateSpec extends FlatSpec with Matchers {
     val dimension = 15
     val trayCapacity = 7
 
-    val gameParams = GameParams(dimension, trayCapacity, "en", name, PieceGeneratorType.Cyclic)
+    val gameParams = GameParams(dimension, trayCapacity, "en", name, PieceProviderType.Cyclic)
     val game = Game(gameParams, "123")
 
     def pc(ch: Char): Piece = Piece(ch)

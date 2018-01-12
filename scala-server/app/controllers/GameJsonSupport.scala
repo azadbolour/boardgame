@@ -5,7 +5,7 @@
  */
 package controllers
 
-import com.bolour.boardgame.scala.common.domain.PieceGeneratorType._
+import com.bolour.boardgame.scala.common.domain.PieceProviderType._
 import com.bolour.boardgame.scala.common.domain._
 import play.api.libs.json.Json.{reads, writes}
 import com.bolour.boardgame.scala.common.message._
@@ -18,8 +18,8 @@ object GameJsonSupport {
   implicit val charReads: Reads[Char] = new Reads[Char] {
     def reads(json: JsValue) = Json.fromJson[String](json) map { _.head }
   }
-  implicit val pieceGeneratorTypeReads: Reads[PieceGeneratorType] = new Reads[PieceGeneratorType] {
-    def reads(json: JsValue) = Json.fromJson[String](json) map { PieceGeneratorType.withName(_) }
+  implicit val pieceGeneratorTypeReads: Reads[PieceProviderType] = new Reads[PieceProviderType] {
+    def reads(json: JsValue) = Json.fromJson[String](json) map { PieceProviderType.withName(_) }
     // TODO. Throws NoSuchElementException. Is it consistent with Play validation exceptions.
   }
 
@@ -61,8 +61,8 @@ object GameJsonSupport {
     def writes(o: Char) = Json.toJson[String](o.toString)
   }
 
-  implicit val pieceGeneratorTypeWrites: Writes[PieceGeneratorType] = new Writes[PieceGeneratorType] {
-    def writes(o: PieceGeneratorType) = Json.toJson[String](o.toString)
+  implicit val pieceGeneratorTypeWrites: Writes[PieceProviderType] = new Writes[PieceProviderType] {
+    def writes(o: PieceProviderType) = Json.toJson[String](o.toString)
   }
 
   implicit val unitWrites: Writes[Unit] = new Writes[Unit] {

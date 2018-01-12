@@ -16,7 +16,7 @@ class GameServiceTest extends FlatSpec with Matchers {
   val center = dimension / 2
   val tinyLang = "tiny"
   val name = "John"
-  val genType = PieceGeneratorType.Random
+  val genType = PieceProviderType.Random
   val gameParams = GameParams(dimension, trayCapacity, tinyLang, name, genType)
 
   val service = new GameServiceImpl(ConfigFactory.load())

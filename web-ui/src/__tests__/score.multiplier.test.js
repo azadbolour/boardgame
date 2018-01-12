@@ -31,8 +31,8 @@ test('', () => {
   expect(eq(multiplier(0, 0), xWord(3))).toBe(true);
   expect(eq(multiplier(0, 1), x1)).toBe(true);
   expect(eq(multiplier(0, 2), x1)).toBe(true);
-  expect(eq(multiplier(0, 3), xLetter(2))).toBe(true);
-  expect(eq(multiplier(0, 4), x1)).toBe(true);
+  expect(eq(multiplier(0, 3), x1)).toBe(true);
+  expect(eq(multiplier(0, 4), xLetter(2))).toBe(true);
   expect(eq(multiplier(0, 5), x1)).toBe(true);
   expect(eq(multiplier(0, 6), x1)).toBe(true);
   expect(eq(multiplier(0, 7), xWord(3))).toBe(true);

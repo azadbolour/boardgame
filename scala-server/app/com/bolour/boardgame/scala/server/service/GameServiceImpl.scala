@@ -105,7 +105,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     if (gameCache.size >= maxActiveGames)
       return Failure(SystemOverloadedException())
 
-    // val pieceGenerator = TileSack(gameParams.pieceGeneratorType)
+    // val pieceGenerator = TileSack(gameParams.pieceProviderType)
     for {
       player <- getPlayerByName(gameParams.playerName)
       game = Game(gameParams, player.id)
