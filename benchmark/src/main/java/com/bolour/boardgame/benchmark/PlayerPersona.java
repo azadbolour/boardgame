@@ -11,7 +11,11 @@ import com.bolour.boardgame.client.api.GameClientApi;
 import com.bolour.boardgame.client.api.IGameClientApi;
 import com.bolour.boardgame.client.domain.Game;
 import com.bolour.boardgame.client.domain.GameParams;
+import com.bolour.boardgame.client.domain.Piece;
 import com.bolour.boardgame.client.domain.PlayPiece;
+import com.bolour.boardgame.client.message.MachinePlayResponse;
+import com.bolour.boardgame.client.message.StartGameRequest;
+import com.bolour.boardgame.client.message.StartGameResponse;
 import com.bolour.util.rest.BasicCredentials;
 
 import java.util.List;
@@ -28,7 +32,8 @@ public class PlayerPersona extends AbstractBenchmarkPersona {
     private static final String LANGUAGE_CODE = "en";
     private static final String PLAYER = "You"; // TODO. Player name should be a parameter.
     public static final GameParams DEFAULT_GAME_PARAMS =
-      new GameParams(DIMENSION, DIMENSION, TRAY_CAPACITY, LANGUAGE_CODE, PLAYER);
+      new GameParams(DIMENSION, TRAY_CAPACITY, LANGUAGE_CODE, PLAYER, "Random");
+
 
     private static final String GAME_SERVICE_NAME = "game";
     public static final String START_METHOD = "start";
@@ -71,8 +76,10 @@ public class PlayerPersona extends AbstractBenchmarkPersona {
     }
 
     private BenchmarkStateTransition doStart(InitialState initialState) {
-        Game gameDto = client.startGame(DEFAULT_GAME_PARAMS, EMPTY_LIST, EMPTY_LIST, EMPTY_LIST);
-        BaseState runningState = new RunningState(gameDto.gameId, 0);
+
+        StartGameRequest startRequest = new StartGameRequest(DEFAULT_GAME_PARAMS, EMPTY_LIST, EMPTY_LIST, EMPTY_LIST);
+        StartGameResponse startResponse = client.startGame(startRequest);
+        BaseState runningState = new RunningState(startResponse.gameId, 0);
         return new BenchmarkStateTransition(initialState, runningState, mkInteraction(START_METHOD));
     }
 
@@ -100,7 +107,8 @@ public class PlayerPersona extends AbstractBenchmarkPersona {
      * since they take by far the most time.
      */
     private BenchmarkStateTransition play(RunningState runningState) {
-        List<PlayPiece> playPieces = client.machinePlay(runningState.gameId);
+        MachinePlayResponse machineResponse = client.machinePlay(runningState.gameId);
+        List<Piece> machinePieces = machineResponse.playedPieces;
         BaseState nextState = runningState.incrementNumPlays();
         return new BenchmarkStateTransition(runningState, nextState, mkInteraction(PLAY_METHOD));
     }
