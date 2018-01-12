@@ -7,6 +7,7 @@
 package com.bolour.boardgame.client.api;
 
 import com.bolour.boardgame.client.domain.*;
+import com.bolour.boardgame.client.message.*;
 import com.bolour.util.rest.BasicCredentials;
 import com.bolour.util.rest.RuntimeRestClientException;
 import org.slf4j.Logger;
@@ -56,96 +57,104 @@ public class GameClientApi implements IGameClientApi {
     }
 
     @Override
-    public Game startGame(GameParams gameParams, List<GridPiece> initGridPieces, List<Piece> initUserTray, List<Piece> initMachineTray) {
+    public StartGameResponse startGame(StartGameRequest request) {
         HttpHeaders headers = createJsonPostHeaders();
         // Note. The API needs a tuple, which in Java is an array of objects.
-        Object[] tuplePayload = new Object[] {gameParams, initGridPieces, initUserTray, initMachineTray};
-        HttpEntity<Player> requestEntity = new HttpEntity(tuplePayload, headers);
-        ResponseEntity<Game> responseEntity;
+        // Object[] tuplePayload = new Object[] {gameParams, initGridPieces, initUserTray, initMachineTray};
+        HttpEntity<Player> requestEntity = new HttpEntity(request, headers);
+        ResponseEntity<StartGameResponse> responseEntity;
 
         String startGameUrl = baseUrl + "game/game";
 
         try {
-            responseEntity = restTemplate.postForEntity(startGameUrl, requestEntity, Game.class);
+            responseEntity = restTemplate.postForEntity(startGameUrl, requestEntity, StartGameResponse.class);
         }
         catch (Throwable th) {
             throw new RuntimeRestClientException(th);
         }
 
-        Game gameDto = getResponseBody(responseEntity, restDescription());
-        return gameDto;
+        StartGameResponse response = getResponseBody(responseEntity, restDescription());
+        return response;
     }
 
+    // Boilerplate for later use.
+    // responseEntity = restTemplate.exchange(commitPlayUrl, HttpMethod.POST, requestEntity,
+    // new ParameterizedTypeReference<List<Piece>>() {}
+
     @Override
-    public List<Piece> commitPlay(String gameId, List<PlayPiece> playPieces) {
+    public CommitPlayResponse commitPlay(String gameId, List<PlayPiece> playPieces) {
         HttpHeaders headers = createJsonPostHeaders();
         HttpEntity<List<PlayPiece>> requestEntity = new HttpEntity(playPieces, headers);
-        ResponseEntity<List<Piece>> responseEntity;
+        ResponseEntity<CommitPlayResponse> responseEntity;
 
-        String commitPlayUrl = baseUrl + "game/commit-play/{gameId}";
+        String url = baseUrl + "game/commit-play/{gameId}";
 
         try {
-            responseEntity = restTemplate.exchange(commitPlayUrl, HttpMethod.POST, requestEntity,
-              new ParameterizedTypeReference<List<Piece>>() {}, gameId);
+            responseEntity = restTemplate.postForEntity(url, requestEntity, CommitPlayResponse.class, gameId);
         }
         catch (Throwable th) {
             throw new RuntimeRestClientException(th);
         }
 
-        List<Piece> replacementPieces = getResponseBody(responseEntity, restDescription());
-        return replacementPieces;
+        CommitPlayResponse response = getResponseBody(responseEntity, restDescription());
+        return response;
     }
 
     @Override
-    public List<PlayPiece> machinePlay(String gameId) {
+    public MachinePlayResponse machinePlay(String gameId) {
         // HttpHeaders headers = createJsonGetHeaders();
-        ResponseEntity<List<PlayPiece>> responseEntity;
+        ResponseEntity<MachinePlayResponse> responseEntity;
 
-        String endGameUrl = baseUrl + "game/machine-play/{gameId}";
+        String url = baseUrl + "game/machine-play/{gameId}";
         try {
-            responseEntity = restTemplate.exchange(endGameUrl, HttpMethod.POST, HttpEntity.EMPTY,
-              new ParameterizedTypeReference<List<PlayPiece>>() {}, gameId);
+            responseEntity = restTemplate.postForEntity(url, HttpEntity.EMPTY, MachinePlayResponse.class, gameId);
+
         }
         catch (Throwable th) {
             throw new RuntimeRestClientException(th);
         }
 
-        List<PlayPiece> playPieces = getResponseBody(responseEntity, restDescription());
-        return playPieces;
+        MachinePlayResponse response = getResponseBody(responseEntity, restDescription());
+        return response;
     }
 
     @Override
-    public Piece swapPiece(String gameId, Piece piece) {
+    public SwapPieceResponse swapPiece(String gameId, Piece piece) {
         HttpHeaders headers = createJsonPostHeaders();
         HttpEntity<Piece> requestEntity = new HttpEntity(piece, headers);
-        ResponseEntity<Piece> responseEntity;
+        ResponseEntity<SwapPieceResponse> responseEntity;
 
-        String swapPieceUrl = baseUrl + "game/swap-piece/{gameId}";
+        String url = baseUrl + "game/swap-piece/{gameId}";
 
         try {
-            responseEntity = restTemplate.postForEntity(swapPieceUrl, requestEntity, Piece.class, gameId);
+            responseEntity = restTemplate.postForEntity(url, requestEntity, SwapPieceResponse.class, gameId);
         }
         catch (Throwable th) {
             throw new RuntimeRestClientException(th);
         }
 
-        Piece newPiece = getResponseBody(responseEntity, restDescription());
-        return newPiece;
+        SwapPieceResponse response = getResponseBody(responseEntity, restDescription());
+        return response;
     }
 
+    // Note. For void response: use ResponseEntity<Void>, and Void.class.
+
     @Override
-    public void endGame(String gameId) {
+    public GameSummary endGame(String gameId) {
         // HttpHeaders headers = createJsonPostHeaders();
         HttpEntity requestEntity = HttpEntity.EMPTY;
-        ResponseEntity<Void> responseEntity;
+        ResponseEntity<GameSummary> responseEntity;
 
         String endGameUrl = baseUrl + "game/end-game/{gameId}";
         try {
-            responseEntity = restTemplate.postForEntity(endGameUrl, requestEntity, Void.class, gameId);
+            responseEntity = restTemplate.postForEntity(endGameUrl, requestEntity, GameSummary.class, gameId);
         }
         catch (Throwable th) {
             throw new RuntimeRestClientException(th);
         }
+
+        GameSummary response = getResponseBody(responseEntity, restDescription());
+        return response;
     }
 
     private String restDescription() {

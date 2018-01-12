@@ -37,7 +37,7 @@ export const GameParamsConverter = {
       trayCapacity: gameParams.trayCapacity,
       languageCode: "",
       playerName: gameParams.appParams.userName,
-      pieceGeneratorType: gameParams.pieceGeneratorType
+      pieceProviderType: gameParams.pieceProviderType
     }
   }
 };

@@ -99,8 +99,8 @@ startApp = do
 dimension = 9
 center = dimension `div` 2
 thePlayer = "You"
-pieceGeneratorType = PieceProviderType.Cyclic
-params = GameParams dimension 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
+pieceProviderType = PieceProviderType.Cyclic
+params = GameParams dimension 12 Dict.defaultLanguageCode thePlayer pieceProviderType
 playerJohn = Player thePlayer
 
 centerGridPoint = Point center center

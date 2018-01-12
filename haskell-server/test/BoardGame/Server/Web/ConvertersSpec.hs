@@ -35,8 +35,8 @@ dim = 9
 mid = dim `div` 2
 thePlayer = "You"
 
-pieceGeneratorType = PieceProviderType.Cyclic
-params = GameParams dim 12 Dict.defaultLanguageCode thePlayer pieceGeneratorType
+pieceProviderType = PieceProviderType.Cyclic
+params = GameParams dim 12 Dict.defaultLanguageCode thePlayer pieceProviderType
 tileSack = PieceProvider.mkDefaultPieceGen PieceProviderType.Cyclic dim
 
 spec :: Spec

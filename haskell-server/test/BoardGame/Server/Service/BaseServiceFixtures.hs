@@ -41,9 +41,9 @@ thePlayer = "You"
 testDimension = 5
 center = testDimension `div` 2
 testTrayCapacity = 3
-pieceGeneratorType = PieceProviderType.Cyclic
+pieceProviderType = PieceProviderType.Cyclic
 
-gameParams = GameParams testDimension testTrayCapacity Dict.defaultLanguageCode thePlayer pieceGeneratorType
+gameParams = GameParams testDimension testTrayCapacity Dict.defaultLanguageCode thePlayer pieceProviderType
 
 centerGridPoint = Point center center
 

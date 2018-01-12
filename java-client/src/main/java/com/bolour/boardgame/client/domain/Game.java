@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.List;
 
+// TODO. Remove.
 public class Game {
     public final String gameId;
     public final String languageCode;

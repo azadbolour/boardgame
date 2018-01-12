@@ -11,14 +11,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Piece {
     public final char value;
-    public final String pieceId;
+    public final String id;
 
     @JsonCreator
     public Piece(
       @JsonProperty("value") char value,
-      @JsonProperty("pieceId") String pieceId
+      @JsonProperty("id") String id
     ) {
         this.value = value;
-        this.pieceId = pieceId;
+        this.id = id;
     }
 }

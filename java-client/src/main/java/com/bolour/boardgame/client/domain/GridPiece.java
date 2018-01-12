@@ -13,17 +13,17 @@ public class GridPiece {
     // This name 'val' is used in the API for a generic value.
     // But here we just need a piece. So keep the name val but duplicate it to piece.
     // TODO. The API should be cleaned up to just use specific names. Then remove generic name 'val'.
-    public final Piece val;
+    public final Piece value;
     public final Piece piece;
     public final Point point;
 
     @JsonCreator
     public GridPiece(
-      @JsonProperty("val") Piece val,
+      @JsonProperty("value") Piece value,
       @JsonProperty("point") Point point
     ) {
-        this.val = val;
+        this.value = value;
         this.point = point;
-        this.piece = val;
+        this.piece = value;
     }
 }

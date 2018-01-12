@@ -6,17 +6,28 @@
 
 package com.bolour.boardgame.client.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class GameParams {
-    public final int height, width;
+    public final int dimension;
     public final int trayCapacity;
     public final String languageCode;
     public final String playerName;
+    public final String pieceProviderType;
 
-    public GameParams(int height, int width, int trayCapacity, String languageCode, String playerName) {
-        this.height = height;
-        this.width = width;
+    @JsonCreator
+    public GameParams(
+      @JsonProperty("dimension") int dimension,
+      @JsonProperty("trayCapacity") int trayCapacity,
+      @JsonProperty("languageCode") String languageCode,
+      @JsonProperty("playerName") String playerName,
+      @JsonProperty("pieceProviderType") String pieceProviderType
+    ) {
+        this.dimension = dimension;
         this.trayCapacity = trayCapacity;
         this.languageCode = languageCode;
         this.playerName = playerName;
+        this.pieceProviderType = pieceProviderType;
     }
 }

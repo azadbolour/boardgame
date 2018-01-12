@@ -45,7 +45,7 @@ class Converter entity dto where
 
 gameToStartGameResponse (Game {gameId, languageCode, board, trays, playerName, tileSack}) =
    let dimension = Board.dimension board
-       genType = PieceProvider.pieceGeneratorType tileSack
+       genType = PieceProvider.pieceProviderType tileSack
        Tray {capacity, pieces = trayPieces} = trays !! Player.userIndex
        gameParams = GameParams dimension capacity languageCode playerName genType
    in StartGameResponse gameId gameParams (Board.getGridPieces board) trayPieces

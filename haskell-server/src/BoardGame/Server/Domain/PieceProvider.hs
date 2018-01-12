@@ -19,7 +19,7 @@ module BoardGame.Server.Domain.PieceProvider (
   , BoardGame.Server.Domain.PieceProvider.take
   , takeAvailableTiles
   , swapOne
-  , pieceGeneratorType
+  , pieceProviderType
   , mkDefaultPieceGen
   )
   where
@@ -117,9 +117,9 @@ swapOne sack piece = do
   sack2 <- give sack1 piece
   return (swappedPiece, sack2)
 
-pieceGeneratorType :: PieceProvider -> PieceProviderType
-pieceGeneratorType (RandomPieceProvider _ _) = PieceProviderType.Random
-pieceGeneratorType (CyclicPieceProvider _ _) = PieceProviderType.Cyclic
+pieceProviderType :: PieceProvider -> PieceProviderType
+pieceProviderType (RandomPieceProvider _ _) = PieceProviderType.Random
+pieceProviderType (CyclicPieceProvider _ _) = PieceProviderType.Cyclic
 
 caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 mkDefaultPieceGen :: PieceProviderType -> Int -> PieceProvider

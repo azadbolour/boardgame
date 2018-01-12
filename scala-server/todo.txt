@@ -1,4 +1,6 @@
 
+- package scala client library and use it in a java client.
+  The benchmark can then be done in terms of the scala client library.
 - Add more scorer tests. Add crosswordfilder tests.
   Copy from Haskell.
 

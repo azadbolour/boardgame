@@ -26,14 +26,14 @@ function getEnv(varName, defaultValue) {
 
 
 class GameParams {
-  constructor(appParams, dimension, squarePixels, trayCapacity, apiType, gameServerUrl, pieceGeneratorType, startingPlayer = GameParams.PlayerType.userPlayer) {
+  constructor(appParams, dimension, squarePixels, trayCapacity, apiType, gameServerUrl, pieceProviderType, startingPlayer = GameParams.PlayerType.userPlayer) {
     this.appParams = appParams;
     this.dimension = dimension;
     this.squarePixels = squarePixels;
     this.trayCapacity = trayCapacity;
     this.apiType = apiType;
     this.gameServerUrl = gameServerUrl;
-    this.pieceGeneratorType = pieceGeneratorType;
+    this.pieceProviderType = pieceProviderType;
     this.startingPlayer = startingPlayer; // PlayerType
   }
 
@@ -162,7 +162,7 @@ class GameParams {
     clientParams.apiType = GameParams.CLIENT_API_TYPE;
     clientParams.dimension = 15;
     clientParams.trayCapacity = 7;
-    clientParams.pieceGeneratorType = GameParams.PieceGeneratorType.random;
+    clientParams.pieceProviderType = GameParams.PieceGeneratorType.random;
     return clientParams;
   }
 

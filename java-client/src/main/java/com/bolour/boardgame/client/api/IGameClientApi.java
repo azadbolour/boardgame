@@ -7,6 +7,7 @@
 package com.bolour.boardgame.client.api;
 
 import com.bolour.boardgame.client.domain.*;
+import com.bolour.boardgame.client.message.*;
 
 import java.util.List;
 
@@ -14,14 +15,13 @@ public interface IGameClientApi {
 
     void addPlayer(Player player);
 
-    Game startGame(GameParams gameParams, List<GridPiece> initGridPieces,
-                   List<Piece> initUserTray, List<Piece> initMachineTray);
+    StartGameResponse startGame(StartGameRequest request);
 
-    List<Piece> commitPlay(String gameId, List<PlayPiece> playPieces);
+    CommitPlayResponse commitPlay(String gameId, List<PlayPiece> playPieces);
 
-    List<PlayPiece> machinePlay(String gameId);
+    MachinePlayResponse machinePlay(String gameId);
 
-    Piece swapPiece(String gameId, Piece piece);
+    SwapPieceResponse swapPiece(String gameId, Piece piece);
 
-    void endGame(String gameId);
+    GameSummary endGame(String gameId);
 }

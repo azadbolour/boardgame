@@ -10,6 +10,10 @@ package com.bolour.boardgame.integration;
 import com.bolour.boardgame.client.api.GameClientApi;
 import com.bolour.boardgame.client.api.IGameClientApi;
 import com.bolour.boardgame.client.domain.*;
+import com.bolour.boardgame.client.message.MachinePlayResponse;
+import com.bolour.boardgame.client.message.StartGameRequest;
+import com.bolour.boardgame.client.message.StartGameResponse;
+import com.bolour.boardgame.client.message.SwapPieceResponse;
 import com.bolour.util.rest.BasicCredentials;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -37,26 +41,34 @@ public class BasicGameClientTest {
         Player player = new Player(name);
         client.addPlayer(player);
 
-        int height = 15;
-        int width = 15;
+        int dimension = 15;
         int numTrayPieces = 7;
 
         // TODO. Provide the initial trays and board so that a real word may be committed by user.
         // Add a commit play interaction.
 
-        GameParams gameParams = new GameParams(height, width, numTrayPieces, "en", name);
-        Game gameDto = client.startGame(gameParams, EMPTY_LIST, EMPTY_LIST, EMPTY_LIST);
-        String gameId = gameDto.gameId;
-        List<Piece> trayPieces = gameDto.trayPieces;
+        // TODO. PieceProviderType enum.
+        GameParams gameParams = new GameParams(dimension, numTrayPieces, "en", name, "Random");
+
+        StartGameRequest startRequest = new StartGameRequest(gameParams, EMPTY_LIST, EMPTY_LIST, EMPTY_LIST);
+        StartGameResponse startResponse = client.startGame(startRequest);
+
+        String gameId = startResponse.gameId;
+        List<Piece> trayPieces = startResponse.trayPieces;
         // TODO. Create function mapList in util.
         List<Character> letters = trayPieces.stream().map(piece -> piece.value).collect(Collectors.toList());
         LOGGER.info(format("tray pieces: %s", letters));
-        Piece firstPiece = gameDto.trayPieces.get(0);
-        Piece newPiece = client.swapPiece(gameId, firstPiece);
-        LOGGER.info(format("swapped %s for %s", firstPiece, newPiece));
-        List<PlayPiece> playPieces = client.machinePlay(gameId);
-        assertTrue(playPieces.size() > 1);
-        client.endGame(gameId);
+        Piece firstPiece = trayPieces.get(0);
+        SwapPieceResponse swapResponse = client.swapPiece(gameId, firstPiece);
+        Piece piece = swapResponse.piece;
+        LOGGER.info(format("swapped %s for %s", firstPiece, piece));
+        MachinePlayResponse machineResponse = client.machinePlay(gameId);
+        List<Piece> machinePieces = machineResponse.playedPieces;
+        assertTrue(machinePieces.size() > 1);
+        // end game expects the game to have been ended.
+        // TODO. Better api name than endGame - closeGame.
+        // GameSummary summary = client.endGame(gameId);
+
     }
 
 }

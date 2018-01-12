@@ -28,7 +28,7 @@ data GameParams = GameParams {
   , trayCapacity :: Int   -- ^ Number of letters in a user or machine tray.
   , languageCode :: String -- ^ Language code for the language of the word list to use, e.g. "en".
   , playerName :: String  -- ^ Name of user initiating a game. TODO. Expedient. Not a game parameter per se. Move it out.
-  , pieceGeneratorType :: PieceProviderType -- ^ Determines how to generate pieces for a game.
+  , pieceProviderType :: PieceProviderType -- ^ Determines how to generate pieces for a game.
 }
   deriving (Eq, Show, Generic, NFData)
 
