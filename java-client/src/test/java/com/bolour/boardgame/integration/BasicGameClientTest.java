@@ -66,8 +66,8 @@ public class BasicGameClientTest {
         List<Piece> machinePieces = machineResponse.playedPieces;
         assertTrue(machinePieces.size() > 1);
         // end game expects the game to have been ended.
-        // TODO. Better api name than endGame - closeGame.
-        // GameSummary summary = client.endGame(gameId);
+        // TODO. Better api name than closeGame - closeGame.
+        GameSummary summary = client.closeGame(gameId);
 
     }
 

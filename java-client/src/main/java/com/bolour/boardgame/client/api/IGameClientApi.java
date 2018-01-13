@@ -23,5 +23,5 @@ public interface IGameClientApi {
 
     SwapPieceResponse swapPiece(String gameId, Piece piece);
 
-    GameSummary endGame(String gameId);
+    GameSummary closeGame(String gameId);
 }

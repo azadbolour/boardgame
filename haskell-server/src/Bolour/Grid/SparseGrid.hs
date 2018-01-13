@@ -19,7 +19,8 @@ module Bolour.Grid.SparseGrid (
     , mkEmptyGrid
     , height
     , width
-    , cells
+    , rows
+    , cols
     , get
     , getJusts
     , set
@@ -66,9 +67,10 @@ data SparseGrid val = SparseGrid {
     height :: Height
     -- | Grid width: number of columns.
   , width :: Width
-    -- 2D array of all located values.
-  , cells :: [[LocatedValue val]]
-    -- | Get the value of a point - 'Nothing' means empty.
+    -- 2D array of all located values by row.
+  , rows :: [[LocatedValue val]]
+    -- 2D array of all located values by col.
+  , cols :: [[LocatedValue val]]
   , get :: Point -> Maybe val
     -- | Get the non-empty values in the grid together with their locations.
   , getJusts :: [(val, Point)]
@@ -118,7 +120,7 @@ data SparseGrid val = SparseGrid {
 }
 
 instance (Show val) => Show (SparseGrid val)
-  where show SparseGrid {cells} = show cells
+  where show SparseGrid {rows} = show rows
 
 instance Empty.Empty (Maybe (LocatedValue val))
   where isEmpty x = isNothing $ join $ fst <$> x
@@ -147,7 +149,8 @@ mkInternal grid =
   SparseGrid
       (Grid.height grid)
       (Grid.width grid)
-      (Grid.cells grid)
+      (Grid.rows grid)
+      (Grid.cols grid)
       (get' grid)
       (getJusts' grid)
       (set' grid)
@@ -228,7 +231,7 @@ lineSegments' :: Grid' val -> [(Axis, Coordinate, Coordinate, Int, [Maybe val])]
 lineSegments' grid = lineSegmentsAlong grid Axis.X ++ lineSegmentsAlong grid Axis.Y
 
 lineSegmentsAlong :: Grid' val -> Axis -> [(Axis, Coordinate, Coordinate, Int, [Maybe val])]
-lineSegmentsAlong Grid {cells = rows, height, width} axis =
+lineSegmentsAlong Grid {rows, height, width} axis =
   let lineCoordinates Point {row, col} =    -- (lineNumber, offset)
         case axis of
           Axis.X -> (row, col)

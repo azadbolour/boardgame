@@ -114,7 +114,7 @@ public class PlayerPersona extends AbstractBenchmarkPersona {
     }
 
     private BenchmarkStateTransition end(RunningState runningState) {
-        client.endGame(runningState.gameId);
+        client.closeGame(runningState.gameId);
         BaseState finalState = new FinalState();
         return new BenchmarkStateTransition(runningState, finalState, mkInteraction(END_METHOD));
     }

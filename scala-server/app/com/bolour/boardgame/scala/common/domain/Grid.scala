@@ -24,7 +24,7 @@ case class Grid[T](cells: List[List[T]]) {
   if (!rectangular)
     throw new IllegalArgumentException(s"attempt to create jagged grid with row sizes: ${sizes}")
 
-  val _columns = cells.transpose
+  lazy val _columns = cells.transpose
 
   def flatFilter(predicate: T => Boolean): List[T] = filter(predicate).flatten
 

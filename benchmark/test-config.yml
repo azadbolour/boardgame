@@ -1,7 +1,7 @@
 runnerConfig:
   users: 75
-  durationSeconds: 180
-  thinkTimeMillis: 1000
+  durationSeconds: 50
+  thinkTimeMillis: 100
   personas:
     - className: 'com.bolour.boardgame.benchmark.PlayerPersona'
       weight: 100

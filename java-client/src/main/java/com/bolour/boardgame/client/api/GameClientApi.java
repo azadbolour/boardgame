@@ -140,12 +140,12 @@ public class GameClientApi implements IGameClientApi {
     // Note. For void response: use ResponseEntity<Void>, and Void.class.
 
     @Override
-    public GameSummary endGame(String gameId) {
+    public GameSummary closeGame(String gameId) {
         // HttpHeaders headers = createJsonPostHeaders();
         HttpEntity requestEntity = HttpEntity.EMPTY;
         ResponseEntity<GameSummary> responseEntity;
 
-        String endGameUrl = baseUrl + "game/end-game/{gameId}";
+        String endGameUrl = baseUrl + "game/close-game/{gameId}";
         try {
             responseEntity = restTemplate.postForEntity(endGameUrl, requestEntity, GameSummary.class, gameId);
         }

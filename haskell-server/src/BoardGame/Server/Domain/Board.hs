@@ -109,12 +109,12 @@ mkBoard' cellMaker dimension =
 rowsAsPieces :: Board -> [[Piece]]
 rowsAsPieces Board {grid} =
   let lineMapper row = (Piece.fromMaybe . fst) <$> row
-  in lineMapper <$> SparseGrid.cells grid
+  in lineMapper <$> SparseGrid.rows grid
 
 colsAsPieces :: Board -> [[Piece]]
 colsAsPieces Board {grid} =
   let lineMapper row = (Piece.fromMaybe . fst) <$> row
-  in lineMapper <$> transpose (SparseGrid.cells grid)
+  in lineMapper <$> SparseGrid.cols grid
 
 next :: Board -> Point -> Axis -> Maybe Piece
 next Board {grid} point axis = do
@@ -164,9 +164,10 @@ setN board @ Board {dimension, grid} gridPoints =
       grid' = SparseGrid.setN grid locatedPoints
   in Board dimension grid'
 
+-- TODO. Implement SparseGrid.isEmpty and use it.
 isEmpty :: Board -> Bool
 isEmpty Board { grid } =
-  let cellList = concat $ SparseGrid.cells grid
+  let cellList = concat $ SparseGrid.rows grid
   in all (Maybe.isNothing . fst) cellList
 
 pointIsEmpty :: Board -> Point -> Bool
@@ -203,14 +204,15 @@ pointIsIsolatedInLine Board {grid} = SparseGrid.isolatedInLine grid
 farthestNeighbor :: Board -> Point -> Axis -> Int -> Point
 farthestNeighbor Board {grid} = SparseGrid.farthestNeighbor grid
 
-stripOfPlay :: Board -> [[Piece]] -> [PlayPiece] -> Maybe Strip
-stripOfPlay board columns playPieces =
+stripOfPlay :: Board -> [PlayPiece] -> Maybe Strip
+stripOfPlay board playPieces =
   if length playPieces < 2 then Nothing
-  else stripOfPlay' board columns playPieces
+  else stripOfPlay' board playPieces
 
-stripOfPlay' :: Board -> [[Piece]] -> [PlayPiece] -> Maybe Strip
-stripOfPlay' board cols playPieces =
+stripOfPlay' :: Board -> [PlayPiece] -> Maybe Strip
+stripOfPlay' board playPieces =
   let rows = rowsAsPieces board
+      cols = colsAsPieces board
       points = (\PlayPiece {point} -> point) <$> playPieces
       Point {row = hdRow, col = hdCol} = head points
       maybeAxis = Point.axisOfLine points

@@ -54,9 +54,9 @@ findSurroundingWord board point letter axis =
 
 findCrossPlays :: Board -> [PlayPiece] -> [[MoveInfo]]
 findCrossPlays board playPieces =
-  let columns = Board.colsAsPieces board
+  let -- columns = Board.colsAsPieces board
       -- TODO. Internal error if fromJust fails.
-      strip = fromJust $ Board.stripOfPlay board columns playPieces
+      strip = fromJust $ Board.stripOfPlay board playPieces
       word = PlayPiece.playPiecesToWord playPieces
   in findCrossPlays' board strip word
 

@@ -154,14 +154,14 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
 
   // def endGame(gameId: String) = Action(parse.json) { implicit request =>
   def closeGame(gameId: String) = Action { implicit request =>
-    logger.info(s"endGame")
+    logger.info(s"closeGame")
     val triedSummary = service.endGame(gameId)
     triedSummary match {
       case Failure(ex) =>
-        logger.error("endGame failure", ex)
+        logger.error("closeGame failure", ex)
         unprocessable(ex)
       case Success(summary) =>
-        logger.info("endGame success")
+        logger.info("closeGame success")
         Ok(Json.toJson(summary))
     }
 

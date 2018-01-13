@@ -30,7 +30,7 @@ module Bolour.Grid.Grid (
   , numLines
 ) where
 
-import Data.List
+import Data.List (foldl', transpose)
 import Data.Maybe (fromJust)
 
 import qualified Bolour.Util.MiscUtil as Util
@@ -43,7 +43,8 @@ import qualified Bolour.Grid.Point as Point
 data Grid val = Grid {
     height :: Height
   , width :: Width
-  , cells :: [[val]]
+  , rows :: [[val]]
+  , cols :: [[val]]
 } deriving (Functor)
 
 deriving instance (Show val) => Show (Grid val)
@@ -53,7 +54,12 @@ mkGrid :: (Height -> Width -> val) -> Height -> Width -> Grid val
 mkGrid cellMaker height width =
   let rowMaker row = mkRow (cellMaker row) width
       rows = rowMaker <$> [0 .. height - 1]
-  in Grid height width rows
+  in mkGridFromRows rows height width
+
+mkGridFromRows :: [[val]] -> Height -> Width -> Grid val
+mkGridFromRows rows height width =
+  let cols = transpose rows
+  in Grid height width rows cols
 
 mkRow :: (Width -> val) -> Width -> [val]
 mkRow cellMaker width = cellMaker <$> [0 .. width - 1]
@@ -65,12 +71,12 @@ mkRow cellMaker width = cellMaker <$> [0 .. width - 1]
 
 -- | Get a cell on the grid.
 get :: Grid val -> Point -> Maybe val
-get grid @ Grid {cells} (point @ Point {row, col}) =
+get grid @ Grid {rows} (point @ Point {row, col}) =
   if not (inBounds grid point) then Nothing
-  else Just $ cells !! row !! col
+  else Just $ rows !! row !! col
 
 get' :: Grid val -> Height -> Width -> Maybe val
-get' grid @ Grid {cells} row col = get grid $ Point row col
+get' grid @ Grid {rows} row col = get grid $ Point row col
 
 -- | Update the value of a cell on the grid.
 set ::
@@ -79,10 +85,9 @@ set ::
   -> val          -- ^ The new value of the grid cell.
   -> Grid val     -- ^ The updated grid.
 
-set grid Point { row, col } value =
-  let contents = cells grid
-      updated = Util.setListElement contents row (Util.setListElement (contents !! row) col value)
-  in grid { cells = updated }
+set Grid {height, width, rows} Point { row, col } value =
+  let rows' = Util.setListElement rows row (Util.setListElement (rows !! row) col value)
+  in mkGridFromRows rows' height width
 
 setN :: Grid val -> [(val, Point)] -> Grid val
 setN = foldl' (\grid (value, point) -> set grid point value)
@@ -135,10 +140,10 @@ adjacentCell grid point axis direction limit =
   in calcAdj grid point axis
 
 filterGrid :: (val -> Bool) -> Grid val -> Grid val
-filterGrid predicate grid @ Grid{cells} = grid { cells = filter predicate <$> cells }
+filterGrid predicate grid @ Grid{rows} = grid { rows = filter predicate <$> rows }
 
 concatGrid :: Grid val -> [val]
-concatGrid Grid{cells} = concat cells
+concatGrid Grid{rows} = concat rows
 
 concatFilter :: (val -> Bool) -> Grid val -> [val]
 concatFilter predicate grid = concatGrid $ filterGrid predicate grid
