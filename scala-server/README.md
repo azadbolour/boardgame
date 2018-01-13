@@ -1,8 +1,7 @@
 
-# Scrabble-Like Board Game
+# Board Game
 
-A word game close to scrabble. Not all the scrabble rules are implemented. See
-below for known differences.
+A word game in the same genre as other well-known crossword games. 
 
 Drag and drop tiles from the tray to the board to form words, and then click
 _Commit Play_ to submit your word. 
@@ -12,14 +11,6 @@ taking a pass and exchanging one tile. Exactly one tile can be exchanged in a
 pass at this time.
 
 After each play or pass, the machine will automatically make its word play.
-
-Please note that although the program's word list is quite large, it is missing
-some common English words, which if you happen to play will be rejected. 
-This should occur very rarely, however. 
-
-Note also that that plurals and verb conjugations do not generally appear in the 
-the program's dictionary and will often be rejected unless of course they are 
-menaingful in their own right.
 
 Because the word list is large, you will likely see many strange words
 played by the machine. You may wish to install a dictionary browser extension
