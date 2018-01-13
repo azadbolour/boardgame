@@ -8,9 +8,9 @@ Version 0.5.0 development started.
 
 ## The Board Game
 
-The board game is similar but not identical to scrabble. The detailed rules are
-different from scrabble and are subject to change over time as this application
-evolves and responds to enhancement requests. 
+The board game is is in the same genre as other well-known crossword games. 
+The detailed rules will not be documented here as they are subject to change.
+But they are pretty easy to discern by actually playing the game.
 
 See the [project web site](http://www.bolour.com/boardgame/index.html) for details.
 

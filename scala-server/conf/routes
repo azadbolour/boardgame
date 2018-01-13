@@ -11,6 +11,6 @@ POST    /game/game                  controllers.GameController.startGame
 POST    /game/commit-play/:gameId   controllers.GameController.commitPlay(gameId: String)
 POST    /game/machine-play/:gameId  controllers.GameController.machinePlay(gameId: String)
 POST    /game/swap-piece/:gameId    controllers.GameController.swapPiece(gameId: String)
-POST    /game/end-game/:gameId      controllers.GameController.endGame(gameId: String)
+POST    /game/close-game/:gameId    controllers.GameController.closeGame(gameId: String)
 
       

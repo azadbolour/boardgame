@@ -45,8 +45,8 @@ class GameService {
     });
   }
 
-  end(gameId) {
-    let promise = this.api.endPlay(gameId);
+  closeGame(gameId) {
+    let promise = this.api.closeGame(gameId);
     return promise;
   }
 

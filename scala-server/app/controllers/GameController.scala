@@ -153,7 +153,7 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
   }
 
   // def endGame(gameId: String) = Action(parse.json) { implicit request =>
-  def endGame(gameId: String) = Action { implicit request =>
+  def closeGame(gameId: String) = Action { implicit request =>
     logger.info(s"endGame")
     val triedSummary = service.endGame(gameId)
     triedSummary match {

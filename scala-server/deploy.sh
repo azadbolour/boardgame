@@ -13,10 +13,13 @@ deployDir=dist
 projectDir=`pwd`
 outDir=${projectDir}/target/universal
 
+echo "deploying board game scala server from ${outDir} to ${deployDir}"
 mkdir -p $deployDir
 cd $deployDir
 rm -rf scala-server-1.0/
 unzip $outDir/scala-server-1.0.zip
 cd scala-server-1.0
 mkdir dict
-cp ${projectDir}/dict/moby-english.txt dict/en-words.txt
+cp ${projectDir}/dict/en-words.txt dict/en-words.txt
+
+echo "deployed"

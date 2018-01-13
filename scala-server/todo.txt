@@ -1,12 +1,10 @@
 
-- package scala client library and use it in a java client.
+- Later version. package scala client library and use it in a java client.
   The benchmark can then be done in terms of the scala client library.
+
 - Add more scorer tests. Add crosswordfilder tests.
   Copy from Haskell.
 
-- TODO. For now just comment that strips have blanks where the board has null
-  chars.  
-  
 - TODO. Check the maching algorithm to make sure it is everywhere using
   blanks. 
 

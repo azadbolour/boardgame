@@ -73,7 +73,7 @@ class MockApi {
     return promise(impl.getMachinePlay());
   }
 
-  endPlay(gameId) {
+  closeGame(gameId) {
     return promise({});
   }
 

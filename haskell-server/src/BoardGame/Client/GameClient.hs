@@ -17,7 +17,7 @@ module BoardGame.Client.GameClient (
   , commitPlay
   , machinePlay
   , swapPiece
-  , endGame
+  , closeGame
   )
   where
 
@@ -44,14 +44,14 @@ startGame :: StartGameRequest -> Manager -> BaseUrl -> ClientM StartGameResponse
 commitPlay :: String -> [PlayPiece] -> Manager -> BaseUrl -> ClientM CommitPlayResponse
 machinePlay :: String -> Manager -> BaseUrl -> ClientM MachinePlayResponse
 swapPiece :: String -> Piece -> Manager -> BaseUrl -> ClientM SwapPieceResponse
-endGame :: String -> Manager -> BaseUrl -> ClientM GameSummary
+closeGame :: String -> Manager -> BaseUrl -> ClientM GameSummary
 
 addPlayer
   :<|> startGame
   :<|> commitPlay
   :<|> machinePlay
   :<|> swapPiece
-  :<|> endGame = client GameApi.gameApi
+  :<|> closeGame = client GameApi.gameApi
 
 -- Note. In Servant 6.1 we have:
 --   type ClientM = ExceptT ServantError IO

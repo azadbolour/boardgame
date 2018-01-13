@@ -18,19 +18,31 @@ body {
 <div style="font-size: 35px; color: #009FFF; text-align: center">Board Game</div>
 
 <p>
-A board game akin to scrabble with simpler rules. 
+A board game akin to other well-known board games but different in a number of
+ways.
 
 <p>
-Showcasing a Haskell game server and a React drag and drop web UI.
+Showcasing Haskell and Scala game servers and a React drag and drop web UI.
 
-Currently in version 0.2 alpha trial for modern browsers on the MAC, Linux,
+Currently in version 0.5 beta trial for modern browsers on the MAC, Linux,
 and Windows platforms (not yet supported on smart phones and tablets).
+
+The board game project is intended primarily as a test bed for experimentation
+with different languages and framework for application development and
+deployment. 
+
+As such, the structure and rules of the game may change in different versions 
+of the board game as new and useful variations are discovered and 
+suggested by users.
 
 <p>
 <a href="http://oceanpark.com:6587/boardgame">Check it out!</a>
 
 Drag and drop letters to form a word connected to an existing tile
-on the board and click <em>Commit Play</em> to play that word.
+on the board and click <em>Commit Play</em> to play that word. 
+
+Games have a time limit of 30 minutes. Longer games are considered 
+abandoned and are harvested.
 
 <p>
 Hosting: thanks to oceanpark.com.
@@ -38,38 +50,6 @@ Hosting: thanks to oceanpark.com.
 <p>
 Please add issues and ideas for improvment to the 
 <a href="https://github.com/azadbolour/boardgame/issues">issues list.</a>
-
-
-<h4>Rules</h4>
-
-The board game is not intended to closely mimic scrabble. The rules are 
-simpler. Here are a few differences.
-
-<ul>
-
-<li>
-Scoring is simplified: the score for a play is the total length of 
-the word constructed in the principle direction of the play 
-(horizonatl or vertical). 
-
-<li>
-Tiles are selected randomly <em>with replacement</em> 
-(unlike scrabble in which tiles are selected randomly <em>without
-replacement</em>). The probability distribution of letters is not 
-necessarily that of scrabble.
-
-<li>
-Cross words are not checked - only the word in the principle direction. 
-This is a known issue.
-
-<li>
-A game needs to be explicitly ended by the user.
-
-<li>
-Games have a time limit of 30 minutes. Longer games are considered 
-abandoned and are harvested.
-
-</ul>
 
 <div style="color: #009FFF; font-size: 20px">
 Bolour Computing.  

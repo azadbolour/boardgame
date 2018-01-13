@@ -43,9 +43,9 @@ class ClientApi {
     return promise;
   }
 
-  endPlay(gameId) {
+  closeGame(gameId) {
     let init = restManager.mkEmptyPostRequest();
-    let restPath = `/game/end-game/${gameId}`;
+    let restPath = `/game/close-game/${gameId}`;
     let promise = restManager.send(init, this.gameServerUrl, restPath);
     return promise;
   }

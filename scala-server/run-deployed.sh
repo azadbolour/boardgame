@@ -38,5 +38,22 @@ fi
 export JAVA_OPTS
 echo "JAVA_OPTS: ${JAVA_OPTS}"
 
-./bin/scala-server
+# 
+# Profiling with YourKit:
+#
+# Uncomment the following for profiling.
+# And use PROD_CONF to override default configurations, e.g., maxActiveGames.
+#
+# Here is what the custom application.conf might look like:
+#
+#    include "application.conf"
+#    service.maxActiveGames=300
+#
+# TODO. Use sample run.sh in yourkit samples directory to get platform-specific installation directory.
+# YOURKIT="/Applications/YourKit_Java_Profiler_2014_build_14112.app/Contents/Resources/"
+# YOURKIT_AGENT=${YOURKIT}/bin/mac/libyjpagent.jnilib
+# ./bin/scala-server -J-agentpath:${YOURKIT_AGENT}
+
+# Normal run.
+./bin/scala-server 
 

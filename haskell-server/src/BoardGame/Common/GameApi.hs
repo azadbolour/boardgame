@@ -211,7 +211,7 @@ type GameApi =
   :<|> "game" :> "commit-play" :> Capture "gameId" String :> ReqBody '[JSON] [PlayPiece] :> Post '[JSON] CommitPlayResponse
   :<|> "game" :> "machine-play" :> Capture "gameId" String :> Post '[JSON] MachinePlayResponse
   :<|> "game" :> "swap-piece" :> Capture "gameId" String :> ReqBody '[JSON] Piece :> Post '[JSON] SwapPieceResponse
-  :<|> "game" :> "end-game" :> Capture "gameId" String :> Post '[JSON] GameSummary
+  :<|> "game" :> "close-game" :> Capture "gameId" String :> Post '[JSON] GameSummary
 
 -- Note - In later servant versions this has changed - just use Raw.
 type GameApi' = GameApi :<|> "boardgame" :> Raw

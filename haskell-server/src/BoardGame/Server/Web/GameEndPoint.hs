@@ -38,7 +38,7 @@ module BoardGame.Server.Web.GameEndPoint (
     , commitPlayHandler
     , machinePlayHandler
     , swapPieceHandler
-    , endGameHandler
+    , closeGameHandler
     , ExceptServant
 ) where
 
@@ -90,7 +90,7 @@ mkServer env =
   :<|> commitPlayHandler env
   :<|> machinePlayHandler env
   :<|> swapPieceHandler env
-  :<|> endGameHandler env
+  :<|> closeGameHandler env
 
 -- Note - In later versions of Servant this has changed - use ServantStatic.serveDirectoryFileServer "static".
 -- Note also that the static handler has to be the last one in the list.
@@ -180,8 +180,8 @@ swapPieceHandler :: GameEnv -> String -> Piece -> ExceptServant SwapPieceRespons
 swapPieceHandler env gameId piece = gameTransformerStackHandler env $
   tupleToSwapPieceResponse <$> GameService.swapPieceService gameId piece
 
-endGameHandler :: GameEnv -> String -> ExceptServant GameSummary
-endGameHandler env gameId = gameTransformerStackHandler env $ GameService.endGameService gameId
+closeGameHandler :: GameEnv -> String -> ExceptServant GameSummary
+closeGameHandler env gameId = gameTransformerStackHandler env $ GameService.closeGameService gameId
 
 -- | Convert an unknown exception that may be thrown by the Haskell
 --   runtime or by lower-level libraries to a Servant error, as

@@ -110,7 +110,7 @@ class GameControllerSpec extends PlaySpec with Results {
       val SwapPieceResponse(_, newPiece) = decodeJsonContent[SwapPieceResponse](result)
       newPiece must not be Piece.emptyPiece
 
-      result = controller.endGame(theGameId)(FakeRequest())
+      result = controller.closeGame(theGameId)(FakeRequest())
       val summary = decodeJsonContent[GameSummary](result)
       logger.info(s"end game result: ${summary}")
     }

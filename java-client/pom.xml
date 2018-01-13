@@ -4,7 +4,7 @@
 
     <groupId>com.bolour.boardgame</groupId>
     <artifactId>java-client</artifactId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5</version>
     <packaging>jar</packaging>
 
     <name>Java Client API for Board Game</name>
@@ -18,6 +18,8 @@
     <properties>
         <java.version>1.8</java.version>
         <junit.version>4.12</junit.version>
+        <included.tests></included.tests>
+        <excluded.tests>com.bolour.boardgame.integration.*</excluded.tests>
     </properties>
 
     <dependencies>
@@ -46,6 +48,17 @@
 
     </dependencies>
 
+    <profiles>
+        <profile>
+            <!-- Integration tests need live server. -->
+            <id>integration</id>
+            <properties>
+                <included.tests>com.bolour.boardgame.integration.*</included.tests>
+                <excluded.tests></excluded.tests>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -62,14 +75,19 @@
                 <version>2.19.1</version>
                 <configuration>
                     <trimStackTrace>false</trimStackTrace>
+                    <includes>
+                        <include>
+                            ${included.tests}
+                        </include>
+                    </includes>
                     <excludes>
-                        <!-- needs live server -->
                         <exclude>
-                            com.bolour.boardgame.integration.BasicGameClientTest
+                            ${excluded.tests}
                         </exclude>
                     </excludes>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
 </project>

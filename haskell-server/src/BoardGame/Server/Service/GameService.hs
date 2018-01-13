@@ -21,7 +21,7 @@ module BoardGame.Server.Service.GameService (
   , commitPlayService
   , machinePlayService
   , swapPieceService
-  , endGameService
+  , closeGameService
   , getGamePlayDetailsService
   , timeoutLongRunningGames
   , prepareDb
@@ -266,8 +266,8 @@ exchangeMachinePiece (game @ Game.Game {gameId, board, trays, playNumber}) = do
       saveSwap gameId playNumber MachinePlayer piece newPiece
       return game'
 
-endGameService :: String -> GameTransformerStack GameSummary
-endGameService gameId = do
+closeGameService :: String -> GameTransformerStack GameSummary
+closeGameService gameId = do
   gameCache <- asks GameEnv.gameCache
   game <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
   liftGameExceptToStack $ GameCache.delete gameId gameCache

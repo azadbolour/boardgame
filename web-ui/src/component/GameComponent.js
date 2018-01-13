@@ -159,6 +159,7 @@ class GameComponent extends React.Component {
     actions.start(this.props.game.gameParams);
   }
 
+  // TODO. Obsolete.
   endGame() {
     actions.end();
   }
