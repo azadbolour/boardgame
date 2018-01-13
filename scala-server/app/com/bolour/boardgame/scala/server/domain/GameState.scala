@@ -62,7 +62,7 @@ case class GameState(
 
   def addPlay(playerType: PlayerType, playPieces: List[PlayPiece]): Try[(GameState, List[Piece])] = {
     for {
-      _ <- validatePlay(playerType, playPieces)
+      _ <- if (playerType == PlayerType.UserPlayer) validatePlay(playerType, playPieces) else Success(())
       movedGridPieces = playPieces filter { _.moved } map { _.gridPiece }
       score = computePlayScore(playPieces)
       added <- addGoodPlay(playerType, movedGridPieces, score)
@@ -168,11 +168,15 @@ case class GameState(
 
   /**
     * Check that the first play includes the center point.
+    * TODO. Implement validation. Done in UI as well. So OK to defer.
     */
   private def checkFirstPlayCentered(playPieces: List[PlayPiece]): Try[Unit] = Success(())
 
   /**
     * Check that the play is anchored - except for the first play.
+    * TODO. Implement validation. Done in UI as well. So OK to defer.
+    * Note. Anchored means the play includes at least one existing board piece,
+    * or that the play is parallel. However, parallel plays will likely be removed.
     */
   private def checkPlayAnchored(playPieces: List[PlayPiece]): Try[Unit] = Success(())
 
@@ -196,12 +200,14 @@ case class GameState(
 
   /**
     * Check that the destinations of the moved play pieces are empty.
+    * TODO. Implement validation. Done in UI as well. So OK to defer.
     */
   private def checkMoveDestinationsEmpty(playPieces: List[PlayPiece]): Try[Unit] = Success(())
 
   /**
     * Check that the play pieces that are not moved and are supposed to exist on the board
     * are in fact there and contain the pieces indicated in the play.
+    * TODO. Implement validation. Done in UI as well. So OK to defer.
     */
   private def checkUnmovedPlayPositions(playPieces: List[PlayPiece]): Try[Unit] = Success(())
 

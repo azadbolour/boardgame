@@ -257,7 +257,7 @@ checkMoveDestinationsEmpty Game {board} playPieces =
      Nothing -> return playPieces
      Just taken -> throwError $ OccupiedMoveDestinationError taken
 
--- TODO. Check cross words.
+-- TODO. Check cross words. Rename.
 checkMoveDestinationsFreeCrossWise :: MonadError GameError m => Game -> [PlayPiece] -> m [PlayPiece]
 checkMoveDestinationsFreeCrossWise game = return
 
