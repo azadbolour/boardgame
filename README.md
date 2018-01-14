@@ -3,37 +3,31 @@
 
 ## Versions
 
-Version 0.2.0. Beta 1. Released.
-Version 0.5.0 development started.
+Version 0.5 beta.
 
 ## The Board Game
 
-The board game is in the same genre as other well-known crossword games. 
-The detailed rules will not be documented here as they are subject to change.
-But they are pretty easy to discern by playing the game.
+The board game is in the same genre as other well-known crossword games:
+drag and drop letters to form words on a square board.
 
 See the [project web site](http://www.bolour.com/boardgame/index.html).
 
 ## Scope
 
-I started this application as a means of learning real-world Haskell.
-Of course, the board game needed at least a web user interface, and for 
-that I decided to use React, and specifically React drap and drop.
-Like Haskell, React and React DND were also new to me at the time.
+This project is intended as an test bed for the development and deployment
+of production quality applications by using different programming languages
+and their ecosystems.
 
-My initial aim in this project is to demonstrate a production-quality
-application in Haskell. I like Haskell a lot as a language. But because its IDE
-tooling is not on a par with more mainstream languages, I am less efficient in
-it.  For this reason, I started programming the game server in Scala as well.
-Because of its better IDE support, I find I am quite a bit more efficient in
-Scala than in Haskell. 
+It defines a board game API, and client and server implementations for it.
+At this time, the API has two server implementations, one in Haskell and 
+one in Scala, and one client implementation, in Javascript using the React 
+framework.
 
-At this time, development of both servers in this project proceeds in lock step.
-And the two sub-projects cross fertilize each other and help in getting a 
-better grasp of both languages and their idioms and patterns of usage.
+For a simple representation of the API, see the Haskell module 
+BoardGame.Common.GameApi in teh haskell-server hierarchy.
 
 The first implementation is being developed on the MAC OS/X 10.9+, deployed on
-Linux Amazon EC2 instance, and accessed through Chrome version 60+ on the MAC. 
+Linux Amazon EC2 instance, and accessed through modern browsers.
 
 ## Sub-Projects
 
@@ -90,7 +84,7 @@ The java client code is based on Java 8.
 The benchmark sub-project is written in Java, and uses a standard Maven pom
 structure. See build.sh and run.sh in the benchmark directory. To configure the
 benchmark, copy benchmark-config.yml and edit as appropriate. Then start the
-benchmark giving it your copy as a parameter.
+benchmark giving it your copy of the config file as a parameter.
 
 The benchmark is based Java 8.
 
@@ -102,7 +96,7 @@ Following are benchmark results for the two servers:
 machine: MAC-Book Pro i7 2.8GHz 4-core
 dictionary: 114K words
 users: 75
-average think time: 100 millis
+average think time: 100 milliseconds
 
 haskell: average latency of a machine move: 270 milliseconds
 scala: average latency of a machine move: 59 milliseconds
@@ -110,9 +104,10 @@ scala: average latency of a machine move: 59 milliseconds
 
 Since human interactions have much longer think times, scaling to hundreds of
 concurrent games on a single machine should not be an issue. Beyond that the
-application is easily amenable to horizontal scaling. So the bottleneck may end
-up being the database. But at this stage of teh project, time very high
-scalability is beyond our scope.
+application is easily amenable to horizontal scaling. The bottleneck for very
+high scalability may end up being the database. But at this stage of the project
+database interactions are de-emphasized, and very high scalability is beyond our
+scope.
 
 ## Github Site
 
@@ -121,8 +116,8 @@ http://www.bolour.com/boardgame/index.html
 ## General Conventions
 
 - For trivial code cleanup and unimportant changes with minimal impact to users,
-  add a TODO comment to at the right places in the source code. Do not clutter
-  the issues list and the backlog with trivial issues.
+  TODO comments are added at the right places in the source code. The backlog
+  lists larger tasks or tasks that cannot yet be localized in the code base.
 
 ## Branches of Development
 
@@ -138,7 +133,7 @@ Thanks to Allen Haim for advice on Javascript development.
 
 Thanks to Dennis Allard for hosting the application at oceanpark.com.
 
-English dictionary - Moby project. See:
+Thanks to the Moby project for the English dictionary:
 
     - http://www.gutenberg.org/files/3201/3201.txt
     - http://www.gutenberg.org/files/3201/files/CROSSWD.TXT.

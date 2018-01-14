@@ -1,4 +1,6 @@
 
+- TODO. Needs update and revision for version 0.5.
+
 - Do not use var. Use let or const.
 
 - Use the so-called _liberal let_ when choosing between const and let.

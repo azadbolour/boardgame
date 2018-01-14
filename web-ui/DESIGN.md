@@ -4,13 +4,13 @@
 The design is inspired by but does not necessarily follow the flux pattern.
 
 The data needed by a component to be able to render itself is modeled
-separately in a separate class. The class acts as what flux calls a store. 
-This class is named with the base name of the concept being modeled: for example,
+a separate module. That module acts as what flux calls a store. 
+It is named with the base name of the concept being modeled: for example,
 Game. The corresponding component is then named by suffixing with 'Component',
 e.g., GameComponent.
 
 User interface events lead to events being created that are listened to 
-by GameEventHandler. The design uses React's dispatcher to publish
+by GameEventHandler. React's dispatcher is used to publish
 and subscribe to events.
 
 GameEventHandler has a Game field that keeps track of the current state of the
@@ -18,8 +18,6 @@ game. Upon receiving an event, the game event handler updates its Game field
 appropriately, and then in turn emits a change event. The change event is 
 listened to by the game compoenent, which then renders the new state of
 the game.
-
-We use a single dispatcher per page.
 
 A change that affects two different components is best handled by 
 the closest common ancestor of those components, I think. In other 
@@ -38,7 +36,7 @@ One problem is that the entire page seems to need to be redrawn
 (at least as far as the application is concerned) in the React model.
 React will optimize redraws, of course, to just redraw what is needed.
 I don't really know how to redraw a lower level component. That means
-than any single change will lead to a redraw of the highest anecestor
+that any single change will lead to a redraw of the highest anecestor
 of all the effected components, and the notion of getting several 
 change emits from a single event becomes problematic.
 

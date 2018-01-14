@@ -2,16 +2,6 @@
 - Later version. package scala client library and use it in a java client.
   The benchmark can then be done in terms of the scala client library.
 
-- Add more scorer tests. Add crosswordfilder tests.
-  Copy from Haskell.
-
-- TODO. Check the maching algorithm to make sure it is everywhere using
-  blanks. 
-
-- Document the matching algorithm.
-
-- Write test for final score.
-
 - Use smaller amazon machine. m3.large worked well.
 
 - Create cleanup scripts for docker container and image.
@@ -30,25 +20,10 @@
     This is a clean list. But 100K is too few. The least frequent words are
     still relatively common.
 
-  Can just use that for the machine play, and use Moby to check user plays.
-
-  Credit Mark Davies.
-
 - Truncate nohup.out on production machine.
 
-- The port number for docker hs to be specified redundantly in a couple of
+- The port number for docker has to be specified redundantly in a couple of
   docker scripts. Make it dry if possible.
 
-- controller test is flaky because it has a timeout of 1 sec. Change to 3.
-
-- On redhat trying to build the packager docker file:
-
-  WARNING: The following packages cannot be authenticated!
-  openjdk-8-jre-headless openjdk-8-jre openjdk-8-jdk-headless openjdk-8-jdk
-  E: There are problems and -y was used without --force-yes
-  Removing intermediate container 1f3aa35e0650
-  The command '/bin/sh -c add-apt-repository ppa:openjdk-r/ppa   && apt-get update   && apt-get install -y openjdk-8-jdk && java -version'
-  returned a non-zero code: 100
-
-- Update root level README file.
+- Controller test is flaky because it has a timeout.
 

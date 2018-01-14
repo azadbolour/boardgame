@@ -20,6 +20,12 @@
 
 - iPhone UI. Ditto.
 
+- Add status to top and add "OK. Your move ... ".
+
+- Disable play and show hourglass while an action is happening.
+
+- Add error boundary for React.
+
 ## Known Issues
 
 - Security. CORS. Generally cross origin requests are disallowed. 
