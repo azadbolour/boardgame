@@ -77,7 +77,7 @@ RUN echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.lis
 #
 RUN cd scala-server \
   && update-ui-bundle.sh \
-  && sbt compile test dist \
+  && package.sh \
   && deploy.sh
 
 

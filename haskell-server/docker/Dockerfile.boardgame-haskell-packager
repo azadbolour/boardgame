@@ -90,12 +90,5 @@ RUN cd haskell-server && stack test
 #
 RUN cd haskell-server && ./update-ui-bundle.sh
 
-#
-# Install the American English dictionary (/usr/share/dict/words),
-# and link it to the application.
-#
-RUN apt-get install wamerican
-RUN mkdir haskell-server/dict
-RUN cd haskell-server/dict && ln -s /usr/share/dict/words en-words.txt
 
 

@@ -8,5 +8,5 @@
 # The package will be placed in target/universal/scala-server-1.0.zip
 #
 
-sbt dist
+sbt clean compile "test" dist
 

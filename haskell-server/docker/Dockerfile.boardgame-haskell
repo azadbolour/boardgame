@@ -8,13 +8,13 @@
 #
 
 # The docker tag.
-ARG tag=0.2
+ARG tag=0.5
 #
 
 #
 # Base it on the same-tagged base.
 #
-FROM azadbolour/boardgame-base:${tag}
+FROM azadbolour/boardgame-haskell-packager:${tag}
 
 #
 # Set up the base environment.

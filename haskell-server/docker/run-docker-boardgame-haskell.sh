@@ -4,7 +4,9 @@
 # TODO. Try to redirect output or run.sh to a mounted volume in the container.
 # Then can use docker run -d to create a detatched conatiner.
 # And the logs will be on teh host file system.
-nohup docker run -p 6587:6587 --restart on-failure:5 azadbolour/boardgame:0.2 &
+image=boardgame-haskell
+tag=0.5
+nohup docker run -p 6587:6587 --restart on-failure:5 azadbolour/${image}:${tag} &
 
 # For development.
-# docker run -p 6587:6587 -i -t azadbolour/boardgame:0.2 &
+# docker run -p 6587:6587 -i -t azadbolour/${image}:${tag} &
