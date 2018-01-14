@@ -7,10 +7,6 @@
 - Animate the machine's placement of tiles to the board so it is clear what
   happened in a machine play.
 
-- Provide a way of getting the meaning of a word played by the machine.
-  Out of scope of version 1. Use the provided list view of played words to 
-  copy and paste into Google or dictionary site.
-
 - User registration. Currently there are no registered users. Just a built-in
   one called _You_.
 
@@ -52,17 +48,11 @@
 
   https://github.com/algas/haskell-servant-cookbook/blob/master/doc/Https.md
 
-- Check that all cross words are legit on recieving a commit play.
-
 - Disallow all URL parameters to avoid issues with bad URL.
   Create a preference page where you can set parameters.
   Save preferences in the database.
 
 ## Technical Debt
-
-- Use strategy pattern for piece generator. Define specific selector type
-  for each strategy. Calling a factory on each type returns a different
-  instance of a class. Will need to reinstate existential qualification.
 
 - For all Haskell data structures decide what fields are public and only export those.
 
@@ -74,9 +64,6 @@
 - On initial startup - check that at least the english dictionary exists in the 
   specified directory. If not abort.
 
-- The client API needs to distinguish between user errors 422
-  and other server errors.
-
 - Benchmark think time configuration is currently the maximum. It should be
   the average. Fix PlayPersona. Also provide a generic default implementation
   for getThinkTime in abstract persona.
@@ -85,8 +72,6 @@
   get an updated number if it is a swap. Regular plays seem to update. See
   reflectPlayOnGame. Should be centralized in a call and called initially in
   service methods.
-
-- An internal error should end the game in the server, and also in the UI.
 
 - Use database transactions. Put db calls inside runSqlPersistMPool.
 
@@ -176,11 +161,7 @@
 - Was unable to upgrade to GHC 8.0.1 or versions of Servant higher than 0.6.1 - 
   versioning issues with the rest of the dependencies. Upgrade when possible.
 
-- Upgrade React code to use class MyComponent extends React.Component.
-
 - Add top-level script to build all dependent projects.
-
-- Document main design patterns, idioms, and conventions.
 
 - Check that you can debug minimized UI code with source maps in chrome.
 
