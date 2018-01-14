@@ -257,7 +257,7 @@ export const mkGameEventHandler = function(gameService) {
           return response;
         let gameMiniState = response.json;
         if (gameMiniState.noMorePlays) {
-          return handler.handleEndInternal();
+          return handler.handleCloseInternal();
         }
         else {
           handler.handleMachinePlayInternal().then(response => {
@@ -265,7 +265,7 @@ export const mkGameEventHandler = function(gameService) {
               return response;
             let gameMiniState = response.json;
             if (gameMiniState.noMorePlays) {
-              return handler.handleEndInternal();
+              return handler.handleCloseInternal();
             }
             else {
               return response;
@@ -287,7 +287,7 @@ export const mkGameEventHandler = function(gameService) {
         let gameMiniState = response.json;
         // console.log(`swap - mini state: ${stringify(gameMiniState)}`);
         if (gameMiniState.noMorePlays) {
-          return handler.handleEndInternal();
+          return handler.handleCloseInternal();
         }
         else {
           handler.handleMachinePlayInternal().then(response => {
@@ -295,7 +295,7 @@ export const mkGameEventHandler = function(gameService) {
               return response;
             let gameMiniState = response.json;
             if (gameMiniState.noMorePlays) {
-              return handler.handleEndInternal();
+              return handler.handleCloseInternal();
             }
             else {
               return response;
@@ -327,9 +327,9 @@ export const mkGameEventHandler = function(gameService) {
       return status;
     },
 
-    handleEndInternal: function () {
+    handleCloseInternal: function () {
       if (noGame()) { logNoGame(); return; }
-      let promise = _gameService.end(_game.gameId);
+      let promise = _gameService.closeGame(_game.gameId);
       let processedResponse = promise.then(response => {
         if (response.ok) {
           let {stopInfo, endOfPlayScores, totalScores} = response.json;
@@ -345,25 +345,6 @@ export const mkGameEventHandler = function(gameService) {
       });
       return processedResponse;
     },
-
-    // handleEnd: function () {
-    //   if (noGame()) { logNoGame(); return; }
-    //   let promise = _gameService.end(_game.gameId);
-    //   promise.then(response => {
-    //     if (response.ok) {
-    //       let gameParams = _gameService.gameParams;
-    //       _game = _game.end();
-    //       _status = "game over";
-    //     }
-    //     else {
-    //       killGame(errorText(response));
-    //     }
-    //     emitChange(systemResponseType(response));
-    //   }).catch(reason => {
-    //     killGame(reason);
-    //     emitChange(ActionStages.CHANGE_FAILURE);
-    //   });
-    // },
 
     handleSwapInternal: function (pc) {
       if (noGame()) { logNoGame(); return; }
@@ -404,8 +385,8 @@ export const mkGameEventHandler = function(gameService) {
         return handler.handleCommitPlayAndGetMachinePlay();
       case ActionTypes.REVERT_PLAY:
         return handler.handleRevertPlay();
-      case ActionTypes.END:
-        return handler.handleEnd();
+      // case ActionTypes.END:
+      //   return handler.handleEnd();
       case ActionTypes.SWAP:
         return handler.handleSwapAndGetMachinePlay(action.piece);
       default:

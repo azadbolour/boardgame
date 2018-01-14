@@ -16,7 +16,7 @@ const ActionTypes = {
   REVERT_MOVE: 'REVERT_MOVE',
   COMMIT_PLAY: 'COMMIT_PLAY',
   REVERT_PLAY: 'REVERT_PLAY',
-  END: 'END',
+  // END: 'END',
   SWAP: 'SWAP',
 };
 

@@ -219,7 +219,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
         for {
           (newState, newPiece) <- state.swapPiece(piece, UserPlayer)
           _ = gameCache.put(gameId, newState)
-          _ = saveSwap(state.game.id, state.playNumber, MachinePlayer, piece, newPiece)
+          _ = saveSwap(state.game.id, state.playNumber, UserPlayer, piece, newPiece)
         } yield (newState.miniState, newPiece)
     }
   }

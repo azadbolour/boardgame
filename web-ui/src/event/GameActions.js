@@ -53,11 +53,11 @@ const Actions = {
     });
   },
 
-  end() {
-    gameDispatcher.dispatch({
-      type: GameActionTypes.END
-    });
-  },
+  // end() {
+  //   gameDispatcher.dispatch({
+  //     type: GameActionTypes.END
+  //   });
+  // },
 
   swap(piece) {
     gameDispatcher.dispatch({

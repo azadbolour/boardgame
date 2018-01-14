@@ -78,6 +78,14 @@ data GameError =
       word :: String
   }
   |
+  WordTooShortError {
+      word :: String
+  }
+  |
+  InvalidCrossWordError {
+      crossWords :: [String]
+  }
+  |
   NonContiguousPlayError {
       points :: [Point]
   }

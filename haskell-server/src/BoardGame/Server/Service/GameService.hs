@@ -34,6 +34,7 @@ import Data.Ord
 import Data.List
 import Data.Maybe (fromJust)
 import Data.Time (getCurrentTime)
+import Data.Bool (bool)
 
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..), withExceptT)
@@ -75,6 +76,7 @@ import BoardGame.Server.Domain.Board (Board)
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Domain.DictionaryCache as DictionaryCache
 import qualified BoardGame.Server.Domain.WordDictionary as Dict
+import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 import BoardGame.Server.Domain.WordDictionary (WordDictionary)
 import BoardGame.Server.Domain.PlayInfo (PlayInfo, PlayInfo(PlayInfo))
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
@@ -177,6 +179,12 @@ startGameService gameParams initGridPieces initUserPieces initMachinePieces = do
   -- return (game', Just playPieces) -- TODO. Return Nothing playPieces if user goes first.
   return game
 
+validateCrossWords :: Board -> WordDictionary -> Strip -> String -> GameTransformerStack ()
+validateCrossWords board dictionary strip word = do
+  let crosswords = CrossWordFinder.findStripCrossWords board strip word
+      invalidCrosswords = filter (not . Dict.isWord dictionary) crosswords
+  bool (throwError $ InvalidCrossWordError invalidCrosswords) (return ()) (null invalidCrosswords)
+
 -- | Service function to commit a user play - reflecting it on the
 --   game's board, and and refilling the user tray.
 --   Return the newly added replenishment pieces to the user tray.
@@ -187,17 +195,22 @@ commitPlayService ::
 
 commitPlayService gmId playPieces = do
   GameEnv { gameCache } <- ask
-  game @ Game {languageCode} <- liftGameExceptToStack $ GameCache.lookup gmId gameCache
+  game @ Game {languageCode, board} <- liftGameExceptToStack $ GameCache.lookup gmId gameCache
   let playWord = PlayPiece.playPiecesToWord playPieces
   dictionary <- lookupDictionary languageCode
   Dict.validateWord dictionary playWord
+  let maybeStrip = Board.stripOfPlay board playPieces
+  strip <- case maybeStrip of
+           Nothing -> throwError $ WordTooShortError playWord
+           Just str -> return str
+  validateCrossWords board dictionary strip playWord
   (game' @ Game {playNumber}, refills)
     <- Game.reflectPlayOnGame game UserPlayer playPieces
   saveWordPlay gmId playNumber UserPlayer playPieces refills
   liftGameExceptToStack $ GameCache.insert game' gameCache
   -- let score = length playPieces -- TODO. Get real score.
   let miniState = Game.toMiniState game'
-  return $ (miniState, refills)
+  return (miniState, refills)
 
 -- TODO. Save the replacement pieces in the database.
 -- TODO. Need to save the update game info in the DB.

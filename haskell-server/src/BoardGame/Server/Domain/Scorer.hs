@@ -32,7 +32,7 @@ import BoardGame.Server.Domain.Board (Board)
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 import qualified Bolour.Grid.Grid as Grid
 
-bonus = 50
+-- bonus = 50
 
 data Scorer = Scorer {
     scorePlay :: Board -> [PlayPiece] -> Int
@@ -72,9 +72,10 @@ doScoreWord dimension trayCapacity multGrid moves =
       wordScore = sumWordFactors * baseScore
 
       -- Add the full tray play bonus.
-      numMoves = length $ filter (\(_, _, moved) -> moved) moves
-      bonusScore = if numMoves == trayCapacity then bonus else 0
-      score = wordScore + bonusScore
+--       numMoves = length $ filter (\(_, _, moved) -> moved) moves
+--       bonusScore = if numMoves == trayCapacity then bonus else 0
+--       score = wordScore + bonusScore
+      score = wordScore
   in score
 
 scoreLetters :: [(MoveInfo, ScoreMultiplier)] -> Int

@@ -34,7 +34,6 @@ import qualified Data.ByteString.Char8 as BS
 forward = Axis.forward
 backward = Axis.backward
 
--- TODO. StripMatcher should use this. See Scala version.
 findStripCrossWords :: Board -> Strip -> String -> [String]
 findStripCrossWords board (strip @ Strip {axis, content}) word =
   let range = [0 .. length word - 1]

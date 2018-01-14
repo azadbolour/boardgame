@@ -61,15 +61,15 @@ class Scorer(val dimension: Int, trayCapacity: Int) {
     }).sum
 
     var score = Math.max(1, aggregateWordMultiplier) * baseScore
-    val numMoves = playInfo.count(_._3)
-    if (numMoves == trayCapacity)
-      score += Scorer.Bonus
+//    val numMoves = playInfo.count(_._3)
+//    if (numMoves == trayCapacity)
+//      score += Scorer.Bonus
     score
   }
 }
 
 object Scorer {
   type Score = Int
-  val Bonus = 50
+  // val Bonus = 50 -- Unfair advantage to machine.
   def apply(dimension: Int, trayCapacity: Int): Scorer = new Scorer(dimension, trayCapacity)
 }

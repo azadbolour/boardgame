@@ -99,7 +99,7 @@ const navbarStyle = {
 };
 
 const START = "start";
-const END = "end";
+// const END = "end";
 const COMMIT = "commit";
 const REVERT = "revert";
 
@@ -160,9 +160,9 @@ class GameComponent extends React.Component {
   }
 
   // TODO. Obsolete.
-  endGame() {
-    actions.end();
-  }
+  // endGame() {
+  //   actions.end();
+  // }
 
   renderWord(index, key) {
     let words = this.props.auxGameData.wordsPlayed;

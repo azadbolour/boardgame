@@ -40,6 +40,7 @@ import qualified Bolour.Grid.Point as Point
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.Player (PlayerType(..))
+import qualified BoardGame.Common.Domain.Player as PlayerType
 import qualified BoardGame.Common.Domain.Player as Player
 import Bolour.Grid.GridValue (GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
@@ -233,6 +234,8 @@ validatePlayAgainstGame game playPieces =
   >>= checkPlayPositionsOccupied game
   >>= checkPlayBoardPieces game
 
+-- TODO. Check connectivity. Either has to have an anchor or be a parallel play.
+-- That is check in teh UI for now. So OK to defer.
 checkContiguousPlay :: MonadError GameError m => [PlayPiece] -> m [PlayPiece]
 checkContiguousPlay playPieces =
   let points = PlayPiece.point <$> playPieces
@@ -293,8 +296,8 @@ checkPlayBoardPieces Game {board} playPieces =
 
 reflectPlayOnGame :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> [PlayPiece] -> m (Game, [Piece])
 reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, scorePlay, scores}) playerType playPieces = do
-  playPieces' <- validatePlayAgainstGame game playPieces
-  let movedPlayPieces = filter PlayPiece.moved playPieces'
+  _ <- if playerType == PlayerType.UserPlayer then validatePlayAgainstGame game playPieces else return playPieces
+  let movedPlayPieces = filter PlayPiece.moved playPieces
       movedGridPieces = PlayPiece.getGridPiece <$> movedPlayPieces
       b = Board.setN board movedGridPieces
       usedPieces = GridValue.value <$> movedGridPieces
