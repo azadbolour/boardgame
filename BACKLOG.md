@@ -173,6 +173,7 @@
 
 - Integrate with TravisCI on github. Free for open source.
 
-  https://github.com/ligurio/Continuous-Integration-services/blob/master/continuous-integration-services-list.md
+  http://chrispenner.ca/posts/homebrew-haskell
+  https://github.com/ChrisPenner/haskell-stack-travis-ci
   https://docs.haskellstack.org/en/stable/travis_ci/
 
