@@ -21,15 +21,26 @@ dotspacemacs-configuration-layers
      yaml
      )
 
-(setq-default dotspacemacs-default-font '("Source Code Pro"
+(setq-default dotspacemacs-default-font '("Menlo"
                                           :size 18
-                                          :weight normal
-                                          :width normal
+                                          :weight light
+                                          :width expanded
                                           :powerline-scale 1.1))
 
 (setq-default dotspacemacs-configuration-layers
               '(auto-completion
                 (haskell :variables haskell-completion-backend 'intero)))
+
+(setq-default dotspacemacs-themes 
+                       '(
+                         leuven
+                         solarized-light
+                         spacemacs-light
+                         spacemacs-dark
+                         solarized-dark
+                         zenburn
+                         monokai
+                         ))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
