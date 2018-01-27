@@ -70,10 +70,6 @@ export const mkValueFactory = function(dimension) {
 
     mkValueGrid: function () {
       let it = this;
-      const pointValue = function (row, col) {
-        return it.valueOf(mkPoint(row, col))
-      };
-
       let grid = mkMatrixFromCoordinates(dimension, function(row, col) {
         return it.valueOf(mkPoint(row, col));
       });

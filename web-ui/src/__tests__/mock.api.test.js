@@ -15,6 +15,7 @@ import * as PlayPiece from "../domain/PlayPiece";
 import {mkMovePlayPiece, mkCommittedPlayPiece} from "../domain/PlayPiece";
 import GameService from "../service/GameService"
 import {stringify} from "../util/Logger";
+import * as PointValue from '../domain/PointValue';
 
 // TODO. Clean up promise tests.
 // Returning a promise from a test is sufficient.
@@ -24,6 +25,9 @@ import {stringify} from "../util/Logger";
 // That will happen in case of exceptions and reject.
 
 let gameParams = GameParams.defaultParams();
+let valueFactory = PointValue.mkValueFactory(gameParams.dimension);
+let pointValues = valueFactory.mkEmptyValueGrid();
+
 let uPieces = [mkPiece('B', "1"), mkPiece('E', "2"), mkPiece('T', "3")];
 let mPieces = [mkPiece('S', "4"), mkPiece('T', "5"), mkPiece('Z', "6")];
 let center = parseInt(gameParams.dimension/2);
@@ -38,7 +42,7 @@ test('start a new game', done => {
 
   let game = undefined;
   let gameService = new GameService(gameParams);
-  gameService.start([], [], [], []).then(response => {
+  gameService.start([], [], [], pointValues).then(response => {
     game = response.json;
     expect(game.tray.pieces.length).toBe(gameParams.trayCapacity);
     expect(game.board.dimension).toBe(gameParams.dimension);
@@ -57,7 +61,7 @@ test('commit play', done => {
   // let rightPiece = mkPiece('T', 'idRight');
   // let initUserTray = [leftPiece, rightPiece];
 
-  gameService.start([], uPieces, mPieces, []).then(response => {
+  gameService.start([], uPieces, mPieces, pointValues).then(response => {
     game = response.json;
     // TODO. expect good game
     // let $game = TestUtil.addInitialPlayToGame(game);
@@ -83,7 +87,7 @@ test('machine play', done => {
   // let rightPiece = mkPiece('T', 'idRight');
   // let initUserTray = [leftPiece, rightPiece];
 
-  gameService.start([], uPieces, mPieces, []).then(response => {
+  gameService.start([], uPieces, mPieces, pointValues).then(response => {
     game = response.json;
     return gameService.commitUserPlay(game.gameId, userPlayPieces);
   }).then(response => {

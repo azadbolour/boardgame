@@ -28,7 +28,7 @@ export const StartGameRequestConverter = {
       pointValues
     }
   }
-}
+};
 
 export const GameParamsConverter = {
   toJson: function(gameParams) {
