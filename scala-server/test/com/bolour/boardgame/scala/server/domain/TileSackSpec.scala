@@ -17,8 +17,8 @@ class TileSackSpec extends FlatSpec with Matchers {
   "tile sack" should "be depleted of taken tiles" in {
     val sack = RandomTileSack(dimension)
     val RandomTileSack(initialContents, contents) = sack
-    initialContents.length shouldBe Piece.maxDistribution
-    contents.length shouldBe Piece.maxDistribution
+    initialContents.length shouldBe 151
+    contents.length shouldBe 151
 
     for {
       (RandomTileSack(initialContents, contents), pieces) <- sack.takeAvailableTiles(trayCapacity)

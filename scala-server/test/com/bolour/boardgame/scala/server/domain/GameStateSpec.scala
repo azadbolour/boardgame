@@ -167,32 +167,27 @@ class GameStateSpec extends FlatSpec with Matchers {
 
       (gameState1, _) <- gameState.addPlay(MachinePlayer, machinePlay1)
       machineScore1 = gameState1.miniState.lastPlayScore
-      _ = machineScore1 shouldBe 16
+      _ = machineScore1 shouldBe machinePlay1.count(_.moved)
 
       (gameState2, _) <- gameState1.addPlay(UserPlayer, userPlay1)
       userScore1 = gameState2.miniState.lastPlayScore
-      _ = userScore1 shouldBe 18
+      _ = userScore1 shouldBe userPlay1.count(_.moved)
 
       (gameState3, _) <- gameState2.addPlay(MachinePlayer, machinePlay2)
       machineScore2 = gameState3.miniState.lastPlayScore
-      _ = machineScore2 shouldBe 16
+      _ = machineScore2 shouldBe machinePlay2.count(_.moved)
 
       (gameState4, _) <- gameState3.addPlay(UserPlayer, userPlay2)
       userScore2 = gameState4.miniState.lastPlayScore
-      _ = userScore2 shouldBe 13
+      _ = userScore2 shouldBe userPlay2.count(_.moved)
 
       (gameState5, _) <- gameState4.addPlay(MachinePlayer, machinePlay3)
       machineScore3 = gameState5.miniState.lastPlayScore
-      _ = machineScore3 shouldBe 12
+      _ = machineScore3 shouldBe machinePlay2.count(_.moved)
 
       (gameState6, _) <- gameState5.addPlay(UserPlayer, userPlay3)
       userScore3 = gameState6.miniState.lastPlayScore
-      egiptoScore = 2 * (1 + 3*2 + 1 + 3 + 1 + 1)
-      etCrossScore = 1 + 1
-      gnCrossScore = 3*2 + 1
-      ieCrossScore = 1 + 1
-      _ = userScore3 shouldBe egiptoScore + etCrossScore + gnCrossScore + ieCrossScore
-
+      _ = userScore3 shouldBe userPlay3.count(_.moved)
     } yield ()
 
     result match {

@@ -26,7 +26,7 @@ case class Game(
 ) {
   // def mkPieces(num: Int): List[Piece] = List.fill(num){pieceGenerator.take()}
 
-  val scorer = Scorer(dimension, trayCapacity)
+  val scorer = Scorer(dimension, trayCapacity, pointValues)
 }
 
 object Game {
