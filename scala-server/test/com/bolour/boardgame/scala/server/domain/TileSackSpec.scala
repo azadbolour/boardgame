@@ -34,15 +34,17 @@ class TileSackSpec extends FlatSpec with Matchers {
   }
 
   "tile sack" should "produce tiles with distinct ids" in {
-    def repetitions(frequencies: Map[Char, Int])(ch: Char): Int = 1
+//    def repetitions(frequencies: Map[Char, Int])(ch: Char): Int = 1
+//
+//    val initialPieces = RandomTileSack.generatePieces(Piece.frequencyMap, repetitions)
+//    // initialPieces.foreach { p => logger.info(s"${p}") }
+//
+//    val ids = initialPieces map { p => p.id }
+//    ids.distinct.length shouldBe ids.length
+//
+//    val sack = RandomTileSack(initialPieces)
 
-    val initialPieces = RandomTileSack.generatePieces(Piece.frequencyMap, repetitions)
-    // initialPieces.foreach { p => logger.info(s"${p}") }
-
-    val ids = initialPieces map { p => p.id }
-    ids.distinct.length shouldBe ids.length
-
-    val sack = RandomTileSack(initialPieces)
+    val sack = RandomTileSack(15)
 
     val result = for {
       (RandomTileSack(initialContents, contents), pieces) <- sack.takeAvailableTiles(trayCapacity)

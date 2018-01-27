@@ -21,8 +21,8 @@ spec :: Spec
 spec = do
   describe "Tile Sack" $ do
     it "has expected tiles" $ do
-       let (sack @ RandomPieceProvider {initial, current}) = PieceProvider.mkDefaultPieceGen Random 15
-       (PieceProvider.length' sack) `shouldSatisfy` (== 98)
+       let (sack @ RandomPieceProvider {initial, current}) = PieceProvider.mkDefaultPieceProvider Random 15
+       (PieceProvider.length' sack) `shouldSatisfy` (== 151)
        print $ Piece.value <$> initial
 
 

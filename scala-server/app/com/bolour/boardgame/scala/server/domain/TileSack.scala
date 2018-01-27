@@ -131,36 +131,40 @@ object RandomTileSack {
 
   /**
     * Put together the initial contents of a tile sack for any dimension.
-    *
-    * The letter frequencies for a 15x15 board are provided in Piece.frequencyMap.
-    * The frequencies for a different dimension are computed by scaling the 15x15
-    * frequencies based on board area.
     */
   def mkInitialContents(dimension: Int): Vector[Piece] = {
-    val frequenciesFor15Board = Piece.frequencyMap
-
-    val area15 = (15 * 15).toFloat
-    val area = (dimension * dimension).toFloat
-    val factor = area/area15
-
-    /**
-      * Scale the frequency of a letter making sure each letter
-      * has at least one instance in the sack.
-      */
-    def repeats(frequencies: Map[Char, Int])(ch: Char): Int =
-      Math.round(frequencies(ch) * factor).max(1)
-
-    generatePieces(frequenciesFor15Board, repeats)
-  }
-
-  def generatePieces(baseFrequencies: Map[Char, Int], repetition: Map[Char, Int] => Char => Int) = {
-    var id = -1
-    val pieces = baseFrequencies.toList flatMap {
-      case (ch, _) => (0 until repetition(baseFrequencies)(ch)).map { _ =>
-        id += 1
-        Piece(ch, id.toString)
-      }
-    }
+    val roughNumPieces = (dimension * dimension * 2)/3 // 2/3 is more than enough.
+    val (letterFrequencies, total) = Piece.normalizedFrequencies(roughNumPieces)
+    val contentLetters = letterFrequencies.toList flatMap {case (ch, freq) => List.fill(freq)(ch)}
+    val ids = (0 until total) map { _.toString }
+    val lettersAndIds = contentLetters zip ids
+    val pieces = lettersAndIds map {case (ch, id) => Piece(ch, id)}
     pieces.toVector
+
+//    val frequenciesFor15Board = Piece.frequencyMap
+//
+//    val area15 = (15 * 15).toFloat
+//    val area = (dimension * dimension).toFloat
+//    val factor = area/area15
+//
+//    /**
+//      * Scale the frequency of a letter making sure each letter
+//      * has at least one instance in the sack.
+//      */
+//    def repeats(frequencies: Map[Char, Int])(ch: Char): Int =
+//      Math.round(frequencies(ch) * factor).max(1)
+//
+//    generatePieces(frequenciesFor15Board, repeats)
   }
+
+//  def generatePieces(baseFrequencies: Map[Char, Int], repetition: Map[Char, Int] => Char => Int) = {
+//    var id = -1
+//    val pieces = baseFrequencies.toList flatMap {
+//      case (ch, _) => (0 until repetition(baseFrequencies)(ch)).map { _ =>
+//        id += 1
+//        Piece(ch, id.toString)
+//      }
+//    }
+//    pieces.toVector
+//  }
 }

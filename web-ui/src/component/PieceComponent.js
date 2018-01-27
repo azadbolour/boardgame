@@ -93,7 +93,7 @@ class PieceComponent extends React.Component {
     let connectDragSource = this.props.connectDragSource;
     let isDragging = this.props.isDragging;
     let letter = this.props.piece.value;
-    let worth = Piece.worths[letter];
+    // let worth = Piece.worths[letter];
 
     return connectDragSource(
       <div style={{
@@ -103,18 +103,8 @@ class PieceComponent extends React.Component {
         cursor: 'move',
         zIndex: 10
       }}>
-        <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center'}}>
-          <div style={{ fontSize: 18}}>
-            {letter}
-          </div>
-          <div>
-            <div style={{ fontSize: 8}}>
-              <pre></pre>
-            </div>
-            <div style={{ fontSize: 12}}>
-              {worth}
-            </div>
-          </div>
+        <div style={{ fontSize: 18}}>
+          {letter}
         </div>
       </div>
     );

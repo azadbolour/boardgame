@@ -10,6 +10,7 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 -- TODO. mkPiece is really deprecated. But let's not clutter the build output for now.
 -- {-# DEPRECATED mkPiece "Use appropriate pieceOf function of appropriate PieceProvider." #-}
@@ -30,6 +31,7 @@ module BoardGame.Common.Domain.Piece (
   , mkRandomPieceForId
   , isEmptyChar
   , frequencies
+  , normalizedFrequencies
   , worth
   , letterWorth
   , piecesToString
@@ -120,31 +122,31 @@ eqValue p1 p2 = (value p1) == (value p2)
 
 -- | Tile frequencies for 15x15 board.
 frequencies = [
-    ('A', 9),
-    ('B', 2),
-    ('C', 2),
-    ('D', 4),
-    ('E', 12),
-    ('F', 2),
-    ('G', 3),
-    ('H', 2),
-    ('I', 9),
-    ('J', 1),
-    ('K', 1),
-    ('L', 4),
-    ('M', 2),
-    ('N', 6),
-    ('O', 8),
-    ('P', 2),
+    ('A', 81),
+    ('B', 15),
+    ('C', 28),
+    ('D', 42),
+    ('E', 127),
+    ('F', 22),
+    ('G', 20),
+    ('H', 61),
+    ('I', 70),
+    ('J', 2),
+    ('K', 8),
+    ('L', 40),
+    ('M', 24),
+    ('N', 67),
+    ('O', 80),
+    ('P', 19),
     ('Q', 1),
-    ('R', 6),
-    ('S', 4),
-    ('T', 6),
-    ('U', 4),
-    ('V', 2),
-    ('W', 2),
-    ('X', 1),
-    ('Y', 2),
+    ('R', 60),
+    ('S', 63),
+    ('T', 91),
+    ('U', 28),
+    ('V', 10),
+    ('W', 23),
+    ('X', 2),
+    ('Y', 20),
     ('Z', 1)
   ]
 
@@ -154,31 +156,31 @@ frequencyMap = Map.fromList frequencies
 worths :: Map.Map Char Int
 worths = Map.fromList [
     ('A', 1),
-    ('B', 3),
-    ('C', 3),
-    ('D', 2),
+    ('B', 1),
+    ('C', 1),
+    ('D', 1),
     ('E', 1),
-    ('F', 4),
-    ('G', 2),
-    ('H', 4),
+    ('F', 1),
+    ('G', 1),
+    ('H', 1),
     ('I', 1),
-    ('J', 8),
-    ('K', 5),
+    ('J', 1),
+    ('K', 1),
     ('L', 1),
-    ('M', 3),
+    ('M', 1),
     ('N', 1),
     ('O', 1),
-    ('P', 3),
-    ('Q', 10),
+    ('P', 1),
+    ('Q', 1),
     ('R', 1),
     ('S', 1),
     ('T', 1),
     ('U', 1),
-    ('V', 4),
-    ('W', 4),
-    ('X', 8),
-    ('Y', 4),
-    ('Z', 10)
+    ('V', 1),
+    ('W', 1),
+    ('X', 1),
+    ('Y', 1),
+    ('Z', 1)
   ]
 
 -- | The distribution function of the letters.
@@ -224,3 +226,26 @@ leastFrequent' (x:xs) (least @ (Just (leastChar, leastFreq))) = do
   let least' = if freq < leastFreq then Just (x, freq) else least
   leastFrequent' xs least'
 
+normalizedFrequencies :: Int -> ((Map.Map Char Int), Int)
+normalizedFrequencies roughTotal =
+  let factor :: Float = fromIntegral roughTotal / fromIntegral maxDistribution
+      normalizer freq = max 1 (round $ fromIntegral freq * factor)
+      normalized = normalizer <$> frequencyMap
+      total = sum $ Map.elems normalized
+  in (normalized, total)
+
+{-
+mkInitialRandomSackContent :: Int -> [Piece]
+mkInitialRandomSackContent dimension =
+  let frequenciesFor15Board = Piece.frequencies
+      area15 :: Float = fromIntegral (15 * 15)
+      area :: Float = fromIntegral (dimension * dimension)
+      factor = area / area15
+      letters = do
+        (ch, num) <- frequenciesFor15Board
+        let f' = max 1 (round $ fromIntegral num * factor)
+        replicate f' ch
+      ids = [0 .. length letters]
+  in (\(ch, id) -> Piece ch (show id)) <$> zip letters ids
+
+-}

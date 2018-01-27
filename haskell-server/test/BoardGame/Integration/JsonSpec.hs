@@ -30,7 +30,7 @@ name = "You"
 pieceProviderType = PieceProviderType.Cyclic
 params :: GameParams
 params = GameParams 9 12 Dict.defaultLanguageCode name pieceProviderType
-tileSack = PieceProvider.mkDefaultPieceGen PieceProviderType.Cyclic 9
+tileSack = PieceProvider.mkDefaultPieceProvider PieceProviderType.Cyclic 9
 
 game :: IO Game
 game = do

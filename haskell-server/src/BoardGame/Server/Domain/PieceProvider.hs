@@ -20,11 +20,13 @@ module BoardGame.Server.Domain.PieceProvider (
   , takeAvailableTiles
   , swapOne
   , pieceProviderType
-  , mkDefaultPieceGen
+  , mkDefaultPieceProvider
   )
   where
 
 import Data.List
+import qualified Data.List as List
+import Data.Map as Map
 import System.Random
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..))
@@ -56,7 +58,7 @@ data PieceProvider =
   CyclicPieceProvider Integer String
 
 isEmpty :: PieceProvider -> Bool
-isEmpty (RandomPieceProvider initial current) = null current
+isEmpty (RandomPieceProvider initial current) = List.null current
 isEmpty (CyclicPieceProvider count cycler) = False
 
 isFull :: PieceProvider -> Bool
@@ -75,7 +77,7 @@ take (sack @ RandomPieceProvider {initial, current}) =
     else do
       index <- liftIO $ randomRIO (0, (length' sack) - 1)
       let piece = current !! index
-          current' = delete piece current
+          current' = List.delete piece current
           sack' = sack { current = current' }
       return (piece, sack')
 
@@ -122,21 +124,44 @@ pieceProviderType (RandomPieceProvider _ _) = PieceProviderType.Random
 pieceProviderType (CyclicPieceProvider _ _) = PieceProviderType.Cyclic
 
 caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-mkDefaultPieceGen :: PieceProviderType -> Int -> PieceProvider
-mkDefaultPieceGen PieceProviderType.Random dimension =
+mkDefaultPieceProvider :: PieceProviderType -> Int -> PieceProvider
+mkDefaultPieceProvider PieceProviderType.Random dimension =
   let init = mkInitialRandomSackContent dimension
   in RandomPieceProvider init init
-mkDefaultPieceGen PieceProviderType.Cyclic dimension = CyclicPieceProvider 0 (cycle caps)
+mkDefaultPieceProvider PieceProviderType.Cyclic dimension = CyclicPieceProvider 0 (cycle caps)
 
 mkInitialRandomSackContent :: Int -> [Piece]
 mkInitialRandomSackContent dimension =
-  let frequenciesFor15Board = Piece.frequencies
-      area15 :: Float = fromIntegral (15 * 15)
-      area :: Float = fromIntegral (dimension * dimension)
-      factor = area / area15
-      letters = do
-        (ch, num) <- frequenciesFor15Board
-        let f' = max 1 (round $ fromIntegral num * factor)
-        replicate f' ch
-      ids = [0 .. length letters]
-  in (\(ch, id) -> Piece ch (show id)) <$> zip letters ids
+  let roughNumPieces = (dimension * dimension * 2) `div` 3
+      (letterFrequencies, total) = Piece.normalizedFrequencies roughNumPieces
+      contentLetters = do
+        (ch, freq) <- Map.toList letterFrequencies
+        replicate freq ch
+      ids = show <$> [0 .. total - 1]
+      lettersAndIds = zip contentLetters ids
+  in mkPiece <$> lettersAndIds
+       where mkPiece (ch, id) = Piece ch id
+
+--       frequenciesFor15Board = Piece.frequencies
+--       area15 :: Float = fromIntegral (15 * 15)
+--       area :: Float = fromIntegral (dimension * dimension)
+--       factor = area / area15
+--       letters = do
+--         (ch, num) <- frequenciesFor15Board
+--         let f' = max 1 (round $ fromIntegral num * factor)
+--         replicate f' ch
+--       ids = [0 .. length letters]
+--   in (\(ch, id) -> Piece ch (show id)) <$> zip letters ids
+
+-- mkInitialRandomSackContent :: Int -> [Piece]
+-- mkInitialRandomSackContent dimension =
+--   let frequenciesFor15Board = Piece.frequencies
+--       area15 :: Float = fromIntegral (15 * 15)
+--       area :: Float = fromIntegral (dimension * dimension)
+--       factor = area / area15
+--       letters = do
+--         (ch, num) <- frequenciesFor15Board
+--         let f' = max 1 (round $ fromIntegral num * factor)
+--         replicate f' ch
+--       ids = [0 .. length letters]
+--   in (\(ch, id) -> Piece ch (show id)) <$> zip letters ids
