@@ -12,6 +12,8 @@ import {apiSelector} from '../api/ApiUtil';
 import {GameConverter, PieceConverter, PlayConverter, GameParamsConverter} from './../api/Converters';
 // import Play from "../domain/Play";
 import {stringify} from "../util/Logger";
+import * as PointValue from '../domain/PointValue';
+
 import {convertResponse} from "../util/MiscUtil";
 import {PlayPieceConverter} from "../api/Converters";
 // TODO. Should rejections be caught here and converted to just !ok??
@@ -31,14 +33,16 @@ class GameService {
 
   // TODO. The initialization arguments should be converted to dtos.
   start(initGridPieces, initUserTray, initMachineTray) {
+    let valueFactory = PointValue.mkValueFactory(this.gameParams.dimension);
+    let pointValues = valueFactory.mkValueGrid();
     let promise = this.api.startGame(this.paramsDto, initGridPieces, initUserTray, initMachineTray);
     return promise.then(dtoResponse => {
       if (!dtoResponse.ok) {
-        return dtoResponse; // TODO. Convert dto message to application message;.
+        return dtoResponse; // TODO. Convert dto message to application message.
       }
       let gameDto = dtoResponse.json;
       // console.log(`game dto returned from start: ${JSON.stringify(gameDto)}`); // TODO. Remove me.
-      let game = GameConverter.fromJson(gameDto, this.gameParams);
+      let game = GameConverter.fromJson(gameDto, this.gameParams, pointValues);
 
       let response = convertResponse(dtoResponse, game);
       return response;

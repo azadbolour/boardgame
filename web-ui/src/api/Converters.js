@@ -14,7 +14,6 @@ import {mkPiece} from "../domain/Piece";
 import {mkPoint} from "../domain/Point";
 import {mkGridPiece} from "../domain/GridPiece";
 import {mkCommittedPlayPiece, mkPlayPiece} from "../domain/PlayPiece";
-import {mkMultiplierGrid} from "../domain/ScoreMultiplier";
 
 // TODO. Conversion of class object to json - use JSON.stringify in simple cases.
 // TODO. What about conversion from json to a class object?
@@ -47,7 +46,7 @@ export const GameConverter = {
    * @param json Represents DTO.
    * @param gameParams TODO. Clean it up so we don't need gameParams and paramsDto. Ugly hack.
    */
-  fromJson: function(json, gameParams) {
+  fromJson: function(json, gameParams, pointValues) {
     let gameId = json.gameId;
     let gridPiecesJson = json.gridPieces;
     let trayPiecesJson = json.trayPieces;
@@ -67,8 +66,8 @@ export const GameConverter = {
     playPieces.forEach(playPiece => {
       board = board.setPlayPiece(playPiece);
     });
-    let scoreMultipliers = mkMultiplierGrid(dimension);
-    let game = mkGame(gameParams, gameId, board, tray, scoreMultipliers, [0, 0]);
+    // let scoreMultipliers = mkMultiplierGrid(dimension);
+    let game = mkGame(gameParams, gameId, board, tray, pointValues, [0, 0]);
     return game;
   }
 };

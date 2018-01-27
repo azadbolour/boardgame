@@ -69,7 +69,7 @@ class BoardComponent extends React.Component {
      */
     squarePixels: PropTypes.number.isRequired,
 
-    scoreMultipliers: PropTypes.object.isRequired,
+    pointValues: PropTypes.object.isRequired,
 
     /**
      * The board responds to interactions.
@@ -115,7 +115,7 @@ class BoardComponent extends React.Component {
     let point = mkPoint(row, col);
     let inPlay = this.props.pointsInPlay.some(p => Point.eq(p, point));
     let enabled = this.props.enabled;
-    let scoreMultiplier = this.props.scoreMultipliers.getElement(point);
+    let pointValue = this.props.pointValues.getElement(point);
     let center = Math.floor(dimension/20);
     let isCenterPoint = row === center && col === center;
 
@@ -126,7 +126,7 @@ class BoardComponent extends React.Component {
           point={point}
           isLegalMove={isLegalMove}
           squarePixels={squarePixels}
-          scoreMultiplier={scoreMultiplier}
+          pointValue={pointValue}
           isCenterPoint={isCenterPoint}
           enabled={enabled}>
             {this.renderPiece(point)}

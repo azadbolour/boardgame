@@ -256,8 +256,7 @@ class GameComponent extends React.Component {
     let machineScore = game.score[Game.MACHINE_INDEX];
     let isTrayPiece = game.tray.isTrayPiece.bind(game.tray);
     let isError = (status !== "OK" && status !== "game over"); // TODO. This is a hack! Better indication of error and severity.
-    let scoreMultipliers = game.scoreMultipliers;
-    // console.log(`BoardComponent: ${stringify(scoreMultipliers.rows())}`)
+    let pointValues = game.pointValues;
 
     /*
      * Note. Do not use &nbsp; for spaces in JSX. It sometimes
@@ -285,7 +284,7 @@ class GameComponent extends React.Component {
       isLegalMove={isLegalMove}
       canMovePiece={canMovePiece}
       squarePixels={squarePixels}
-      scoreMultipliers={scoreMultipliers}
+      pointValues={pointValues}
       enabled={running}
     />;
 

@@ -16,7 +16,6 @@ import {mkPiece} from '../domain/Piece';
 import {mkPoint} from '../domain/Point';
 import {mkGridPiece} from '../domain/GridPiece';
 import {stringify} from "../util/Logger";
-import {ScoreMultiplierType} from "../domain/ScoreMultiplier";
 
 /**
  * Color coding style for move destinations (drop targets of the the piece being dragged).
@@ -55,14 +54,14 @@ function inPlayStyle() {
   };
 }
 
-function scoreStyle(scoreMultiplier, squarePixels) {
+function scoreStyle(pointValue, squarePixels) {
   const height = 10;
   const width = Math.floor(squarePixels/2);
-  let backgroundColor = scoreMultiplierColor(scoreMultiplier);
+  let backgroundColor = pointValueColor(pointValue);
   let top = squarePixels - height;
   // let top = 0;
   // let left = squarePixels - width;
-  let left = 0;
+  let left = 1;
   return {
     position: 'absolute',
     top: top,
@@ -70,7 +69,7 @@ function scoreStyle(scoreMultiplier, squarePixels) {
     height: height + 'px',
     width: width + 'px',
     zIndex: 1,
-    color: 'White',
+    color: 'Black',
     backgroundColor: backgroundColor,
     opacity: 1,
     fontSize: 10,
@@ -165,26 +164,37 @@ function injectedDropTargetProperties(connect, monitor) {
 //   return (point.row + point.col) % 2 === 0 ? 'light' : 'dark'; // TODO. Constants.
 // }
 
-function scoreMultiplierColor(scoreMultiplier) {
+function pointValueColor(pointValue) {
   let defaultColor = 'CornSilk';
-  let {multiplierType, factor} = scoreMultiplier;
-  switch (multiplierType) {
-    case ScoreMultiplierType.Letter:
-      switch (factor) {
-        case 2: return '#B0B0FF'; // light blue
-        case 3: return '#8080FF'; // blue
-        default: return defaultColor;
-      }
-    case ScoreMultiplierType.Word:
-      switch (factor) {
-        case 2: return '#FFD040'; // orange
-        case 3: return '#FF6347'; // red
-        default: return defaultColor;
-      }
-    default:
+  switch (pointValue) {
+    case 1: return defaultColor;
+    case 2: return 'Aquamarine';
+    case 3: return 'Aqua';
+    case 4: return 'Gold';
+    case 5: return 'GoldenRod';
+    default :
       return defaultColor;
   }
 }
+
+  // let {multiplierType, factor} = scoreMultiplier;
+  // switch (multiplierType) {
+  //   case ScoreMultiplierType.Letter:
+  //     switch (factor) {
+  //       case 2: return '#B0B0FF'; // light blue
+  //       case 3: return '#8080FF'; // blue
+  //       default: return defaultColor;
+  //     }
+  //   case ScoreMultiplierType.Word:
+  //     switch (factor) {
+  //       case 2: return '#FFD040'; // orange
+  //       case 3: return '#FF6347'; // red
+  //       default: return defaultColor;
+  //     }
+  //   default:
+  //     return defaultColor;
+  // }
+
 
 /**
  * A given square on the board.
@@ -214,7 +224,7 @@ class BoardSquareComponent extends React.Component {
      */
     squarePixels: PropTypes.number.isRequired,
 
-    scoreMultiplier: PropTypes.object.isRequired,
+    pointValue: PropTypes.object.isRequired,
 
     /**
      * Does this square form part of the current play?
@@ -254,12 +264,11 @@ class BoardSquareComponent extends React.Component {
     // let shade = checkerShade(this.props.point);
     let pixels = this.props.squarePixels;
     let inPlay = this.props.inPlay;
-    let scoreMultiplier = this.props.scoreMultiplier;
-    // console.log(`${stringify(scoreMultiplier)}`);
+    let pointValue = this.props.pointValue;
 
     // let isLight = (shade === 'light'); // TODO. Constant.
     // let backgroundColor = isLight ? 'CornSilk' : 'AquaMarine';
-    let backgroundColor = scoreMultiplierColor(scoreMultiplier);
+    let backgroundColor = pointValueColor(pointValue);
     let color = 'FireBrick';
     // let color = 'Tomato';
     let isCenterPoint = this.props.isCenterPoint;
@@ -280,9 +289,9 @@ class BoardSquareComponent extends React.Component {
         {!isOver && canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'yellow')} />}
         {isOver && canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'green')} />}
         {inPlay && <div style={inPlayStyle()} />}
-        {scoreMultiplier.factor > 1 && <div style={scoreStyle(scoreMultiplier, pixels)}>
-          {scoreMultiplier.show()}
-        </div>}
+        <div style={scoreStyle(pointValue, pixels)}>
+          {pointValue}
+        </div>
 
       </div>
     );
