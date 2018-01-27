@@ -93,25 +93,25 @@ spec = do
     it "guards against non-existent player" $
       do
         runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
-        error <- runL' $ GameService.startGameService paramsBadPlayer [] [] []
+        error <- runL' $ GameService.startGameService paramsBadPlayer [] [] [] []
         error `shouldBe` GameError.MissingPlayerError nonExistentPlayerName
 
     it "disallows negative board dimensions" $
       do
         runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
-        error <- runL' $ GameService.startGameService paramsBadDimension [] [] []
+        error <- runL' $ GameService.startGameService paramsBadDimension [] [] [] []
         error `shouldBe` GameError.InvalidDimensionError badDimension
 
     it "disallows 0 board dimensions" $
       do
         runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
-        error <- runL' $ GameService.startGameService paramsZeroWidth [] [] []
+        error <- runL' $ GameService.startGameService paramsZeroWidth [] [] [] []
         error `shouldBe` GameError.InvalidDimensionError 0
 
     it "disallows trays with 0 capacity" $
       do
         runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
-        error <- runL' $ GameService.startGameService paramsBadTrayCapacity [] [] []
+        error <- runL' $ GameService.startGameService paramsBadTrayCapacity [] [] [] []
         error `shouldBe` GameError.InvalidTrayCapacityError badTrayCapacity
 
 

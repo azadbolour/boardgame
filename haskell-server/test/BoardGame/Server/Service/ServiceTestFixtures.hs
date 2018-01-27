@@ -37,7 +37,7 @@ makePlayer env name = do
 makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO Game
 makeGame env gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith = do
   eitherResult <- runExceptT $ TransformerStack.runDefaultUnprotected env $ GameService.startGameService
-    gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith
+    gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith []
   satisfiesRight eitherResult
   -- let (game, maybePlayPieces) = head $ rights [eitherResult]
   -- let (Right (game, maybePlayPieces)) = eitherResult

@@ -159,10 +159,11 @@ startGameService ::
   -> [GridPiece]
   -> [Piece]
   -> [Piece]
+  -> [[Int]]
   -> GameTransformerStack Game
   -- -> GameTransformerStack (Game, Maybe [PlayPiece])
 
-startGameService gameParams initGridPieces initUserPieces initMachinePieces = do
+startGameService gameParams initGridPieces initUserPieces initMachinePieces pointValues = do
   params @ GameParams.GameParams {dimension, languageCode, pieceProviderType} <- Game.validateGameParams gameParams
   GameEnv { connectionProvider, gameCache } <- ask
   let playerName = GameParams.playerName params

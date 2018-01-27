@@ -26,6 +26,7 @@ data StartGameRequest = StartGameRequest {
   , initGridPieces :: [GridValue Piece]
   , initUserPieces :: [Piece]
   , initMachinePieces :: [Piece]
+  , pointValues :: [[Int]]
 } deriving (Eq, Show, Generic, NFData)
 
 instance FromJSON StartGameRequest

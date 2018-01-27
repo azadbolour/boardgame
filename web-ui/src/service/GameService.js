@@ -32,10 +32,8 @@ class GameService {
   }
 
   // TODO. The initialization arguments should be converted to dtos.
-  start(initGridPieces, initUserTray, initMachineTray) {
-    let valueFactory = PointValue.mkValueFactory(this.gameParams.dimension);
-    let pointValues = valueFactory.mkValueGrid();
-    let promise = this.api.startGame(this.paramsDto, initGridPieces, initUserTray, initMachineTray);
+  start(initGridPieces, initUserTray, initMachineTray, pointValues) {
+    let promise = this.api.startGame(this.paramsDto, initGridPieces, initUserTray, initMachineTray, pointValues);
     return promise.then(dtoResponse => {
       if (!dtoResponse.ok) {
         return dtoResponse; // TODO. Convert dto message to application message.

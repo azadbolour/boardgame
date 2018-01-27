@@ -26,7 +26,8 @@ trait GameService {
     gameParams: GameParams,
     gridPieces: List[GridPiece],
     initUserPieces: List[Piece],
-    initMachinePieces: List[Piece]
+    initMachinePieces: List[Piece],
+    pointValues: List[List[Int]]
   ): Try[GameState]
   // ): Try[(GameState, Option[List[PlayPiece]])]
 

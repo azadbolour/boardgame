@@ -88,7 +88,7 @@ spec = do
       do -- IO
         userTray <- runner'' $ do -- GameTransformerStack
           addPlayerService $ Player Fixtures.thePlayer
-          Game {trays} <- startGameService Fixtures.gameParams [] [] []
+          Game {trays} <- startGameService Fixtures.gameParams [] [] [] []
           return $ trays !! 0
         length (Tray.pieces userTray) `shouldSatisfy` (== Fixtures.testTrayCapacity)
 
@@ -100,7 +100,7 @@ spec = do
 
         (miniState, replacementPieces) <- runner'' $ do -- GameTransformerStack
           addPlayerService $ Player Fixtures.thePlayer
-          Game {gameId, board, trays} <- startGameService Fixtures.gameParams [] uPieces mPieces
+          Game {gameId, board, trays} <- startGameService Fixtures.gameParams [] uPieces mPieces []
 --           let gridPieces = Board.getGridPieces board
 --               GridValue {value = piece, point = centerPoint} =
 --                 fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
@@ -120,7 +120,7 @@ spec = do
       do -- IO
         word <- runner'' $ do
           addPlayerService $ Player Fixtures.thePlayer
-          Game {gameId} <- startGameService Fixtures.gameParams [] [] []
+          Game {gameId} <- startGameService Fixtures.gameParams [] [] [] []
           (miniState, playedPieces) <- machinePlayService gameId
           let word = Play.playToWord $ Play playedPieces
           return word
@@ -132,8 +132,7 @@ spec = do
       do
         value <- runner'' $ do
           addPlayerService $ Player Fixtures.thePlayer
-          -- (Game {gameId, trays}, _) <- startGameService Fixtures.gameParams [] [] []
-          Game {gameId, trays} <- startGameService Fixtures.gameParams [] [] []
+          Game {gameId, trays} <- startGameService Fixtures.gameParams [] [] [] []
           let userTray = trays !! 0
               piece = head (Tray.pieces userTray)
           -- TODO satisfiesRight

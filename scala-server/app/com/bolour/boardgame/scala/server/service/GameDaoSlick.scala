@@ -72,9 +72,15 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     GameRow(game.id, game.dimension, game.trayCapacity, game.languageCode, game.pieceProviderType.toString, game.playerId, game.startTime, game.endTime)
   }
   def fromGameRow(row: GameRow): Game =
-    Game(row.id, row.dimension, row.trayCapacity, row.languageCode, PieceProviderType.withName(row.sackType), row.playerId, row.startTime, row.endTime)
+    Game(row.id, row.dimension, row.trayCapacity, row.languageCode,
+      PieceProviderType.withName(row.sackType), hackPointValues(row.dimension), row.playerId, row.startTime, row.endTime)
 
   // TODO. Add game and play tables.
+
+  // We are not yet saving the point values. So for now hack in a basic set of point values.
+  // TODO. Save and restore point values.
+  private def hackPointValues(dimension: Int): List[List[Int]] = List.fill(dimension, dimension)(1)
+
 
   override def createNonExistentTables(): Try[Unit] = Try {
     val existingTableNames = tableNames(db)

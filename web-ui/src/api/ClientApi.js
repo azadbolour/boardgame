@@ -19,9 +19,9 @@ class ClientApi {
     this.password = password;
   }
 
-  startGame(gameParams, initGridPieces, initUserTray, initMachineTray) {
+  startGame(gameParams, initGridPieces, initUserTray, initMachineTray, pointValues) {
     // let body = JSON.stringify([gameParams, initGridPieces, initUserTray, initMachineTray]);
-    let startGameRequest = StartGameRequestConverter.toJson(gameParams, initGridPieces, initUserTray, initMachineTray);
+    let startGameRequest = StartGameRequestConverter.toJson(gameParams, initGridPieces, initUserTray, initMachineTray, pointValues);
     let body = JSON.stringify(startGameRequest);
     let request = restManager.mkPostRequest(body);
     let promise = restManager.send(request, this.gameServerUrl, '/game/game');

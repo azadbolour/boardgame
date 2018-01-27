@@ -28,7 +28,7 @@ test('start game and make user and machine plays', () => {
   let center = parseInt(gameParams.dimension/2);
 
   let gameService = new GameService(gameParams);
-  gameService.start([], uPieces, mPieces).
+  gameService.start([], uPieces, mPieces, []).
   then(response => {
     game = response.json;
     console.log(`${stringify(game)}`);

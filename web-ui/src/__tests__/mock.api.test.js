@@ -38,7 +38,7 @@ test('start a new game', done => {
 
   let game = undefined;
   let gameService = new GameService(gameParams);
-  gameService.start([], [], []).then(response => {
+  gameService.start([], [], [], []).then(response => {
     game = response.json;
     expect(game.tray.pieces.length).toBe(gameParams.trayCapacity);
     expect(game.board.dimension).toBe(gameParams.dimension);
@@ -57,7 +57,7 @@ test('commit play', done => {
   // let rightPiece = mkPiece('T', 'idRight');
   // let initUserTray = [leftPiece, rightPiece];
 
-  gameService.start([], uPieces, mPieces).then(response => {
+  gameService.start([], uPieces, mPieces, []).then(response => {
     game = response.json;
     // TODO. expect good game
     // let $game = TestUtil.addInitialPlayToGame(game);
@@ -83,7 +83,7 @@ test('machine play', done => {
   // let rightPiece = mkPiece('T', 'idRight');
   // let initUserTray = [leftPiece, rightPiece];
 
-  gameService.start([], uPieces, mPieces).then(response => {
+  gameService.start([], uPieces, mPieces, []).then(response => {
     game = response.json;
     return gameService.commitUserPlay(game.gameId, userPlayPieces);
   }).then(response => {

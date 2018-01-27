@@ -63,7 +63,8 @@ class GameControllerSpec extends PlaySpec with Results {
     val gameParams = GameParams(dimension, 5, languageCode, name, PieceProviderType.Cyclic)
     val uPieces = List(Piece('B'), Piece('E'), Piece('T')) // User to play "BET".
     val mPieces = List(Piece('S'), Piece('T'), Piece('Z')) // Machine to play "SET" using user's 'E'.
-    val startGameRequest = StartGameRequest(gameParams, Nil, uPieces, mPieces)
+    val pointValues = List.fill(dimension, dimension)(1)
+    val startGameRequest = StartGameRequest(gameParams, Nil, uPieces, mPieces, pointValues)
 
     val center = dimension/2
 

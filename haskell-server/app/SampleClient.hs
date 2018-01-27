@@ -39,7 +39,7 @@ main = do
   uPieces <- sequence [mkPiece 'B', mkPiece 'E', mkPiece 'T'] -- Allow the word 'BET'
   mPieces <- sequence [mkPiece 'S', mkPiece 'E', mkPiece 'Z'] -- Allow the word 'SET' across.
 
-  eitherGameDto <- runExceptT (Client.startGame (StartGameRequest gameParams [] uPieces mPieces) manager baseUrl)
+  eitherGameDto <- runExceptT (Client.startGame (StartGameRequest gameParams [] uPieces mPieces []) manager baseUrl)
   print $ show eitherGameDto
   print ""
 

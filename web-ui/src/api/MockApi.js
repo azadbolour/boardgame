@@ -43,10 +43,10 @@ class MockApi {
 
   // Begin API.
 
-  startGame(gameParams, initGridPieces, initUserTray, initMachineTray) {
+  startGame(gameParams, initGridPieces, initUserTray, initMachineTray, pointValues) {
     this.nextGameId += 1;
     let gameId = this.nextGameId;
-    let impl = new MockApiImpl(gameId, gameParams, initGridPieces, initUserTray, initMachineTray);
+    let impl = new MockApiImpl(gameId, gameParams, initGridPieces, initUserTray, initMachineTray, pointValues);
     this.impls[gameId] = impl;
     let gameDto = impl.gameDto;
     return promise(gameDto);

@@ -31,9 +31,9 @@ makePlayer env name = do
     eitherUnit <- runExceptT $ addPlayerHandler env player
     satisfiesRight eitherUnit
 
-makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO StartGameResponse
-makeGame env gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith =
+makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> [[Int]] -> IO StartGameResponse
+makeGame env gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith pointValues =
   satisfiesRight
-    =<< runExceptT (startGameHandler env (StartGameRequest gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith))
+    =<< runExceptT (startGameHandler env (StartGameRequest gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith pointValues))
 
 -- runExceptT $ TransformerStack.runDefault gameEnv GameService.prepareDb

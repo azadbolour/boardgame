@@ -11,5 +11,6 @@ case class StartGameRequest(
   gameParams: GameParams,
   initGridPieces: List[GridPiece],
   initUserPieces: List[Piece],
-  initMachinePieces: List[Piece]
+  initMachinePieces: List[Piece],
+  pointValues: List[List[Int]]
 )

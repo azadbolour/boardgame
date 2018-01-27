@@ -19,6 +19,7 @@ case class Game(
   trayCapacity: Int,
   languageCode: String,
   pieceProviderType: PieceProviderType,
+  pointValues: List[List[Int]],
   playerId: ID,
   startTime: Instant,
   endTime: Option[Instant]
@@ -30,12 +31,12 @@ case class Game(
 
 object Game {
 
-  def apply(p: GameParams, playerId: ID): Game = {
+  def apply(p: GameParams, pointValues: List[List[Int]], playerId: ID): Game = {
     val now = Instant.now()
     val lang = p.languageCode
     val languageCode = if (!lang.isEmpty) lang else english
     val genType = p.pieceProviderType
-    Game(stringId, p.dimension, p.trayCapacity, languageCode, genType, playerId, now, None)
+    Game(stringId, p.dimension, p.trayCapacity, languageCode, genType, pointValues, playerId, now, None)
   }
 
 }

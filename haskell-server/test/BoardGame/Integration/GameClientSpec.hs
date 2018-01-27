@@ -125,7 +125,7 @@ spec = beforeAll startApp $ afterAll endWaiApp $
       mPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
 
       (StartGameResponse.StartGameResponse {gameId, trayPieces, gridPieces}) <- SpecUtil.satisfiesRight
-        =<< runExceptT (Client.startGame (StartGameRequest params [] uPieces mPieces) manager baseUrl)
+        =<< runExceptT (Client.startGame (StartGameRequest params [] uPieces mPieces []) manager baseUrl)
 
 --       let GridValue {value = piece, point = centerPoint} =
 --             fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces

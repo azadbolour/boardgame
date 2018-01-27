@@ -14,6 +14,7 @@ import GameParams from '../domain/GameParams';
 import {playPiecesWord} from '../domain/PlayPiece';
 import * as PlayPiece from '../domain/PlayPiece';
 import {emptyAuxGameData} from '../domain/AuxGameData';
+import * as PointValue from '../domain/PointValue';
 
 
 /**
@@ -137,7 +138,9 @@ export const mkGameEventHandler = function(gameService) {
 
     handleStartInternal: function(gameParams) {
       console.log("handle start internal");
-      let promise = _gameService.start([], [], []);
+      let valueFactory = PointValue.mkValueFactory(gameParams.dimension);
+      let pointValues = valueFactory.mkValueGrid();
+      let promise = _gameService.start([], [], [], pointValues);
       let processedPromise = promise.then(response => {
         if (response.ok) {
           _game = response.json;

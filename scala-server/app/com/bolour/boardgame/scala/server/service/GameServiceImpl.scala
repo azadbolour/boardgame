@@ -100,7 +100,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     gameParams: GameParams,
     gridPieces: List[GridPiece],      // For testing only.
     initUserPieces: List[Piece],      // For testing only.
-    initMachinePieces: List[Piece]    // For testing only.
+    initMachinePieces: List[Piece],    // For testing only.
+    pointValues: List[List[Int]]
   ): Try[GameState] = {
     if (gameCache.size >= maxActiveGames)
       return Failure(SystemOverloadedException())
@@ -108,7 +109,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     // val pieceGenerator = TileSack(gameParams.pieceProviderType)
     for {
       player <- getPlayerByName(gameParams.playerName)
-      game = Game(gameParams, player.id)
+      game = Game(gameParams, pointValues, player.id)
       gameState <- GameState.mkGameState(game, gridPieces, initUserPieces, initMachinePieces)
       _ <- gameDao.addGame(game)
       _ = gameCache.put(game.id, gameState)

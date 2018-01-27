@@ -34,7 +34,8 @@ class GameStateSpec extends FlatSpec with Matchers {
     val dimension = 15
     val trayCapacity = 15
     val gameParams = GameParams(dimension, trayCapacity, "en", name, genType)
-    val game = Game(gameParams, "123")
+    val pointValues = List.fill(dimension, dimension)(1)
+    val game = Game(gameParams, pointValues, "123")
     val result = for {
       gameState <- GameState.mkGameState(game, List(), List(), List())
       _ <- gameState.sanityCheck
@@ -51,7 +52,8 @@ class GameStateSpec extends FlatSpec with Matchers {
     val trayCapacity = 7
 
     val gameParams = GameParams(dimension, trayCapacity, "en", name, genType)
-    val game = Game(gameParams, "123")
+    val pointValues = List.fill(dimension, dimension)(1)
+    val game = Game(gameParams, pointValues, "123")
     val result = for {
       gameState <- GameState.mkGameState(game, List(), List(), List())
       _ = println(s"tile sack length: ${gameState.tileSack.length}")
@@ -93,7 +95,8 @@ class GameStateSpec extends FlatSpec with Matchers {
     val trayCapacity = 7
 
     val gameParams = GameParams(dimension, trayCapacity, "en", name, PieceProviderType.Cyclic)
-    val game = Game(gameParams, "123")
+    val pointValues = List.fill(dimension, dimension)(1)
+    val game = Game(gameParams, pointValues, "123")
 
     def pc(ch: Char): Piece = Piece(ch)
 
