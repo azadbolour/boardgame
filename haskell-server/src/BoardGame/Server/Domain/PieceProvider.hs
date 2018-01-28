@@ -14,7 +14,6 @@
 module BoardGame.Server.Domain.PieceProvider (
     PieceProvider(..),
     PieceProvider(RandomPieceProvider, CyclicPieceProvider)
-  , length'
   , isEmpty
   , BoardGame.Server.Domain.PieceProvider.take
   , takeAvailableTiles
@@ -51,32 +50,23 @@ import BoardGame.Server.Domain.GameError (GameError, GameError(InternalError))
 --   to generate pieces consistently with the server.
 --   The string used in the cyclic generator has to be infinite.
 data PieceProvider =
-  RandomPieceProvider { initial :: [Piece], current :: [Piece]} |
+  RandomPieceProvider { counter :: Integer} |
   CyclicPieceProvider Integer String
 
 isEmpty :: PieceProvider -> Bool
-isEmpty (RandomPieceProvider initial current) = List.null current
+isEmpty (RandomPieceProvider _) = False
 isEmpty (CyclicPieceProvider count cycler) = False
 
 isFull :: PieceProvider -> Bool
-isFull (RandomPieceProvider initial current) = length initial == length current
+isFull (RandomPieceProvider _) = False
 isFull (CyclicPieceProvider count cycler) = False
-
-length' :: PieceProvider -> Int
-length' (RandomPieceProvider initial current) = length current
-length' (CyclicPieceProvider count cycler) = maxBound :: Int
 
 take :: (MonadError GameError m, MonadIO m) => PieceProvider -> m (Piece, PieceProvider)
 
-take (provider @ RandomPieceProvider {initial, current}) =
-  if isEmpty provider
-    then throwError $ InternalError "attempt to take piece from empty provider" -- TODO. Specific game error.
-    else do
-      index <- liftIO $ randomRIO (0, (length' provider) - 1)
-      let piece = current !! index
-          current' = List.delete piece current
-          provider' = provider { current = current' }
-      return (piece, provider')
+take (provider @ RandomPieceProvider {counter}) = do
+  piece <- liftIO $ Piece.mkRandomPieceForId (show counter)
+  let nextProvider = RandomPieceProvider (counter + 1)
+  return (piece, nextProvider)
 
 take (CyclicPieceProvider count cycler) = do
   let count' = count + 1
@@ -100,11 +90,7 @@ takeAvailableTiles :: (MonadError GameError m, MonadIO m) => PieceProvider -> In
 takeAvailableTiles provider max = takeAvailableTilesToList provider [] max
 
 give :: (MonadError GameError m, MonadIO m) => PieceProvider -> Piece -> m PieceProvider
-give (provider @ RandomPieceProvider {initial, current}) piece =
-  if isFull provider
-    then throwError $ InternalError "attempt to give piece to a full provider" -- TODO. Specific game error.
-    else return $ provider { current = piece:current }
-    -- TODO. Check that piece belongs to initial contents.
+give (provider @ RandomPieceProvider {counter}) piece = return provider
 
 give (provider @ (CyclicPieceProvider count cycler)) piece = return provider
 
@@ -115,24 +101,22 @@ swapOne provider piece = do
   return (swappedPiece, provider2)
 
 pieceProviderType :: PieceProvider -> PieceProviderType
-pieceProviderType (RandomPieceProvider _ _) = PieceProviderType.Random
+pieceProviderType (RandomPieceProvider _ ) = PieceProviderType.Random
 pieceProviderType (CyclicPieceProvider _ _) = PieceProviderType.Cyclic
 
 caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 mkDefaultPieceProvider :: PieceProviderType -> Int -> PieceProvider
-mkDefaultPieceProvider PieceProviderType.Random dimension =
-  let init = mkInitialRandomSackContent dimension
-  in RandomPieceProvider init init
+mkDefaultPieceProvider PieceProviderType.Random dimension = RandomPieceProvider 0
 mkDefaultPieceProvider PieceProviderType.Cyclic dimension = CyclicPieceProvider 0 (cycle caps)
 
-mkInitialRandomSackContent :: Int -> [Piece]
-mkInitialRandomSackContent dimension =
-  let roughNumPieces = (dimension * dimension * 2) `div` 3
-      (letterFrequencies, total) = Piece.normalizedFrequencies roughNumPieces
-      contentLetters = do
-        (ch, freq) <- Map.toList letterFrequencies
-        replicate freq ch
-      ids = show <$> [0 .. total - 1]
-      lettersAndIds = zip contentLetters ids
-  in mkPiece <$> lettersAndIds
-       where mkPiece (ch, id) = Piece ch id
+-- mkInitialRandomSackContent :: Int -> [Piece]
+-- mkInitialRandomSackContent dimension =
+--   let roughNumPieces = (dimension * dimension * 2) `div` 3
+--       (letterFrequencies, total) = Piece.normalizedFrequencies roughNumPieces
+--       contentLetters = do
+--         (ch, freq) <- Map.toList letterFrequencies
+--         replicate freq ch
+--       ids = show <$> [0 .. total - 1]
+--       lettersAndIds = zip contentLetters ids
+--   in mkPiece <$> lettersAndIds
+--        where mkPiece (ch, id) = Piece ch id

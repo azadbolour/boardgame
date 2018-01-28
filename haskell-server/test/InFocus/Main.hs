@@ -18,7 +18,6 @@ module Main (
 
 import Test.Hspec
 
-import qualified BoardGame.Server.Domain.PieceProviderSpec as Test1
 import qualified BoardGame.Server.Domain.ScorerSpec as Test2
 import qualified BoardGame.Server.Domain.StripMatcherSpec2 as Test3
 import qualified BoardGame.Server.Service.GameServiceSpec as Test4

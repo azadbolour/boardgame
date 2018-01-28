@@ -227,7 +227,7 @@ object GameState {
     val board = Board(game.dimension, gridPieces)
 
     val pieceGenerator = game.pieceProviderType match {
-      case PieceProviderType.Random => RandomPieceProvider(game.dimension)
+      case PieceProviderType.Random => RandomPieceProvider()
       case PieceProviderType.Cyclic => CyclicPieceProvider()
     }
 

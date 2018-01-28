@@ -163,7 +163,6 @@ test-suite spec
       BoardGame.Server.Domain.WordDictionarySpec
       BoardGame.Server.Domain.DictionaryCacheSpec
       BoardGame.Server.Domain.ServerParametersSpec
-      BoardGame.Server.Domain.PieceProviderSpec
       BoardGame.Server.Domain.CrossWordFinderSpec
       BoardGame.Server.Domain.ScorerSpec
       BoardGame.Server.Domain.SparseGridSpec

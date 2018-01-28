@@ -26,6 +26,7 @@ module BoardGame.Common.Domain.Piece (
   , eqValue
   , mkRandomPiece
   , mkRandomPieces
+  , mkRandomPieceForId
   , leastFrequentLetter
   , randomLetter
   , mkRandomPieceForId
