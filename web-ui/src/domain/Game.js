@@ -159,14 +159,6 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
       return $game;
     },
 
-    addEndOfPlayScores: function(endOfPlayScores) {
-      let userScore = _score[USER_INDEX] + endOfPlayScores[USER_INDEX];
-      let machineScore = _score[MACHINE_INDEX] + endOfPlayScores[MACHINE_INDEX];
-      let $score = [userScore, machineScore];
-      let $game = mkGame(_gameParams, _gameId, _board, _tray, _pointValues, $score);
-      return $game;
-    },
-
     commitMachineMoves: function(playScore, moveGridPieces) {
       let $board = _board.commitMachineMoves(moveGridPieces);
       let playedPieces = moveGridPieces.map(move => move.piece);
@@ -176,7 +168,7 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
     },
 
     end: function() {
-      let $game = mkGame(_gameParams, _gameId, _board, _tray, _scoreMultipliers, _score, RUN_STATE.FINISHED);
+      let $game = mkGame(_gameParams, _gameId, _board, _tray, _pointValues, _score, RUN_STATE.FINISHED);
       return $game;
     },
 

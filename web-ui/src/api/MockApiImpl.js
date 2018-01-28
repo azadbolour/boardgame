@@ -74,7 +74,7 @@ class MockApiImpl {
     return {
       lastPlayScore: 10,
       scores: [10, 10],
-      noMOrePlays: false
+      noMorePlays: false
     };
   }
 

@@ -94,26 +94,20 @@ maxSuccessivePasses = 6
 passesMaxedOut :: Game -> Bool
 passesMaxedOut Game { numSuccessivePasses } = numSuccessivePasses == maxSuccessivePasses
 
-isPieceProviderEmpty :: Game -> Bool
-isPieceProviderEmpty Game { pieceProvider } = PieceProvider.isEmpty pieceProvider
+-- isPieceProviderEmpty :: Game -> Bool
+-- isPieceProviderEmpty Game { pieceProvider } = PieceProvider.isEmpty pieceProvider
 
-isUserTrayEmpty :: Game -> Bool
-isUserTrayEmpty Game { trays } = Tray.isEmpty $ trays !! Player.userIndex
+-- isUserTrayEmpty :: Game -> Bool
+-- isUserTrayEmpty Game { trays } = Tray.isEmpty $ trays !! Player.userIndex
+--
+-- isMachineTrayEmpty :: Game -> Bool
+-- isMachineTrayEmpty Game { trays } = Tray.isEmpty $ trays !! Player.machineIndex
 
-isMachineTrayEmpty :: Game -> Bool
-isMachineTrayEmpty Game { trays } = Tray.isEmpty $ trays !! Player.machineIndex
-
-noMorePlays :: Game -> Bool
-noMorePlays game = passesMaxedOut game || (isPieceProviderEmpty game && (isUserTrayEmpty game || isMachineTrayEmpty game))
+-- noMorePlays :: Game -> Bool
+-- noMorePlays game = passesMaxedOut game || (isPieceProviderEmpty game && (isUserTrayEmpty game || isMachineTrayEmpty game))
 
 stopInfo :: Game -> StopInfo
-stopInfo game @ Game { trays, pieceProvider, numSuccessivePasses } =
-  StopInfo
-    numSuccessivePasses
-    maxSuccessivePasses
-    (isPieceProviderEmpty game)
-    (isUserTrayEmpty game)
-    (isMachineTrayEmpty game)
+stopInfo game @ Game { numSuccessivePasses } = StopInfo numSuccessivePasses
 
 initTray :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> [Piece] -> m Game
 initTray (game @ Game { trays }) playerType initPieces = do
@@ -184,9 +178,8 @@ mkInitialGame gameParams pieceProvider initGridPieces initUserPieces initMachine
 toMiniState :: Game -> GameMiniState
 toMiniState game @ Game {pieceProvider, lastPlayScore, scores} =
   let
-      tilesLeft = PieceProvider.length' pieceProvider
-      gameEnded = noMorePlays game
-  in GameMiniState lastPlayScore scores tilesLeft gameEnded
+      gameEnded = passesMaxedOut game
+  in GameMiniState lastPlayScore scores gameEnded
 
 gameAgeSeconds :: UTCTime -> Game -> Int
 gameAgeSeconds utcNow game =
@@ -197,18 +190,7 @@ gameAgeSeconds utcNow game =
 summary :: Game -> GameSummary
 summary game @ Game {trays, scores} =
   let stopData = stopInfo game
-      userSum = Tray.sumLetterWeights $ trays !! Player.userIndex
-      machineSum = Tray.sumLetterWeights $ trays !! Player.machineIndex
-      bonus thisSum thatSum =
-        if thisSum > 0
-          then -thisSum
-          else thatSum
-      userBonus = bonus userSum machineSum
-      machineBonus = bonus machineSum userSum
-      endScores = [userBonus, machineBonus]
-      totalScores = zipWith (+) scores endScores
-      -- TODO. Update the game with the final score and return so it can be persisted.
-  in GameSummary stopData endScores totalScores
+  in GameSummary stopData
 
 primeBoard :: MonadIO m => Board -> [GridPiece] -> m Board
 primeBoard board inputGridPieces = do

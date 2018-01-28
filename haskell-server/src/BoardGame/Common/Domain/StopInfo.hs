@@ -17,10 +17,6 @@ import Data.Aeson (FromJSON, ToJSON)
 
 data StopInfo = StopInfo {
     successivePasses :: Int
-  , maxSuccessivePasses :: Int
-  , isSackEmpty :: Bool
-  , isUserTrayEmpty :: Bool
-  , isMachineTrayEmpty :: Bool
 }
   deriving (Eq, Show, Generic, NFData)
 

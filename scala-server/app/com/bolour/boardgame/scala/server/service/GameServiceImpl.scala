@@ -231,8 +231,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       case Some(state) => {
         gameCache.remove(gameId)
         gameDao.endGame(gameId)
-        val (finalState, endOfPlayScores) = state.stop()
-        Success(finalState.summary(endOfPlayScores))
+        val finalState = state.stop()
+        Success(finalState.summary())
       }
     }
   }

@@ -28,37 +28,20 @@ case class GameState(
   val logger = LoggerFactory.getLogger(this.getClass)
 
   def passesMaxedOut: Boolean = numSuccessivePasses == MaxSuccessivePasses
-  def isPieceProviderEmpty: Boolean = pieceProvider.isEmpty
-  def isUserTrayEmpty: Boolean = trays(playerIndex(UserPlayer)).isEmpty
-  def isMachineTrayEmpty: Boolean = trays(playerIndex(MachinePlayer)).isEmpty
-
-  /**
-    * Play stops when either the maximum number of passes (plays with no score)
-    * is reached, or when there are no more tiles in the piece provider and one of the
-    * players has used up all his tiles.
-    */
-  def noMorePlays: Boolean = passesMaxedOut || (isPieceProviderEmpty && (isUserTrayEmpty || isMachineTrayEmpty))
 
   def miniState: GameMiniState =
-    GameMiniState(lastPlayScore, scores, pieceProvider.length, noMorePlays)
+    GameMiniState(lastPlayScore, scores, passesMaxedOut)
 
-  def stopInfo: StopInfo = StopInfo(numSuccessivePasses, MaxSuccessivePasses, isPieceProviderEmpty, isUserTrayEmpty, isMachineTrayEmpty)
+  def stopInfo: StopInfo = StopInfo(numSuccessivePasses)
 
   // TODO. May fail. So return a Try for consistency.
-  def stop(): (GameState, List[Int]) = {
-    val userSum = trays(playerIndex(UserPlayer)).sumLetterWorths
-    val machineSum = trays(playerIndex(MachinePlayer)).sumLetterWorths
-    def bonus(thisSum: Int, thatSum: Int): Int = if (thisSum > 0) -thisSum else thatSum
-    val userBonus = bonus(userSum, machineSum)
-    val machineBonus = bonus(machineSum, userSum)
-    val endOfPlayScores = List(userBonus, machineBonus)
-    val finalScores = (scores zip endOfPlayScores) map { both => both._1 + both._2 }
-    val newState = this.copy(scores = finalScores)
-    (newState, endOfPlayScores)
+  // For now nothing to do.
+  def stop(): GameState = {
+    this
   }
 
-  def summary(endOfPlayScores: List[Int]): GameSummary =
-    GameSummary(stopInfo, endOfPlayScores, scores)
+  def summary(): GameSummary =
+    GameSummary(stopInfo)
 
   def addPlay(playerType: PlayerType, playPieces: List[PlayPiece]): Try[(GameState, List[Piece])] = {
     for {
@@ -72,7 +55,6 @@ case class GameState(
   def tray(playerType: PlayerType): Tray = trays(playerIndex(playerType))
 
   def computePlayScore(playPieces: List[PlayPiece]): Int = {
-    // val crossWordFinder = new CrossWordFinder(board)
     game.scorer.scorePlay(playPieces)
   }
 
@@ -82,11 +64,11 @@ case class GameState(
     val succPasses = if (score > 0) 0 else numSuccessivePasses + 1
     val ind = playerIndex(playerType)
     for {
-      (nextGen, newPieces) <- pieceProvider.takeAvailableTiles(usedPieces.length)
+      (nextProvider, newPieces) <- pieceProvider.takeAvailableTiles(usedPieces.length)
       newTrays = trays.updated(ind, trays(ind).replacePieces(usedPieces, newPieces))
       newScores = scores.updated(ind, scores(ind) + score)
       nextType = nextPlayerType(playerType)
-      newState = GameState(game, newBoard, newTrays, nextGen, playNumber + 1, nextType, score, succPasses, newScores)
+      newState = GameState(game, newBoard, newTrays, nextProvider, playNumber + 1, nextType, score, succPasses, newScores)
     } yield ((newState, newPieces))
   }
 

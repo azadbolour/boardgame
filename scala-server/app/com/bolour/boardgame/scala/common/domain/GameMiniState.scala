@@ -15,6 +15,5 @@ package com.bolour.boardgame.scala.common.domain
 case class GameMiniState(
   lastPlayScore: Int,
   scores: List[Int],
-  numSackTiles: Int,
   noMorePlays: Boolean
 )

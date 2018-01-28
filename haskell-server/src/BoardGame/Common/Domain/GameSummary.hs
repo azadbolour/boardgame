@@ -18,8 +18,6 @@ import BoardGame.Common.Domain.StopInfo (StopInfo)
 
 data GameSummary = GameSummary {
     stopInfo :: StopInfo
-  , endOfPlayScores :: [Int]
-  , totalScores :: [Int]
 }
   deriving (Eq, Show, Generic, NFData)
   

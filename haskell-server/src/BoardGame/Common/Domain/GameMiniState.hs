@@ -18,7 +18,6 @@ import Data.Aeson (FromJSON, ToJSON)
 data GameMiniState = GameMiniState {
     lastPlayScore :: Int
   , scores :: [Int]
-  , numSackTiles :: Int
   , noMorePlays :: Bool
 }
   deriving (Eq, Show, Generic, NFData)

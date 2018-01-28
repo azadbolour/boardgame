@@ -320,13 +320,9 @@ export const mkGameEventHandler = function(gameService) {
     },
 
     gameSummaryStatus: function(stopInfo) {
-      let {successivePasses, maxSuccessivePasses, isSackEmpty, isUserTrayEmpty, isMachineTrayEmpty} = stopInfo;
+      let {successivePasses} = stopInfo;
       let status = "game over - ";
-      if (successivePasses == maxSuccessivePasses)
-        status += `${successivePasses} successive passes - maxed out`;
-      else {
-        status += `${isUserTrayEmpty ? "user " : " machine "} finished`
-      }
+      status += `${successivePasses} successive passes - maxed out`;
       return status;
     },
 
@@ -335,9 +331,8 @@ export const mkGameEventHandler = function(gameService) {
       let promise = _gameService.closeGame(_game.gameId);
       let processedResponse = promise.then(response => {
         if (response.ok) {
-          let {stopInfo, endOfPlayScores, totalScores} = response.json;
-          let $game = _game.addEndOfPlayScores(endOfPlayScores);
-          _game = $game.end();
+          let {stopInfo} = response.json;
+          _game = _game.end();
           _status = this.gameSummaryStatus(stopInfo);
         }
         else {
