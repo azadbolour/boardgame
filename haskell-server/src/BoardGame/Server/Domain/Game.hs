@@ -66,6 +66,7 @@ import qualified BoardGame.Server.Domain.Scorer as Scorer
 data Game = Game {
     gameId :: String
   , languageCode :: String
+  , pointValues :: [[Int]]
   , board :: Board
   , trays :: [Tray.Tray] -- ^ Indexed by Player.playerTypeIndex UserPlayer or MachinePlayer. User 0, Machine 1.
   , playerName :: Player.PlayerName
@@ -148,11 +149,12 @@ mkInitialGame :: (MonadError GameError m, MonadIO m) =>
   -> [GridPiece]
   -> [Piece]
   -> [Piece]
+  -> [[Int]]
   -> Player.PlayerName
   -> m Game
 
 -- TODO. Fix duplicated player name.
-mkInitialGame gameParams tileSack initGridPieces initUserPieces initMachinePieces playerName = do
+mkInitialGame gameParams tileSack initGridPieces initUserPieces initMachinePieces pointValues playerName = do
   let GameParams.GameParams { dimension, trayCapacity, languageCode } = gameParams
   gameId <- Util.mkUuid
   let board = Board.mkEmptyBoard dimension
@@ -160,17 +162,18 @@ mkInitialGame gameParams tileSack initGridPieces initUserPieces initMachinePiece
   now <- liftIO getCurrentTime
   let emptyTray = Tray trayCapacity []
       emptyTrays = [emptyTray, emptyTray]
-      scorePlay = Scorer.scorePlay $ Scorer.mkScorer dimension trayCapacity
+      scorePlay = Scorer.scorePlay $ Scorer.mkScorer pointValues
       game = Game
                 gameId
                 languageCode
+                pointValues
                 board'
                 emptyTrays
                 playerName
                 0
                 Player.UserPlayer
                 tileSack
-                (scorePlay board')
+                scorePlay
                 initScore
                 0
                 initScores

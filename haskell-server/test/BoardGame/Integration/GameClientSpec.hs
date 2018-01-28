@@ -103,6 +103,9 @@ pieceProviderType = PieceProviderType.Cyclic
 params = GameParams dimension 12 Dict.defaultLanguageCode thePlayer pieceProviderType
 playerJohn = Player thePlayer
 
+pointValues :: [[Int]]
+pointValues = replicate dimension $ replicate dimension 1
+
 centerGridPoint = Point center center
 
 centerGridPiece :: Char -> IO GridPiece
@@ -125,7 +128,7 @@ spec = beforeAll startApp $ afterAll endWaiApp $
       mPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
 
       (StartGameResponse.StartGameResponse {gameId, trayPieces, gridPieces}) <- SpecUtil.satisfiesRight
-        =<< runExceptT (Client.startGame (StartGameRequest params [] uPieces mPieces []) manager baseUrl)
+        =<< runExceptT (Client.startGame (StartGameRequest params [] uPieces mPieces pointValues) manager baseUrl)
 
 --       let GridValue {value = piece, point = centerPoint} =
 --             fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces

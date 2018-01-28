@@ -7,7 +7,7 @@ package com.bolour.boardgame.scala.server.service
 
 import com.bolour.util.BasicUtil.ID
 import com.bolour.boardgame.scala.common.domain.PlayPiece
-import com.bolour.boardgame.scala.server.domain.{Game, GameState, TileSack, Player}
+import com.bolour.boardgame.scala.server.domain.{Game, GameState, PieceProvider, Player}
 
 import scala.util.Try
 

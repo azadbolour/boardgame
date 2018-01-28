@@ -56,8 +56,8 @@ class GameStateSpec extends FlatSpec with Matchers {
     val game = Game(gameParams, pointValues, "123")
     val result = for {
       gameState <- GameState.mkGameState(game, List(), List(), List())
-      _ = println(s"tile sack length: ${gameState.tileSack.length}")
-      _ = gameState.tileSack.length shouldBe 13
+      _ = println(s"tile sack length: ${gameState.pieceProvider.length}")
+      _ = gameState.pieceProvider.length shouldBe 13
       // (7, 7, 13, 0)
       playPieces1 = mkPlayPieces(Point(0, 0), Axis.X, dimension, gameState.trays(0).pieces)
       (gameState1, _) <- gameState.addPlay(UserPlayer, playPieces1)
@@ -66,19 +66,19 @@ class GameStateSpec extends FlatSpec with Matchers {
       playPieces2 = mkPlayPieces(Point(1, 0), Axis.X, dimension, gameState1.trays(0).pieces)
       (gameState2, _) <- gameState1.addPlay(UserPlayer, playPieces2)
       // (7, 7, 3, 10)
-      _ = gameState2.tileSack.length shouldBe 3
+      _ = gameState2.pieceProvider.length shouldBe 3
 
       playPieces3 = mkPlayPieces(Point(2, 0), Axis.X, dimension, gameState2.trays(0).pieces)
       (gameState3, replacements3) <- gameState2.addPlay(UserPlayer, playPieces3)
       // (5, 7, 0, 13)
-      _ = gameState3.tileSack.length shouldBe 0
+      _ = gameState3.pieceProvider.length shouldBe 0
       _ = replacements3.length shouldBe 3
       _ = gameState3.trays(0).pieces.length shouldBe 5
 
       playPieces4 = mkPlayPieces(Point(3, 0), Axis.X, 5, gameState3.trays(0).pieces)
       (gameState4, replacements4) <- gameState3.addPlay(UserPlayer, playPieces4)
       // (0, 7, 0, 18)
-      _ = gameState4.tileSack.length shouldBe 0
+      _ = gameState4.pieceProvider.length shouldBe 0
       _ = replacements4.length shouldBe 0
 
     } yield ()

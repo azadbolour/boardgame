@@ -75,8 +75,6 @@ library
       BoardGame.Common.Message.MachinePlayResponse
       BoardGame.Common.Message.SwapPieceResponse
       BoardGame.Common.Domain.PlayPiece
-      BoardGame.Common.Domain.ScoreMultiplierType
-      BoardGame.Common.Domain.ScoreMultiplier
       BoardGame.Common.Domain.StopInfo
       BoardGame.Common.Domain.GameMiniState
       BoardGame.Common.Domain.GameSummary

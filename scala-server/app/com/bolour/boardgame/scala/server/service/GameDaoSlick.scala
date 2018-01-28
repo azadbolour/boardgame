@@ -14,7 +14,7 @@ import slick.jdbc.JdbcBackend.Database
 import com.typesafe.config.Config
 import com.bolour.util.BasicUtil.ID
 import com.bolour.boardgame.scala.common.domain.{PieceProviderType, PlayPiece}
-import com.bolour.boardgame.scala.server.domain.{Game, GameState, Player, TileSack}
+import com.bolour.boardgame.scala.server.domain.{Game, GameState, Player, PieceProvider}
 import com.bolour.util.SlickUtil.{CustomColumnTypes, configuredDbAndProfile, tableNames}
 import org.slf4j.LoggerFactory
 

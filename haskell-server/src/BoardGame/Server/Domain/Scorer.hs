@@ -19,70 +19,27 @@ module BoardGame.Server.Domain.Scorer (
   , mkScorer
   ) where
 
-import Data.Maybe (fromJust)
-import BoardGame.Common.Domain.ScoreMultiplier (ScoreMultiplier, ScoreMultiplier(ScoreMultiplier), noMultiplier)
-import qualified BoardGame.Common.Domain.ScoreMultiplier as ScoreMultiplier
-import BoardGame.Common.Domain.Piece (Piece)
-import qualified BoardGame.Common.Domain.Piece as Piece
-import Bolour.Grid.Point (Point)
+import qualified Data.List as List
+import Bolour.Grid.Point (Point, Point(Point))
+import qualified Bolour.Grid.Point as Point
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece), MoveInfo)
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
-import Bolour.Grid.Grid (Grid)
-import BoardGame.Server.Domain.Board (Board)
-import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
-import qualified Bolour.Grid.Grid as Grid
-
--- bonus = 50
 
 data Scorer = Scorer {
-    scorePlay :: Board -> [PlayPiece] -> Int
-  , scoreWord :: [MoveInfo] -> Int
+    scorePlay :: [PlayPiece] -> Int
+  , scoreWord :: [PlayPiece] -> Int
 }
 
-mkScorer :: Int -> Int -> Scorer
-mkScorer dimension trayCapacity =
-  let multGrid = ScoreMultiplier.mkMultiplierGrid dimension
-  in Scorer
-       (doScorePlay dimension trayCapacity multGrid)
-       (doScoreWord dimension trayCapacity multGrid)
+mkScorer :: [[Int]] -> Scorer
+mkScorer pointValues =
+  Scorer
+       (doScoreWord pointValues)
+       (doScoreWord pointValues)
 
-doScorePlay :: Int -> Int -> Grid ScoreMultiplier -> Board -> [PlayPiece] -> Int
-doScorePlay dimension trayCapacity multGrid board playPieces =
-  let crossPlays = CrossWordFinder.findCrossPlays board playPieces
-      calcWordScore :: [MoveInfo] -> Int = doScoreWord dimension trayCapacity multGrid
-      isCrossWordPlay :: [MoveInfo] -> Bool = (> 1) . length
-      crossScores = calcWordScore <$> filter isCrossWordPlay crossPlays
-      crossWordsScore = sum crossScores
-      wordScore = calcWordScore $ PlayPiece.toMoveInfo <$> playPieces
-  in wordScore + crossWordsScore
+doScoreWord :: [[Int]] -> [PlayPiece] -> Int
+doScoreWord pointValues playPieces =
+  let movedPoints = PlayPiece.point <$> List.filter PlayPiece.moved playPieces
+      value Point {row, col} = (pointValues !! row) !! col
+      accumulate total point = total + value point
+  in List.foldl' accumulate 0 movedPoints
 
-doScoreWord :: Int -> Int -> Grid ScoreMultiplier -> [MoveInfo] -> Int
-doScoreWord dimension trayCapacity multGrid moves =
-  let points = (\(_, point, _) -> point) <$> moves
-      multipliers = Grid.cell multGrid <$> points
-      moveMultipliers = moves `zip` multipliers -- List[((letter, point, moved), scoreMultiplier)]
-
-      -- Get the base letter score.
-      baseScore = scoreLetters moveMultipliers
-
-      -- Multiply by the total word multiplier factors for new pieces.
-      calcWordMultFactor ((_, _, moved), mult @ ScoreMultiplier {factor}) =
-        if moved && ScoreMultiplier.isWordMultiplier mult then factor else 0
-      sumWordFactors = max 1 (sum $ calcWordMultFactor <$> moveMultipliers)
-      wordScore = sumWordFactors * baseScore
-
-      -- Add the full tray play bonus.
---       numMoves = length $ filter (\(_, _, moved) -> moved) moves
---       bonusScore = if numMoves == trayCapacity then bonus else 0
---       score = wordScore + bonusScore
-      score = wordScore
-  in score
-
-scoreLetters :: [(MoveInfo, ScoreMultiplier)] -> Int
-scoreLetters moveMultipliers =
-  sum (letterScore <$> moveMultipliers)
-    where
-      letterScore ((letter, _, moved), mult @ ScoreMultiplier {factor}) =
-        let w = Piece.letterWorth letter
-            useFactor = ScoreMultiplier.isLetterMultiplier mult
-        in w * if moved && useFactor then factor else 1

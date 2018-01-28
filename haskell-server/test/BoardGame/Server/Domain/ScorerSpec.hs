@@ -15,8 +15,6 @@ import Test.Hspec
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece), MoveInfo)
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Common.Domain.ScoreMultiplier (ScoreMultiplier(ScoreMultiplier))
-import qualified BoardGame.Common.Domain.ScoreMultiplier as ScoreMultiplier
 import qualified BoardGame.Server.Domain.Board as Board
 
 import Bolour.Grid.Point (Point(Point))
@@ -41,69 +39,41 @@ baseGrid = [
 
 board = Board.mkBoardFromPieces baseGrid dimension
 
-scorer = Scorer.mkScorer dimension trayCapacity
-scoreWord = Scorer.scoreWord scorer
+pointValues :: [[Int]]
+pointValues = replicate dimension $ replicate dimension 1
+
+scorer = Scorer.mkScorer pointValues
 scorePlay = Scorer.scorePlay scorer
 
 wt = Piece.letterWorth
 
-toPlayPiece :: MoveInfo -> PlayPiece
-toPlayPiece (ch, point, moved) = PlayPiece (Piece ch "") point moved
--- Note: piece id is not involved in scoring.
+-- toPlayPiece :: MoveInfo -> PlayPiece
+-- toPlayPiece (ch, point, moved) = PlayPiece (Piece ch "") point moved
+-- -- Note: piece id is not involved in scoring.
+
+playPiece :: Char -> Int -> Int -> Bool -> PlayPiece
+playPiece ch row col moved = PlayPiece (Piece ch "") (Point row col) moved
 
 spec :: Spec
 spec = do
-  describe "get score multipliers" $
-    it "should get correct multiplers" $ do
-       let mult @ ScoreMultiplier {factor} = ScoreMultiplier.scoreMultiplier (Point 7 4) 9
-       print mult
-       factor `shouldBe` 3
-  describe "calculate word scores" $ do
+  describe "calculate scores" $ do
     it "should find score for 1 move play" $ do
-       let wordInfo = [
-                  ('N', Point 2 4, False)
-                , ('I', Point 3 4, True)
-                , ('X', Point 4 4, False)
+       let playPieces = [
+                  playPiece 'N' 2 4 False
+                , playPiece 'I' 3 4 True
+                , playPiece 'X' 4 4 False
               ]
-           score = scoreWord wordInfo
-       print score
-       score `shouldBe` (wt 'N') + 2 * (wt 'I') + (wt 'X')
-    it "should find score for 1 move play" $ do
-       let wordInfo = [
-                  ('S', Point 2 1, True)
-                , ('O', Point 2 2, True)
-                , ('O', Point 2 3, False)
-                , ('N', Point 2 4, False)
+           score = scorePlay playPieces
+       score `shouldBe` 1
+    it "should find score for 2-move play" $ do
+       let playPieces = [
+                  playPiece 'S' 2 1 True
+                , playPiece 'O' 2 2 True
+                , playPiece 'O' 2 3 False
+                , playPiece 'N' 2 4 False
               ]
-           score = scoreWord wordInfo
-       print score
-       score `shouldBe` 2 * (wt 'S' + wt 'O' + wt 'O' + wt 'N')
-  describe "calculate play scores" $ do
-    it "should find play score with no cross words" $ do
-       let wordInfo = [
-                  ('N', Point 2 4, False)
-                , ('I', Point 3 4, True)
-                , ('X', Point 4 4, False)
-              ]
-           playPieces = toPlayPiece <$> wordInfo
-           score = scorePlay board playPieces
-       print score
-       score `shouldBe` (wt 'N') + 2 * (wt 'I') + (wt 'X')
-    it "should find play score with cross words" $ do
-       let wordInfo = [
-                  ('S', Point 2 1, True)
-                , ('O', Point 2 2, True)
-                , ('O', Point 2 3, False)
-                , ('N', Point 2 4, False)
-              ]
-           playPieces = toPlayPiece <$> wordInfo
-           score = scorePlay board playPieces
-       print score
-       let wordScore = 2 * (wt 'S' + wt 'O' + wt 'O' + wt 'N')
-           asaCrossScore = wt 'A' + wt 'S' + wt 'A'
-           rorCrossScore = 2 * (wt 'R' + wt 'O' + wt 'R')
-           totalScore = wordScore + asaCrossScore + rorCrossScore
-       score `shouldBe` totalScore
+           score = scorePlay playPieces
+       score `shouldBe` 2
 
 
 

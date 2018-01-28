@@ -16,7 +16,7 @@ case class GameState(
   game: Game,
   board: Board,
   trays: List[Tray],
-  tileSack: TileSack,
+  pieceProvider: PieceProvider,
   playNumber: Int,
   playTurn: PlayerType,
   lastPlayScore: Int,
@@ -28,7 +28,7 @@ case class GameState(
   val logger = LoggerFactory.getLogger(this.getClass)
 
   def passesMaxedOut: Boolean = numSuccessivePasses == MaxSuccessivePasses
-  def isSackEmpty: Boolean = tileSack.isEmpty
+  def isSackEmpty: Boolean = pieceProvider.isEmpty
   def isUserTrayEmpty: Boolean = trays(playerIndex(UserPlayer)).isEmpty
   def isMachineTrayEmpty: Boolean = trays(playerIndex(MachinePlayer)).isEmpty
 
@@ -40,7 +40,7 @@ case class GameState(
   def noMorePlays: Boolean = passesMaxedOut || (isSackEmpty && (isUserTrayEmpty || isMachineTrayEmpty))
 
   def miniState: GameMiniState =
-    GameMiniState(lastPlayScore, scores, tileSack.length, noMorePlays)
+    GameMiniState(lastPlayScore, scores, pieceProvider.length, noMorePlays)
 
   def stopInfo: StopInfo = StopInfo(numSuccessivePasses, MaxSuccessivePasses, isSackEmpty, isUserTrayEmpty, isMachineTrayEmpty)
 
@@ -82,7 +82,7 @@ case class GameState(
     val succPasses = if (score > 0) 0 else numSuccessivePasses + 1
     val ind = playerIndex(playerType)
     for {
-      (nextGen, newPieces) <- tileSack.takeAvailableTiles(usedPieces.length)
+      (nextGen, newPieces) <- pieceProvider.takeAvailableTiles(usedPieces.length)
       newTrays = trays.updated(ind, trays(ind).replacePieces(usedPieces, newPieces))
       newScores = scores.updated(ind, scores(ind) + score)
       nextType = nextPlayerType(playerType)
@@ -94,7 +94,7 @@ case class GameState(
     val succPasses = numSuccessivePasses + 1
     // Cannot swap if no more pieces in the sack, so for now just return the same piece.
     // This is our way of doing a pass for now.
-    if (tileSack.isEmpty) {
+    if (pieceProvider.isEmpty) {
       val newState = this.copy(numSuccessivePasses = succPasses)
       return Success((newState, piece))
     }
@@ -103,10 +103,10 @@ case class GameState(
     val tray = trays(trayIndex)
     for {
       tray1 <- tray.removePiece(piece)
-      (tileSack1, newPiece) <- tileSack.swapOne(piece)
+      (tileSack1, newPiece) <- pieceProvider.swapOne(piece)
       tray2 <- tray1.addPiece(newPiece)
       trays2 = trays.updated(playerIndex(playerType), tray2)
-      newState = this.copy(trays = trays2, tileSack = tileSack1, numSuccessivePasses = succPasses)
+      newState = this.copy(trays = trays2, pieceProvider = tileSack1, numSuccessivePasses = succPasses)
     } yield (newState, newPiece)
   }
 
@@ -246,8 +246,8 @@ object GameState {
     // val pieceGenerator = TileSack(game.pieceProviderType)
 
     val pieceGenerator = game.pieceProviderType match {
-      case PieceProviderType.Random => RandomTileSack(game.dimension)
-      case PieceProviderType.Cyclic => CyclicTileSack()
+      case PieceProviderType.Random => RandomPieceProvider(game.dimension)
+      case PieceProviderType.Cyclic => CyclicPieceProvider()
     }
 
     val lastPlayScore = 0
@@ -259,7 +259,7 @@ object GameState {
       yield GameState(game, board, List(userTray, machineTray), pieceGen2, 0, UserPlayer, lastPlayScore, 0, List(0, 0))
   }
 
-  def mkTray(capacity: Int, initPieces: List[Piece], pieceGen: TileSack): Try[(Tray, TileSack)] = {
+  def mkTray(capacity: Int, initPieces: List[Piece], pieceGen: PieceProvider): Try[(Tray, PieceProvider)] = {
     if (initPieces.length >= capacity)
       return Success((Tray(capacity, initPieces.take(capacity).toVector), pieceGen))
 

@@ -11,19 +11,19 @@ import org.slf4j.LoggerFactory
 
 import scala.util.{Success, Try}
 
-sealed abstract class TileSack {
+sealed abstract class PieceProvider {
 
-  import TileSack.takeAvailableTilesToList
+  import PieceProvider.takeAvailableTilesToList
 
   def isEmpty: Boolean
   def isFull: Boolean
   def length: Int
-  def take(): Try[(TileSack, Piece)]
-  def give(piece: Piece): Try[(TileSack)]
+  def take(): Try[(PieceProvider, Piece)]
+  def give(piece: Piece): Try[(PieceProvider)]
 
-  def takeAvailableTiles(max: Int): Try[(TileSack, List[Piece])] = takeAvailableTilesToList(this, List(), max)
+  def takeAvailableTiles(max: Int): Try[(PieceProvider, List[Piece])] = takeAvailableTilesToList(this, List(), max)
 
-  def swapOne(piece: Piece): Try[(TileSack, Piece)] = {
+  def swapOne(piece: Piece): Try[(PieceProvider, Piece)] = {
     for {
       (sack1, resultPiece) <- this.take()
       sack2 <- sack1.give(piece) // TODO. Should check for existence.
@@ -31,14 +31,14 @@ sealed abstract class TileSack {
   }
 
   // TODO. Implement swapPieces.
-  def swapPieces(swapped: List[Piece]): Try[(TileSack, List[Piece])] = ???
+  def swapPieces(swapped: List[Piece]): Try[(PieceProvider, List[Piece])] = ???
 }
 
 // TODO. Use default piece generators for dev test and production.
 // Ideally should be configurable in the application.conf.
-object TileSack {
+object PieceProvider {
 
-  def takeAvailableTilesToList(sack: TileSack, pieces: List[Piece], n: Int): Try[(TileSack, List[Piece])] = {
+  def takeAvailableTilesToList(sack: PieceProvider, pieces: List[Piece], n: Int): Try[(PieceProvider, List[Piece])] = {
     if (n == 0 || sack.isEmpty)
       return Success((sack, pieces))
     for {
@@ -49,7 +49,7 @@ object TileSack {
 
 }
 
-case class CyclicTileSack(valueList: String) extends TileSack {
+case class CyclicPieceProvider(valueList: String) extends PieceProvider {
   if (valueList == null || valueList.isEmpty)
     throw new IllegalArgumentException("empty cyclic generator value list")
   val cycleLength: Int = valueList.length
@@ -59,7 +59,7 @@ case class CyclicTileSack(valueList: String) extends TileSack {
   override def isFull: Boolean = false
   override def length: Int = Int.MaxValue
 
-  override def take(): Try[(TileSack, Piece)] = Try {
+  override def take(): Try[(PieceProvider, Piece)] = Try {
     val index: Int = (counter % cycleLength).toInt
     val value = valueList(index)
     val id = counter.toString
@@ -67,14 +67,14 @@ case class CyclicTileSack(valueList: String) extends TileSack {
     (this, Piece(value, id))
   }
 
-  override def give(piece: Piece): Try[(TileSack)] = Success(this)
+  override def give(piece: Piece): Try[(PieceProvider)] = Success(this)
 }
 
-object CyclicTileSack {
-  def apply() = new CyclicTileSack("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+object CyclicPieceProvider {
+  def apply() = new CyclicPieceProvider("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 }
 
-case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece]) extends TileSack {
+case class RandomPieceProvider(initialContents: Vector[Piece], contents: Vector[Piece]) extends PieceProvider {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -82,23 +82,23 @@ case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece
   def isFull: Boolean = contents.length == initialContents.length
   override def length: Int = contents.length
 
-  def take(): Try[(RandomTileSack, Piece)] = Try {
+  def take(): Try[(RandomPieceProvider, Piece)] = Try {
     if (contents.isEmpty)
       throw new IllegalArgumentException(s"attempt to take a random piece from empty sack")
     val index = (Math.random() * contents.length).toInt
     val piece = contents(index)
     val rest = contents.patch(index, Nil, 1)
-    (RandomTileSack(initialContents, rest), piece)
+    (RandomPieceProvider(initialContents, rest), piece)
   }
 
-  override def give(piece:Piece): Try[RandomTileSack] = Try {
+  override def give(piece:Piece): Try[RandomPieceProvider] = Try {
     if (isFull)
       throw new IllegalStateException(s"cannot add to full tile stack - piece: ${piece}")
     // TODO. Check that piece belongs to initial contents.
-    RandomTileSack(initialContents, piece +: contents)
+    RandomPieceProvider(initialContents, piece +: contents)
   }
 
-  override def swapPieces(swapped: List[Piece]): Try[(RandomTileSack, List[Piece])] = Try {
+  override def swapPieces(swapped: List[Piece]): Try[(RandomPieceProvider, List[Piece])] = Try {
     val existing = swapped intersect contents
     if (existing.nonEmpty)
       throw new IllegalArgumentException(s"attempt to swap existing piece(s) - ${existing}")
@@ -114,19 +114,19 @@ case class RandomTileSack(initialContents: Vector[Piece], contents: Vector[Piece
 
     val (restContent, randomPieces) = BasicUtil.giveRandomElements((contents, Vector()), n)
     val replacedContent = restContent ++ swapped
-    (RandomTileSack(initialContents, replacedContent), randomPieces.toList)
+    (RandomPieceProvider(initialContents, replacedContent), randomPieces.toList)
   }
 }
 
-object RandomTileSack {
+object RandomPieceProvider {
 
-  def apply(dimension: Int): RandomTileSack = {
+  def apply(dimension: Int): RandomPieceProvider = {
     val pieces = mkInitialContents(dimension)
-    RandomTileSack(pieces, pieces)
+    RandomPieceProvider(pieces, pieces)
   }
 
-  def apply(initialPieces: Vector[Piece]): RandomTileSack = {
-    RandomTileSack(initialPieces, initialPieces)
+  def apply(initialPieces: Vector[Piece]): RandomPieceProvider = {
+    RandomPieceProvider(initialPieces, initialPieces)
   }
 
   /**
@@ -140,31 +140,6 @@ object RandomTileSack {
     val lettersAndIds = contentLetters zip ids
     val pieces = lettersAndIds map {case (ch, id) => Piece(ch, id)}
     pieces.toVector
-
-//    val frequenciesFor15Board = Piece.frequencyMap
-//
-//    val area15 = (15 * 15).toFloat
-//    val area = (dimension * dimension).toFloat
-//    val factor = area/area15
-//
-//    /**
-//      * Scale the frequency of a letter making sure each letter
-//      * has at least one instance in the sack.
-//      */
-//    def repeats(frequencies: Map[Char, Int])(ch: Char): Int =
-//      Math.round(frequencies(ch) * factor).max(1)
-//
-//    generatePieces(frequenciesFor15Board, repeats)
   }
 
-//  def generatePieces(baseFrequencies: Map[Char, Int], repetition: Map[Char, Int] => Char => Int) = {
-//    var id = -1
-//    val pieces = baseFrequencies.toList flatMap {
-//      case (ch, _) => (0 until repetition(baseFrequencies)(ch)).map { _ =>
-//        id += 1
-//        Piece(ch, id.toString)
-//      }
-//    }
-//    pieces.toVector
-//  }
 }

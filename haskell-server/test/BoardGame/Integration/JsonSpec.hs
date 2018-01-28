@@ -26,15 +26,20 @@ import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 spec :: Spec
 
 name = "You"
+dim = 9
 
 pieceProviderType = PieceProviderType.Cyclic
 params :: GameParams
-params = GameParams 9 12 Dict.defaultLanguageCode name pieceProviderType
-tileSack = PieceProvider.mkDefaultPieceProvider PieceProviderType.Cyclic 9
+params = GameParams dim 12 Dict.defaultLanguageCode name pieceProviderType
+tileSack = PieceProvider.mkDefaultPieceProvider PieceProviderType.Cyclic dim
+
+pointValues :: [[Int]]
+pointValues = replicate dim $ replicate dim 1
+
 
 game :: IO Game
 game = do
-  SpecUtil.satisfiesRight =<< runExceptT (Game.mkInitialGame params tileSack [] [] [] name)
+  SpecUtil.satisfiesRight =<< runExceptT (Game.mkInitialGame params tileSack [] [] [] pointValues name)
 
 spec = do
   describe "json for game data" $ do

@@ -6,14 +6,9 @@ import org.slf4j.LoggerFactory
 /**
   * Scores plays.
   *
-  * Note that a play is scored before its moved pieces are
-  * laid down on the board.
-  *
-  * @param dimension Needed for determining cross words to be scored.
-  * @param trayCapacity Need to add the bonus when all tiles are used in a play.
   * @param pointValues 2D list of values of the board's points.
   */
-class Scorer(val dimension: Int, trayCapacity: Int, pointValues: List[List[Int]]) {
+class Scorer(pointValues: List[List[Int]]) {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -48,5 +43,5 @@ class Scorer(val dimension: Int, trayCapacity: Int, pointValues: List[List[Int]]
 object Scorer {
   type Score = Int
   def apply(dimension: Int, trayCapacity: Int, pointValues: List[List[Int]]): Scorer =
-    new Scorer(dimension, trayCapacity, pointValues)
+    new Scorer(pointValues)
 }

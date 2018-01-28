@@ -171,7 +171,7 @@ startGameService gameParams initGridPieces initUserPieces initMachinePieces poin
   dictionary <- lookupDictionary languageCode
   -- let tileSack = RandomPieceGenerator.mkRandomPieceGenerator
   let tileSack = PieceProvider.mkDefaultPieceProvider pieceProviderType dimension
-  game @ Game{ gameId } <- Game.mkInitialGame params tileSack initGridPieces initUserPieces initMachinePieces playerName
+  game @ Game{ gameId } <- Game.mkInitialGame params tileSack initGridPieces initUserPieces initMachinePieces pointValues playerName
   GameDao.addGame connectionProvider $ gameToRow playerRowId game
   liftGameExceptToStack $ GameCache.insert game gameCache
   -- playPieces <- machinePlayService gameId

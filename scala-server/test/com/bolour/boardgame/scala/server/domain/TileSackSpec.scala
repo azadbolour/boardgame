@@ -15,13 +15,13 @@ class TileSackSpec extends FlatSpec with Matchers {
   val trayCapacity = 15
 
   "tile sack" should "be depleted of taken tiles" in {
-    val sack = RandomTileSack(dimension)
-    val RandomTileSack(initialContents, contents) = sack
+    val sack = RandomPieceProvider(dimension)
+    val RandomPieceProvider(initialContents, contents) = sack
     initialContents.length shouldBe 151
     contents.length shouldBe 151
 
     for {
-      (RandomTileSack(initialContents, contents), pieces) <- sack.takeAvailableTiles(trayCapacity)
+      (RandomPieceProvider(initialContents, contents), pieces) <- sack.takeAvailableTiles(trayCapacity)
       _ = initialContents.length shouldBe Piece.maxDistribution
       _ = contents.length shouldBe Piece.maxDistribution - trayCapacity
       _ = pieces.length shouldBe trayCapacity
@@ -44,10 +44,10 @@ class TileSackSpec extends FlatSpec with Matchers {
 //
 //    val sack = RandomTileSack(initialPieces)
 
-    val sack = RandomTileSack(15)
+    val sack = RandomPieceProvider(15)
 
     val result = for {
-      (RandomTileSack(initialContents, contents), pieces) <- sack.takeAvailableTiles(trayCapacity)
+      (RandomPieceProvider(initialContents, contents), pieces) <- sack.takeAvailableTiles(trayCapacity)
       pieceIds = (pieces map { p => p.id }).distinct
       _ = pieceIds.length shouldBe pieces.length
       contentIds = (contents map { p => p.id }).distinct

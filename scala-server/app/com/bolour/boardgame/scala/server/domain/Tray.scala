@@ -45,15 +45,6 @@ case class Tray(capacity: Int, pieces: Vector[Piece]) {
     Success(Tray(capacity, updatedPieces))
   }
 
-//  def swapPiece(piece: Piece)(implicit pieceGenerator: TileSack): Try [(Piece, Tray)] = {
-//    val maybePiece = pieces.find(_ == piece)
-//    if (maybePiece.isEmpty)
-//      Failure(new MissingPieceException(piece.id))
-//    val newPiece = pieceGenerator.take()
-//    val newTray = this.copy(pieces = pieces.filter(_ != piece) :+ newPiece)
-//    Success((newPiece, newTray))
-//  }
-
   def findPieceByLetter(letter: Char): Option[Piece] = pieces.find(_.value == letter)
 
   def letters: String = pieces.map(_.value).mkString
