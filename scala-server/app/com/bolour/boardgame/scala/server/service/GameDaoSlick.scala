@@ -49,13 +49,13 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   def toPlayerRow(player: Player): PlayerRow = PlayerRow(player.id, player.name)
   def fromPlayerRow(row: PlayerRow): Player = Player(row.id, row.name)
 
-  case class GameRow(id: ID, dimension: Int, trayCapacity: Int, languageCode: String, sackType: String, playerId: ID, startTime: Instant, endTime: Option[Instant])
+  case class GameRow(id: ID, dimension: Int, trayCapacity: Int, languageCode: String, pieceProviderType: String, playerId: ID, startTime: Instant, endTime: Option[Instant])
   class GameTable(tag: Tag) extends Table[GameRow](tag, gameTableName) {
     def id = column[ID]("id", O.PrimaryKey)
     def dimension = column[Int]("dimension")
     def trayCapacity = column[Int]("tray-capacity")
     def languageCode = column[String]("language-code")
-    def sackType = column[String]("sack-type")
+    def pieceProviderType = column[String]("piece-provider-type")
     def playerId = column[ID]("player-id")
     def startTime = column[Instant]("start-time")
     def endTime = column[Option[Instant]]("end-time")
@@ -64,7 +64,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
       _.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Restrict
     )
 
-    def * = (id, dimension, trayCapacity, languageCode, sackType, playerId, startTime, endTime).mapTo[GameRow]
+    def * = (id, dimension, trayCapacity, languageCode, pieceProviderType, playerId, startTime, endTime).mapTo[GameRow]
   }
   def gameRows = TableQuery[GameTable]
 
@@ -73,7 +73,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   }
   def fromGameRow(row: GameRow): Game =
     Game(row.id, row.dimension, row.trayCapacity, row.languageCode,
-      PieceProviderType.withName(row.sackType), hackPointValues(row.dimension), row.playerId, row.startTime, row.endTime)
+      PieceProviderType.withName(row.pieceProviderType), hackPointValues(row.dimension), row.playerId, row.startTime, row.endTime)
 
   // TODO. Add game and play tables.
 

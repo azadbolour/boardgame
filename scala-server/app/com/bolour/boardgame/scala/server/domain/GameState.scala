@@ -28,21 +28,21 @@ case class GameState(
   val logger = LoggerFactory.getLogger(this.getClass)
 
   def passesMaxedOut: Boolean = numSuccessivePasses == MaxSuccessivePasses
-  def isSackEmpty: Boolean = pieceProvider.isEmpty
+  def isPieceProviderEmpty: Boolean = pieceProvider.isEmpty
   def isUserTrayEmpty: Boolean = trays(playerIndex(UserPlayer)).isEmpty
   def isMachineTrayEmpty: Boolean = trays(playerIndex(MachinePlayer)).isEmpty
 
   /**
     * Play stops when either the maximum number of passes (plays with no score)
-    * is reached, or when there are no more tiles in the sack and one of the
+    * is reached, or when there are no more tiles in the piece provider and one of the
     * players has used up all his tiles.
     */
-  def noMorePlays: Boolean = passesMaxedOut || (isSackEmpty && (isUserTrayEmpty || isMachineTrayEmpty))
+  def noMorePlays: Boolean = passesMaxedOut || (isPieceProviderEmpty && (isUserTrayEmpty || isMachineTrayEmpty))
 
   def miniState: GameMiniState =
     GameMiniState(lastPlayScore, scores, pieceProvider.length, noMorePlays)
 
-  def stopInfo: StopInfo = StopInfo(numSuccessivePasses, MaxSuccessivePasses, isSackEmpty, isUserTrayEmpty, isMachineTrayEmpty)
+  def stopInfo: StopInfo = StopInfo(numSuccessivePasses, MaxSuccessivePasses, isPieceProviderEmpty, isUserTrayEmpty, isMachineTrayEmpty)
 
   // TODO. May fail. So return a Try for consistency.
   def stop(): (GameState, List[Int]) = {
@@ -92,7 +92,7 @@ case class GameState(
 
   def swapPiece(piece: Piece, playerType: PlayerType): Try[(GameState, Piece)] = {
     val succPasses = numSuccessivePasses + 1
-    // Cannot swap if no more pieces in the sack, so for now just return the same piece.
+    // Cannot swap if no more pieces in the piece provider, so for now just return the same piece.
     // This is our way of doing a pass for now.
     if (pieceProvider.isEmpty) {
       val newState = this.copy(numSuccessivePasses = succPasses)
@@ -103,10 +103,10 @@ case class GameState(
     val tray = trays(trayIndex)
     for {
       tray1 <- tray.removePiece(piece)
-      (tileSack1, newPiece) <- pieceProvider.swapOne(piece)
+      (pieceProvide1, newPiece) <- pieceProvider.swapOne(piece)
       tray2 <- tray1.addPiece(newPiece)
       trays2 = trays.updated(playerIndex(playerType), tray2)
-      newState = this.copy(trays = trays2, pieceProvider = tileSack1, numSuccessivePasses = succPasses)
+      newState = this.copy(trays = trays2, pieceProvider = pieceProvide1, numSuccessivePasses = succPasses)
     } yield (newState, newPiece)
   }
 
@@ -243,7 +243,6 @@ object GameState {
     initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[GameState] = {
 
     val board = Board(game.dimension, gridPieces)
-    // val pieceGenerator = TileSack(game.pieceProviderType)
 
     val pieceGenerator = game.pieceProviderType match {
       case PieceProviderType.Random => RandomPieceProvider(game.dimension)

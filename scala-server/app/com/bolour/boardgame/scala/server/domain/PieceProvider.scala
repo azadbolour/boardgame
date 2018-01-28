@@ -25,9 +25,9 @@ sealed abstract class PieceProvider {
 
   def swapOne(piece: Piece): Try[(PieceProvider, Piece)] = {
     for {
-      (sack1, resultPiece) <- this.take()
-      sack2 <- sack1.give(piece) // TODO. Should check for existence.
-    } yield (sack2, resultPiece)
+      (provider1, resultPiece) <- this.take()
+      provider2 <- provider1.give(piece) // TODO. Should check for existence.
+    } yield (provider2, resultPiece)
   }
 
   // TODO. Implement swapPieces.
@@ -38,13 +38,13 @@ sealed abstract class PieceProvider {
 // Ideally should be configurable in the application.conf.
 object PieceProvider {
 
-  def takeAvailableTilesToList(sack: PieceProvider, pieces: List[Piece], n: Int): Try[(PieceProvider, List[Piece])] = {
-    if (n == 0 || sack.isEmpty)
-      return Success((sack, pieces))
+  def takeAvailableTilesToList(provider: PieceProvider, pieces: List[Piece], n: Int): Try[(PieceProvider, List[Piece])] = {
+    if (n == 0 || provider.isEmpty)
+      return Success((provider, pieces))
     for {
-      (sack1, piece) <- sack.take() // TODO. Make sure it does not fail - check sack length.
-      (sack2, pieces) <- takeAvailableTilesToList(sack1, piece +: pieces, n - 1)
-    } yield (sack2, pieces)
+      (provider1, piece) <- provider.take() // TODO. Make sure it does not fail - check provider length.
+      (provider2, pieces) <- takeAvailableTilesToList(provider1, piece +: pieces, n - 1)
+    } yield (provider2, pieces)
   }
 
 }
@@ -84,7 +84,7 @@ case class RandomPieceProvider(initialContents: Vector[Piece], contents: Vector[
 
   def take(): Try[(RandomPieceProvider, Piece)] = Try {
     if (contents.isEmpty)
-      throw new IllegalArgumentException(s"attempt to take a random piece from empty sack")
+      throw new IllegalArgumentException(s"attempt to take a random piece from empty provider")
     val index = (Math.random() * contents.length).toInt
     val piece = contents(index)
     val rest = contents.patch(index, Nil, 1)
@@ -110,7 +110,7 @@ case class RandomPieceProvider(initialContents: Vector[Piece], contents: Vector[
     val n = swapped.length
 
     if (n >= contents.length)
-      throw new IllegalArgumentException(s"attempt to swap more pieces (${n}) than exist in tile sack (${contents.length})")
+      throw new IllegalArgumentException(s"attempt to swap more pieces (${n}) than exist in tile provider (${contents.length})")
 
     val (restContent, randomPieces) = BasicUtil.giveRandomElements((contents, Vector()), n)
     val replacedContent = restContent ++ swapped
@@ -130,7 +130,7 @@ object RandomPieceProvider {
   }
 
   /**
-    * Put together the initial contents of a tile sack for any dimension.
+    * Put together the initial contents of a piece provider for any dimension.
     */
   def mkInitialContents(dimension: Int): Vector[Piece] = {
     val roughNumPieces = (dimension * dimension * 2)/3 // 2/3 is more than enough.

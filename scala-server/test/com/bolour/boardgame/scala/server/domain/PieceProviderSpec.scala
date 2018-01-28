@@ -8,20 +8,20 @@ import scala.util.{Failure, Success}
 
 // Note. This test is flaky. Depends on random piece generation.
 
-class TileSackSpec extends FlatSpec with Matchers {
+class PieceProviderSpec extends FlatSpec with Matchers {
 
   val logger = LoggerFactory.getLogger(this.getClass)
   val dimension = 15
   val trayCapacity = 15
 
-  "tile sack" should "be depleted of taken tiles" in {
-    val sack = RandomPieceProvider(dimension)
-    val RandomPieceProvider(initialContents, contents) = sack
+  "piece provider" should "be depleted of taken tiles" in {
+    val provider = RandomPieceProvider(dimension)
+    val RandomPieceProvider(initialContents, contents) = provider
     initialContents.length shouldBe 151
     contents.length shouldBe 151
 
     for {
-      (RandomPieceProvider(initialContents, contents), pieces) <- sack.takeAvailableTiles(trayCapacity)
+      (RandomPieceProvider(initialContents, contents), pieces) <- provider.takeAvailableTiles(trayCapacity)
       _ = initialContents.length shouldBe Piece.maxDistribution
       _ = contents.length shouldBe Piece.maxDistribution - trayCapacity
       _ = pieces.length shouldBe trayCapacity
@@ -33,21 +33,12 @@ class TileSackSpec extends FlatSpec with Matchers {
     } yield 1
   }
 
-  "tile sack" should "produce tiles with distinct ids" in {
-//    def repetitions(frequencies: Map[Char, Int])(ch: Char): Int = 1
-//
-//    val initialPieces = RandomTileSack.generatePieces(Piece.frequencyMap, repetitions)
-//    // initialPieces.foreach { p => logger.info(s"${p}") }
-//
-//    val ids = initialPieces map { p => p.id }
-//    ids.distinct.length shouldBe ids.length
-//
-//    val sack = RandomTileSack(initialPieces)
+  "piece provider" should "produce tiles with distinct ids" in {
 
-    val sack = RandomPieceProvider(15)
+    val provider = RandomPieceProvider(15)
 
     val result = for {
-      (RandomPieceProvider(initialContents, contents), pieces) <- sack.takeAvailableTiles(trayCapacity)
+      (RandomPieceProvider(initialContents, contents), pieces) <- provider.takeAvailableTiles(trayCapacity)
       pieceIds = (pieces map { p => p.id }).distinct
       _ = pieceIds.length shouldBe pieces.length
       contentIds = (contents map { p => p.id }).distinct
