@@ -44,9 +44,6 @@ import BoardGame.Server.Domain.GameError (GameError, GameError(InternalError))
 -- Best practices in Haskell for extensible variants of a type?
 -- Had some type system issues using type classes.
 
-type SackContents = [Piece]
-type InitialSackContents = SackContents
-
 -- TODO. Name cyclic constructor parameters.
 
 -- | Piece generator.
@@ -54,7 +51,7 @@ type InitialSackContents = SackContents
 --   to generate pieces consistently with the server.
 --   The string used in the cyclic generator has to be infinite.
 data PieceProvider =
-  RandomPieceProvider { initial :: InitialSackContents, current :: SackContents} |
+  RandomPieceProvider { initial :: [Piece], current :: [Piece]} |
   CyclicPieceProvider Integer String
 
 isEmpty :: PieceProvider -> Bool
@@ -71,15 +68,15 @@ length' (CyclicPieceProvider count cycler) = maxBound :: Int
 
 take :: (MonadError GameError m, MonadIO m) => PieceProvider -> m (Piece, PieceProvider)
 
-take (sack @ RandomPieceProvider {initial, current}) =
-  if isEmpty sack
-    then throwError $ InternalError "attempt to take piece from empty sack" -- TODO. Specific game error.
+take (provider @ RandomPieceProvider {initial, current}) =
+  if isEmpty provider
+    then throwError $ InternalError "attempt to take piece from empty provider" -- TODO. Specific game error.
     else do
-      index <- liftIO $ randomRIO (0, (length' sack) - 1)
+      index <- liftIO $ randomRIO (0, (length' provider) - 1)
       let piece = current !! index
           current' = List.delete piece current
-          sack' = sack { current = current' }
-      return (piece, sack')
+          provider' = provider { current = current' }
+      return (piece, provider')
 
 take (CyclicPieceProvider count cycler) = do
   let count' = count + 1
@@ -91,33 +88,31 @@ take' :: (MonadError GameError m, MonadIO m) => PieceProvider -> m (Piece, Piece
 take' = BoardGame.Server.Domain.PieceProvider.take
 
 takeAvailableTilesToList :: (MonadError GameError m, MonadIO m) => PieceProvider -> [Piece] -> Int -> m ([Piece], PieceProvider)
-takeAvailableTilesToList sack list n =
-  if n == 0 || isEmpty sack
-    then return (list, sack)
+takeAvailableTilesToList provider list n =
+  if n == 0 || isEmpty provider
+    then return (list, provider)
     else do
-      (piece, sack1) <- take' sack -- Cannot fail if sack is non-empty.
-      (pieces, sack2) <- takeAvailableTilesToList sack1 (piece:list) (n - 1)
-      return (pieces, sack2)
+      (piece, provider1) <- take' provider -- Cannot fail if provider is non-empty.
+      (pieces, provider2) <- takeAvailableTilesToList provider1 (piece:list) (n - 1)
+      return (pieces, provider2)
 
 takeAvailableTiles :: (MonadError GameError m, MonadIO m) => PieceProvider -> Int -> m ([Piece], PieceProvider)
-takeAvailableTiles sack max = takeAvailableTilesToList sack [] max
+takeAvailableTiles provider max = takeAvailableTilesToList provider [] max
 
 give :: (MonadError GameError m, MonadIO m) => PieceProvider -> Piece -> m PieceProvider
-give (sack @ RandomPieceProvider {initial, current}) piece =
-  if isFull sack
-    then throwError $ InternalError "attempt to give piece to a full sack" -- TODO. Specific game error.
-    else return $ sack { current = piece:current }
+give (provider @ RandomPieceProvider {initial, current}) piece =
+  if isFull provider
+    then throwError $ InternalError "attempt to give piece to a full provider" -- TODO. Specific game error.
+    else return $ provider { current = piece:current }
     -- TODO. Check that piece belongs to initial contents.
 
-give (sack @ (CyclicPieceProvider count cycler)) piece = return sack
-
--- give sack piece = return sack
+give (provider @ (CyclicPieceProvider count cycler)) piece = return provider
 
 swapOne :: (MonadError GameError m, MonadIO m) => PieceProvider -> Piece -> m (Piece, PieceProvider)
-swapOne sack piece = do
-  (swappedPiece, sack1) <- take' sack
-  sack2 <- give sack1 piece
-  return (swappedPiece, sack2)
+swapOne provider piece = do
+  (swappedPiece, provider1) <- take' provider
+  provider2 <- give provider1 piece
+  return (swappedPiece, provider2)
 
 pieceProviderType :: PieceProvider -> PieceProviderType
 pieceProviderType (RandomPieceProvider _ _) = PieceProviderType.Random
@@ -141,27 +136,3 @@ mkInitialRandomSackContent dimension =
       lettersAndIds = zip contentLetters ids
   in mkPiece <$> lettersAndIds
        where mkPiece (ch, id) = Piece ch id
-
---       frequenciesFor15Board = Piece.frequencies
---       area15 :: Float = fromIntegral (15 * 15)
---       area :: Float = fromIntegral (dimension * dimension)
---       factor = area / area15
---       letters = do
---         (ch, num) <- frequenciesFor15Board
---         let f' = max 1 (round $ fromIntegral num * factor)
---         replicate f' ch
---       ids = [0 .. length letters]
---   in (\(ch, id) -> Piece ch (show id)) <$> zip letters ids
-
--- mkInitialRandomSackContent :: Int -> [Piece]
--- mkInitialRandomSackContent dimension =
---   let frequenciesFor15Board = Piece.frequencies
---       area15 :: Float = fromIntegral (15 * 15)
---       area :: Float = fromIntegral (dimension * dimension)
---       factor = area / area15
---       letters = do
---         (ch, num) <- frequenciesFor15Board
---         let f' = max 1 (round $ fromIntegral num * factor)
---         replicate f' ch
---       ids = [0 .. length letters]
---   in (\(ch, id) -> Piece ch (show id)) <$> zip letters ids

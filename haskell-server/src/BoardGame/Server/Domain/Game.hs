@@ -72,7 +72,7 @@ data Game = Game {
   , playerName :: Player.PlayerName
   , playNumber :: Int
   , playTurn :: PlayerType
-  , tileSack :: PieceProvider
+  , pieceProvider :: PieceProvider
   , scorePlay :: [PlayPiece] -> Int
   , lastPlayScore :: Int
   , numSuccessivePasses :: Int
@@ -81,7 +81,7 @@ data Game = Game {
 }
 
 -- TODO. Add deriving for basic classes.
--- Will need custom instances for tileSack - since cyclic tile sack is an infinite structure.
+-- Will need custom instances for pieceProvider - since cyclic piece provider is an infinite structure.
 
 -- TODO. Complete show of game if needed.
 instance Show Game where
@@ -94,8 +94,8 @@ maxSuccessivePasses = 6
 passesMaxedOut :: Game -> Bool
 passesMaxedOut Game { numSuccessivePasses } = numSuccessivePasses == maxSuccessivePasses
 
-isSackEmpty :: Game -> Bool
-isSackEmpty Game { tileSack } = PieceProvider.isEmpty tileSack
+isPieceProviderEmpty :: Game -> Bool
+isPieceProviderEmpty Game { pieceProvider } = PieceProvider.isEmpty pieceProvider
 
 isUserTrayEmpty :: Game -> Bool
 isUserTrayEmpty Game { trays } = Tray.isEmpty $ trays !! Player.userIndex
@@ -104,14 +104,14 @@ isMachineTrayEmpty :: Game -> Bool
 isMachineTrayEmpty Game { trays } = Tray.isEmpty $ trays !! Player.machineIndex
 
 noMorePlays :: Game -> Bool
-noMorePlays game = passesMaxedOut game || (isSackEmpty game && (isUserTrayEmpty game || isMachineTrayEmpty game))
+noMorePlays game = passesMaxedOut game || (isPieceProviderEmpty game && (isUserTrayEmpty game || isMachineTrayEmpty game))
 
 stopInfo :: Game -> StopInfo
-stopInfo game @ Game { trays, tileSack, numSuccessivePasses } =
+stopInfo game @ Game { trays, pieceProvider, numSuccessivePasses } =
   StopInfo
     numSuccessivePasses
     maxSuccessivePasses
-    (isSackEmpty game)
+    (isPieceProviderEmpty game)
     (isUserTrayEmpty game)
     (isMachineTrayEmpty game)
 
@@ -127,14 +127,14 @@ initTray (game @ Game { trays }) playerType initPieces = do
 updatePieceGenerator :: Game -> PieceProvider -> Game
 
 -- | Explicit record update for fieldGenerator.
---   Cannot do normal update: game {tileSack = nextGen} gets compiler error:
---   Record update for insufficiently polymorphic field: tileSack.
-updatePieceGenerator game generator = game { tileSack = generator }
+--   Cannot do normal update: game {pieceProvider = nextGen} gets compiler error:
+--   Record update for insufficiently polymorphic field: pieceProvider.
+updatePieceGenerator game generator = game { pieceProvider = generator }
 
 mkPieces :: (MonadError GameError m, MonadIO m) => Int -> Game -> m (Game, [Piece])
-mkPieces num (game @ Game { tileSack }) = do
-  (pieces, leftTileSack) <- PieceProvider.takeAvailableTiles tileSack num
-  let game' = game { tileSack = leftTileSack }
+mkPieces num (game @ Game { pieceProvider }) = do
+  (pieces, leftTileSack) <- PieceProvider.takeAvailableTiles pieceProvider num
+  let game' = game { pieceProvider = leftTileSack }
   return (game', pieces)
 
 -- mkPieces num game = mkPieces' num (game, [])
@@ -154,7 +154,7 @@ mkInitialGame :: (MonadError GameError m, MonadIO m) =>
   -> m Game
 
 -- TODO. Fix duplicated player name.
-mkInitialGame gameParams tileSack initGridPieces initUserPieces initMachinePieces pointValues playerName = do
+mkInitialGame gameParams pieceProvider initGridPieces initUserPieces initMachinePieces pointValues playerName = do
   let GameParams.GameParams { dimension, trayCapacity, languageCode } = gameParams
   gameId <- Util.mkUuid
   let board = Board.mkEmptyBoard dimension
@@ -172,7 +172,7 @@ mkInitialGame gameParams tileSack initGridPieces initUserPieces initMachinePiece
                 playerName
                 0
                 Player.UserPlayer
-                tileSack
+                pieceProvider
                 scorePlay
                 initScore
                 0
@@ -182,9 +182,9 @@ mkInitialGame gameParams tileSack initGridPieces initUserPieces initMachinePiece
   initTray game' Player.MachinePlayer initMachinePieces
 
 toMiniState :: Game -> GameMiniState
-toMiniState game @ Game {tileSack, lastPlayScore, scores} =
+toMiniState game @ Game {pieceProvider, lastPlayScore, scores} =
   let
-      tilesLeft = PieceProvider.length' tileSack
+      tilesLeft = PieceProvider.length' pieceProvider
       gameEnded = noMorePlays game
   in GameMiniState lastPlayScore scores tilesLeft gameEnded
 
@@ -318,17 +318,17 @@ reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, s
   return (game' { board = b, trays = trays', playNumber = playNumber', lastPlayScore = thisScore, numSuccessivePasses = 0, scores = scores' }, newPieces)
 
 doExchange :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> Int -> m (Game, Piece)
-doExchange (game @ Game {gameId, board, trays, tileSack, numSuccessivePasses}) playerType trayPos = do
+doExchange (game @ Game {gameId, board, trays, pieceProvider, numSuccessivePasses}) playerType trayPos = do
   let whichTray = Player.playerTypeIndex playerType
       tray @ Tray {pieces} = trays !! whichTray
       piece = pieces !! trayPos
       succPasses = numSuccessivePasses + 1
       game' = game { numSuccessivePasses = succPasses }
-  if PieceProvider.isEmpty tileSack
+  if PieceProvider.isEmpty pieceProvider
     then return (game', piece)
     else do
-      (piece', sack1) <- PieceProvider.swapOne tileSack piece
-      let game'' = game' { tileSack = sack1 }
+      (piece', pieceProvider1) <- PieceProvider.swapOne pieceProvider piece
+      let game'' = game' { pieceProvider = pieceProvider1 }
           tray' = Tray.replacePiece tray trayPos piece'
           game''' = setPlayerTray game' playerType tray'
       return (game''', piece')
