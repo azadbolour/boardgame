@@ -166,7 +166,8 @@ findOptimalMatch ::
 findOptimalMatch dictionary board trayContent =
   let dimension = Board.dimension board
       trayLength = length trayContent
-      playableStrips = groupedPlayableStrips board trayLength
+      stripValue Strip {blanks} = blanks
+      playableStrips = groupedPlayableStrips board trayLength stripValue
       playableCombos = WordUtil.computeCombosGroupedByLength trayContent
   in findOptimalMatchForStripsOfLimitedLength board dictionary dimension playableStrips playableCombos
 
@@ -176,47 +177,41 @@ findOptimalMatch dictionary board trayContent =
 groupedPlayableStrips ::
      Board        -- ^ the board
   -> Int          -- ^ tray capacity - maximum number of blanks in a play strip
+  -> (Strip -> Int)  -- ^ Valuation function for the strip.
   -> Map ByteCount (Map BlankCount [Strip])
 
-groupedPlayableStrips board trayCapacity =
-  let dimension = Board.dimension board
-  in
-  if Board.isEmpty board then
-    emptyCenterStripsByLengthByBlanks dimension
-  else
-    let allStrips = groupedStrips board
-        blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
-        filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
-        playableStrips = filterPlayableBlanks <$> allStrips
-        playableStrips' = allStripsFilter Strip.hasAnchor playableStrips
-        playableStrips'' = allStripsFilter (stripIsDisconnectedInLine board) playableStrips'
-    in playableStrips''
+groupedPlayableStrips board trayCapacity valuation =
+  let conformantStrips =
+        if Board.isEmpty board then playableEmptyStrips board
+        else playableStrips board trayCapacity
+      mapByValue = MiscUtil.mapFromValueList valuation conformantStrips
+      blankMapMaker = MiscUtil.mapFromValueList Strip.blanks
+    in blankMapMaker <$> mapByValue
+
+playableStrips :: Board -> Int -> [Strip]
+playableStrips board trayCapacity =
+  let strips = computeAllStrips board
+      playableBlanks Strip {blanks} = blanks > 0 && blanks <= trayCapacity
+      playables = filter playableBlanks strips
+      playables' = filter Strip.hasAnchor playables
+      playables'' = filter (stripIsDisconnectedInLine board) playables'
+   in playables''
 
 computeAllStrips :: Board -> [Strip]
 computeAllStrips Board {grid} =
   let gridStrips = SparseGrid.lineSegments grid
   in gridStripToStrip <$> gridStrips
 
-groupedStrips :: Board -> GroupedStrips
-groupedStrips board =
-  let strips = computeAllStrips board
-      mapByLength = MiscUtil.mapFromValueList Strip.stripLength strips
-      blankMapMaker = MiscUtil.mapFromValueList Strip.blanks
-  in blankMapMaker <$> mapByLength
+playableEmptyStrips :: Board -> [Strip]
+playableEmptyStrips board @ Board {dimension}=
+  let center = dimension `div` 2
+      centerRowAsString = Board.rowsAsStrings board !! center
+  in Strip.stripsInLine Axis.X dimension center centerRowAsString
 
 gridStripToStrip :: (Axis.Axis, Coordinate, Coordinate, Int, [Maybe Piece]) -> Strip
 gridStripToStrip (axis, lineNumber, offset, size, maybeCharList) =
   Strip.mkStrip axis lineNumber offset (offset + size - 1) content
     where content = (Piece.value . Piece.fromMaybe) <$> maybeCharList
-
-
-
-
-
-
--- GroupedStrips is doubly-nested map of strips.
-allStripsFilter :: (Strip -> Bool) -> GroupedStrips -> GroupedStrips
-allStripsFilter stripFilter = (fmap . fmap) (filter stripFilter)
 
 -- | Check that a strip has no neighbors on either side - is disconnected
 --   from the rest of its line. If it is has neighbors, it is not playable
@@ -253,3 +248,5 @@ mkEmptyCenterStripMapElement len dimension =
 emptyCenterStripsByLengthByBlanks :: Coordinate -> Map ByteCount (Map BlankCount [Strip])
 emptyCenterStripsByLengthByBlanks dimension =
   Map.fromList $ flip mkEmptyCenterStripMapElement dimension <$> [2 .. dimension]
+
+

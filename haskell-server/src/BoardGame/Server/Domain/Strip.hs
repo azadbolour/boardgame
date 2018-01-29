@@ -19,6 +19,7 @@ module BoardGame.Server.Domain.Strip (
   , emptyPoints
   , hasAnchor
   , pointAtOffset
+  , stripsInLine
   ) where
 
 import qualified Data.List as List
@@ -94,6 +95,12 @@ lineStrip :: Axis -> Coordinate -> String -> Int -> ByteCount -> Strip
 lineStrip axis lineNumber line offset size =
   mkStrip axis lineNumber offset (offset + size - 1) stringContent
     where stringContent = (take size . drop offset) line
+
+stripsInLine :: Axis -> Int -> Int -> String -> [Strip]
+stripsInLine axis dimension lineNumber chars = do
+  offset <- [0 .. (dimension - 1)]
+  size <- [1 .. (dimension - offset - 1)]
+  return $ lineStrip axis lineNumber chars offset size
 
 stripPoint :: Strip -> Coordinate -> Point
 stripPoint (Strip {axis, lineNumber, begin}) offset =

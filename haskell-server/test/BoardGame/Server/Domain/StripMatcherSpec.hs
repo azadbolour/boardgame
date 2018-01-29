@@ -85,7 +85,8 @@ spec :: Spec
 spec = do
   describe "make strips from board" $ do
     it "make strips from board" $ do
-      let groupedStrips = Matcher.groupedPlayableStrips testBoard trayCapacity
+      let stripValue Strip.Strip {blanks} = blanks
+          groupedStrips = Matcher.groupedPlayableStrips testBoard trayCapacity stripValue
           groupedStripsLength3 = Maybe.fromJust $ Map.lookup 3 groupedStrips
       groupedStripsLength3 `shouldSatisfy` (not . Map.null)
 

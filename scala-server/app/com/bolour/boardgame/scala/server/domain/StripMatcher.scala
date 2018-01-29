@@ -205,14 +205,14 @@ trait StripMatcher {
 
   def groupPlayableStrips(valuation: Strip => Int): Map[StripValue, Map[NumBlanks, List[Strip]]] = {
     val conformantStrips = if (board.isEmpty)
-      playableEmptyStrips(valuation)
-    else playableStrips(valuation)
+      playableEmptyStrips
+    else playableStrips
 
     val stripsByValue = conformantStrips.groupBy(valuation)
     stripsByValue.mapValues(_.groupBy(_.numBlanks))
   }
 
-  def playableEmptyStrips(valuation: Strip => Int): List[Strip] = {
+  def playableEmptyStrips: List[Strip] = {
     val center = dimension/2
     val centerRow = board.rows(center)
     val centerRowAsString = Piece.piecesToString(centerRow.map(_.piece)) // converts null chars to blanks
@@ -221,7 +221,7 @@ trait StripMatcher {
     conformantStrips
   }
 
-  def playableStrips(valuation: Strip => Int): List[Strip] = {
+  def playableStrips: List[Strip] = {
     val traySize = tray.pieces.length
     val allStrips = computeAllStrips
     def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= traySize
