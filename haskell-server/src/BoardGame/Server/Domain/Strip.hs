@@ -12,8 +12,9 @@ module BoardGame.Server.Domain.Strip (
     Strip(..)
   , GroupedStrips
   , mkStrip
-  , groupedStrips
+  -- , groupedStrips
   , stripPoint
+  , stripLength
   , lineStrip
   , emptyPoints
   , hasAnchor
@@ -123,16 +124,16 @@ pointAtOffset (Strip {lineNumber, begin, axis}) offset =
 stripLength :: Strip -> Int
 stripLength Strip {begin, end} = end - begin + 1
 
-groupedStrips :: SparseGrid Piece -> GroupedStrips
-groupedStrips grid =
-  let gridStrips = SparseGrid.lineSegments grid
-      strips = gridStripToStrip <$> gridStrips
-      mapByLength = MiscUtil.mapFromValueList stripLength strips
-      blankMapMaker = MiscUtil.mapFromValueList blanks
-  in blankMapMaker <$> mapByLength
-
-gridStripToStrip :: (Axis, Coordinate, Coordinate, Int, [Maybe Piece]) -> Strip
-gridStripToStrip (axis, lineNumber, offset, size, maybeCharList) =
-  mkStrip axis lineNumber offset (offset + size - 1) content
-    where content = (Piece.value . Piece.fromMaybe) <$> maybeCharList
+-- groupedStrips :: SparseGrid Piece -> GroupedStrips
+-- groupedStrips grid =
+--   let gridStrips = SparseGrid.lineSegments grid
+--       strips = gridStripToStrip <$> gridStrips
+--       mapByLength = MiscUtil.mapFromValueList stripLength strips
+--       blankMapMaker = MiscUtil.mapFromValueList blanks
+--   in blankMapMaker <$> mapByLength
+--
+-- gridStripToStrip :: (Axis, Coordinate, Coordinate, Int, [Maybe Piece]) -> Strip
+-- gridStripToStrip (axis, lineNumber, offset, size, maybeCharList) =
+--   mkStrip axis lineNumber offset (offset + size - 1) content
+--     where content = (Piece.value . Piece.fromMaybe) <$> maybeCharList
 

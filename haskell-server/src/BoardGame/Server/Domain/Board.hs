@@ -12,7 +12,9 @@
 
 module BoardGame.Server.Domain.Board (
     Board
+  , Board(Board)
   , Board(dimension)
+  , Board(grid)
   , mkBoard
   , mkEmptyBoard
   , mkBoardFromPieces
@@ -37,7 +39,7 @@ module BoardGame.Server.Domain.Board (
   , farthestNeighbor
   , surroundingRange
   , getLetter
-  , groupedStrips
+  -- , groupedStrips
 )
 where
 
@@ -229,10 +231,9 @@ stripOfPlay' board playPieces =
 surroundingRange :: Board -> Point -> Axis -> [Point]
 surroundingRange Board {grid} = SparseGrid.surroundingRange grid
 
--- TODO. Import type GroupedStrips.
 
-groupedStrips :: Board -> Map Int (Map Int [Strip])
-groupedStrips Board {grid} = Strip.groupedStrips grid
+-- groupedStrips :: Board -> Map Int (Map Int [Strip])
+-- groupedStrips Board {grid} = Strip.groupedStrips grid
 
 
 

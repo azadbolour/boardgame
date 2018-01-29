@@ -52,7 +52,8 @@ class StripMatcherSpec extends FlatSpec with Matchers { self =>
   }
 
   "strip matcher" should "find all playable board strips" in {
-    val playableStrips = stripMatcher.computePlayableStrips
+    val valuation: Strip => Int = _.numBlanks
+    val playableStrips = stripMatcher.groupPlayableStrips(valuation)
     val l = tray.pieces.length
     // assuming tray size <= center
     // for x to the left of center we can have 0, 1, 2 ... l - x to the right

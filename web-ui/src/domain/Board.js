@@ -183,6 +183,10 @@ export const mkBoard = function(matrix) {
       let {axis, lineNumber} = playLineData;
       let {numMoves, hasCenterMove} = this.lineMoveInfo(playLineData);
 
+      // The very first play is unrestricted.
+      if (!this.hasCommittedPlays())
+        return playStrip;
+
       // let isVeryFirstPlay = !this.hasCommittedPlays();
       // if (isVeryFirstPlay) {
       //   if (hasCenterMove) return playStrip;

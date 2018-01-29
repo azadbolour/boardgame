@@ -12,7 +12,7 @@ module BoardGame.Server.Domain.StripMatcher (
   , findFittingWord
   , matchFittingCombos
   , findOptimalMatch
-  , computePlayableStrips -- expose for testing
+  , groupedPlayableStrips -- expose for testing
   ) where
 
 import Data.Map (Map)
@@ -21,20 +21,23 @@ import qualified Data.Map as Map
 -- import qualified Data.ByteString.Char8 as BS
 -- import Data.ByteString.Char8 (ByteString)
 
--- import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
+import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 -- import qualified Bolour.Grid.GridValue as GridValue
 import qualified Bolour.Grid.Point as Axis
 import Bolour.Grid.Point (Coordinate)
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil
-import BoardGame.Server.Domain.Board (Board)
+import BoardGame.Server.Domain.Board (Board, Board(Board))
 import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
 import qualified BoardGame.Server.Domain.Strip as Strip
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 import BoardGame.Server.Domain.WordDictionary (WordDictionary)
 import qualified BoardGame.Server.Domain.WordDictionary as WordDictionary
+import Bolour.Grid.SparseGrid (SparseGrid)
+import qualified Bolour.Grid.SparseGrid as SparseGrid
+
 import Bolour.Util.MiscUtil as MiscUtil
 
 blank = Piece.emptyChar
@@ -163,31 +166,53 @@ findOptimalMatch ::
 findOptimalMatch dictionary board trayContent =
   let dimension = Board.dimension board
       trayLength = length trayContent
-      playableStrips = computePlayableStrips board trayLength
+      playableStrips = groupedPlayableStrips board trayLength
       playableCombos = WordUtil.computeCombosGroupedByLength trayContent
   in findOptimalMatchForStripsOfLimitedLength board dictionary dimension playableStrips playableCombos
 
 -- | Get the strips of a two-dimensional grid of characters that can potentially house a word.
 --   A strip is playable iff it has at least 1 anchor letter,
 --   and at most c blanks, where c is the capacity of the tray.
-computePlayableStrips ::
+groupedPlayableStrips ::
      Board        -- ^ the board
   -> Int          -- ^ tray capacity - maximum number of blanks in a play strip
   -> Map ByteCount (Map BlankCount [Strip])
 
-computePlayableStrips board trayCapacity =
+groupedPlayableStrips board trayCapacity =
   let dimension = Board.dimension board
   in
   if Board.isEmpty board then
     emptyCenterStripsByLengthByBlanks dimension
   else
-    let allStrips = Board.groupedStrips board
+    let allStrips = groupedStrips board
         blanksFilter blanks strips = blanks > 0 && blanks <= trayCapacity
         filterPlayableBlanks stripsByBlanks = blanksFilter `Map.filterWithKey` stripsByBlanks
         playableStrips = filterPlayableBlanks <$> allStrips
         playableStrips' = allStripsFilter Strip.hasAnchor playableStrips
         playableStrips'' = allStripsFilter (stripIsDisconnectedInLine board) playableStrips'
     in playableStrips''
+
+computeAllStrips :: Board -> [Strip]
+computeAllStrips Board {grid} =
+  let gridStrips = SparseGrid.lineSegments grid
+  in gridStripToStrip <$> gridStrips
+
+groupedStrips :: Board -> GroupedStrips
+groupedStrips board =
+  let strips = computeAllStrips board
+      mapByLength = MiscUtil.mapFromValueList Strip.stripLength strips
+      blankMapMaker = MiscUtil.mapFromValueList Strip.blanks
+  in blankMapMaker <$> mapByLength
+
+gridStripToStrip :: (Axis.Axis, Coordinate, Coordinate, Int, [Maybe Piece]) -> Strip
+gridStripToStrip (axis, lineNumber, offset, size, maybeCharList) =
+  Strip.mkStrip axis lineNumber offset (offset + size - 1) content
+    where content = (Piece.value . Piece.fromMaybe) <$> maybeCharList
+
+
+
+
+
 
 -- GroupedStrips is doubly-nested map of strips.
 allStripsFilter :: (Strip -> Bool) -> GroupedStrips -> GroupedStrips

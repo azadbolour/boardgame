@@ -10,7 +10,6 @@ import com.bolour.boardgame.scala.common.domain.PlayerType.{MachinePlayer, playe
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.Piece.isBlank
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
-import com.bolour.boardgame.scala.server.domain.Strip.GroupedStrips
 import com.bolour.boardgame.scala.server.util.WordUtil
 import com.bolour.boardgame.scala.server.util.WordUtil.{DictWord, Length, LetterCombo, NumBlanks}
 import org.slf4j.LoggerFactory
@@ -32,13 +31,17 @@ trait StripMatcher {
   val grid = board.grid
   val trayLetters = tray.pieces.map(_.value).mkString
   val trayCombosByLength = WordUtil.computeCombosGroupedByLength(trayLetters)
-  val playableStrips = computePlayableStrips
+  // TODO. Improve strip valuation by summing the point values of its blanks.
+  val stripValuation: Strip => StripValue = _.numBlanks
+  val playableStripsGroupedByValueAndBlanks: Map[StripValue, Map[NumBlanks, List[Strip]]] =
+    groupPlayableStrips(stripValuation)
+  val maxStripValue = playableStripsGroupedByValueAndBlanks.keySet.max
   val crossWordFinder = new CrossWordFinder(board)
 
   // def bestMatch(): StripMatch = bestMatchUpToLength(dimension)
 
   def bestMatch(): List[PlayPiece] = {
-    bestMatchUpToLength(dimension) match {
+    bestMatchUpToValue(maxStripValue) match {
       case None => Nil
       case Some((strip, word)) => matchedStripPlayPieces(strip, word)
     }
@@ -66,25 +69,26 @@ trait StripMatcher {
   }
 
 
-  def bestMatchUpToLength(limit: Length): StripMatch = {
-    if (limit <= 1)
+  def bestMatchUpToValue(maxValue: StripValue): StripMatch = {
+    if (maxValue <= 1)
       return None
-    limit match {
-      case 2 => bestMatchForLength(2)
-      case _ => bestMatchForLength(limit) orElse
-        bestMatchUpToLength(limit - 1)
+    maxValue match {
+      case 2 => bestMatchForValue(2) // TODO. Special-casing not needed.
+      case _ => bestMatchForValue(maxValue) orElse
+        bestMatchUpToValue(maxValue - 1)
     }
   }
 
   val EMPTY = true
   val NON_EMPTY = false
 
-  def bestMatchForLength(len: Length): StripMatch = {
+  def bestMatchForValue(value: StripValue): StripMatch = {
+    // TODO. Try not to special-case empty board here. Only in getting playable strips.
     if (board.isEmpty)
-      return bestMatchForLengthOnEmptyBoard(len)
+      return bestMatchForValueOnEmptyBoard(value)
 
     for /* option */ {
-      stripsByBlanks <- playableStrips.get(len)
+      stripsByBlanks <- playableStripsGroupedByValueAndBlanks.get(value)
       optimal <- bestMatchForStrips(stripsByBlanks)
     } yield optimal
   }
@@ -93,7 +97,7 @@ trait StripMatcher {
     * First match on empty board is special - no anchor.
     * For the first play we use an all-blank center strip of the given length.
     */
-  def bestMatchForLengthOnEmptyBoard(len: Length): StripMatch = {
+  def bestMatchForValueOnEmptyBoard(len: StripValue): StripMatch = {
     for /* option */ {
       combos <- trayCombosByLength.get(len)
       // _ = println(combos)
@@ -101,7 +105,7 @@ trait StripMatcher {
     } yield optimal
   }
 
-  private def emptyCenterStrip(len: Length) = {
+  private def emptyCenterStrip(len: StripValue) = {
     val center = dimension / 2
     val mid = len / 2
     val content = List.fill(len)(' ').mkString
@@ -199,31 +203,32 @@ trait StripMatcher {
   def crossings(strip: Strip, word: String): List[String] =
     crossWordFinder.findStripCrossWords(strip, word)
 
-  def computePlayableStrips: GroupedStrips = {
-    if (board.isEmpty) computePlayableStripsForEmptyBoard
-    else computePlayableStripsForNonEmptyBoard
+  def groupPlayableStrips(valuation: Strip => Int): Map[StripValue, Map[NumBlanks, List[Strip]]] = {
+    val conformantStrips = if (board.isEmpty)
+      playableEmptyStrips(valuation)
+    else playableStrips(valuation)
+
+    val stripsByValue = conformantStrips.groupBy(valuation)
+    stripsByValue.mapValues(_.groupBy(_.numBlanks))
   }
 
-  def computePlayableStripsForEmptyBoard: GroupedStrips = {
+  def playableEmptyStrips(valuation: Strip => Int): List[Strip] = {
     val center = dimension/2
     val centerRow = board.rows(center)
     val centerRowAsString = Piece.piecesToString(centerRow.map(_.piece)) // converts null chars to blanks
     val strips = Strip.stripsInLine(Axis.X, dimension, center, centerRowAsString)
     val conformantStrips = strips.filter { strip => strip.begin <= center && strip.end >= center}
-    // TODO. Factor out grouping here and from computePlayableStrips.
-    val conformantStripsByLength = conformantStrips.groupBy(_.content.length)
-    conformantStripsByLength.mapValues(_.groupBy(_.numBlanks))
+    conformantStrips
   }
 
-  def computePlayableStripsForNonEmptyBoard: GroupedStrips = {
+  def playableStrips(valuation: Strip => Int): List[Strip] = {
     val traySize = tray.pieces.length
     val allStrips = computeAllStrips
     def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= traySize
     val conformantStrips1 = allStrips.filter(hasFillableBlanks)
     val conformantStrips2 = conformantStrips1.filter(_.hasAnchor)
     val conformantStrips3 = conformantStrips2.filter(isDisconnectedInLine)
-    val conformantStripsByLength = conformantStrips3.groupBy(_.content.length)
-    conformantStripsByLength.mapValues(_.groupBy(_.numBlanks))
+    conformantStrips3
   }
 
   def isDisconnectedInLine(strip: Strip): Boolean = {
@@ -251,5 +256,7 @@ trait StripMatcher {
 }
 
 object StripMatcher {
+  /** Values start at 1 - so 0 is the basis of recursion for decreasing values. */
+  type StripValue = Int
   type StripMatch = Option[(Strip, DictWord)]
 }

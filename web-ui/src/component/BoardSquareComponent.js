@@ -206,7 +206,7 @@ class BoardSquareComponent extends React.Component {
      */
     squarePixels: PropTypes.number.isRequired,
 
-    pointValue: PropTypes.object.isRequired,
+    pointValue: PropTypes.number.isRequired,
 
     /**
      * Does this square form part of the current play?
