@@ -19,7 +19,8 @@ function squareStyle(pixels, backgroundColor, color) {
     lineHeight: pix,
     textAlign: 'center',
     borderStyle: 'solid',
-    borderWidth: '1px'
+    borderWidth: '1px',
+    zIndex: 2
   };
 }
 

@@ -89,22 +89,10 @@ instance Show Game where
 
 maxDimension = 120
 maxTraySize = 26
-maxSuccessivePasses = 6
+maxSuccessivePasses = 10
 
 passesMaxedOut :: Game -> Bool
 passesMaxedOut Game { numSuccessivePasses } = numSuccessivePasses == maxSuccessivePasses
-
--- isPieceProviderEmpty :: Game -> Bool
--- isPieceProviderEmpty Game { pieceProvider } = PieceProvider.isEmpty pieceProvider
-
--- isUserTrayEmpty :: Game -> Bool
--- isUserTrayEmpty Game { trays } = Tray.isEmpty $ trays !! Player.userIndex
---
--- isMachineTrayEmpty :: Game -> Bool
--- isMachineTrayEmpty Game { trays } = Tray.isEmpty $ trays !! Player.machineIndex
-
--- noMorePlays :: Game -> Bool
--- noMorePlays game = passesMaxedOut game || (isPieceProviderEmpty game && (isUserTrayEmpty game || isMachineTrayEmpty game))
 
 stopInfo :: Game -> StopInfo
 stopInfo game @ Game { numSuccessivePasses } = StopInfo numSuccessivePasses

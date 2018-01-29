@@ -55,7 +55,7 @@ class GameParams {
   static ENV_GAME_SERVER_URL = 'GAME_SERVER_URL';
 
   static DEFAULT_DIMENSION = 5;
-  static DEFAULT_SQUARE_PIXELS = 36;
+  static DEFAULT_SQUARE_PIXELS = 30;
   static DEFAULT_TRAY_SIZE = 5;
   static MOCK_API_TYPE = 'mock';
   static CLIENT_API_TYPE = 'client';
@@ -67,7 +67,7 @@ class GameParams {
   static MIN_DIMENSION = 5;
   static MAX_DIMENSION = 25;
 
-  static MIN_SQUARE_PIXELS = 25;
+  static MIN_SQUARE_PIXELS = 20;
   static MAX_SQUARE_PIXELS = 60;
 
   static MIN_TRAY_CAPACITY = 3;
@@ -160,8 +160,8 @@ class GameParams {
     let clientParams = GameParams.defaultParams();
     clientParams.appParams.envType = 'prod'; // TODO. Constant.
     clientParams.apiType = GameParams.CLIENT_API_TYPE;
-    clientParams.dimension = 15;
-    clientParams.trayCapacity = 7;
+    clientParams.dimension = 17;
+    clientParams.trayCapacity = 8;
     clientParams.pieceProviderType = GameParams.PieceGeneratorType.random;
     return clientParams;
   }

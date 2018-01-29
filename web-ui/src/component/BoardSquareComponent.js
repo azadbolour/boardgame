@@ -177,24 +177,6 @@ function pointValueColor(pointValue) {
   }
 }
 
-  // let {multiplierType, factor} = scoreMultiplier;
-  // switch (multiplierType) {
-  //   case ScoreMultiplierType.Letter:
-  //     switch (factor) {
-  //       case 2: return '#B0B0FF'; // light blue
-  //       case 3: return '#8080FF'; // blue
-  //       default: return defaultColor;
-  //     }
-  //   case ScoreMultiplierType.Word:
-  //     switch (factor) {
-  //       case 2: return '#FFD040'; // orange
-  //       case 3: return '#FF6347'; // red
-  //       default: return defaultColor;
-  //     }
-  //   default:
-  //     return defaultColor;
-  // }
-
 
 /**
  * A given square on the board.

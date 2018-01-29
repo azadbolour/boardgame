@@ -42,7 +42,7 @@ const paddingStyle = {
 const labelStyle = {
   color: 'Brown',
   align: 'left',
-  fontSize: 20,
+  fontSize: 15,
   fontFamily: 'Arial',
   fontWeight: 'bold',
   margin: 'auto',
@@ -53,10 +53,10 @@ const fieldStyle = {
   color: 'Red',
   backgroundColor: 'Khaki',
   align: 'left',
-  fontSize: 20,
+  fontSize: 15,
   fontWeight: 'bold',
-  margin: 'auto',
-  padding: '2px'
+  margin: 'auto'
+  // padding: '2px'
 };
 
 const tooltipStyle = function(visible) {
@@ -148,7 +148,6 @@ class GameComponent extends React.Component {
 
   commitPlay() {
     actions.commitPlay();
-    // TODO. If server rejects the word - undo the play.
   }
 
   revertPlay() {
@@ -158,11 +157,6 @@ class GameComponent extends React.Component {
   startGame() {
     actions.start(this.props.game.gameParams);
   }
-
-  // TODO. Obsolete.
-  // endGame() {
-  //   actions.end();
-  // }
 
   renderWord(index, key) {
     let words = this.props.auxGameData.wordsPlayed;
@@ -233,7 +227,6 @@ class GameComponent extends React.Component {
     return (
       <div>
         <label style={labelStyle}>{player}: </label>
-        <span style={{borderStyle: 'hidden', borderWidth: '5px'}}></span>
         <label style={fieldStyle}>{score}</label>
       </div>
 
@@ -289,12 +282,17 @@ class GameComponent extends React.Component {
     />;
 
     return (
-      <div>
+      <div style={{display: 'flex', flexDirection: 'column'}}>
         <div style={{display: 'flex', flexDirection: 'row'}}>
           <div style={navbarStyle}>
             {startButton} <pre></pre>
             {commitButton} <pre></pre>
             {revertButton}
+            <pre>  </pre>
+            <div style={{padding: '15px'}}>
+              {this.renderScore(userName, userScore)}
+              {this.renderScore("Bot", machineScore)}
+            </div>
           </div> <pre>  </pre>
           <div style={{display: 'flex', flexDirection: 'column'}}>
             {trayComponent} <pre></pre>
@@ -317,11 +315,9 @@ class GameComponent extends React.Component {
             </div>
           </div>
         </div>
-        <pre>  </pre>
-        {this.renderScore(userName, userScore)}
-        {this.renderScore("Bot", machineScore)}
-        <span style={{borderStyle: 'hidden', borderWidth: '5px'}}></span>
-        <label style={fieldStyle}>{status}</label>
+        <div style={{padding: '10px'}}>
+          <label style={fieldStyle}>{status}</label>
+        </div>
       </div>
     )
   }

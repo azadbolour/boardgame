@@ -98,12 +98,12 @@ class PieceComponent extends React.Component {
     return connectDragSource(
       <div style={{
         opacity: isDragging ? 0.5 : 1,
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: 'bold',
         cursor: 'move',
         zIndex: 10
       }}>
-        <div style={{ fontSize: 18}}>
+        <div style={{ fontSize: 15}}>
           {letter}
         </div>
       </div>

@@ -183,11 +183,11 @@ export const mkBoard = function(matrix) {
       let {axis, lineNumber} = playLineData;
       let {numMoves, hasCenterMove} = this.lineMoveInfo(playLineData);
 
-      let isVeryFirstPlay = !this.hasCommittedPlays();
-      if (isVeryFirstPlay) {
-        if (hasCenterMove) return playStrip;
-        else throw offCenterError;
-      }
+      // let isVeryFirstPlay = !this.hasCommittedPlays();
+      // if (isVeryFirstPlay) {
+      //   if (hasCenterMove) return playStrip;
+      //   else throw offCenterError;
+      // }
 
       let hasAnchor = playStrip.length - numMoves > 0;
       if (hasAnchor)

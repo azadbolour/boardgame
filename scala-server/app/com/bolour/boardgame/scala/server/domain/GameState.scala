@@ -119,7 +119,7 @@ case class GameState(
 
     for {
       _ <- checkPlayLineInBounds(playPieces)
-      _ <- checkFirstPlayCentered(playPieces)
+      // _ <- checkFirstPlayCentered(playPieces)
       _ <- checkPlayAnchored(playPieces)
       _ <- checkContiguousPlay(playPieces)
       _ <- checkMoveDestinationsEmpty(playPieces)
@@ -148,11 +148,7 @@ case class GameState(
       throw MalformedPlayException("play points out of bounds")
   }
 
-  /**
-    * Check that the first play includes the center point.
-    * TODO. Implement validation. Done in UI as well. So OK to defer.
-    */
-  private def checkFirstPlayCentered(playPieces: List[PlayPiece]): Try[Unit] = Success(())
+  // private def checkFirstPlayCentered(playPieces: List[PlayPiece]): Try[Unit] = Success(())
 
   /**
     * Check that the play is anchored - except for the first play.
@@ -219,7 +215,7 @@ case class GameState(
 
 object GameState {
 
-  def MaxSuccessivePasses = 6
+  def MaxSuccessivePasses = 10
 
   def mkGameState(game: Game, gridPieces: List[GridPiece],
     initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[GameState] = {
