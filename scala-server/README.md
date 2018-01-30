@@ -3,14 +3,12 @@
 
 - Use persistent database. Currently using h2.
 
-- Server. Check gracefull rejection of plays after game has stopped.
+- Gracefull rejection of plays after game has stopped.
 
 - Change logging calls to debug and set up a run-debug to
   log at debug level.
 
-- Two clicks on start button e.g., start in rapid succession
-  Should be disabled immediately. Play shoul dbe disabled while
-  earlier play is in progress.
+- Play should be disabled while earlier play is in progress.
 
 - Implement validations everywhere. 
 

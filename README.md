@@ -3,7 +3,7 @@
 
 ## Versions
 
-Version 0.5 beta.
+Version 1.0 alpha.
 
 ## The Board Game
 
@@ -15,8 +15,8 @@ See the [project web site](http://www.bolour.com/boardgame/index.html).
 ## Scope
 
 This project is intended as an test bed for the development and deployment
-of production quality applications by using different programming languages
-and their ecosystems.
+of production quality applications by using different programming languages,
+their ecosystems, and devops tools.
 
 It defines a board game API, and client and server implementations for it.
 At this time, the API has two server implementations, one in Haskell and 

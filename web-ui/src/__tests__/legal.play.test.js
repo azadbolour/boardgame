@@ -34,23 +34,6 @@ const pcs = [
   mkPiece('F', 'idf')
 ];
 
-test('very first play not centered', () => {
-  let dimension = 5;
-  let board = mkEmptyBoard(dimension);
-  let mid = Math.floor(dimension/2);
-  let centerPlayPiece = mkMovePlayPiece(mkPiece('O', 'id0'), mkPoint(mid, mid - 2));
-  board = board.setPlayPiece(centerPlayPiece);
-  let prevPlayPiece = mkMovePlayPiece(mkPiece('S', 'id1'), mkPoint(mid, mid - 1));
-  board = board.setPlayPiece(prevPlayPiece);
-
-  expect(() => board.completedPlayPieces()).toThrow();
-  try {
-    board.completedPlayPieces();
-  } catch (ex) {
-    console.log(`${stringify(ex)}`);
-  }
-});
-
 test('multiple play lines', () => {
   let dimension = 5;
   let {mid, board} = initBoard(dimension);

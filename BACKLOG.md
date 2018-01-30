@@ -20,11 +20,11 @@
 
 - iPhone UI. Ditto.
 
-- Add status to top and add "OK. Your move ... ".
-
 - Disable play and show hourglass while an action is happening.
 
 - Add error boundary for React.
+
+- Improve error repoting in the UI from Scala server.
 
 ## Known Issues
 
@@ -73,11 +73,6 @@
 - Benchmark think time configuration is currently the maximum. It should be
   the average. Fix PlayPersona. Also provide a generic default implementation
   for getThinkTime in abstract persona.
-
-- Play number is not incremented properly in all cases.  Machine play does not
-  get an updated number if it is a swap. Regular plays seem to update. See
-  reflectPlayOnGame. Should be centralized in a call and called initially in
-  service methods.
 
 - Use database transactions. Put db calls inside runSqlPersistMPool.
 
@@ -139,6 +134,8 @@
     http://stackoverflow.com/questions/31279943/using-servant-with-readert-io-a
 
 - Use LoggingT after ReaderT in transformer stack.
+
+- Separate GameState from Game in Haskell server.
 
 - Use NoContent instead of () in Servant API.
 
