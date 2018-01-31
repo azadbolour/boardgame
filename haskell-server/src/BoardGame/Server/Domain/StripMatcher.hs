@@ -208,7 +208,7 @@ playableEmptyStrips board @ Board {dimension}=
       centerRowAsString = Board.rowsAsStrings board !! center
       strips = Strip.stripsInLine Axis.X dimension center centerRowAsString
       includesCenter Strip {begin, end} = begin <= center && end >= center
-  in filter includesCenter str
+  in filter includesCenter strips
 
 gridStripToStrip :: (Axis.Axis, Coordinate, Coordinate, Int, [Maybe Piece]) -> Strip
 gridStripToStrip (axis, lineNumber, offset, size, maybeCharList) =

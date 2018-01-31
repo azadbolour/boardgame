@@ -207,12 +207,20 @@ farthestNeighbor :: Board -> Point -> Axis -> Int -> Point
 farthestNeighbor Board {grid} = SparseGrid.farthestNeighbor grid
 
 stripOfPlay :: Board -> [PlayPiece] -> Maybe Strip
-stripOfPlay board playPieces =
-  if length playPieces < 2 then Nothing
-  else stripOfPlay' board playPieces
+stripOfPlay board [] = Nothing
+stripOfPlay board [playPiece] = stripOfPlay1 board playPiece
+stripOfPlay board (pp:pps) = stripOfPlayN board (pp:pps)
 
-stripOfPlay' :: Board -> [PlayPiece] -> Maybe Strip
-stripOfPlay' board playPieces =
+stripOfPlay1 :: Board -> PlayPiece -> Maybe Strip
+stripOfPlay1 board PlayPiece {point} =
+  let Point {row, col} = point
+      -- Arbitrarily choose the row of the single move play.
+      line = rowsAsPieces board !! row
+      lineAsString = Piece.piecesToString line
+  in Just $ Strip.lineStrip Axis.X row lineAsString col 1
+
+stripOfPlayN :: Board -> [PlayPiece] -> Maybe Strip
+stripOfPlayN board playPieces =
   let rows = rowsAsPieces board
       cols = colsAsPieces board
       points = (\PlayPiece {point} -> point) <$> playPieces

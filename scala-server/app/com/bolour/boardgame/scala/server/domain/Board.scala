@@ -31,8 +31,17 @@ case class Board(dimension: Int, grid: Grid[GridPiece]) {
     * TODO. Assumes play is contiguous.
     */
   def stripOfPlay(playPieces: List[PlayPiece]): Strip = {
-    if (playPieces.length < 2)
-      throw new InternalGameException("play must contain more than 1 piece", null)
+    val len = playPieces.length
+    if (len == 0)
+      throw new InternalGameException("no pieces in play", null)
+
+    if (len == 1) {
+      val PlayPiece(_, point, _) = playPieces.head
+      // Arbitrarily consider the single play it as a horizontal play.
+      val line = rows(point.row)
+      val content = Piece.piecesToString(line.map(_.piece))
+      return Strip.lineStrip(Axis.X, point.row, content, point.col, point.col)
+    }
 
     val points = playPieces.map(_.point)
 

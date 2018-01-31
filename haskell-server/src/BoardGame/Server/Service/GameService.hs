@@ -203,10 +203,14 @@ commitPlayService gmId playPieces = do
   strip <- case maybeStrip of
            Nothing -> throwError $ WordTooShortError playWord
            Just str -> return str
+  liftIO $ print "1"
   validateCrossWords board dictionary strip playWord
+  liftIO $ print "2"
   (game' @ Game {playNumber}, refills)
     <- Game.reflectPlayOnGame game UserPlayer playPieces
+  liftIO $ print "3"
   saveWordPlay gmId playNumber UserPlayer playPieces refills
+  liftIO $ print "4"
   liftGameExceptToStack $ GameCache.insert game' gameCache
   -- let score = length playPieces -- TODO. Get real score.
   let miniState = Game.toMiniState game'

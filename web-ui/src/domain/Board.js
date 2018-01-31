@@ -306,9 +306,9 @@ export const mkBoard = function(matrix) {
       let rowPlayStrip = this.getPlayStrip(rowLineData);
       let colPlayStrip = this.getPlayStrip(colLineData);
 
-      // One of the play strips must have move tiles than just the played one.
-      // If not the move is disconnected.
-      if (rowPlayStrip.length === 1 && colPlayStrip.length === 1)
+      // The very first play is allowed to include just one letter.
+      // Otherwise a single letter play must be disconnected.
+      if (rowPlayStrip.length === 1 && colPlayStrip.length === 1 && this.hasCommittedPlays())
         throw disconnectedWordError;
 
       let playLineData = rowPlayStrip.length > 1 ? rowLineData : colLineData;
