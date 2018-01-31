@@ -18,7 +18,11 @@ fi
 
 deployDir=dist
 
-cd ${deployDir}/scala-server-1.0
+# TODO. Get version from build.sbt.
+version=0.9.0
+server=scala-server-${version}
+
+cd ${deployDir}/${server}
 
 #
 # Customize the runtime environment of the application.
