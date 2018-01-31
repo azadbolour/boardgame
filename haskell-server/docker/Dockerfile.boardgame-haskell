@@ -8,7 +8,7 @@
 #
 
 # The docker tag.
-ARG tag=0.5
+ARG tag=0.9
 #
 
 #

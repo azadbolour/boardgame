@@ -50,7 +50,7 @@ fi
 
 NAMESPACE=azadbolour
 REPOSITORY=boardgame-scala
-TAG=0.5
+TAG=0.9
 
 nohup docker run -p ${HTTP_PORT}:${HTTP_PORT} --restart on-failure:5 --name boardgame-scala \
     -e HTTP_PORT="${HTTP_PORT}" -e PROD_CONF="${PROD_CONF}" \
