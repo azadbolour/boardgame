@@ -43,7 +43,8 @@ RUN echo $PATH
 # Install node js version 7.
 #
 RUN apt-get update
-RUN curl -sL https://raw.githubusercontent.com/nodesource/distributions/master/deb/setup_7.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
+# RUN curl -sL https://raw.githubusercontent.com/nodesource/distributions/master/deb/setup_7.x | bash -
 RUN apt-get update
 RUN apt-get install -y apt-utils
 RUN apt-get install -y nodejs
