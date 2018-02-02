@@ -77,7 +77,7 @@ case class GameState(
     // Cannot swap if no more pieces in the piece provider, so for now just return the same piece.
     // This is our way of doing a pass for now.
     if (pieceProvider.isEmpty) {
-      val newState = this.copy(numSuccessivePasses = succPasses)
+      val newState = this.copy(numSuccessivePasses = succPasses, lastPlayScore = 0)
       return Success((newState, piece))
     }
 
@@ -88,7 +88,7 @@ case class GameState(
       (pieceProvide1, newPiece) <- pieceProvider.swapOne(piece)
       tray2 <- tray1.addPiece(newPiece)
       trays2 = trays.updated(playerIndex(playerType), tray2)
-      newState = this.copy(trays = trays2, pieceProvider = pieceProvide1, numSuccessivePasses = succPasses)
+      newState = this.copy(trays = trays2, pieceProvider = pieceProvide1, numSuccessivePasses = succPasses, lastPlayScore = 0)
     } yield (newState, newPiece)
   }
 

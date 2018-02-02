@@ -293,7 +293,7 @@ doExchange (game @ Game {gameId, board, trays, pieceProvider, numSuccessivePasse
       tray @ Tray {pieces} = trays !! whichTray
       piece = pieces !! trayPos
       succPasses = numSuccessivePasses + 1
-      game' = game { numSuccessivePasses = succPasses }
+      game' = game { numSuccessivePasses = succPasses, lastPlayScore = 0 }
   if PieceProvider.isEmpty pieceProvider
     then return (game', piece)
     else do
