@@ -4,7 +4,7 @@ var supportsDragAndDrop = function() {
   return ('draggable' in div) || ('ondragstart' in div && 'ondrop' in div);
 };
 
-var hasTouchPoints = (Navigator.maxTouchPoints in Navigator) && (Navigator.maxTouchPoints > 0);
+var isTouchDevice = ('ontouchstart' in window) || ((Navigator.maxTouchPoints in Navigator) && (Navigator.maxTouchPoints > 0));
 
 var isMobile = /Mobi/.test(navigator.userAgent);
 
