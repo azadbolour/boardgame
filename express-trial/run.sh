@@ -1,3 +1,4 @@
 #!/bin/sh
 
-node index.js
+port=$1
+node index.js $1

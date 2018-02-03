@@ -18,5 +18,9 @@ Good tutorial for using ES6. Just FYI for later use.
 Create the directory `__site__/static` and add a file index.html and js files
 there. 
 
+Default port is 4500. To change it:
+
+run.sh [port] 
+
 
 
