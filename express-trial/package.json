@@ -1,0 +1,16 @@
+{
+  "name": "express-trial",
+  "version": "1.0.0",
+  "description": "app used for experimenting with html css and javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Azad Bolour",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "express": "^4.16.2",
+    "morgan": "^1.9.0",
+    "path": "^0.12.7"
+  }
+}
