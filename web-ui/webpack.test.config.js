@@ -1,6 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
 
+// To be used in testing the complete app. Creates bundle but does not optimize away error reporting.
 // TODO. Use source maps with production version.
 
 module.exports = {
@@ -16,9 +17,6 @@ module.exports = {
     sourceMapFilename: 'boardgame.js.map'
   },
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production')
-    }),
     new webpack.LoaderOptionsPlugin({
       minimize: true,
       debug: false

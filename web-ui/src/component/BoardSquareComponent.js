@@ -12,6 +12,7 @@ const ItemTypes = require('./DragDropTypes').ItemTypes;
 const DropTarget = require('react-dnd').DropTarget;
 import SquareComponent from './SquareComponent';
 import actions from '../event/GameActions';
+import * as Piece from '../domain/Piece';
 import {mkPiece} from '../domain/Piece';
 import {mkPoint} from '../domain/Point';
 import {mkGridPiece} from '../domain/GridPiece';
@@ -202,6 +203,14 @@ class BoardSquareComponent extends React.Component {
     }).isRequired,
 
     /**
+     * The piece being rendered. For now this is just for the purpose
+     * optimization - to check if the peiece has changed in shouldComponentRender.
+     * The piece is part of teh children hierarchy and will be rendered automatically.
+     * This is hack to make performance on phones acceptable for now.
+     */
+    piece: PropTypes.object.isRequired,
+
+    /**
      * The number of pixels in each side of the square.
      */
     squarePixels: PropTypes.number.isRequired,
@@ -229,14 +238,21 @@ class BoardSquareComponent extends React.Component {
 
     canDrop: PropTypes.bool.isRequired,
 
-    isCenterPoint: PropTypes.bool.isRequired,
-
     /**
      * Responds to user interactions.
      */
     enabled: PropTypes.bool.isRequired,
 
     // Note connectDropTarget is also injected.
+  };
+
+  shouldComponentUpdate(nextProps, nextState) {
+    let inPlayDiff = nextProps.inPlay !== this.props.inPlay;
+    let valueDiff = nextProps.pointValue !== this.props.pointValue;
+    let overDiff = nextProps.isOver !== this.props.isOver;
+    let dropDiff = nextProps.canDrop !== this.props.canDrop;
+    let pieceDiff = !Piece.eq(nextProps.piece, this.props.piece);
+    return inPlayDiff || valueDiff || overDiff || dropDiff || pieceDiff;
   };
 
   render() {
@@ -268,7 +284,6 @@ class BoardSquareComponent extends React.Component {
         </SquareComponent>
 
         {isOver && !canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'red')} />}
-        {!isOver && canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'yellow')} />}
         {isOver && canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'green')} />}
         {inPlay && <div style={inPlayStyle()} />}
         <div style={scoreStyle(pointValue, pixels)}>

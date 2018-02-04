@@ -117,17 +117,18 @@ class BoardComponent extends React.Component {
     let enabled = this.props.enabled;
     let pointValue = this.props.pointValues.getElement(point);
     let center = Math.floor(dimension/20);
-    let isCenterPoint = row === center && col === center;
+    // let isCenterPoint = row === center && col === center;
+    let squarePiece = this.props.board.rows()[row][col].piece;
 
     return (
       <div key={squareKey} style={squareStyle({squarePixels})}>
         <BoardSquareComponent
           inPlay={inPlay}
           point={point}
+          piece={squarePiece}
           isLegalMove={isLegalMove}
           squarePixels={squarePixels}
           pointValue={pointValue}
-          isCenterPoint={isCenterPoint}
           enabled={enabled}>
             {this.renderPiece(point)}
         </BoardSquareComponent>

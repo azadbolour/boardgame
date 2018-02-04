@@ -27,7 +27,7 @@ function squareStyle(pixels, backgroundColor, color) {
 /**
  * Plain old board square - does not know about drag and drop.
  */
-class SquareComponent extends React.Component {
+class SquareComponent extends React.PureComponent {
 
   static propTypes = {
     pixels: PropTypes.number.isRequired,
