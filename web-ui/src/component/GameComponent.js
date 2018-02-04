@@ -8,6 +8,7 @@
 const DragDropContext = require('react-dnd').DragDropContext;
 import PropTypes from 'prop-types';
 const HTML5Backend = require('react-dnd-html5-backend');
+import { default as TouchBackend } from 'react-dnd-touch-backend';
 import React from 'react';
 import ReactList from 'react-list';
 import * as Game from '../domain/Game';
@@ -17,6 +18,7 @@ import SwapBinComponent from './SwapBinComponent';
 import actions from '../event/GameActions';
 import {stringify} from "../util/Logger";
 import * as Style from "../util/StyleUtil";
+import * as Browser from "../util/BrowserUtil";
 
 function buttonStyle(enabled) {
   let color = enabled ? 'Chocolate' : Style.disabledColor;
@@ -323,7 +325,10 @@ class GameComponent extends React.Component {
   }
 }
 
-export default DragDropContext(HTML5Backend)(GameComponent);
+const dndBackend = Browser.isTouchDevice ? TouchBackend : HTML5Backend;
+
+export default DragDropContext(dndBackend)(GameComponent);
+// export default DragDropContext(HTML5Backend)(GameComponent);
 
 export {GameComponent as OriginalGameComponent}
 

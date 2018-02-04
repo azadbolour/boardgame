@@ -55,6 +55,7 @@ const pieceDragger = {
 function injectedDragSourceProperties(connect, monitor) {
   return {
     connectDragSource: connect.dragSource(),
+    connectDragPreview: connect.dragPreview(),
     isDragging: monitor.isDragging()
   }
 }
@@ -83,6 +84,8 @@ class PieceComponent extends React.Component {
      */
     connectDragSource: PropTypes.func.isRequired,
 
+    connectDragPreview: PropTypes.func.isRequired,
+
     /**
      * Injected - obtained from the 'collect' function.
      */
@@ -91,11 +94,12 @@ class PieceComponent extends React.Component {
 
   render() {
     let connectDragSource = this.props.connectDragSource;
+    let connectDragPreview = this.props.connectDragPreview;
     let isDragging = this.props.isDragging;
     let letter = this.props.piece.value;
     // let worth = Piece.worths[letter];
 
-    return connectDragSource(
+    let theDiv =
       <div style={{
         opacity: isDragging ? 0.5 : 1,
         fontSize: 15,
@@ -106,8 +110,12 @@ class PieceComponent extends React.Component {
         <div style={{ fontSize: 15}}>
           {letter}
         </div>
-      </div>
-    );
+      </div>;
+
+    if (!isDragging)
+      return connectDragSource(theDiv);
+    else
+      return connectDragPreview(connectDragSource(theDiv));
   }
 }
 
