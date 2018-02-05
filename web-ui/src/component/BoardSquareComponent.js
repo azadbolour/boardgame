@@ -74,7 +74,11 @@ function scoreStyle(pointValue, squarePixels) {
     backgroundColor: backgroundColor,
     opacity: 1,
     fontSize: 10,
-    textAlign: 'center'
+    textAlign: 'center',
+    MozUserSelect: 'none',
+    WebkitUserSelect: 'none',
+    MsUserSelect: 'none',
+    userSelect: 'none'
   };
 }
 

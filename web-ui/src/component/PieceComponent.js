@@ -14,6 +14,14 @@ import logger from "../util/Logger";
 import {stringify} from "../util/Logger";
 import * as Piece from "../domain/Piece";
 
+const letterStyle = {
+  fontSize: 15,
+  MozUserSelect: 'none',
+  WebkitUserSelect: 'none',
+  MsUserSelect: 'none',
+  userSelect: 'none'
+};
+
 const pieceDragger = {
   /**
    * Return the drag item: an arbitrary plain JS object
@@ -107,7 +115,7 @@ class PieceComponent extends React.Component {
         cursor: 'move',
         zIndex: 10
       }}>
-        <div style={{ fontSize: 15}}>
+        <div style={letterStyle}>
           {letter}
         </div>
       </div>;
