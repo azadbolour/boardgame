@@ -300,7 +300,7 @@ doExchange (game @ Game {gameId, board, trays, pieceProvider, numSuccessivePasse
       (piece', pieceProvider1) <- PieceProvider.swapOne pieceProvider piece
       let game'' = game' { pieceProvider = pieceProvider1 }
           tray' = Tray.replacePiece tray trayPos piece'
-          game''' = setPlayerTray game' playerType tray'
+          game''' = setPlayerTray game'' playerType tray'
       return (game''', piece')
 
 -- Either is a MonadError - but this generalizes the function.
