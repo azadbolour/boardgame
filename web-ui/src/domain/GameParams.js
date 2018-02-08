@@ -160,7 +160,7 @@ class GameParams {
     let clientParams = GameParams.defaultParams();
     clientParams.appParams.envType = 'prod'; // TODO. Constant.
     clientParams.apiType = GameParams.CLIENT_API_TYPE;
-    clientParams.dimension = 17;
+    clientParams.dimension = 13;
     clientParams.trayCapacity = 8;
     clientParams.pieceProviderType = GameParams.PieceGeneratorType.random;
     return clientParams;
