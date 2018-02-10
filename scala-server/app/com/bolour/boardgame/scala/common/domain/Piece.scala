@@ -13,6 +13,13 @@ case class Piece(value: Char, id: String = stringId()) {
   def isEmpty = this == emptyPiece
 
   def worth: Int = worths(value)
+
+  def toAliveAndNonEmptyPiece: Option[Option[Piece]] =
+    this match {
+      case `deadPiece` => None
+      case `emptyPiece` => Some(None)
+      case _ => Some(Some(this))
+    }
 }
 
 object Piece {
@@ -24,6 +31,24 @@ object Piece {
 
   val blank = ' '
   def isBlank(ch: Char) = ch == blank
+
+  /** Represents a disabled/inactive/dead location. */
+  val deadChar = '-'
+  val deadPieceId = "-2"
+  val deadPiece = Piece(deadChar, deadPieceId)
+
+  def fromAliveAndNonEmptyPiece(opt2Piece: Option[Option[Piece]]): Piece =
+    opt2Piece match {
+      case None => deadPiece
+      case Some(optPiece) => fromOption(optPiece)
+    }
+
+  def fromOption(optPiece: Option[Piece]): Piece = {
+    optPiece match {
+      case None => emptyPiece
+      case Some(piece) => piece
+    }
+  }
 
   /** get list of characters for pieces and convert null characters to blanks */
   def piecesToString(pieces: List[Piece]): String =

@@ -28,7 +28,7 @@ trait StripMatcher {
   val logger = LoggerFactory.getLogger(this.getClass)
 
   val dimension = board.dimension
-  val grid = board.grid
+  // val grid = board.grid
   val trayLetters = tray.pieces.map(_.value).mkString
   val trayCombosByLength = WordUtil.computeCombosGroupedByLength(trayLetters)
   // TODO. Improve strip valuation by summing the point values of its blanks.
@@ -214,8 +214,8 @@ trait StripMatcher {
 
   def playableEmptyStrips: List[Strip] = {
     val center = dimension/2
-    val centerRow = board.rows(center)
-    val centerRowAsString = Piece.piecesToString(centerRow.map(_.piece)) // converts null chars to blanks
+    val centerRowAsPieces = board.rowsAsPieces(center)
+    val centerRowAsString = Piece.piecesToString(centerRowAsPieces) // converts null chars to blanks
     val strips = Strip.stripsInLine(Axis.X, dimension, center, centerRowAsString)
     val conformantStrips = strips.filter { strip => strip.begin <= center && strip.end >= center}
     conformantStrips
@@ -234,8 +234,8 @@ trait StripMatcher {
   def isDisconnectedInLine(strip: Strip): Boolean = {
     val firstPoint = strip.point(0)
     val lastPoint = strip.point(strip.end - strip.begin)
-    val maybePrevPiece = grid.prevCell(firstPoint, strip.axis).map {_.value}
-    val maybeNextPiece = grid.nextCell(lastPoint, strip.axis).map {_.value}
+    val maybePrevPiece = board.prevCell(firstPoint, strip.axis).map {_.value}
+    val maybeNextPiece = board.nextCell(lastPoint, strip.axis).map {_.value}
     def isSeparator(maybePiece: Option[Piece]): Boolean = {
       maybePiece match {
         case None => true
@@ -246,9 +246,8 @@ trait StripMatcher {
   }
 
   def computeAllStrips: List[Strip] = {
-    def charsOfLine = (line: List[GridPiece]) => Piece.piecesToString(line.map(_.value))
-    def rows: List[String] = board.rows.map(charsOfLine)
-    def columns: List[String] = board.columns.map(charsOfLine)
+    def rows: List[String] = board.rowsAsPieces.map(Piece.piecesToString)
+    def columns: List[String] = board.columnsAsPieces.map(Piece.piecesToString)
     val xStrips = Strip.allStrips(Axis.X, dimension, rows)
     val yStrips = Strip.allStrips(Axis.Y, dimension, columns)
     xStrips ++ yStrips

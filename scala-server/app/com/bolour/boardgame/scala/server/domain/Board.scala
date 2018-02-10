@@ -8,24 +8,38 @@ package com.bolour.boardgame.scala.server.domain
 import com.bolour.boardgame.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
+import com.bolour.util.SwissCheeseSparseGrid
+import com.bolour.util.SwissCheeseSparseGrid.Opt2
 
-case class Board(dimension: Int, grid: Grid[GridPiece]) {
-  def gridPieces: List[GridPiece] =
-    grid.flatFilter(gp => !gp.value.isEmpty)
+case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
+  def gridPieces: List[GridPiece] = {
+    val piecesAndPoints = grid.getAllAliveAndNonEmpty
+    piecesAndPoints map { case (piece, point) => GridPiece(piece, point)}
+  }
 
+  // TODO. URGENT. Rename to setN.
   def addPieces(gridPieces: List[GridPiece]): Board = {
-    val pointedPieces = gridPieces map (gp => (gp, gp.point))
-    val augmentedGrid = grid.setPoints(pointedPieces)
+    val pairs = gridPieces map
+      { case GridPiece(piece, point) => (piece.toAliveAndNonEmptyPiece, point) }
+    val augmentedGrid = grid.setN(pairs)
     Board(dimension, augmentedGrid)
   }
 
-  def rows = grid.rows
-  def columns = grid.columns
+  private def rows = grid.rows
+  private def columns = grid.columns
 
-  def isEmpty = grid.filter(!_.value.isEmpty).flatten.isEmpty
+  def isEmpty = grid.getAllAliveAndNonEmpty.isEmpty
 
   // TODO. Make sure in-bounds.
-  def get(point: Point): Piece = grid.rows(point.row)(point.col).value
+  def get(point: Point): Piece = {
+    val (opt2Piece, _) = grid.rows(point.row)(point.col)
+    Piece.fromAliveAndNonEmptyPiece(opt2Piece)
+  }
+
+  def lineToString(pointedCells: List[(Opt2[Piece], Point)]): String = {
+    val pieces = pointedCells map { _._1 } map { Piece.fromAliveAndNonEmptyPiece }
+    Piece.piecesToString(pieces)
+  }
 
   /**
     * TODO. Assumes play is contiguous.
@@ -38,8 +52,8 @@ case class Board(dimension: Int, grid: Grid[GridPiece]) {
     if (len == 1) {
       val PlayPiece(_, point, _) = playPieces.head
       // Arbitrarily consider the single play it as a horizontal play.
-      val line = rows(point.row)
-      val content = Piece.piecesToString(line.map(_.piece))
+      val theRow = rows(point.row)
+      val content = lineToString(theRow)
       return Strip.lineStrip(Axis.X, point.row, content, point.col, point.col)
     }
 
@@ -54,11 +68,12 @@ case class Board(dimension: Int, grid: Grid[GridPiece]) {
       case Axis.Y => (head.col, columns(head.col), head.row)
     }
     val end = begin + points.length - 1
-    val content = Piece.piecesToString(line.map(_.piece)) // converts null chars to blanks
+    // val content = Piece.piecesToString(line.map(_.piece)) // converts null chars to blanks
+    val content = lineToString(line)
     Strip.lineStrip(axis, lineNumber, content, begin, end)
   }
 
-  def pointIsEmpty(point: Point): Boolean = grid.cell(point).piece.isEmpty
+  def pointIsEmpty(point: Point): Boolean = grid.isPointAliveAndEmpty(point)
 
   def inBounds(point: Point): Boolean = {
     val Point(row, col) = point
@@ -79,18 +94,50 @@ case class Board(dimension: Int, grid: Grid[GridPiece]) {
     if (!inBounds(nth)) None else Some(nth)
   }
 
+  private def toGridPieceOption(pointedPairOpt: Option[(Option[Piece], Point)]): Option[GridPiece] = {
+    pointedPairOpt match {
+      case None => None
+      case Some((optPiece, point)) =>
+        val piece = Piece.fromOption(optPiece)
+        Some(GridPiece(piece, point))
+    }
+  }
+
+  def nextCell(point: Point, axis: Axis): Option[GridPiece] = {
+    val pointedPairOpt = grid.next(point, axis)
+    toGridPieceOption(pointedPairOpt)
+  }
+
+  def prevCell(point: Point, axis: Axis): Option[GridPiece] = {
+    val pointedPairOpt = grid.prev(point, axis)
+    toGridPieceOption(pointedPairOpt)
+  }
+
+  def adjacentCell(point: Point, axis: Axis, direction: Int): Option[GridPiece] = {
+    val pointedPairOpt = grid.adjacent(point, axis, direction)
+    toGridPieceOption(pointedPairOpt)
+  }
+
+  def rowsAsPieces: List[List[Piece]] = grid map Piece.fromAliveAndNonEmptyPiece
+  def columnsAsPieces: List[List[Piece]] = rowsAsPieces.transpose
+
 }
 
 object Board {
   def apply(dimension: Int, cellMaker: Int => Int => GridPiece) : Board = {
-    // TODO. No need here for cellMaker _. Why different from Board (below)?
-    val grid = Grid(cellMaker, dimension, dimension)
+    def op2CellMaker(row: Int)(col: Int): Opt2[Piece] = {
+      val GridPiece(piece, point) = cellMaker(row)(col)
+      piece.toAliveAndNonEmptyPiece
+    }
+    val grid = SwissCheeseSparseGrid[Piece](op2CellMaker _, dimension, dimension)
     Board(dimension, grid)
   }
 
   def apply(dimension: Int) : Board = {
-    def cellMaker(row: Int)(col: Int) = GridPiece(Piece.emptyPiece, Point(row, col))
-    Board(dimension, cellMaker _)
+    def cellMaker(row: Int)(col: Int): Opt2[Piece] = Piece.emptyPiece.toAliveAndNonEmptyPiece
+    val grid = SwissCheeseSparseGrid[Piece](cellMaker _, dimension, dimension)
+    Board(dimension, grid)
+
   }
 
   // TODO. Check that grid pieces fall inside the board boundaries.
@@ -99,13 +146,13 @@ object Board {
     def cellMaker(row: Int)(col: Int) = {
       maybeGridPiece(row, col) match {
         case Some(gridPiece) => gridPiece
-        case None => isEmpty(row, col)
+        case None => emptyGridPiece(row, col)
       }
     }
     Board(dimension, cellMaker _)
   }
 
-  def isEmpty(row: Int, col: Int) = GridPiece(Piece.emptyPiece, Point(row, col))
+  def emptyGridPiece(row: Int, col: Int) = GridPiece(Piece.emptyPiece, Point(row, col))
 
 }
 
