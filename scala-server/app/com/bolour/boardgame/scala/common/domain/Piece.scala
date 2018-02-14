@@ -37,6 +37,9 @@ object Piece {
   val deadPieceId = "-2"
   val deadPiece = Piece(deadChar, deadPieceId)
 
+  def isDead(ch: Char) = ch == deadChar
+  def isAlive(ch: Char) = !isDead(ch)
+
   def fromAliveAndNonEmptyPiece(opt2Piece: Option[Option[Piece]]): Piece =
     opt2Piece match {
       case None => deadPiece

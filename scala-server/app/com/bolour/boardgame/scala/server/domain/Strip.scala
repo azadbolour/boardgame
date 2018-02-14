@@ -7,6 +7,7 @@ package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain.Axis._
 import com.bolour.boardgame.scala.common.domain.Axis.Axis
+import com.bolour.boardgame.scala.common.domain.Piece._
 import com.bolour.boardgame.scala.common.domain.{Axis, PlayPiece, Point}
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
 import com.bolour.boardgame.scala.server.util.WordUtil.{BLANK, DictWord, Length, LetterCombo, NumBlanks, nonBlankLetterCombo}
@@ -86,11 +87,38 @@ object Strip {
     } yield Strip.lineStrip(axis, lineNumber, lines(lineNumber), begin, end)
   }
 
+  // TODO dimension is redundant == line.length.
+
   def stripsInLine(axis: Axis, dimension: Int, lineNumber: Int, line: String): List[Strip] = {
     for {
       begin <- (0 until dimension).toList
       end <- (begin + 1) until dimension
     } yield Strip.lineStrip(axis, lineNumber, line, begin, end)
+  }
+
+  def liveStripsInLine(axis: Axis, lineNumber: Int, line: String): List[Strip] = {
+    def dead(i: Int) = i < 0 || i >= line.length || isDead(line(i))
+    def live(i: Int) = !dead(i)
+    def beginLive(i: Int) = live(i) && dead(i - 1)
+    def endLive(i: Int) = live(i) && dead(i + 1)
+
+    val begins = line.indices filter beginLive
+    val ends = line.indices filter endLive
+    val liveIntervals = begins zip ends
+    val strips =
+      for {
+        (intervalBegin, intervalEnd) <- liveIntervals
+        begin <- intervalBegin to intervalEnd
+        end <- (begin + 1) to intervalEnd
+      } yield Strip.lineStrip(axis, lineNumber, line, begin, end)
+    strips.toList
+  }
+
+  def allLiveStrips(axis: Axis, lines: List[String]): List[Strip] = {
+    for {
+      lineNumber <- lines.indices.toList
+      liveStrip <- liveStripsInLine(axis, lineNumber, lines(lineNumber))
+    } yield liveStrip
   }
 
 }
