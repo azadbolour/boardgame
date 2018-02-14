@@ -44,6 +44,8 @@ case class Strip(
 
   def hasAnchor: Boolean = numBlanks < len
 
+  def isDense(maxBlanks: Int): Boolean = hasAnchor && numBlanks <= maxBlanks
+
   def row(offset: Int): Int = axis match {
     case X => lineNumber
     case Y => begin + offset
@@ -65,6 +67,11 @@ case class Strip(
     if (restWord.isEmpty) true
     else fitsSlot(restContent.head, restWord.head) &&
            fits(restContent.tail, restWord.tail)
+
+  def blankPoints: List[Point] = {
+    val blankOffsets = content.indices.toList.filter(offset => isBlank(content(offset)))
+    blankOffsets map point
+  }
 }
 
 object Strip {
@@ -120,6 +127,7 @@ object Strip {
       liveStrip <- liveStripsInLine(axis, lineNumber, lines(lineNumber))
     } yield liveStrip
   }
+
 
 }
 

@@ -231,6 +231,15 @@ trait StripMatcher {
     conformantStrips3
   }
 
+  def potentialPlayableStrips: List[Strip] = {
+    val traySize = tray.capacity
+    val allStrips = computeAllLiveStrips
+    def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= traySize
+    val conformantStrips1 = allStrips.filter(hasFillableBlanks)
+    val conformantStrips2 = conformantStrips1.filter(isDisconnectedInLine)
+    conformantStrips2
+  }
+
   def isDisconnectedInLine(strip: Strip): Boolean = {
     val firstPoint = strip.point(0)
     val lastPoint = strip.point(strip.end - strip.begin)
@@ -250,6 +259,14 @@ trait StripMatcher {
     def columns: List[String] = board.columnsAsPieces.map(Piece.piecesToString)
     val xStrips = Strip.allStrips(Axis.X, dimension, rows)
     val yStrips = Strip.allStrips(Axis.Y, dimension, columns)
+    xStrips ++ yStrips
+  }
+
+  def computeAllLiveStrips: List[Strip] = {
+    def rows: List[String] = board.rowsAsPieces.map(Piece.piecesToString)
+    def columns: List[String] = board.columnsAsPieces.map(Piece.piecesToString)
+    val xStrips = Strip.allLiveStrips(Axis.X, rows)
+    val yStrips = Strip.allLiveStrips(Axis.Y, columns)
     xStrips ++ yStrips
   }
 }
