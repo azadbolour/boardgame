@@ -21,7 +21,7 @@ import com.bolour.boardgame.scala.common.domain.PlayPieceObj.PlayPieces
 import com.bolour.boardgame.scala.server.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
 import com.bolour.boardgame.scala.server.domain.Scorer.Score
-import com.bolour.boardgame.scala.server.domain.WordDictionary.readDictionary
+import com.bolour.boardgame.scala.server.domain.WordDictionary.mkWordDictionary
 import org.slf4j.LoggerFactory
 
 import scala.collection.immutable.Nil
@@ -55,8 +55,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     case Success(languageCodes) =>
       languageCodes.foreach {
         languageCode =>
-          readDictionary(languageCode, dictionaryDir) match {
-            case Failure(ex) => throw new MissingDictionaryException(languageCode, dictionaryDir, ex)
+          mkWordDictionary(languageCode, dictionaryDir) match {
+            case Failure(ex) => throw ex
             case Success(dictionary) =>
               logger.info(s"adding language dictionary: ${languageCode}")
               dictionaryCache(languageCode) = dictionary

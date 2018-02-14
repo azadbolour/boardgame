@@ -23,4 +23,18 @@ class WordUtilSpec extends FlatSpec with Matchers {
     map(2).contains("BA") shouldEqual false
   }
 
+  "all masked versions" should "be computed for ABCD" in {
+    maskWithBlanks("ABCD", 2) should contain (" B D")
+    maskWithBlanks("ABCD", 2) should contain ("AB D")
+    maskWithBlanks("ABCD", 2) should not contain ("   D")
+    maskWithBlanks("ABCD", 2).size shouldEqual (1 + 4 + 6)
+
+    maskWithBlanks("ABC", 3).size shouldEqual (2 * 2 * 2)
+    maskWithBlanks("ABC", 5).size shouldEqual (2 * 2 * 2)
+    maskWithBlanks("ABC", 0).size shouldEqual 1
+
+    maskWithBlanks("A", 0).size shouldEqual 1
+    maskWithBlanks("A", 1).size shouldEqual 2
+  }
+
 }

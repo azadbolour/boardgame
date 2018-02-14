@@ -7,37 +7,46 @@ package com.bolour.boardgame.scala.server.domain
 
 import java.io.File
 
+import com.bolour.boardgame.scala.server.domain.GameExceptions.MissingDictionaryException
 import com.bolour.util.BasicUtil.{mkFileSource, mkResourceSource}
 import com.bolour.boardgame.scala.server.util.WordUtil._
 
+import scala.collection.immutable.HashSet
+import scala.collection.parallel.mutable.{ParHashSet, ParSet}
 import scala.io.{BufferedSource, Source}
 import scala.util.{Failure, Success, Try}
+import WordDictionary._
 
 /** Word dictionary - indexed by combinations of letters in a word.
   * A combination is represented as the sorted string of letters.
   *
   * @param languageCode The ISO language code of the dictionary.
-  * @param index Index of words by their sorted letters.
+  * @param words List of words in the dictionary.
   */
-case class WordDictionary(languageCode: String, index: WordIndex) {
+case class WordDictionary(languageCode: String, words: List[DictWord]) {
+
+  val wordsByCombo = mkWordsByCombo(words)
+  val maskedWords = mkMaskedWords(words, MaxMaskedLetters)
 
   /** Is the given word in the dictionary? */
-  def hasWord(word: String): Boolean = permutedWords(stringToLetterCombo(word)) contains word
+  def hasWord(word: String): Boolean = permutations(stringToLetterCombo(word)) contains word
+
+  def hasMaskedWord(maskedWord: String): Boolean = maskedWords.contains(maskedWord)
 
   /** Get the words in the dictionary that have exactly the same letters
     * as the given sorted list of letter. */
-  def permutedWords(combo: LetterCombo): List[DictWord] = index.getOrElse(combo, Nil)
+  def permutations(combo: LetterCombo): List[DictWord] = wordsByCombo.getOrElse(combo, Nil)
 }
 
 object WordDictionary {
 
-  def apply(languageCode: String, words: List[DictWord]): WordDictionary =
-    WordDictionary(languageCode, mkWordIndex(words))
+//  def apply(languageCode: String, words: List[DictWord]): WordDictionary =
+//    WordDictionary(languageCode, mkWordIndex(words))
 
-  def apply(languageCode: String, dictionaryDir: String): WordDictionary = {
+  def mkWordDictionary(languageCode: String, dictionaryDir: String): Try[WordDictionary] = Try {
     readDictionary(languageCode, dictionaryDir) match {
-      case Failure(ex) => throw ex
-      case Success(dict) => dict
+      case Failure(ex) => throw new MissingDictionaryException(languageCode, dictionaryDir, ex)
+      case Success(words) => WordDictionary(languageCode, words)
     }
   }
 
@@ -48,7 +57,7 @@ object WordDictionary {
   private def dictionaryFileName(languageCode: String): String =
     s"${languageCode}${dictionaryFileSuffix}"
 
-  def readDictionary(languageCode: String, dictionaryDir: String): Try[WordDictionary] = {
+  def readDictionary(languageCode: String, dictionaryDir: String): Try[List[DictWord]] = {
     val name = dictionaryFileName(languageCode)
     val path = s"${dictionaryDir}${File.separator}${name}"
     for {
@@ -61,9 +70,21 @@ object WordDictionary {
         }
         finally {source.close}
       }
-    } yield WordDictionary(languageCode, words)
+    } // yield WordDictionary(languageCode, words)
+      yield words
   }
 
-  private def mkWordIndex(words: List[DictWord]): WordIndex = words.groupBy(stringToLetterCombo)
+  val MaxMaskedLetters = 2
+
+  def mkWordsByCombo(words: List[DictWord]): WordsByCombo = words.groupBy(stringToLetterCombo)
+
+  def mkMaskedWords(words: List[DictWord], maxMaskedLetters: Int): ParSet[String] = {
+    val wordSet = ParHashSet(words:_*)
+    for {
+      word <- wordSet
+      masked <- maskWithBlanks(word, maxMaskedLetters)
+    } yield masked
+  }
+
 }
 

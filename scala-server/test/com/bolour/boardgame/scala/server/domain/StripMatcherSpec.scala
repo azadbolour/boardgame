@@ -9,8 +9,6 @@ import com.typesafe.config.ConfigFactory
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
 import com.bolour.boardgame.scala.common.domain.{GridPiece, Piece, Point}
-import com.bolour.boardgame.scala.server.service.GameServiceImpl
-import com.bolour.boardgame.scala.server.domain.WordDictionary.readDictionary
 import com.bolour.boardgame.scala.server.util.WordUtil
 
 class StripMatcherSpec extends FlatSpec with Matchers { self =>

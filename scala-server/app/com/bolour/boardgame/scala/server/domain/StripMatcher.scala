@@ -184,7 +184,7 @@ trait StripMatcher {
       case Nil => None
       case combo :: restCombos =>
         val wordCombo = WordUtil.mergeLetterCombos(strip.letters, combo)
-        val words = dictionary.permutedWords(wordCombo)
+        val words = dictionary.permutations(wordCombo)
         // TODO. Find all fitting words and check each for crossword compliance.
 
         val fittingWords = strip.findFittingWords(words)
