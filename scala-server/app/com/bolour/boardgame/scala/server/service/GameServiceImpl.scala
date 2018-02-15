@@ -37,6 +37,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
   val dbConfigPrefix = confPath("db")
   val defaultDbPath = s"${dbConfigPrefix}.defaultDb"
+  val MaxMaskedLetters = 2
 
   // TODO. Validate all config parameters and throw meaningful exceptions.
 
@@ -55,7 +56,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     case Success(languageCodes) =>
       languageCodes.foreach {
         languageCode =>
-          mkWordDictionary(languageCode, dictionaryDir) match {
+          mkWordDictionary(languageCode, dictionaryDir, MaxMaskedLetters) match {
             case Failure(ex) => throw ex
             case Success(dictionary) =>
               logger.info(s"adding language dictionary: ${languageCode}")

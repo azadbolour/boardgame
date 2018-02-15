@@ -14,9 +14,11 @@ import com.bolour.boardgame.scala.server.util.WordUtil
 class StripMatcherSpec extends FlatSpec with Matchers { self =>
   val logger = LoggerFactory.getLogger(this.getClass)
 
+  val MaxMaskedLetters = 2
+
   // val config = ConfigFactory.load()
   val words = List("BAT", "BET", "EATEN")
-  val dictionary = WordDictionary(WordUtil.english, words)
+  val dictionary = WordDictionary(WordUtil.english, words, MaxMaskedLetters)
   val dimension = 7
   val emptyBoard = Board(dimension)
   val pieces = Vector(

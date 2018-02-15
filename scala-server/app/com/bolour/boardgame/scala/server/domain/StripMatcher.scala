@@ -5,6 +5,7 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
+import com.bolour.util.BasicUtil._
 import com.bolour.boardgame.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain.PlayerType.{MachinePlayer, playerIndex}
 import com.bolour.boardgame.scala.common.domain._
@@ -35,7 +36,8 @@ trait StripMatcher {
   val stripValuation: Strip => StripValue = _.numBlanks
   val playableStripsGroupedByValueAndBlanks: Map[StripValue, Map[NumBlanks, List[Strip]]] =
     groupPlayableStrips(stripValuation)
-  val maxStripValue = playableStripsGroupedByValueAndBlanks.keySet.max
+  val allValues = playableStripsGroupedByValueAndBlanks.keySet
+  val maxStripValue = if (allValues.isEmpty) 0 else allValues.max
   val crossWordFinder = new CrossWordFinder(board)
 
   // def bestMatch(): StripMatch = bestMatchUpToLength(dimension)
@@ -231,14 +233,39 @@ trait StripMatcher {
     conformantStrips3
   }
 
-  def potentialPlayableStrips: List[Strip] = {
+  def potentialPlayableStrips(axis: Axis): List[Strip] = {
     val traySize = tray.capacity
-    val allStrips = computeAllLiveStrips
+    val allStrips = computeAllLiveStrips(axis)
     def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= traySize
     val conformantStrips1 = allStrips.filter(hasFillableBlanks)
     val conformantStrips2 = conformantStrips1.filter(isDisconnectedInLine)
     conformantStrips2
   }
+
+  def potentialPlayableStripsForBlanks(axis: Axis): Map[Point, List[Strip]] = {
+    val ppStrips = potentialPlayableStrips(axis)
+    inverse1ToManyRelation((strip: Strip) => strip.blankPoints)(ppStrips)
+  }
+
+  def hopelessBlankPointsForAxis(axis: Axis): List[Point] = {
+    val blanksToStrips = potentialPlayableStripsForBlanks(axis)
+    val maxStripBlanks = dictionary.maxMaskedLetters
+
+    def allDense(strips: List[Strip]) =
+      strips forall {_.isDense(maxStripBlanks)}
+    val denselyEnclosedBlanks =
+      blanksToStrips filter { case (_, strips) => allDense(strips) }
+
+    def stripMatchExists(strips: List[Strip]) =
+      strips exists { s => dictionary.hasMaskedWord(s.content)}
+    val stripsForHopelessBlanks =
+      denselyEnclosedBlanks filter { case (_, strips) => !stripMatchExists(strips)}
+
+    stripsForHopelessBlanks.keySet.toList
+  }
+
+  def hopelessBlankPoints: List[Point] =
+    hopelessBlankPointsForAxis(Axis.X) ++ hopelessBlankPointsForAxis(Axis.Y)
 
   def isDisconnectedInLine(strip: Strip): Boolean = {
     val firstPoint = strip.point(0)
@@ -262,12 +289,15 @@ trait StripMatcher {
     xStrips ++ yStrips
   }
 
-  def computeAllLiveStrips: List[Strip] = {
-    def rows: List[String] = board.rowsAsPieces.map(Piece.piecesToString)
-    def columns: List[String] = board.columnsAsPieces.map(Piece.piecesToString)
-    val xStrips = Strip.allLiveStrips(Axis.X, rows)
-    val yStrips = Strip.allLiveStrips(Axis.Y, columns)
-    xStrips ++ yStrips
+  def computeAllLiveStrips(axis: Axis): List[Strip] = {
+    axis match {
+      case Axis.X =>
+        def rows: List[String] = board.rowsAsPieces.map(Piece.piecesToString)
+        Strip.allLiveStrips(Axis.X, rows)
+      case Axis.Y =>
+        def columns: List[String] = board.columnsAsPieces.map(Piece.piecesToString)
+        Strip.allLiveStrips(Axis.Y, columns)
+    }
   }
 }
 

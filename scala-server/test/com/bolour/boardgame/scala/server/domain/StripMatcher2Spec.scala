@@ -12,6 +12,8 @@ import scala.collection.immutable
 class StripMatcher2Spec extends FlatSpec with Matchers { self =>
   val logger = LoggerFactory.getLogger(this.getClass)
 
+  val MaxMaskedLetters = 2
+
   // TODO. Move generic functions to a base class.
   def allTheSame[A, B](seq: IndexedSeq[A])(f: A => B): Boolean = {
     val l = seq.length
@@ -38,7 +40,7 @@ class StripMatcher2Spec extends FlatSpec with Matchers { self =>
   "stripMatcher" should "match vertical after first horizontal move" in {
     val stripMatcher = new StripMatcher {
       override def tray = mkTray("ORGANIC");
-      override def dictionary = WordDictionary(WordUtil.english, List("ORGANIC"))
+      override def dictionary = WordDictionary(WordUtil.english, List("ORGANIC"), MaxMaskedLetters)
       override def board = mkInitialBoard(15, "CODER")
     }
 

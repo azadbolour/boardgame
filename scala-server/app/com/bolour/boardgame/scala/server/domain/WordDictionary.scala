@@ -23,10 +23,10 @@ import WordDictionary._
   * @param languageCode The ISO language code of the dictionary.
   * @param words List of words in the dictionary.
   */
-case class WordDictionary(languageCode: String, words: List[DictWord]) {
+case class WordDictionary(languageCode: String, words: List[DictWord], maxMaskedLetters: Int) {
 
   val wordsByCombo = mkWordsByCombo(words)
-  val maskedWords = mkMaskedWords(words, MaxMaskedLetters)
+  val maskedWords = mkMaskedWords(words, maxMaskedLetters)
 
   /** Is the given word in the dictionary? */
   def hasWord(word: String): Boolean = permutations(stringToLetterCombo(word)) contains word
@@ -43,10 +43,10 @@ object WordDictionary {
 //  def apply(languageCode: String, words: List[DictWord]): WordDictionary =
 //    WordDictionary(languageCode, mkWordIndex(words))
 
-  def mkWordDictionary(languageCode: String, dictionaryDir: String): Try[WordDictionary] = Try {
+  def mkWordDictionary(languageCode: String, dictionaryDir: String, maxMaskedLetters: Int): Try[WordDictionary] = Try {
     readDictionary(languageCode, dictionaryDir) match {
       case Failure(ex) => throw new MissingDictionaryException(languageCode, dictionaryDir, ex)
-      case Success(words) => WordDictionary(languageCode, words)
+      case Success(words) => WordDictionary(languageCode, words, maxMaskedLetters)
     }
   }
 
@@ -74,7 +74,7 @@ object WordDictionary {
       yield words
   }
 
-  val MaxMaskedLetters = 2
+  // val MaxMaskedLetters = 2
 
   def mkWordsByCombo(words: List[DictWord]): WordsByCombo = words.groupBy(stringToLetterCombo)
 

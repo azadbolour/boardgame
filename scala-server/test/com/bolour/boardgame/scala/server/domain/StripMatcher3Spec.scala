@@ -12,6 +12,7 @@ class StripMatcher3Spec extends FlatSpec with Matchers { self =>
 
   val dimension = 15
   val center = dimension / 2
+  val MaxMaskedLetters = 2
 
   // TODO. Move generic functions to a base class.
   def allTheSame[A, B](seq: IndexedSeq[A])(f: A => B): Boolean = {
@@ -39,7 +40,7 @@ class StripMatcher3Spec extends FlatSpec with Matchers { self =>
     val crossGridPiece = GridPiece(Piece('T', UUID.randomUUID().toString), Point(center - 1, center + 1))
     val stripMatcher = new StripMatcher {
       override def tray = mkTray("ORGANIC");
-      override def dictionary = WordDictionary(WordUtil.english, List("ORGANIC"))
+      override def dictionary = WordDictionary(WordUtil.english, List("ORGANIC"), MaxMaskedLetters)
       override def board = mkInitialBoard("CODER").addPieces(List(crossGridPiece))
     }
 
