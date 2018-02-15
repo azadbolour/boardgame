@@ -20,6 +20,16 @@ import WordDictionary._
 /** Word dictionary - indexed by combinations of letters in a word.
   * A combination is represented as the sorted string of letters.
   *
+  * The dictionary also includes an index of "dense" masked words. A masked word
+  * is a word some of whose letters have been changed to blanks (for the purpose
+  * of matching with with the contents of strips on teh board). If a strip
+  * is at all playable, then its content as a masked word must exist in the
+  * masked words index. However, we do not store all masked versions of
+  * a word: only those that are "dense", that is, those that only have a few
+  * blanks. This index is used in identifying blanks that cannot possibly
+  * be filled, because their eligible play strips are all dense but have contents
+  * that do not exist as masked words in the masked word index.
+  *
   * @param languageCode The ISO language code of the dictionary.
   * @param words List of words in the dictionary.
   */

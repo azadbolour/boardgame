@@ -247,6 +247,31 @@ trait StripMatcher {
     inverse1ToManyRelation((strip: Strip) => strip.blankPoints)(ppStrips)
   }
 
+  /**
+    * Attempt to find blank points that cannot possibly be filled.
+    *
+    * The algorithm uses a precomputed set of masked words. A masked word
+    * is a word some of whose letters have been changed to blanks. If a strip
+    * is at all playable, then its content as a masked word must exist in the
+    * masked words index. However, we do not store all masked versions of
+    * a word: only those that are "dense", that is, those that only have a few
+    * blanks.
+    *
+    * The algorithm works by finding those blank points that can only
+    * be covered by making a play on a "dense" strip. A dense strip
+    * is one that only has a few blanks. Once we know
+    * that a blank point is only coverable by dense strip plays, we can
+    * look up the contents of each its covering dense strips in the
+    * masked word index, and if none exist, we know that blank is hopeless.
+    *
+    * This algorithm, of course, will miss some hopeless blanks. But detecting
+    * hopeless blanks is most useful when the board is densely populated,
+    * increasing the possibility of finding blanks that are only coverable
+    * by dense strips.
+    *
+    * @param axis Axis along which to check for matching words.
+    * @return List of hopeless blank points.
+    */
   def hopelessBlankPointsForAxis(axis: Axis): List[Point] = {
     val blanksToStrips = potentialPlayableStripsForBlanks(axis)
     val maxStripBlanks = dictionary.maxMaskedLetters
@@ -264,6 +289,9 @@ trait StripMatcher {
     stripsForHopelessBlanks.keySet.toList
   }
 
+  /**
+    * A blank is hopeless if it is hopeless (cannot be filled) in either direction.
+    */
   def hopelessBlankPoints: List[Point] =
     hopelessBlankPointsForAxis(Axis.X) ++ hopelessBlankPointsForAxis(Axis.Y)
 
