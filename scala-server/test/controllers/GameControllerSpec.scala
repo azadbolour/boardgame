@@ -94,7 +94,7 @@ class GameControllerSpec extends PlaySpec with Results {
 
       result = controller.commitPlay(theGameId)(mkRequest(userPlayPieces))
       decodeJsonContent[CommitPlayResponse](result) match {
-        case CommitPlayResponse(score, replacementPieces) =>
+        case CommitPlayResponse(score, replacementPieces, deadPoints) =>
           replacementPieces.size mustEqual 3
       }
       // logger.info(s"${replacementPieces}")
@@ -102,7 +102,7 @@ class GameControllerSpec extends PlaySpec with Results {
       // TODO. How to make request with no body the PlaySpec way??
       result = controller.machinePlay(theGameId)(FakeRequest())
       decodeJsonContent[MachinePlayResponse](result) match {
-        case MachinePlayResponse(score, playedPieces) =>
+        case MachinePlayResponse(score, playedPieces, deadPoints) =>
           playedPieces.size must be > 2
       }
 

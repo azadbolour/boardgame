@@ -129,7 +129,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     }
   }
 
-  override def commitPlay(gameId: String, playPieces: List[PlayPiece]): Try[(GameMiniState, List[Piece])] = {
+  override def commitPlay(gameId: String, playPieces: List[PlayPiece]): Try[(GameMiniState, List[Piece], List[Point])] = {
     val os = Option(gameCache.get(gameId))
     if (os.isEmpty)
       return Failure(MissingGameException(gameId))
@@ -154,7 +154,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       (newState, refills) <- state.addPlay(UserPlayer, playPieces)
       _ <- savePlay(newState, playPieces, refills)
       _ = gameCache.put(gameId, newState)
-    } yield (newState.miniState, refills)
+    } yield (newState.miniState, refills, Nil)
   }
 
   // TODO. Persist play.
@@ -162,7 +162,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     Success(())
   }
 
-  override def machinePlay(gameId: String): Try[(GameMiniState, List[PlayPiece])] = {
+  override def machinePlay(gameId: String): Try[(GameMiniState, List[PlayPiece], List[Point])] = {
     val os = Option(gameCache.get(gameId))
     if (os.isEmpty)
       return Failure(MissingGameException(gameId))
@@ -188,14 +188,14 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
         for {
           newState <- exchangeMachinePiece(state)
           _ = gameCache.put(gameId, newState)
-        } yield (newState.miniState, Nil)
+        } yield (newState.miniState, Nil, Nil)
       case playPieces =>
         for {
           (newState, refills) <- state.addPlay(MachinePlayer, playPieces)
           // TODO. How to eliminate dummy values entirely in for.
           _ <- savePlay(newState, playPieces, refills)
           _ = gameCache.put(gameId, newState)
-        } yield (newState.miniState, playPieces)
+        } yield (newState.miniState, playPieces, Nil)
     }
   }
 

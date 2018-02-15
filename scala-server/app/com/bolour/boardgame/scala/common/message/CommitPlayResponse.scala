@@ -5,9 +5,10 @@
  */
 package com.bolour.boardgame.scala.common.message
 
-import com.bolour.boardgame.scala.common.domain.{GameMiniState, GameParams, GridPiece, Piece}
+import com.bolour.boardgame.scala.common.domain._
 
 case class CommitPlayResponse(
   gameMiniState: GameMiniState,
-  replacementPieces: List[Piece]
+  replacementPieces: List[Piece],
+  deadPoints: List[Point]
 )

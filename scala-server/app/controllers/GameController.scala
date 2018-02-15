@@ -110,9 +110,9 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
       case Failure(ex) =>
         logger.error("commitPlay failure", ex)
         unprocessable(ex)
-      case Success((miniState, replacementPieces)) =>
+      case Success((miniState, replacementPieces, deadPoints)) =>
         logger.info(s"commitPlay success - replacements: ${replacementPieces}, mini state: ${miniState}")
-        val response = CommitPlayResponse(miniState, replacementPieces)
+        val response = CommitPlayResponse(miniState, replacementPieces, deadPoints)
         Ok(Json.toJson(response))
     }
   }
@@ -125,9 +125,9 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
       case Failure(ex) =>
         logger.info("machinePlay failure", ex)
         unprocessable(ex)
-      case Success((miniState, playedPieces)) =>
+      case Success((miniState, playedPieces, deadPoints)) =>
         logger.info(s"machinePlay success - playedPieces: ${playedPieces}, mini state: ${miniState}")
-        val response = MachinePlayResponse(miniState, playedPieces)
+        val response = MachinePlayResponse(miniState, playedPieces, deadPoints)
         Ok(Json.toJson(response))
     }
   }
