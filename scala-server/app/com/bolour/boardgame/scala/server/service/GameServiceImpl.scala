@@ -144,6 +144,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     val dictionary = od.get
 
+    val userTray = state.trays(playerIndex(UserPlayer))
+
     // TODO. Should validate the play here.
 
     if (!dictionary.hasWord(word))
@@ -152,9 +154,11 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     for {
       _ <- state.checkCrossWords(playPieces, dictionary)
       (newState, refills) <- state.addPlay(UserPlayer, playPieces)
+      deadPoints = StripMatcher.hopelessBlankPoints(newState.board, od.get, userTray.capacity)
+      finalState = newState.setDeadPoints(deadPoints)
       _ <- savePlay(newState, playPieces, refills)
       _ = gameCache.put(gameId, newState)
-    } yield (newState.miniState, refills, Nil)
+    } yield (finalState.miniState, refills, deadPoints)
   }
 
   // TODO. Persist play.
@@ -192,10 +196,12 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       case playPieces =>
         for {
           (newState, refills) <- state.addPlay(MachinePlayer, playPieces)
+          deadPoints = StripMatcher.hopelessBlankPoints(newState.board, od.get, machineTray.capacity)
+          finalState = newState.setDeadPoints(deadPoints)
           // TODO. How to eliminate dummy values entirely in for.
-          _ <- savePlay(newState, playPieces, refills)
+          _ <- savePlay(finalState, playPieces, refills)
           _ = gameCache.put(gameId, newState)
-        } yield (newState.miniState, playPieces, Nil)
+        } yield (finalState.miniState, playPieces, deadPoints)
     }
   }
 

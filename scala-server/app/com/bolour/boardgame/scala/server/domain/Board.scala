@@ -8,6 +8,7 @@ package com.bolour.boardgame.scala.server.domain
 import com.bolour.boardgame.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
+import com.bolour.util.BasicUtil.inverse1ToManyRelation
 import com.bolour.util.SwissCheeseSparseGrid
 import com.bolour.util.SwissCheeseSparseGrid.Opt2
 
@@ -18,7 +19,7 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
   }
 
   // TODO. URGENT. Rename to setN.
-  def addPieces(gridPieces: List[GridPiece]): Board = {
+  def setN(gridPieces: List[GridPiece]): Board = {
     val pairs = gridPieces map
       { case GridPiece(piece, point) => (piece.toAliveAndNonEmptyPiece, point) }
     val augmentedGrid = grid.setN(pairs)
@@ -120,6 +121,72 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
 
   def rowsAsPieces: List[List[Piece]] = grid map Piece.fromAliveAndNonEmptyPiece
   def columnsAsPieces: List[List[Piece]] = rowsAsPieces.transpose
+
+  def playableEmptyStrips(traySize: Int): List[Strip] = {
+    val center = dimension/2
+    val centerRowAsPieces = rowsAsPieces(center)
+    val centerRowAsString = Piece.piecesToString(centerRowAsPieces) // converts null chars to blanks
+    val strips = Strip.stripsInLine(Axis.X, dimension, center, centerRowAsString)
+    val conformantStrips = strips.filter { strip => strip.begin <= center && strip.end >= center}
+    conformantStrips
+  }
+
+  def playableStrips(traySize: Int): List[Strip] = {
+    // val traySize = tray.pieces.length
+    val allStrips = computeAllStrips
+    def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= traySize
+    val conformantStrips1 = allStrips.filter(hasFillableBlanks)
+    val conformantStrips2 = conformantStrips1.filter(_.hasAnchor)
+    val conformantStrips3 = conformantStrips2.filter(stripIsDisconnectedInLine)
+    conformantStrips3
+  }
+
+  def potentialPlayableStrips(axis: Axis, trayCapacity: Int): List[Strip] = {
+    // val traySize = tray.capacity
+    val allStrips = computeAllLiveStrips(axis)
+    def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= trayCapacity
+    val conformantStrips1 = allStrips.filter(hasFillableBlanks)
+    val conformantStrips2 = conformantStrips1.filter(stripIsDisconnectedInLine)
+    conformantStrips2
+  }
+
+  def potentialPlayableStripsForBlanks(axis: Axis, trayCapacity: Int): Map[Point, List[Strip]] = {
+    val ppStrips = potentialPlayableStrips(axis, trayCapacity)
+    inverse1ToManyRelation((strip: Strip) => strip.blankPoints)(ppStrips)
+  }
+
+  def stripIsDisconnectedInLine(strip: Strip): Boolean = {
+    val firstPoint = strip.point(0)
+    val lastPoint = strip.point(strip.end - strip.begin)
+    val maybePrevPiece = prevCell(firstPoint, strip.axis).map {_.value}
+    val maybeNextPiece = nextCell(lastPoint, strip.axis).map {_.value}
+    def isSeparator(maybePiece: Option[Piece]): Boolean = {
+      maybePiece match {
+        case None => true
+        case Some(piece) => piece.isEmpty
+      }
+    }
+    isSeparator(maybePrevPiece) && isSeparator(maybeNextPiece)
+  }
+
+  def computeAllStrips: List[Strip] = {
+    def rowsAsStrings: List[String] = rowsAsPieces.map(Piece.piecesToString)
+    def columnsAsStrings: List[String] = columnsAsPieces.map(Piece.piecesToString)
+    val xStrips = Strip.allStrips(Axis.X, dimension, rowsAsStrings)
+    val yStrips = Strip.allStrips(Axis.Y, dimension, columnsAsStrings)
+    xStrips ++ yStrips
+  }
+
+  def computeAllLiveStrips(axis: Axis): List[Strip] = {
+    axis match {
+      case Axis.X =>
+        def rowsAsStrings: List[String] = rowsAsPieces.map(Piece.piecesToString)
+        Strip.allLiveStrips(Axis.X, rowsAsStrings)
+      case Axis.Y =>
+        def columnsAStrings: List[String] = columnsAsPieces.map(Piece.piecesToString)
+        Strip.allLiveStrips(Axis.Y, columnsAStrings)
+    }
+  }
 
 }
 

@@ -52,6 +52,13 @@ case class GameState(
     } yield added
   }
 
+  def setDeadPoints(deadPoints: List[Point]): GameState = {
+    def deadGridPiece(point: Point) = GridPiece(Piece.deadPiece, point)
+    val gridPieces = deadPoints map deadGridPiece
+    val newBoard = board.setN(gridPieces)
+    this.copy(board = newBoard)
+  }
+
   def tray(playerType: PlayerType): Tray = trays(playerIndex(playerType))
 
   def computePlayScore(playPieces: List[PlayPiece]): Int = {
@@ -59,7 +66,7 @@ case class GameState(
   }
 
   private def addGoodPlay(playerType: PlayerType, gridPieces: List[GridPiece], score: Int): Try[(GameState, List[Piece])] = {
-    val newBoard = board.addPieces(gridPieces)
+    val newBoard = board.setN(gridPieces)
     val usedPieces = gridPieces map { _.value }
     val succPasses = if (score > 0) 0 else numSuccessivePasses + 1
     val ind = playerIndex(playerType)

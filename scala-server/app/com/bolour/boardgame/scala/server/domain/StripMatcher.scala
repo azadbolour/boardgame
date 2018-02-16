@@ -207,45 +207,19 @@ trait StripMatcher {
 
   def groupPlayableStrips(valuation: Strip => Int): Map[StripValue, Map[NumBlanks, List[Strip]]] = {
     val conformantStrips = if (board.isEmpty)
-      playableEmptyStrips
-    else playableStrips
+      board.playableEmptyStrips(tray.pieces.length)
+    else board.playableStrips(tray.pieces.length)
 
     val stripsByValue = conformantStrips.groupBy(valuation)
     stripsByValue.mapValues(_.groupBy(_.numBlanks))
   }
+}
 
-  def playableEmptyStrips: List[Strip] = {
-    val center = dimension/2
-    val centerRowAsPieces = board.rowsAsPieces(center)
-    val centerRowAsString = Piece.piecesToString(centerRowAsPieces) // converts null chars to blanks
-    val strips = Strip.stripsInLine(Axis.X, dimension, center, centerRowAsString)
-    val conformantStrips = strips.filter { strip => strip.begin <= center && strip.end >= center}
-    conformantStrips
-  }
+object StripMatcher {
+  /** Values start at 1 - so 0 is the basis of recursion for decreasing values. */
+  type StripValue = Int
+  type StripMatch = Option[(Strip, DictWord)]
 
-  def playableStrips: List[Strip] = {
-    val traySize = tray.pieces.length
-    val allStrips = computeAllStrips
-    def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= traySize
-    val conformantStrips1 = allStrips.filter(hasFillableBlanks)
-    val conformantStrips2 = conformantStrips1.filter(_.hasAnchor)
-    val conformantStrips3 = conformantStrips2.filter(isDisconnectedInLine)
-    conformantStrips3
-  }
-
-  def potentialPlayableStrips(axis: Axis): List[Strip] = {
-    val traySize = tray.capacity
-    val allStrips = computeAllLiveStrips(axis)
-    def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= traySize
-    val conformantStrips1 = allStrips.filter(hasFillableBlanks)
-    val conformantStrips2 = conformantStrips1.filter(isDisconnectedInLine)
-    conformantStrips2
-  }
-
-  def potentialPlayableStripsForBlanks(axis: Axis): Map[Point, List[Strip]] = {
-    val ppStrips = potentialPlayableStrips(axis)
-    inverse1ToManyRelation((strip: Strip) => strip.blankPoints)(ppStrips)
-  }
 
   /**
     * Attempt to find blank points that cannot possibly be filled.
@@ -261,8 +235,9 @@ trait StripMatcher {
     * be covered by making a play on a "dense" strip. A dense strip
     * is one that only has a few blanks. Once we know
     * that a blank point is only coverable by dense strip plays, we can
-    * look up the contents of each its covering dense strips in the
-    * masked word index, and if none exist, we know that blank is hopeless.
+    * look up the contents of each of its covering dense strips in the
+    * masked word index, and if none of them exists, we know that the blank
+    * is hopeless.
     *
     * This algorithm, of course, will miss some hopeless blanks. But detecting
     * hopeless blanks is most useful when the board is densely populated,
@@ -272,8 +247,8 @@ trait StripMatcher {
     * @param axis Axis along which to check for matching words.
     * @return List of hopeless blank points.
     */
-  def hopelessBlankPointsForAxis(axis: Axis): List[Point] = {
-    val blanksToStrips = potentialPlayableStripsForBlanks(axis)
+  def hopelessBlankPointsForAxis(board: Board, dictionary: WordDictionary, trayCapacity: Int, axis: Axis): List[Point] = {
+    val blanksToStrips = board.potentialPlayableStripsForBlanks(axis, trayCapacity)
     val maxStripBlanks = dictionary.maxMaskedLetters
 
     def allDense(strips: List[Strip]) =
@@ -292,45 +267,8 @@ trait StripMatcher {
   /**
     * A blank is hopeless if it is hopeless (cannot be filled) in either direction.
     */
-  def hopelessBlankPoints: List[Point] =
-    hopelessBlankPointsForAxis(Axis.X) ++ hopelessBlankPointsForAxis(Axis.Y)
+  def hopelessBlankPoints(board: Board, dictionary: WordDictionary, trayCapacity: Int): List[Point] =
+    hopelessBlankPointsForAxis(board, dictionary, trayCapacity, Axis.X) ++
+      hopelessBlankPointsForAxis(board, dictionary, trayCapacity, Axis.Y)
 
-  def isDisconnectedInLine(strip: Strip): Boolean = {
-    val firstPoint = strip.point(0)
-    val lastPoint = strip.point(strip.end - strip.begin)
-    val maybePrevPiece = board.prevCell(firstPoint, strip.axis).map {_.value}
-    val maybeNextPiece = board.nextCell(lastPoint, strip.axis).map {_.value}
-    def isSeparator(maybePiece: Option[Piece]): Boolean = {
-      maybePiece match {
-        case None => true
-        case Some(piece) => piece.isEmpty
-      }
-    }
-    isSeparator(maybePrevPiece) && isSeparator(maybeNextPiece)
-  }
-
-  def computeAllStrips: List[Strip] = {
-    def rows: List[String] = board.rowsAsPieces.map(Piece.piecesToString)
-    def columns: List[String] = board.columnsAsPieces.map(Piece.piecesToString)
-    val xStrips = Strip.allStrips(Axis.X, dimension, rows)
-    val yStrips = Strip.allStrips(Axis.Y, dimension, columns)
-    xStrips ++ yStrips
-  }
-
-  def computeAllLiveStrips(axis: Axis): List[Strip] = {
-    axis match {
-      case Axis.X =>
-        def rows: List[String] = board.rowsAsPieces.map(Piece.piecesToString)
-        Strip.allLiveStrips(Axis.X, rows)
-      case Axis.Y =>
-        def columns: List[String] = board.columnsAsPieces.map(Piece.piecesToString)
-        Strip.allLiveStrips(Axis.Y, columns)
-    }
-  }
-}
-
-object StripMatcher {
-  /** Values start at 1 - so 0 is the basis of recursion for decreasing values. */
-  type StripValue = Int
-  type StripMatch = Option[(Strip, DictWord)]
 }

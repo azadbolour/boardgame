@@ -9,12 +9,13 @@ class HopelessBlanksSpec extends FlatSpec with Matchers { self =>
   val logger = LoggerFactory.getLogger(this.getClass)
 
   val MaxMaskedLetters = 2
+  val trayCapacity = 3
 
   val words = List("AND", "CAN", "DO", "AT")
   val dictionary = WordDictionary(WordUtil.english, words, MaxMaskedLetters)
   val dimension = 3
   val emptyBoard = Board(dimension)
-  val tray = Tray(3, Vector()) // Don't need the tray contents, just capacity.
+  val tray = Tray(trayCapacity, Vector()) // Don't need the tray contents, just capacity.
 
   val gridPieces = List(
     GridPiece(Piece('A', "0"), Point(1, 0)),
@@ -23,16 +24,16 @@ class HopelessBlanksSpec extends FlatSpec with Matchers { self =>
     GridPiece(Piece('T', "3"), Point(2, 0))
   )
 
-  val board = emptyBoard.addPieces(gridPieces)
+  val board = emptyBoard.setN(gridPieces)
 
-  val stripMatcher = new StripMatcher {
-    override def tray = self.tray
-    override def dictionary = self.dictionary
-    override def board = self.board
-  }
+//  val stripMatcher = new StripMatcher {
+//    override def tray = self.tray
+//    override def dictionary = self.dictionary
+//    override def board = self.board
+//  }
 
   "strip matcher" should "find hopeless blanks" in {
-    val hopelessBlankPoints = stripMatcher.hopelessBlankPoints
+    val hopelessBlankPoints = StripMatcher.hopelessBlankPoints(board, dictionary, trayCapacity)
     println(hopelessBlankPoints)
   }
 

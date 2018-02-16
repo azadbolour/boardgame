@@ -31,7 +31,7 @@ class StripMatcherSpec extends FlatSpec with Matchers { self =>
 
   val gridPieces = List(GridPiece(Piece('A', "idA"), Point(center, center)))
 
-  val board = emptyBoard.addPieces(gridPieces)
+  val board = emptyBoard.setN(gridPieces)
 
   val emptyStripMatcher = new StripMatcher {
     override def tray = self.tray
@@ -45,8 +45,8 @@ class StripMatcherSpec extends FlatSpec with Matchers { self =>
     override def board = self.board
   }
 
-  "strip matcher" should "find all board strips" in {
-    val strips = stripMatcher.computeAllStrips
+  "for board" should "find all board strips" in {
+    val strips = board.computeAllStrips
     logger.info(s"number of strips for 15x15 board: ${strips.length}")
     strips.length shouldEqual 2 * dimension * (dimension * (dimension - 1) / 2)
   }

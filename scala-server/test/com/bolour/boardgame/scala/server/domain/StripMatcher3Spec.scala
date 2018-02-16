@@ -41,7 +41,7 @@ class StripMatcher3Spec extends FlatSpec with Matchers { self =>
     val stripMatcher = new StripMatcher {
       override def tray = mkTray("ORGANIC");
       override def dictionary = WordDictionary(WordUtil.english, List("ORGANIC"), MaxMaskedLetters)
-      override def board = mkInitialBoard("CODER").addPieces(List(crossGridPiece))
+      override def board = mkInitialBoard("CODER").setN(List(crossGridPiece))
     }
 
     // trying for
