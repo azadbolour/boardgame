@@ -104,27 +104,11 @@ export const PlayPieceConverter = {
   }
 };
 
-// export const PlayConverter = {
-//   toJson: function(play) {
-//     let playPieces = play.playPieces.map(playPiece => {
-//       let moved = playPiece.moved;
-//       let point = playPiece.point;
-//       let piece = playPiece.piece;
-//       return {
-//         piece: piece,
-//         point: point,
-//         moved: moved
-//       };
-//     });
-//     return playPieces;
-//   },
-//
-//   fromJson: function(json) {
-//     let playPiecesDto = json;
-//     let playPieces = playPiecesDto.map(dto => PlayPieceConverter.fromJson(dto));
-//     return new Play(playPieces);
-//   }
-// };
+export const PointConverter = {
+  fromJson: function(json) {
+    return mkPoint(json.row, json.col);
+  }
+};
 
 export const GridPieceConverter = {
   toJson: function(gridPiece) {

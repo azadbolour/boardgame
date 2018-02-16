@@ -16,6 +16,7 @@ import * as PointValue from '../domain/PointValue';
 
 import {convertResponse} from "../util/MiscUtil";
 import {PlayPieceConverter} from "../api/Converters";
+import {PointConverter} from "../api/Converters";
 // TODO. Should rejections be caught here and converted to just !ok??
 
 /**
@@ -63,11 +64,13 @@ class GameService {
       if (!dtoResponse.ok) {
         return dtoResponse; // TODO. Convert dto message to application message;.
       }
-      let {gameMiniState, replacementPieces} = dtoResponse.json;
+      let {gameMiniState, replacementPieces, deadPoints} = dtoResponse.json;
       let replacementPiecesObjects = replacementPieces.map(PieceConverter.fromJson);
+      let deadPointObjects = deadPoints.map(js => PointConverter.fromJson(js));
       let result = {
         gameMiniState: gameMiniState,
-        replacementPieces: replacementPiecesObjects
+        replacementPieces: replacementPiecesObjects,
+        deadPoints: deadPointObjects
       };
 
       let response = convertResponse(dtoResponse, result);
@@ -81,12 +84,14 @@ class GameService {
       if (!dtoResponse.ok) {
         return dtoResponse; // TODO. Convert dto message to application message;.
       }
-      let {gameMiniState, playedPieces} = dtoResponse.json;
+      let {gameMiniState, playedPieces, deadPoints} = dtoResponse.json;
       // let play = PlayConverter.fromJson(playedPieces);
       let playPiecesObjects = playedPieces.map(playPiece => PlayPieceConverter.fromJson(playPiece));
+      let deadPointObjects = deadPoints.map(js => PointConverter.fromJson(js));
       let result = {
         gameMiniState: gameMiniState,
-        playedPieces: playPiecesObjects
+        playedPieces: playPiecesObjects,
+        deadPoints: deadPointObjects
       };
       let response = convertResponse(dtoResponse, result);
       return response;

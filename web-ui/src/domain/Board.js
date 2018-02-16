@@ -7,7 +7,7 @@
 
 import {stringify} from "../util/Logger";
 import {range} from "../util/MiscUtil";
-import {mkBarePlayPiece, mkCommittedPlayPiece, findFilledSegmentBoundary} from './PlayPiece';
+import {mkBarePlayPiece, mkCommittedPlayPiece, findFilledSegmentBoundary, mkDeadPlayPiece} from './PlayPiece';
 import * as Piece from './Piece';
 import {mkPoint} from './Point';
 import {mkMatrixFromCoordinates} from './Matrix';
@@ -122,6 +122,14 @@ export const mkBoard = function(matrix) {
       return _matrix.find(playPiece => Piece.eq(piece, playPiece.piece));
     },
 
+    setDeadPoints: function(points) {
+      let $board = this;
+      points.forEach(point => {
+        $board = $board.setPlayPiece(mkDeadPlayPiece(point));
+      });
+      return $board;
+    },
+
     commitMachineMoves: function(moveGridPieces) {
       let $board = this;
       moveGridPieces.forEach(move => {
@@ -132,6 +140,10 @@ export const mkBoard = function(matrix) {
 
     isFree: function(point) {
       return this.getPlayPiece(point).isFree();
+    },
+
+    isDead: function(point) {
+      return this.getPlayPiece(point).isDead();
     },
 
     isMoved: function(point) {
@@ -258,12 +270,17 @@ export const mkBoard = function(matrix) {
           message: `line ${lineNumber} was expected to have moves but contains none`
         };
 
-      let interMoveFreeSlots = 0; // Empty slots in-between moves.
-      for (let i = firstMoveIndex + 1; i <= lastMoveIndex - 1; i++)
+      let interMoveFreeSlots = 0; // Empty or dead slots in-between moves.
+      let interMoveDeadSlots = 0; // Dead slots in-between moves.
+
+      for (let i = firstMoveIndex + 1; i <= lastMoveIndex - 1; i++) {
         if (this.isFree(line[i].point))
           interMoveFreeSlots += 1;
+        if (this.isDead(line[i].point))
+          interMoveDeadSlots += 1;
+      }
 
-      let isContiguous = interMoveFreeSlots === 0;
+      let isContiguous = interMoveFreeSlots === 0 && interMoveDeadSlots === 0;
 
       return {
         numMoves, firstMoveIndex, lastMoveIndex, isContiguous, hasCenterMove

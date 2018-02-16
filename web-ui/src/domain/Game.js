@@ -167,6 +167,11 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
       return mkGame(_gameParams, _gameId, $board, _tray, _pointValues, $score);
     },
 
+    setDeadPoints: function(points) {
+      let $board = _board.setDeadPoints(points);
+      return mkGame(_gameParams, _gameId, $board, _tray, _pointValues, _score);
+    },
+
     end: function() {
       let $game = mkGame(_gameParams, _gameId, _board, _tray, _pointValues, _score, RUN_STATE.FINISHED);
       return $game;

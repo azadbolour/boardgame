@@ -121,3 +121,11 @@ export const NO_PIECE_VALUE = '';
 export const NO_PIECE_ID = String(-1);
 export const NO_PIECE = mkPiece(NO_PIECE_VALUE, NO_PIECE_ID);
 
+/* Representation of a disabled/inactive/dead location. */
+export const DEAD_CHAR = '-';
+export const DEAD_PIECE_ID = "-2";
+export const DEAD_PIECE = mkPiece(DEAD_CHAR, DEAD_PIECE_ID);
+
+export const isDead = function(ch) { return ch === DEAD_CHAR };
+export const isAlive = function(ch) { return !isDead(ch) };
+

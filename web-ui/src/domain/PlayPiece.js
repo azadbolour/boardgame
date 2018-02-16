@@ -9,6 +9,7 @@ import {stringify} from "../util/Logger";
 import * as Piece from './Piece';
 import {mkGridPiece} from './GridPiece';
 import * as GridPiece from './GridPiece';
+import {DEAD_PIECE} from "./Piece";
 
 export const MOVED = true;
 
@@ -30,13 +31,16 @@ export const mkPlayPiece = function(piece, point, moved) {
       return playPiece;
     },
     hasRealPiece: function() {
-      return !Piece.eq(_piece, Piece.NO_PIECE);
+      return (!Piece.eq(_piece, Piece.NO_PIECE) && !Piece.eq(_piece, Piece.DEAD_PIECE));
     },
     isFree: function() {
-      return !this.hasRealPiece();
+      return Piece.eq(_piece, Piece.NO_PIECE);
     },
     isOriginal: function() {
-      return !this.isFree() && !this.moved;
+      return this.hasRealPiece() && !this.moved;
+    },
+    isDead: function() {
+      return Piece.eq(_piece, Piece.DEAD_PIECE);
     },
     setMovedAway: function() {
       if (this.isFree())
@@ -61,6 +65,10 @@ export const mkBarePlayPiece = function(point) {
 
 export const mkCommittedPlayPiece = function(piece, point) {
   return mkPlayPiece(piece, point, !MOVED);
+};
+
+export const mkDeadPlayPiece = function(point) {
+  return mkPlayPiece(DEAD_PIECE, point, !MOVED);
 };
 
 export const mkMovePlayPiece = function(piece, point) {
