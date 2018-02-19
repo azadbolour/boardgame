@@ -17,6 +17,8 @@ import scala.io.{BufferedSource, Source}
 import scala.util.{Failure, Success, Try}
 import WordDictionary._
 
+import scala.collection.mutable
+
 /** Word dictionary - indexed by combinations of letters in a word.
   * A combination is represented as the sorted string of letters.
   *
@@ -88,12 +90,29 @@ object WordDictionary {
 
   def mkWordsByCombo(words: List[DictWord]): WordsByCombo = words.groupBy(stringToLetterCombo)
 
-  def mkMaskedWords(words: List[DictWord], maxMaskedLetters: Int): ParSet[String] = {
-    val wordSet = ParHashSet(words:_*)
-    for {
-      word <- wordSet
+  def mkMaskedWords(words: List[DictWord], maxMaskedLetters: Int): Set[String] = {
+    val list = for {
+      word <- words
       masked <- maskWithBlanks(word, maxMaskedLetters)
     } yield masked
+    list.toSet
+  }
+
+//  def mkMaskedWords(words: List[DictWord], maxMaskedLetters: Int): mutable.HashSet[String] = {
+//    // val wordSet = HashSet(words:_*)
+//    val wordSet = listToSet(words)
+//    for {
+//      word <- wordSet
+//      masked <- maskWithBlanks(word, maxMaskedLetters)
+//    } yield masked
+//  }
+
+  private def listToSet[A](list: List[A]): mutable.HashSet[A] = {
+    var set = mutable.HashSet[A]()
+    list.foreach { element =>
+      set += element
+    }
+    set
   }
 
 }

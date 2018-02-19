@@ -26,4 +26,3 @@ libraryDependencies += "com.h2database" % "h2" % "1.4.185"
 unmanagedResourceDirectories in Test +=  baseDirectory.value / "target/web/public/test" 
 // unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )  
 
-      

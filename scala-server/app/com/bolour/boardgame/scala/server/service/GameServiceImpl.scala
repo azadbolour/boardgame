@@ -37,7 +37,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
   val dbConfigPrefix = confPath("db")
   val defaultDbPath = s"${dbConfigPrefix}.defaultDb"
-  val MaxMaskedLetters = 2
+  val MaxMaskedLetters = 3
 
   // TODO. Validate all config parameters and throw meaningful exceptions.
 

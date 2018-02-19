@@ -7,7 +7,8 @@ package com.bolour.boardgame.scala.server.util
 
 import org.slf4j.LoggerFactory
 
-import scala.collection.parallel.mutable.ParHashSet
+import scala.collection.mutable
+import scala.collection.mutable.HashSet
 
 object WordUtil {
   val logger = LoggerFactory.getLogger(this.getClass)
@@ -58,13 +59,13 @@ object WordUtil {
     * @param n Maximum number of characters to mask.
     * @return Masked versions of the string.
     */
-  def maskWithBlanks(s: String, n: Int): ParHashSet[String] = {
-    def prepend(ch: Char, set: ParHashSet[String]) = set map { ch +: _ }
+  def maskWithBlanks(s: String, n: Int): List[String] = {
+    def prepend(ch: Char, set: List[String]) = set map { ch +: _ }
     val maskedSet =
       if (n == 0)
-        ParHashSet(s)
+        List(s)
       else if (s.length == 1)
-        ParHashSet(" ", s) // n > 0 but we can have at most 1 blank in this case, i.e., 0 or 1.
+        List(" ", s) // n > 0 but we can have at most 1 blank in this case, i.e., 0 or 1.
       else
         prepend(s.head, maskWithBlanks(s.tail, n)) ++ prepend(' ', maskWithBlanks(s.tail, n - 1))
     maskedSet

@@ -16,7 +16,7 @@ echo "..."
 export JAVA_HOME=$(/usr/libexec/java_home)
 echo "JAVA_HOME=$JAVA_HOME"
 
-export SBT_OPTS="-Xmx2048M"
+export SBT_OPTS="-Xmx6G"
 
 postgres_home=/Applications/Postgres93.app/Contents/MacOS
 
