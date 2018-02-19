@@ -13,6 +13,7 @@ const DragSource = require('react-dnd').DragSource;
 import logger from "../util/Logger";
 import {stringify} from "../util/Logger";
 import * as Piece from "../domain/Piece";
+import {isDead} from "../domain/Piece";
 
 const letterStyle = {
   fontSize: 15,
@@ -105,6 +106,8 @@ class PieceComponent extends React.Component {
     let connectDragPreview = this.props.connectDragPreview;
     let isDragging = this.props.isDragging;
     let letter = this.props.piece.value;
+    if (isDead(letter))
+      letter = ""; // Do not render "dead" piece.
     // let worth = Piece.worths[letter];
 
     let theDiv =

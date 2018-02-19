@@ -40,14 +40,14 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
     // Keep the service layer independent of the web framework.
     // Configuration is a Play concern. Config is generic scala.
     // TODO. Reinstate once migration (see provider below) is done properly.
-    // bind(classOf[GameService]).toInstance(new GameServiceImpl(conf))
+    bind(classOf[GameService]).toInstance(new GameServiceImpl(conf))
   }
 
-  @Provides
-  def provideGameService: GameService = {
-    val service = new GameServiceImpl(ConfigFactory.load())
-    service.migrate() // TODO. This is a hack to get going. How to do play-idiomatic migration. See play-slick.
-    service
-  }
+//  @Provides
+//  def provideGameService: GameService = {
+//    val service = new GameServiceImpl(ConfigFactory.load())
+//    service.migrate() // TODO. This is a hack to get going. How to do play-idiomatic migration. See play-slick.
+//    service
+//  }
 
 }

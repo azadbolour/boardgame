@@ -11,8 +11,7 @@ import {mkBarePlayPiece, mkCommittedPlayPiece, findFilledSegmentBoundary, mkDead
 import * as Piece from './Piece';
 import {mkPoint} from './Point';
 import {mkMatrixFromCoordinates} from './Matrix';
-import {disconnectedWordError, noMoveError, multiplePlayLinesError,
-  offCenterError, noAdjacentWordError, incompleteWordError} from "./GameError";
+import {disconnectedWordError, noMoveError, multiplePlayLinesError, incompleteWordError} from "./GameError";
 
 export const mkEmptyBoard = function(dimension) {
   let matrix = mkMatrixFromCoordinates(dimension, function(row, col) {
@@ -37,7 +36,7 @@ export const mkBoard = function(matrix) {
     }, 0);
   };
 
-  const centerPoint = mkPoint(_center, _center);
+  // const centerPoint = mkPoint(_center, _center);
 
   return {
 
@@ -111,7 +110,6 @@ export const mkBoard = function(matrix) {
     rollbackUserMoves: function() {
       let $board = this;
       let playPieces = this.getUserMovePlayPieces();
-      // TODO. Optimize by changing board in place.
       playPieces.forEach(playPiece => {
         $board = $board.setPlayPiece(mkBarePlayPiece(playPiece.point));
       });
@@ -192,41 +190,22 @@ export const mkBoard = function(matrix) {
         playStrip = this.getPlayStrip(playLineData);
       }
 
-      let {axis, lineNumber} = playLineData;
-      let {numMoves, hasCenterMove} = this.lineMoveInfo(playLineData);
+      // let {axis, lineNumber} = playLineData;
+      let {numMoves} = this.lineMoveInfo(playLineData);
 
       // The very first play is unrestricted.
       if (!this.hasCommittedPlays())
         return playStrip;
 
-      // let isVeryFirstPlay = !this.hasCommittedPlays();
-      // if (isVeryFirstPlay) {
-      //   if (hasCenterMove) return playStrip;
-      //   else throw offCenterError;
-      // }
-
       let hasAnchor = playStrip.length - numMoves > 0;
       if (hasAnchor)
         return playStrip;
 
-      // It is a parallel play. Check adjacency to a word on either side.
-
-      let {contactPoints: prevContacts, contiguous: prevContiguous} =
-        this.parallelContacts(axis, lineNumber, playStrip, -1);
-      let {contactPoints: nextContacts, contiguous: nextContiguous} =
-        this.parallelContacts(axis, lineNumber, playStrip, +1);
-
-      if (prevContacts.length === 0 && nextContacts.length === 0)
-        throw disconnectedWordError;
-
-      if (!prevContiguous && !nextContiguous)
-        throw noAdjacentWordError;
-
-      return playStrip;
+      throw disconnectedWordError;
     },
 
     /**
-     * Get lines in a given direction that contains moves: the play lines.
+     * Get lines in a given direction that contain moves: the play lines.
      *
      * @param axis The direction of the lines.
      */
@@ -251,6 +230,7 @@ export const mkBoard = function(matrix) {
       let lastMoveIndex = undefined;
       let hasCenterMove = false;
       let numMoves = 0;
+      // TODO. Center is no longer relevant. Remove center processing.
       let center = Math.floor(_dimension / 2);
 
       for (let i = 0; i < _dimension; i++) {
@@ -323,7 +303,7 @@ export const mkBoard = function(matrix) {
       let rowPlayStrip = this.getPlayStrip(rowLineData);
       let colPlayStrip = this.getPlayStrip(colLineData);
 
-      // The very first play is allowed to include just one letter.
+      // The very first play is allowed to include just one letter (e.g., "a").
       // Otherwise a single letter play must be disconnected.
       if (rowPlayStrip.length === 1 && colPlayStrip.length === 1 && this.hasCommittedPlays())
         throw disconnectedWordError;
@@ -337,38 +317,38 @@ export const mkBoard = function(matrix) {
     /**
      * Get an ordered list of contact points to an adjacent line for a given play.
      */
-    parallelContacts(axis, lineNumber, playStrip, direction) {
-      const response = (contactPoints, contiguous) =>
-        {return {contactPoints, contiguous}};
-
-      const responseNone = response([], false);
-
-      let adjLineNumber = lineNumber + direction;
-      if (adjLineNumber < 0 || adjLineNumber >= _dimension)
-        return responseNone;
-
-      let that = this;
-      let contactPoints = playStrip
-        .map(playPiece => {
-          let point = playPiece.point;
-          let r = axis === "X" ? adjLineNumber : point.row;
-          let c = axis === "Y" ? adjLineNumber : point.col;
-          return mkPoint(r, c);
-        })
-        .filter(p => !that.isFree(p));
-
-      if (contactPoints.length === 0)
-        return responseNone;
-
-      let first = contactPoints[0];
-      let last = contactPoints[contactPoints.length - 1];
-
-      let begin = axis === "X" ? first.col : first.row;
-      let end = axis === "X" ? last.col : last.row;
-
-      let contiguous = (end - begin + 1) === contactPoints.length;
-      return response(contactPoints, contiguous);
-    },
+    // parallelContacts(axis, lineNumber, playStrip, direction) {
+    //   const response = (contactPoints, contiguous) =>
+    //     {return {contactPoints, contiguous}};
+    //
+    //   const responseNone = response([], false);
+    //
+    //   let adjLineNumber = lineNumber + direction;
+    //   if (adjLineNumber < 0 || adjLineNumber >= _dimension)
+    //     return responseNone;
+    //
+    //   let that = this;
+    //   let contactPoints = playStrip
+    //     .map(playPiece => {
+    //       let point = playPiece.point;
+    //       let r = axis === "X" ? adjLineNumber : point.row;
+    //       let c = axis === "Y" ? adjLineNumber : point.col;
+    //       return mkPoint(r, c);
+    //     })
+    //     .filter(p => !that.isFree(p));
+    //
+    //   if (contactPoints.length === 0)
+    //     return responseNone;
+    //
+    //   let first = contactPoints[0];
+    //   let last = contactPoints[contactPoints.length - 1];
+    //
+    //   let begin = axis === "X" ? first.col : first.row;
+    //   let end = axis === "X" ? last.col : last.row;
+    //
+    //   let contiguous = (end - begin + 1) === contactPoints.length;
+    //   return response(contactPoints, contiguous);
+    // },
 
     // TODO. Remove. Replace with the inner call.
     extendsTo(playPieces, index, direction) {

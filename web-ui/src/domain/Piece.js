@@ -129,3 +129,5 @@ export const DEAD_PIECE = mkPiece(DEAD_CHAR, DEAD_PIECE_ID);
 export const isDead = function(ch) { return ch === DEAD_CHAR };
 export const isAlive = function(ch) { return !isDead(ch) };
 
+export const pieceIsDead = function(piece) { return isDead(piece.value) }
+

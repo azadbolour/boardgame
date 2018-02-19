@@ -82,7 +82,7 @@ export const playPiecesWord = function(playPieces) {
 export const findFilledSegmentBoundary = function(playPieces, index, direction) {
   let number = playPieces.length;
   let to = index;
-  for (let i = index + direction; i >= 0 && i < number && !playPieces[i].isFree(); i = i + direction)
+  for (let i = index + direction; i >= 0 && i < number && playPieces[i].hasRealPiece(); i = i + direction)
       to = i;
   return to;
 };

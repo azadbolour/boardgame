@@ -17,6 +17,7 @@ import {mkPiece} from '../domain/Piece';
 import {mkPoint} from '../domain/Point';
 import {mkGridPiece} from '../domain/GridPiece';
 import {stringify} from "../util/Logger";
+import {pieceIsDead} from "../domain/Piece";
 
 /**
  * Color coding style for move destinations (drop targets of the the piece being dragged).
@@ -207,10 +208,12 @@ class BoardSquareComponent extends React.Component {
     }).isRequired,
 
     /**
-     * The piece being rendered. For now this is just for the purpose
-     * optimization - to check if the peiece has changed in shouldComponentRender.
-     * The piece is part of teh children hierarchy and will be rendered automatically.
-     * This is hack to make performance on phones acceptable for now.
+     * The piece being rendered. For now this is just for the purpose of
+     * optimization - to check if the piece has changed in shouldComponentRender.
+     * The piece is part of the children hierarchy and will be rendered automatically.
+     * This is to make performance on phones acceptable for now.
+     * With the introduction of dead cells, the piece is also used
+     * to determine if the current square is dead.
      */
     piece: PropTypes.object.isRequired,
 
@@ -267,10 +270,13 @@ class BoardSquareComponent extends React.Component {
     let pixels = this.props.squarePixels;
     let inPlay = this.props.inPlay;
     let pointValue = this.props.pointValue;
+    let dead = pieceIsDead(this.props.piece);
 
     // let isLight = (shade === 'light'); // TODO. Constant.
     // let backgroundColor = isLight ? 'CornSilk' : 'AquaMarine';
     let backgroundColor = pointValueColor(pointValue);
+    if (dead)
+      backgroundColor = "Gainsboro";
     let color = 'FireBrick';
     // let color = 'Tomato';
     let isCenterPoint = this.props.isCenterPoint;
@@ -290,10 +296,11 @@ class BoardSquareComponent extends React.Component {
         {isOver && !canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'red')} />}
         {isOver && canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'green')} />}
         {inPlay && <div style={inPlayStyle()} />}
-        <div style={scoreStyle(pointValue, pixels)}>
-          {pointValue}
-        </div>
-
+        {!dead &&
+          <div style={scoreStyle(pointValue, pixels)}>
+            {pointValue}
+          </div>
+        }
       </div>
     );
   }

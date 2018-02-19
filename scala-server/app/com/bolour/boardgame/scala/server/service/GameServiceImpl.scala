@@ -71,6 +71,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   val seedPlayerName = "You"
   val seedPlayer = Player(seedPlayerName)
 
+  migrate()
+
   override def migrate() = {
     // TODO. Proper migration. This one is for testing only.
     // Version the server - and create an upgrade function for each new version.
