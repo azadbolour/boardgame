@@ -156,7 +156,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     for {
       _ <- state.checkCrossWords(playPieces, dictionary)
       (newState, refills) <- state.addPlay(UserPlayer, playPieces)
-      deadPoints = StripMatcher.hopelessBlankPoints(newState.board, od.get, userTray.capacity)
+      deadPoints = StripMatcher.hopelessBlankPoints(newState.board, od.get, userTray.capacity).toList
       finalState = newState.setDeadPoints(deadPoints)
       _ <- savePlay(newState, playPieces, refills)
       _ = gameCache.put(gameId, newState)
@@ -198,7 +198,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       case playPieces =>
         for {
           (newState, refills) <- state.addPlay(MachinePlayer, playPieces)
-          deadPoints = StripMatcher.hopelessBlankPoints(newState.board, od.get, machineTray.capacity)
+          deadPoints = StripMatcher.hopelessBlankPoints(newState.board, od.get, machineTray.capacity).toList
           finalState = newState.setDeadPoints(deadPoints)
           // TODO. How to eliminate dummy values entirely in for.
           _ <- savePlay(finalState, playPieces, refills)

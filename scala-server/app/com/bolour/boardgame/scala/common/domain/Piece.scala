@@ -12,6 +12,8 @@ case class Piece(value: Char, id: String = stringId()) {
 
   def isEmpty = this == emptyPiece
 
+  def isReal = this != emptyPiece && this != deadPiece
+
   def worth: Int = worths(value)
 
   def toAliveAndNonEmptyPiece: Option[Option[Piece]] =

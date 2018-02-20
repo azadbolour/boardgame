@@ -213,6 +213,7 @@ trait StripMatcher {
     val stripsByValue = conformantStrips.groupBy(valuation)
     stripsByValue.mapValues(_.groupBy(_.numBlanks))
   }
+
 }
 
 object StripMatcher {
@@ -247,8 +248,10 @@ object StripMatcher {
     * @param axis Axis along which to check for matching words.
     * @return List of hopeless blank points.
     */
-  def hopelessBlankPointsForAxis(board: Board, dictionary: WordDictionary, trayCapacity: Int, axis: Axis): List[Point] = {
-    val blanksToStrips = board.potentialPlayableStripsForBlanks(axis, trayCapacity)
+  def hopelessBlankPointsForAxis(board: Board, dictionary: WordDictionary, trayCapacity: Int, axis: Axis): Set[Point] = {
+    // val blanksToStrips = board.potentialPlayableStripsForBlanks(axis, trayCapacity)
+
+    val blanksToStrips = board.playableEnclosingStripsOfBlankPoints(axis, trayCapacity)
     val maxStripBlanks = dictionary.maxMaskedLetters
 
     def allDense(strips: List[Strip]) =
@@ -261,14 +264,27 @@ object StripMatcher {
     val stripsForHopelessBlanks =
       denselyEnclosedBlanks filter { case (_, strips) => !stripMatchExists(strips)}
 
-    stripsForHopelessBlanks.keySet.toList
+    stripsForHopelessBlanks.keySet
   }
 
   /**
-    * A blank is hopeless if it is hopeless (cannot be filled) in either direction.
+    * A blank is hopeless if it is hopeless (cannot be filled) in both direction.
+    * Split each into two sets based on whether the blank point has an adjacent anchor.
+    * Those that have an adjacent anchor are definitely out independently of the other axis.
+    * Those that do not must have a match on one axis, hence intersect.
     */
-  def hopelessBlankPoints(board: Board, dictionary: WordDictionary, trayCapacity: Int): List[Point] =
-    hopelessBlankPointsForAxis(board, dictionary, trayCapacity, Axis.X) ++
-      hopelessBlankPointsForAxis(board, dictionary, trayCapacity, Axis.Y)
+  def hopelessBlankPoints(board: Board, dictionary: WordDictionary, trayCapacity: Int): Set[Point] = {
+    val forX = hopelessBlankPointsForAxis(board, dictionary, trayCapacity, Axis.X)
+    val (anchoredX, freeX) = forX partition { pt => board.hasRealNeighbor(pt, Axis.X)}
+
+    val forY = hopelessBlankPointsForAxis(board, dictionary, trayCapacity, Axis.Y)
+    val (anchoredY, freeY) = forY partition { pt => board.hasRealNeighbor(pt, Axis.Y)}
+
+    anchoredX ++ anchoredY ++ (freeX intersect freeY)
+  }
+
+//  def hopelessBlankPoints(board: Board, dictionary: WordDictionary, trayCapacity: Int): Set[Point] =
+//    hopelessBlankPointsForAxis(board, dictionary, trayCapacity, Axis.X) intersect
+//      hopelessBlankPointsForAxis(board, dictionary, trayCapacity, Axis.Y)
 
 }

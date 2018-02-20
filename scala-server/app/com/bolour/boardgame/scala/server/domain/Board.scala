@@ -119,6 +119,16 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
     toGridPieceOption(pointedPairOpt)
   }
 
+  def hasRealNeighbor(point: Point, axis: Axis): Boolean = {
+    val nextOpt = nextCell(point, axis)
+    if (nextOpt.isDefined && nextOpt.get.piece.isReal)
+      return true
+    val prevOpt = prevCell(point, axis)
+    if (prevOpt.isDefined && prevOpt.get.piece.isReal)
+      return true
+    return false
+  }
+
   def rowsAsPieces: List[List[Piece]] = grid map Piece.fromAliveAndNonEmptyPiece
   def columnsAsPieces: List[List[Piece]] = rowsAsPieces.transpose
 
@@ -150,6 +160,7 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
     conformantStrips2
   }
 
+  // TODO. Obsolete remove once replacement is tested. Also remove obsolete dependencies.
   def potentialPlayableStripsForBlanks(axis: Axis, trayCapacity: Int): Map[Point, List[Strip]] = {
     val ppStrips = potentialPlayableStrips(axis, trayCapacity)
     inverse1ToManyRelation((strip: Strip) => strip.blankPoints)(ppStrips)
@@ -186,6 +197,24 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
         def columnsAStrings: List[String] = columnsAsPieces.map(Piece.piecesToString)
         Strip.allLiveStrips(Axis.Y, columnsAStrings)
     }
+  }
+
+  def enclosingStripsOfBlankPoints(axis: Axis): Map[Point, List[Strip]] = {
+    val stripsEnclosingBlanks = computeAllLiveStrips(axis) filter { _.numBlanks > 0 }
+    inverse1ToManyRelation((strip: Strip) => strip.blankPoints)(stripsEnclosingBlanks)
+  }
+
+  def playableEnclosingStripsOfBlankPoints(axis: Axis, trayCapacity: Int): Map[Point, List[Strip]] = {
+    val enclosing = enclosingStripsOfBlankPoints(axis)
+    val playable = enclosing mapValues { (strips: List[Strip]) =>
+      strips filter { (s: Strip) =>
+        s.numBlanks <= trayCapacity &&
+          stripIsDisconnectedInLine(s) &&
+          // Can't play to a single blank strip - would have no anchor.
+          s.content.length > 1
+      }
+    }
+    playable
   }
 
 }

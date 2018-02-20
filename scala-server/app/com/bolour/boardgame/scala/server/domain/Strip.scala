@@ -116,7 +116,7 @@ object Strip {
       for {
         (intervalBegin, intervalEnd) <- liveIntervals
         begin <- intervalBegin to intervalEnd
-        end <- (begin + 1) to intervalEnd
+        end <- begin to intervalEnd
       } yield Strip.lineStrip(axis, lineNumber, line, begin, end)
     strips.toList
   }

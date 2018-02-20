@@ -10,7 +10,7 @@ class StripSpec extends FlatSpec with Matchers {
     val liveStrips = liveStripsInLine(Axis.X, 2, "-ABC---DE-F-GH")
     liveStrips should contain (Strip(Axis.X, 2, 2, 3, "BC"))
     liveStrips should contain (Strip(Axis.X, 2, 12, 13, "GH"))
-    liveStrips should not contain (Strip(Axis.X, 2, 10, 10, "F"))
+    liveStrips should contain (Strip(Axis.X, 2, 10, 10, "F"))
   }
 
   "all live strips" should "be computed" in {
