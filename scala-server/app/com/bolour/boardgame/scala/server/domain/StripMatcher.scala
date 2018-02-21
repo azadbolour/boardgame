@@ -268,9 +268,10 @@ object StripMatcher {
   }
 
   /**
-    * A blank is hopeless if it is hopeless (cannot be filled) in both direction.
+    * Get heuristically detected hopeless blank points.
+    * First get hopeless blank for each axis (independently of the other).
     * Split each into two sets based on whether the blank point has an adjacent anchor.
-    * Those that have an adjacent anchor are definitely out independently of the other axis.
+    * Blank points that have an adjacent anchor are definitely out independently of the other axis.
     * Those that do not must have a match on one axis, hence intersect.
     */
   def hopelessBlankPoints(board: Board, dictionary: WordDictionary, trayCapacity: Int): Set[Point] = {

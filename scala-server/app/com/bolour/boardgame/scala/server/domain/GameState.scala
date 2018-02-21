@@ -53,9 +53,7 @@ case class GameState(
   }
 
   def setDeadPoints(deadPoints: List[Point]): GameState = {
-    def deadGridPiece(point: Point) = GridPiece(Piece.deadPiece, point)
-    val gridPieces = deadPoints map deadGridPiece
-    val newBoard = board.setN(gridPieces)
+    val newBoard = board.setDeadPoints(deadPoints)
     this.copy(board = newBoard)
   }
 

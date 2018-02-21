@@ -26,6 +26,12 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
     Board(dimension, augmentedGrid)
   }
 
+  def setDeadPoints(deadPoints: List[Point]): Board = {
+    def deadGridPiece(point: Point) = GridPiece(Piece.deadPiece, point)
+    val gridPieces = deadPoints map deadGridPiece
+    setN(gridPieces)
+  }
+
   private def rows = grid.rows
   private def columns = grid.columns
 
