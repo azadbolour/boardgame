@@ -16,19 +16,21 @@ import GHC.Generics (Generic)
 import Data.Aeson (FromJSON, ToJSON)
 import Control.DeepSeq (NFData)
 
+import Bolour.Grid.Point
 import BoardGame.Common.Domain.PlayPiece
 import BoardGame.Common.Domain.GameMiniState
 
 data MachinePlayResponse = MachinePlayResponse {
     gameMiniState :: GameMiniState
   , playedPieces :: [PlayPiece]
+  , deadPoints :: [Point]
 }
   deriving (Eq, Show, Generic, NFData)
 
 instance FromJSON MachinePlayResponse
 instance ToJSON MachinePlayResponse
 
-tupleToMachinePlayResponse :: (GameMiniState, [PlayPiece]) -> MachinePlayResponse
-tupleToMachinePlayResponse (miniState, playPieces) =
-  MachinePlayResponse miniState playPieces
+tupleToMachinePlayResponse :: (GameMiniState, [PlayPiece], [Point]) -> MachinePlayResponse
+tupleToMachinePlayResponse (miniState, playPieces, deadPoints) =
+  MachinePlayResponse miniState playPieces deadPoints
 

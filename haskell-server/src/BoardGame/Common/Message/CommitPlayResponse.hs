@@ -17,20 +17,22 @@ import GHC.Generics (Generic)
 import Data.Aeson (FromJSON, ToJSON)
 import Control.DeepSeq (NFData)
 
+import Bolour.Grid.Point
 import BoardGame.Common.Domain.Piece
 import BoardGame.Common.Domain.GameMiniState
 
 data CommitPlayResponse = CommitPlayResponse {
     gameMiniState :: GameMiniState
   , replacementPieces :: [Piece]
+  , deadPoints :: [Point]
 }
   deriving (Eq, Show, Generic, NFData)
 
 instance FromJSON CommitPlayResponse
 instance ToJSON CommitPlayResponse
 
-tupleToCommitPlayResponse :: (GameMiniState, [Piece]) -> CommitPlayResponse
-tupleToCommitPlayResponse (miniState, replacementPieces) =
-  CommitPlayResponse miniState replacementPieces
+tupleToCommitPlayResponse :: (GameMiniState, [Piece], [Point]) -> CommitPlayResponse
+tupleToCommitPlayResponse (miniState, replacementPieces, deadPoints) =
+  CommitPlayResponse miniState replacementPieces deadPoints
 
 

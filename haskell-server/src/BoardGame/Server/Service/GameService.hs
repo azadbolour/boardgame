@@ -191,7 +191,7 @@ validateCrossWords board dictionary strip word = do
 commitPlayService ::
      String
   -> [PlayPiece]
-  -> GameTransformerStack (GameMiniState, [Piece])
+  -> GameTransformerStack (GameMiniState, [Piece], [Point])
 
 commitPlayService gmId playPieces = do
   GameEnv { gameCache } <- ask
@@ -210,14 +210,14 @@ commitPlayService gmId playPieces = do
   liftGameExceptToStack $ GameCache.insert game' gameCache
   -- let score = length playPieces -- TODO. Get real score.
   let miniState = Game.toMiniState game'
-  return (miniState, refills)
+  return (miniState, refills, [])
 
 -- TODO. Save the replacement pieces in the database.
 -- TODO. Need to save the update game info in the DB.
 
 -- | Service function to obtain the next machine play.
 --   If no match is found, then the machine exchanges a piece.
-machinePlayService :: String -> GameTransformerStack (GameMiniState, [PlayPiece])
+machinePlayService :: String -> GameTransformerStack (GameMiniState, [PlayPiece], [Point])
 machinePlayService gameId = do
   GameEnv { gameCache } <- ask
   (game @ Game {gameId, languageCode, board, trays}) <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
@@ -246,7 +246,7 @@ machinePlayService gameId = do
   liftGameExceptToStack $ GameCache.insert game' gameCache
   -- let score = length machinePlayPieces
   let miniState = Game.toMiniState game'
-  return (miniState, machinePlayPieces)
+  return (miniState, machinePlayPieces, [])
 
 -- TODO. Save the new game data in the database.
 -- TODO. Would this be simpler with a stack of ExceptT May IO??

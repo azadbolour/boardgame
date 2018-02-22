@@ -98,7 +98,7 @@ spec = do
         uPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
         mPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
 
-        (miniState, replacementPieces) <- runner'' $ do -- GameTransformerStack
+        (miniState, replacementPieces, deadPieces) <- runner'' $ do -- GameTransformerStack
           addPlayerService $ Player Fixtures.thePlayer
           Game {gameId, board, trays} <- startGameService Fixtures.gameParams [] uPieces mPieces []
 --           let gridPieces = Board.getGridPieces board
@@ -121,7 +121,7 @@ spec = do
         word <- runner'' $ do
           addPlayerService $ Player Fixtures.thePlayer
           Game {gameId} <- startGameService Fixtures.gameParams [] [] [] []
-          (miniState, playedPieces) <- machinePlayService gameId
+          (miniState, playedPieces, deadPieces) <- machinePlayService gameId
           let word = Play.playToWord $ Play playedPieces
           return word
         print word
