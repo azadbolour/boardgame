@@ -185,6 +185,11 @@ validateCrossWords board dictionary strip word = do
       invalidCrosswords = filter (not . Dict.isWord dictionary) crosswords
   bool (throwError $ InvalidCrossWordError invalidCrosswords) (return ()) (null invalidCrosswords)
 
+-- | Find points on the board that cannot possibly be played
+--   and update board accordingly.
+updateDeadPoints :: Board -> WordDictionary -> Int -> (Board, [Point])
+updateDeadPoints board dictionary trayCapacity = (board, []) -- TODO. Implement.
+
 -- | Service function to commit a user play - reflecting it on the
 --   game's board, and and refilling the user tray.
 --   Return the newly added replenishment pieces to the user tray.
@@ -204,13 +209,17 @@ commitPlayService gmId playPieces = do
            Nothing -> throwError $ WordTooShortError playWord
            Just str -> return str
   validateCrossWords board dictionary strip playWord
-  (game' @ Game {playNumber}, refills)
+  (game' @ Game {board = newBoard, trays, playNumber}, refills)
     <- Game.reflectPlayOnGame game UserPlayer playPieces
+
+  let userTray @ Tray {capacity} = trays !! Player.userIndex
+      (newBoard', deadPoints) = updateDeadPoints newBoard dictionary capacity
+      game'' = Game.setBoard game' newBoard'
+
   saveWordPlay gmId playNumber UserPlayer playPieces refills
-  liftGameExceptToStack $ GameCache.insert game' gameCache
-  -- let score = length playPieces -- TODO. Get real score.
-  let miniState = Game.toMiniState game'
-  return (miniState, refills, [])
+  liftGameExceptToStack $ GameCache.insert game'' gameCache
+  let miniState = Game.toMiniState game''
+  return (miniState, refills, deadPoints)
 
 -- TODO. Save the replacement pieces in the database.
 -- TODO. Need to save the update game info in the DB.
@@ -229,24 +238,29 @@ machinePlayService gameId = do
       -- yields Maybe (Strip, DictWord)
   liftIO $ print "machine tray"
   liftIO $ print $ show machineTray
-  (game', machinePlayPieces) <- case maybeMatch of
+  (game', machinePlayPieces, deadPoints) <- case maybeMatch of
     Nothing -> do
       liftIO $ print "no machine play match"
       gm <- exchangeMachinePiece game
-      return (gm, []) -- If no pieces were used - we know it was a swap.
+      return (gm, [], []) -- If no pieces were used - we know it was a swap.
     Just (strip, word) -> do
       liftIO $ print "machine play match"
       liftIO $ print $ show word
       (playPieces, depletedTray) <- stripMatchAsPlay board machineTray strip word
       liftIO $ print "playPieces"
       liftIO $ print $ show playPieces
-      (gm @ Game {playNumber}, refills) <- Game.reflectPlayOnGame game MachinePlayer playPieces
+      (gm @ Game {board = newBoard, trays, playNumber}, refills) <- Game.reflectPlayOnGame game MachinePlayer playPieces
+
+      let machineTray @ Tray {capacity} = trays !! Player.machineIndex
+          (newBoard', deadPoints) = updateDeadPoints newBoard dictionary capacity
+          gm' = Game.setBoard gm newBoard'
+
       saveWordPlay gameId playNumber MachinePlayer playPieces refills
-      return (gm, playPieces)
+      return (gm', playPieces, deadPoints)
+
   liftGameExceptToStack $ GameCache.insert game' gameCache
-  -- let score = length machinePlayPieces
   let miniState = Game.toMiniState game'
-  return (miniState, machinePlayPieces, [])
+  return (miniState, machinePlayPieces, deadPoints)
 
 -- TODO. Save the new game data in the database.
 -- TODO. Would this be simpler with a stack of ExceptT May IO??

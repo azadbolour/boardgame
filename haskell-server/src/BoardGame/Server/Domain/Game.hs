@@ -22,6 +22,7 @@ module BoardGame.Server.Domain.Game (
   , gameAgeSeconds
   , toMiniState
   , summary
+  , setBoard
 )
 where
 
@@ -93,6 +94,9 @@ maxSuccessivePasses = 10
 
 passesMaxedOut :: Game -> Bool
 passesMaxedOut Game { numSuccessivePasses } = numSuccessivePasses == maxSuccessivePasses
+
+setBoard :: Game -> Board -> Game
+setBoard game b = game {board = b}
 
 stopInfo :: Game -> StopInfo
 stopInfo game @ Game { numSuccessivePasses } = StopInfo numSuccessivePasses

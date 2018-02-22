@@ -169,7 +169,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     val directDeadPoints = StripMatcher.hopelessBlankPoints(board, dictionary, trayCapacity).toList
     val newBoard = board.setDeadPoints(directDeadPoints)
     directDeadPoints match {
-      case Nil => return (newBoard, directDeadPoints)
+      case Nil => (newBoard, directDeadPoints)
       case _ =>
         val (b, moreDeadPoints) = updateDeadPoints(newBoard, dictionary, trayCapacity)
         val allDeadPoints = directDeadPoints ++ moreDeadPoints
