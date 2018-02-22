@@ -15,6 +15,7 @@ module BoardGame.Util.WordUtil (
   -- , lookupWordIndex
   , computeCombos
   , computeCombosGroupedByLength
+  , maskWithBlanks
   ) where
 
 -- import Data.ByteString.Char8
@@ -74,4 +75,12 @@ computeCombosUnsorted bytes
           combosWithHead = (:) h <$> tailCombos
       in tailCombos ++ combosWithHead
 
+maskWithBlanks :: String -> Int -> [String]
+maskWithBlanks s maxBlanks
+  | maxBlanks == 0 = [s]
+  | length s == 1 = [" ", s]
+  | otherwise = let head:tail = s
+                in prepend head (maskWithBlanks tail maxBlanks) ++ prepend ' ' (maskWithBlanks tail (maxBlanks - 1))
 
+prepend :: Char -> [String] -> [String]
+prepend ch ss = (\s -> ch:s) <$> ss

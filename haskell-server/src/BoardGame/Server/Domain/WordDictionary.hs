@@ -54,7 +54,11 @@ mkDictionary languageCode words maxMaskedLetters =
   WordDictionary languageCode (Set.fromList words) (mkWordIndex words) (mkMaskedWords words maxMaskedLetters)
 
 mkMaskedWords :: [DictWord] -> Int -> Set String
-mkMaskedWords words maxMaskedLetters = Set.fromList [] -- TODO. Implement.
+mkMaskedWords words maxMaskedLetters =
+  let list = do
+               word <- words
+               WordUtil.maskWithBlanks word maxMaskedLetters
+  in Set.fromList list
 
 -- | Return all words of the dictionary as a set.
 getAllWords :: WordDictionary -> Set String
@@ -62,7 +66,10 @@ getAllWords WordDictionary {words} = words
 
 -- | True iff given string represents a word.
 isWord :: WordDictionary -> String -> Bool
-isWord (WordDictionary {words}) word = word `Set.member` words
+isWord WordDictionary {words} word = word `Set.member` words
+
+isMaskedWord :: WordDictionary -> String -> Bool
+isMaskedWord WordDictionary {maskedWords} masked = masked `Set.member` maskedWords
 
 -- | Right iff given string represents a word.
 validateWord :: (MonadError GameError m, MonadIO m) => WordDictionary -> String -> m String
