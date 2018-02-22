@@ -76,7 +76,7 @@ trayCapacity1 = 7
 stringWords :: [String]
 stringWords = ["FAN", "PICK", "PACKER", "SCREEN", "POTENT"]
 byteWords = stringWords
-dictionary = Dict.mkDictionary "en" byteWords
+dictionary = Dict.mkDictionary "en" byteWords 2
 
 mkCombo :: String -> String
 mkCombo string = WordUtil.mkLetterCombo string

@@ -85,7 +85,7 @@ getGameEnv = do
   GameDao.migrateDb connectionProvider
   GameDao.cleanupDb connectionProvider
   cache <- GameCache.mkGameCache maxActiveGames
-  dictionaryCache <- DictCache.mkCache "" 100
+  dictionaryCache <- DictCache.mkCache "" 100 2
   return $ GameEnv serverConfig connectionProvider cache dictionaryCache
 
 startApp :: IO (ThreadId, BaseUrl)

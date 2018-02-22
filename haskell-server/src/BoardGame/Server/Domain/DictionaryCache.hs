@@ -33,16 +33,17 @@ import qualified BoardGame.Server.Domain.WordDictionary as Dict
 import qualified Paths_boardgame as ResourcePaths
 
 -- | Cache of language dictionaries identified by language code.
-data DictionaryCache = DictionaryCache { -- private constructor
-    dictionaryDirectory :: String -- private
-  , cache :: Cache String WordDictionary -- private
+data DictionaryCache = DictionaryCache {
+    dictionaryDirectory :: String
+  , maxMaskedLetters :: Int
+  , cache :: Cache String WordDictionary
 }
 
 -- | Factory function (constructor is private).
-mkCache :: String -> Int -> IO DictionaryCache
-mkCache dictionaryDirectory capacity = do
+mkCache :: String -> Int -> Int -> IO DictionaryCache
+mkCache dictionaryDirectory capacity maxMaskedLetters = do
   theCache <- Cache.mkCache capacity
-  return $ DictionaryCache dictionaryDirectory theCache
+  return $ DictionaryCache dictionaryDirectory maxMaskedLetters theCache
 
 -- Look up a dictionary by language code.
 lookup :: String -> DictionaryCache -> IOExceptT String WordDictionary
@@ -57,11 +58,11 @@ lookupDefault = lookup Dict.defaultLanguageCode
 -- Private functions.
 
 readDictionaryFile :: DictionaryCache -> String -> IOExceptT String WordDictionary
-readDictionaryFile DictionaryCache {dictionaryDirectory, cache} languageCode = do
+readDictionaryFile DictionaryCache {dictionaryDirectory, maxMaskedLetters, cache} languageCode = do
   path <- liftIO $ mkDictionaryPath dictionaryDirectory languageCode
   lines <- ExceptT $ catchAny (readDictionaryInternal path) showException
   let words = (Char.toUpper <$>) <$> lines
-      dictionary = Dict.mkDictionary languageCode words
+      dictionary = Dict.mkDictionary languageCode words maxMaskedLetters
   Cache.insert languageCode dictionary cache
   return dictionary
 

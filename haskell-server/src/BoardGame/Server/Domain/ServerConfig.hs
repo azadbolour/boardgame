@@ -13,6 +13,7 @@ module BoardGame.Server.Domain.ServerConfig (
   , readServerConfig
   , getServerConfig
   , maxDictionaries
+  , dictionaryMaxMaskedLetters
   ) where
 
 import Data.Aeson (FromJSON, ToJSON, toJSON)
@@ -34,6 +35,9 @@ instance ToJSON DeployEnv
 maxDictionaries :: Int
 maxDictionaries = 100
 
+dictionaryMaxMaskedLetters :: Int
+dictionaryMaxMaskedLetters = 3
+
 -- | Configuration parameters of the application.
 data ServerConfig = ServerConfig {
     deployEnv :: DeployEnv
@@ -52,7 +56,6 @@ defaultGameServerPort = 6587
 defaultMaxActiveGames = 100
 defaultMaxGameMinutes = 30
 defaultDictionaryDir = ""
-
 
 -- | Default configuration parameters of the application.
 defaultServerConfig :: ServerConfig

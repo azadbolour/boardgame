@@ -29,7 +29,7 @@ spec :: Spec
 spec = do
   describe "test reading dictionary" $
     it "read english dictionary" $ do
-      cache <- Cache.mkCache "" 20
+      cache <- Cache.mkCache "" 20 2
       eitherDictionary <- runExceptT $ Cache.lookup "" cache
       let dictionary = head $ Either.rights [eitherDictionary]
       Dict.isWord dictionary "TEST" `shouldBe` True

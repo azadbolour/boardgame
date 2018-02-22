@@ -36,7 +36,7 @@ mkGameEnv serverConfig = do
     let ServerConfig {maxActiveGames, dictionaryDir, dbConfig} = serverConfig
     connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
     gameCache <- GameCache.mkGameCache maxActiveGames
-    dictionaryCache <- DictCache.mkCache dictionaryDir ServerConfig.maxDictionaries
+    dictionaryCache <- DictCache.mkCache dictionaryDir ServerConfig.maxDictionaries ServerConfig.dictionaryMaxMaskedLetters
     return $ GameEnv serverConfig connectionProvider gameCache dictionaryCache
 
 

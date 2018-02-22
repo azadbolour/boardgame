@@ -46,10 +46,15 @@ data WordDictionary = WordDictionary {
     languageCode :: String  -- ^ public
   , words :: Set String     -- ^ private
   , index :: WordIndex      -- ^ private
+  , maskedWords :: Set String
 }
 
-mkDictionary :: String -> [DictWord] -> WordDictionary
-mkDictionary languageCode words = WordDictionary languageCode (Set.fromList words) (mkWordIndex words)
+mkDictionary :: String -> [DictWord] -> Int -> WordDictionary
+mkDictionary languageCode words maxMaskedLetters =
+  WordDictionary languageCode (Set.fromList words) (mkWordIndex words) (mkMaskedWords words maxMaskedLetters)
+
+mkMaskedWords :: [DictWord] -> Int -> Set String
+mkMaskedWords words maxMaskedLetters = Set.fromList [] -- TODO. Implement.
 
 -- | Return all words of the dictionary as a set.
 getAllWords :: WordDictionary -> Set String

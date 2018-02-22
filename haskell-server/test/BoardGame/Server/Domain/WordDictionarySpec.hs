@@ -22,7 +22,7 @@ import qualified BoardGame.Server.Domain.WordDictionary as Dict
 stringWords :: [String]
 stringWords = ["GLASS", "TABLE", "SCREEN", "NO", "ON"]
 byteWords = stringWords
-dictionary = Dict.mkDictionary "en" byteWords
+dictionary = Dict.mkDictionary "en" byteWords 2
 
 spec :: Spec
 spec = do
