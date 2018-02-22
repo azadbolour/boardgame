@@ -57,7 +57,7 @@ object BasicUtil {
     giveRandomElements(giverTaker1, n - 1)
   }
 
-  def inverse1ToManyRelation[A, B](f: A => List[B])(as: List[A]): Map[B, List[A]] = {
+  def inverseMultiValuedMapping[A, B](f: A => List[B])(as: List[A]): Map[B, List[A]] = {
     def pairMaker(a: A): List[(A, B)] = f(a) map {b => (a, b)}
     val pairs = as flatMap pairMaker
     pairs.groupBy(_._2).mapValues(_ map {case (a, b) => a})

@@ -18,8 +18,11 @@ module BoardGame.Server.Domain.Strip (
   , lineStrip
   , emptyPoints
   , hasAnchor
+  , hasBlanks
   , pointAtOffset
   , stripsInLine
+  , allLiveStrips
+  , blankPoints
   ) where
 
 import qualified Data.List as List
@@ -96,14 +99,37 @@ lineStrip axis lineNumber line offset size =
   mkStrip axis lineNumber offset (offset + size - 1) stringContent
     where stringContent = (take size . drop offset) line
 
+-- TODO. Dimension is redundant. Use length chars.
 stripsInLine :: Axis -> Int -> Int -> String -> [Strip]
 stripsInLine axis dimension lineNumber chars = do
   offset <- [0 .. (dimension - 1)]
   size <- [1 .. (dimension - offset - 1)]
   return $ lineStrip axis lineNumber chars offset size
 
+liveStripsInLine :: Axis -> Int -> String -> [Strip]
+liveStripsInLine axis lineNumber chars =
+  let dimension = length chars
+      dead pos = pos < 0 || pos >= dimension || Piece.isDeadChar(chars !! pos)
+      live pos = not (dead pos)
+      beginLive pos = live pos && dead (pos - 1)
+      endLive pos = live pos && dead (pos + 1)
+      indices = [0 .. dimension - 1]
+      begins = filter beginLive indices
+      ends = filter endLive indices
+      liveIntervals = zip begins ends
+  in do
+        (intervalBegin, intervalEnd) <- liveIntervals
+        begin <- [intervalBegin .. intervalEnd]
+        end <- [begin .. intervalEnd]
+        return $ lineStrip axis lineNumber chars begin (end - begin + 1)
+
+allLiveStrips :: Axis -> [String] -> [Strip]
+allLiveStrips axis linesAsStrings = do
+  lineNumber <- [0 .. length linesAsStrings - 1]
+  liveStripsInLine axis lineNumber (linesAsStrings !! lineNumber)
+
 stripPoint :: Strip -> Coordinate -> Point
-stripPoint (Strip {axis, lineNumber, begin}) offset =
+stripPoint Strip {axis, lineNumber, begin} offset =
   case axis of
   Axis.X -> Point lineNumber (begin + offset)
   Axis.Y -> Point (begin + offset) lineNumber
@@ -119,7 +145,15 @@ emptyPoints strip @ Strip {content} =
 hasAnchor :: Strip -> Bool
 hasAnchor strip @ Strip { letters } = length letters > 0
 
--- TODO. Use Point colinearPoint.
+hasBlanks :: Strip -> Bool
+hasBlanks Strip {blanks} = blanks > 0
+
+blankPoints :: Strip -> [Point]
+blankPoints strip @ Strip {content} =
+  let blankOffsets = filter (\offset -> (content !! offset) == emptyChar) [0 .. length content - 1]
+  in stripPoint strip <$> blankOffsets
+
+-- TODO. Redundant. See stripPoint.
 pointAtOffset :: Strip -> Int -> Point
 pointAtOffset (Strip {lineNumber, begin, axis}) offset =
   case axis of
@@ -131,16 +165,4 @@ pointAtOffset (Strip {lineNumber, begin, axis}) offset =
 stripLength :: Strip -> Int
 stripLength Strip {begin, end} = end - begin + 1
 
--- groupedStrips :: SparseGrid Piece -> GroupedStrips
--- groupedStrips grid =
---   let gridStrips = SparseGrid.lineSegments grid
---       strips = gridStripToStrip <$> gridStrips
---       mapByLength = MiscUtil.mapFromValueList stripLength strips
---       blankMapMaker = MiscUtil.mapFromValueList blanks
---   in blankMapMaker <$> mapByLength
---
--- gridStripToStrip :: (Axis, Coordinate, Coordinate, Int, [Maybe Piece]) -> Strip
--- gridStripToStrip (axis, lineNumber, offset, size, maybeCharList) =
---   mkStrip axis lineNumber offset (offset + size - 1) content
---     where content = (Piece.value . Piece.fromMaybe) <$> maybeCharList
 

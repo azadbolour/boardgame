@@ -21,6 +21,7 @@ module Bolour.Util.MiscUtil (
   , IOExceptT
   , mapFromValueList
   , zipMaps
+  , inverseMultiValuedMapping
 ) where
 
 import Data.Char (isAlphaNum)
@@ -105,6 +106,15 @@ zipMaps map1 map2 =
       commonKeys = List.intersect keys1 keys2
       zipper key = (key, (lookupJust key map1, lookupJust key map2))
   in Map.fromList $ zipper <$> commonKeys
+
+inverseMultiValuedMapping :: Ord b => (a -> [b]) -> [a] -> Map.Map b [a]
+inverseMultiValuedMapping mapping as =
+  let inversePairWithMappedValue a = (\b -> (b, [a])) <$> mapping a
+      pairs = as >>= inversePairWithMappedValue
+  in
+    Map.fromListWith (++) pairs
+
+
 
 
 

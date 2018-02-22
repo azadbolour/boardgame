@@ -8,7 +8,7 @@ package com.bolour.boardgame.scala.server.domain
 import com.bolour.boardgame.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
-import com.bolour.util.BasicUtil.inverse1ToManyRelation
+import com.bolour.util.BasicUtil.inverseMultiValuedMapping
 import com.bolour.util.SwissCheeseSparseGrid
 import com.bolour.util.SwissCheeseSparseGrid.Opt2
 
@@ -169,7 +169,7 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
   // TODO. Obsolete remove once replacement is tested. Also remove obsolete dependencies.
   def potentialPlayableStripsForBlanks(axis: Axis, trayCapacity: Int): Map[Point, List[Strip]] = {
     val ppStrips = potentialPlayableStrips(axis, trayCapacity)
-    inverse1ToManyRelation((strip: Strip) => strip.blankPoints)(ppStrips)
+    inverseMultiValuedMapping((strip: Strip) => strip.blankPoints)(ppStrips)
   }
 
   def stripIsDisconnectedInLine(strip: Strip): Boolean = {
@@ -207,7 +207,7 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
 
   def enclosingStripsOfBlankPoints(axis: Axis): Map[Point, List[Strip]] = {
     val stripsEnclosingBlanks = computeAllLiveStrips(axis) filter { _.numBlanks > 0 }
-    inverse1ToManyRelation((strip: Strip) => strip.blankPoints)(stripsEnclosingBlanks)
+    inverseMultiValuedMapping((strip: Strip) => strip.blankPoints)(stripsEnclosingBlanks)
   }
 
   def playableEnclosingStripsOfBlankPoints(axis: Axis, trayCapacity: Int): Map[Point, List[Strip]] = {

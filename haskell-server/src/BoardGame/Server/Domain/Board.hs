@@ -239,9 +239,19 @@ stripOfPlayN board playPieces =
 surroundingRange :: Board -> Point -> Axis -> [Point]
 surroundingRange Board {grid} = SparseGrid.surroundingRange grid
 
+computeAllLiveStrips :: Board -> Axis -> [Strip]
+computeAllLiveStrips board axis =
+  let lines = case axis of
+                Axis.X -> rowsAsPieces board
+                Axis.Y -> colsAsPieces board
+  in Strip.allLiveStrips axis (Piece.piecesToString <$> lines)
 
--- groupedStrips :: Board -> Map Int (Map Int [Strip])
--- groupedStrips Board {grid} = Strip.groupedStrips grid
+enclosingStripsOfBlankPoints :: Board -> Axis -> Map.Map Point [Strip]
+enclosingStripsOfBlankPoints board axis =
+  let liveStrips = computeAllLiveStrips board axis
+      stripsEnclosingBlanks = filter Strip.hasBlanks liveStrips
+  in Util.inverseMultiValuedMapping Strip.blankPoints stripsEnclosingBlanks
 
-
+-- playableEnclosingStripsOfBlankPoints :: Axis -> Int -> Map.Map Point [Strip]
+-- playableEnclosingStripsOfBlankPoints axis trayCapacity =
 

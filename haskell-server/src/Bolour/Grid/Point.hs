@@ -69,7 +69,7 @@ data Point = Point {
     row :: Coordinate     -- ^ The row index - top-down.
   , col :: Coordinate     -- ^ The column index - left-to-right.
 }
-  deriving (Eq, Show, Generic, NFData)
+  deriving (Eq, Ord, Show, Generic, NFData)
 
 instance FromJSON Point
 instance ToJSON Point
