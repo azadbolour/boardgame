@@ -284,8 +284,4 @@ object StripMatcher {
     anchoredX ++ anchoredY ++ (freeX intersect freeY)
   }
 
-//  def hopelessBlankPoints(board: Board, dictionary: WordDictionary, trayCapacity: Int): Set[Point] =
-//    hopelessBlankPointsForAxis(board, dictionary, trayCapacity, Axis.X) intersect
-//      hopelessBlankPointsForAxis(board, dictionary, trayCapacity, Axis.Y)
-
 }

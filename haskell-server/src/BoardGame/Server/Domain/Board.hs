@@ -28,17 +28,21 @@ module BoardGame.Server.Domain.Board (
   , getGridPieces
   , set
   , setN
+  , setDeadPoints
   , isEmpty
   , stripOfPlay
   , inBounds
   , pointIsEmpty
   , pointIsNonEmpty
   , pointIsIsolatedInLine
+  , pointHasRealNeighbor
   , validateCoordinate
   , validatePoint
   , farthestNeighbor
   , surroundingRange
   , getLetter
+  , stripIsDisconnectedInLine
+  , playableEnclosingStripsOfBlankPoints
   -- , groupedStrips
 )
 where
@@ -47,6 +51,7 @@ import Data.List
 import qualified Data.Maybe as Maybe
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Maybe (fromJust, isJust)
 
 -- import qualified Data.ByteString.Char8 as BS
 
@@ -166,6 +171,12 @@ setN board @ Board {dimension, grid} gridPoints =
       grid' = SparseGrid.setN grid locatedPoints
   in Board dimension grid'
 
+setDeadPoints :: Board -> [Point] -> Board
+setDeadPoints board points =
+  let deadGridPiece point = GridValue Piece.deadPiece point
+      deadGridPieces = deadGridPiece <$> points
+  in setN board deadGridPieces
+
 -- TODO. Implement SparseGrid.isEmpty and use it.
 isEmpty :: Board -> Bool
 isEmpty Board { grid } =
@@ -203,6 +214,13 @@ rowsAsStrings board = ((\Piece {value} -> value) <$>) <$> rowsAsPieces board
 pointIsIsolatedInLine :: Board -> Point -> Axis -> Bool
 pointIsIsolatedInLine Board {grid} = SparseGrid.isolatedInLine grid
 
+pointHasRealNeighbor :: Board -> Point -> Axis -> Bool
+pointHasRealNeighbor board point axis =
+  let maybeNext = next board point axis
+      maybePrev = prev board point axis
+  in (isJust maybeNext && Piece.isReal (fromJust maybeNext)) ||
+       (isJust maybePrev && Piece.isReal (fromJust maybePrev))
+
 farthestNeighbor :: Board -> Point -> Axis -> Int -> Point
 farthestNeighbor Board {grid} = SparseGrid.farthestNeighbor grid
 
@@ -239,6 +257,25 @@ stripOfPlayN board playPieces =
 surroundingRange :: Board -> Point -> Axis -> [Point]
 surroundingRange Board {grid} = SparseGrid.surroundingRange grid
 
+-- | Check that a strip has no neighbors on either side - is disconnected
+--   from the rest of its line. If it is has neighbors, it is not playable
+--   since a matching word will run into the neighbors. However, a containing
+--   strip will be playable and so we can forget about this strip.
+stripIsDisconnectedInLine :: Board -> Strip -> Bool
+stripIsDisconnectedInLine board (strip @ Strip {axis, begin, end, content})
+  | (null content) = False
+  | otherwise =
+      let f = Strip.stripPoint strip 0
+          l = Strip.stripPoint strip (end - begin)
+          -- limit = dimension
+          maybePrevPiece = prev board f axis
+          maybeNextPiece = next board l axis
+          isSeparator maybePiece =
+            case maybePiece of
+              Nothing -> True
+              Just piece -> Piece.isEmpty piece
+      in isSeparator maybePrevPiece && isSeparator maybeNextPiece
+
 computeAllLiveStrips :: Board -> Axis -> [Strip]
 computeAllLiveStrips board axis =
   let lines = case axis of
@@ -252,6 +289,13 @@ enclosingStripsOfBlankPoints board axis =
       stripsEnclosingBlanks = filter Strip.hasBlanks liveStrips
   in Util.inverseMultiValuedMapping Strip.blankPoints stripsEnclosingBlanks
 
--- playableEnclosingStripsOfBlankPoints :: Axis -> Int -> Map.Map Point [Strip]
--- playableEnclosingStripsOfBlankPoints axis trayCapacity =
+playableEnclosingStripsOfBlankPoints :: Board -> Axis -> Int -> Map.Map Point [Strip]
+playableEnclosingStripsOfBlankPoints board axis trayCapacity =
+  let enclosing = enclosingStripsOfBlankPoints board axis
+      playable strip @ Strip {blanks, content} =
+        blanks <= trayCapacity &&
+          stripIsDisconnectedInLine board strip &&
+          length content > 1 -- Can't play to a single blank strip - would have no anchor.
+  in
+    filter playable <$> enclosing
 

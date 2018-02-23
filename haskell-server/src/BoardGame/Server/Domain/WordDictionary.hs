@@ -10,11 +10,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module BoardGame.Server.Domain.WordDictionary (
-    WordDictionary(WordDictionary, languageCode)
+    WordDictionary(WordDictionary, languageCode, maxMaskedLetters)
   , mkDictionary
   , validateWord
   , defaultLanguageCode
   , isWord
+  , isMaskedWord
   , getWordPermutations
   , getAllWords
   ) where
@@ -47,11 +48,12 @@ data WordDictionary = WordDictionary {
   , words :: Set String     -- ^ private
   , index :: WordIndex      -- ^ private
   , maskedWords :: Set String
+  , maxMaskedLetters :: Int
 }
 
 mkDictionary :: String -> [DictWord] -> Int -> WordDictionary
 mkDictionary languageCode words maxMaskedLetters =
-  WordDictionary languageCode (Set.fromList words) (mkWordIndex words) (mkMaskedWords words maxMaskedLetters)
+  WordDictionary languageCode (Set.fromList words) (mkWordIndex words) (mkMaskedWords words maxMaskedLetters) maxMaskedLetters
 
 mkMaskedWords :: [DictWord] -> Int -> Set String
 mkMaskedWords words maxMaskedLetters =

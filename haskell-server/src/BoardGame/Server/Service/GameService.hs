@@ -35,6 +35,7 @@ import Data.List
 import Data.Maybe (fromJust)
 import Data.Time (getCurrentTime)
 import Data.Bool (bool)
+import qualified Data.Set as Set
 
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..), withExceptT)
@@ -188,7 +189,15 @@ validateCrossWords board dictionary strip word = do
 -- | Find points on the board that cannot possibly be played
 --   and update board accordingly.
 updateDeadPoints :: Board -> WordDictionary -> Int -> (Board, [Point])
-updateDeadPoints board dictionary trayCapacity = (board, []) -- TODO. Implement.
+updateDeadPoints board dictionary trayCapacity =
+  let directDeadPoints = Set.toList $ Matcher.hopelessBlankPoints board dictionary trayCapacity
+      newBoard = Board.setDeadPoints board directDeadPoints
+  in if null directDeadPoints then
+       (newBoard, directDeadPoints)
+     else
+       let (b, moreDeadPoints) = updateDeadPoints newBoard dictionary trayCapacity
+           allDeadPoints = directDeadPoints ++ moreDeadPoints
+       in (b, allDeadPoints)
 
 -- | Service function to commit a user play - reflecting it on the
 --   game's board, and and refilling the user tray.

@@ -27,6 +27,7 @@ module BoardGame.Common.Domain.Piece (
   , isDeadChar
   , isDead
   , isAlive
+  , isReal
   , eqValue
   , mkRandomPiece
   , mkRandomPieces
@@ -84,6 +85,9 @@ isDead :: Piece -> Bool
 isDead = (== deadPiece)
 isAlive :: Piece -> Bool
 isAlive = (/= deadPiece)
+
+isReal :: Piece -> Bool
+isReal piece = isAlive piece && isNonEmpty piece
 
 toMaybe :: Piece -> Maybe Piece
 toMaybe piece = if isEmpty piece then Nothing else Just piece

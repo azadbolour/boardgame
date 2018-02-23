@@ -13,8 +13,10 @@ module BoardGame.Server.Domain.StripMatcher (
   , matchFittingCombos
   , findOptimalMatch
   , groupedPlayableStrips -- expose for testing
+  , hopelessBlankPoints
   ) where
 
+import qualified Data.Set as Set
 import Data.Map (Map)
 import qualified Data.List as List
 import qualified Data.Map as Map
@@ -25,6 +27,8 @@ import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 -- import qualified Bolour.Grid.GridValue as GridValue
 import qualified Bolour.Grid.Point as Axis
+import Bolour.Grid.Point (Point, Axis)
+
 import Bolour.Grid.Point (Coordinate)
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil
@@ -33,7 +37,7 @@ import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
 import qualified BoardGame.Server.Domain.Strip as Strip
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
-import BoardGame.Server.Domain.WordDictionary (WordDictionary)
+import BoardGame.Server.Domain.WordDictionary (WordDictionary, WordDictionary(WordDictionary))
 import qualified BoardGame.Server.Domain.WordDictionary as WordDictionary
 import Bolour.Grid.SparseGrid (SparseGrid)
 import qualified Bolour.Grid.SparseGrid as SparseGrid
@@ -194,7 +198,7 @@ playableStrips board trayCapacity =
       playableBlanks Strip {blanks} = blanks > 0 && blanks <= trayCapacity
       playables = filter playableBlanks strips
       playables' = filter Strip.hasAnchor playables
-      playables'' = filter (stripIsDisconnectedInLine board) playables'
+      playables'' = filter (Board.stripIsDisconnectedInLine board) playables'
    in playables''
 
 computeAllStrips :: Board -> [Strip]
@@ -215,25 +219,6 @@ gridStripToStrip (axis, lineNumber, offset, size, maybeCharList) =
   Strip.mkStrip axis lineNumber offset (offset + size - 1) content
     where content = (Piece.value . Piece.fromMaybe) <$> maybeCharList
 
--- | Check that a strip has no neighbors on either side - is disconnected
---   from the rest of its line. If it is has neighbors, it is not playable
---   since a matching word will run into the neighbors. However, a containing
---   strip will be playable and so we can forget about this strip.
-stripIsDisconnectedInLine :: Board -> Strip -> Bool
-stripIsDisconnectedInLine board (strip @ Strip {axis, begin, end, content})
-  | (null content) = False
-  | otherwise =
-      let f = Strip.stripPoint strip 0
-          l = Strip.stripPoint strip (end - begin)
-          -- limit = dimension
-          maybePrevPiece = Board.prev board f axis
-          maybeNextPiece = Board.next board l axis
-          isSeparator maybePiece =
-            case maybePiece of
-              Nothing -> True
-              Just piece -> Piece.isEmpty piece
-      in isSeparator maybePrevPiece && isSeparator maybeNextPiece
-
 emptyCenterStrip :: ByteCount -> Coordinate -> Strip
 emptyCenterStrip len dimension =
   let center = dimension `div` 2
@@ -251,4 +236,23 @@ emptyCenterStripsByLengthByBlanks :: Coordinate -> Map ByteCount (Map BlankCount
 emptyCenterStripsByLengthByBlanks dimension =
   Map.fromList $ flip mkEmptyCenterStripMapElement dimension <$> [2 .. dimension]
 
+hopelessBlankPointsForAxis :: Board -> WordDictionary -> Int -> Axis -> Set.Set Point
+hopelessBlankPointsForAxis board dictionary @ WordDictionary {maxMaskedLetters} trayCapacity axis =
+  let blanksToStrips = Board.playableEnclosingStripsOfBlankPoints board axis trayCapacity
+      maxBlanks = maxMaskedLetters
+      allDense = all (\s -> Strip.isDense s maxBlanks)
+      stripsFilter predicate point strips = predicate strips
+      denselyEnclosedBlanks = Map.filterWithKey (stripsFilter allDense) blanksToStrips
+      stripMatchExists = any (\s @ Strip {content} -> WordDictionary.isMaskedWord dictionary content)
+      stripsForHopelessBlanks = Map.filterWithKey (stripsFilter (not . stripMatchExists)) denselyEnclosedBlanks
+  in
+    Set.fromList $ Map.keys stripsForHopelessBlanks
 
+hopelessBlankPoints :: Board -> WordDictionary -> Int -> Set.Set Point
+hopelessBlankPoints board dictionary trayCapacity =
+  let forX = hopelessBlankPointsForAxis board dictionary trayCapacity Axis.X
+      (anchoredX, freeX) = Set.partition (\pt -> Board.pointHasRealNeighbor board pt Axis.X) forX
+      forY = hopelessBlankPointsForAxis board dictionary trayCapacity Axis.Y
+      (anchoredY, freeY) = Set.partition (\pt -> Board.pointHasRealNeighbor board pt Axis.Y) forY
+  in
+     Set.unions [anchoredX, anchoredY, Set.intersection freeX freeY]

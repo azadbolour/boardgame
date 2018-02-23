@@ -23,6 +23,7 @@ module BoardGame.Server.Domain.Strip (
   , stripsInLine
   , allLiveStrips
   , blankPoints
+  , isDense
   ) where
 
 import qualified Data.List as List
@@ -147,6 +148,9 @@ hasAnchor strip @ Strip { letters } = length letters > 0
 
 hasBlanks :: Strip -> Bool
 hasBlanks Strip {blanks} = blanks > 0
+
+isDense :: Strip -> Int -> Bool
+isDense strip @ Strip {blanks} maxBlanks = hasAnchor strip && blanks <= maxBlanks
 
 blankPoints :: Strip -> [Point]
 blankPoints strip @ Strip {content} =
