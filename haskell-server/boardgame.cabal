@@ -166,6 +166,7 @@ test-suite spec
       BoardGame.Server.Domain.CrossWordFinderSpec
       BoardGame.Server.Domain.ScorerSpec
       BoardGame.Server.Domain.SparseGridSpec
+      BoardGame.Server.Domain.HopelessBlanksSpec
       BoardGame.Server.Service.BaseServiceFixtures
       BoardGame.Server.Service.ServiceTestFixtures
       BoardGame.Server.Service.GameServiceSpec
