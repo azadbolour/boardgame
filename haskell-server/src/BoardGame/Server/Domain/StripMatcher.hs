@@ -14,6 +14,7 @@ module BoardGame.Server.Domain.StripMatcher (
   , findOptimalMatch
   , groupedPlayableStrips -- expose for testing
   , hopelessBlankPoints
+  , hopelessBlankPointsForAxis
   ) where
 
 import qualified Data.Set as Set

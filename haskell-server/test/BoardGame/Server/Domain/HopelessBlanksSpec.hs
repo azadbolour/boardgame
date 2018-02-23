@@ -11,6 +11,7 @@ import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import Bolour.Grid.Point (Point, Point(Point))
+import qualified Bolour.Grid.Point as Axis
 
 trayCapacity :: Int
 trayCapacity = 3
@@ -39,8 +40,22 @@ board = Board.setN emptyBoard gridPieces
 
 spec :: Spec
 spec = do
-  describe "" $
+  describe "hopeless blanks" $
     it "find hopeless blanks" $ do
       let hopeless = StripMatcher.hopelessBlankPoints board dictionary trayCapacity
       print hopeless
+      let hopelessX = StripMatcher.hopelessBlankPointsForAxis board dictionary trayCapacity Axis.X
+      print hopelessX
+      let hopelessY = StripMatcher.hopelessBlankPointsForAxis board dictionary trayCapacity Axis.Y
+      print hopelessY
       -- Dict.isWord dictionary "TEST" `shouldBe` True
+  describe "masked words" $
+    it "compute masked words" $ do
+      Dict.isMaskedWord dictionary " A " `shouldBe` True
+      Dict.isMaskedWord dictionary "  D" `shouldBe` True
+  describe "playable strips with blanks" $
+    it "playableEnclosingStripsOfBlankPoints" $ do
+      let playableX = Board.playableEnclosingStripsOfBlankPoints board Axis.X trayCapacity
+      sequence_ $ print <$> playableX
+      let playableY = Board.playableEnclosingStripsOfBlankPoints board Axis.Y trayCapacity
+      sequence_ $ print <$> playableY
