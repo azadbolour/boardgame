@@ -289,6 +289,8 @@ enclosingStripsOfBlankPoints board axis =
       stripsEnclosingBlanks = filter Strip.hasBlanks liveStrips
   in Util.inverseMultiValuedMapping Strip.blankPoints stripsEnclosingBlanks
 
+-- playableEnclosingStripsOfBlankPoints :: Axis -> Int -> Map.Map Point [Strip]
+-- playableEnclosingStripsOfBlankPoints axis trayCapacity =
 playableEnclosingStripsOfBlankPoints :: Board -> Axis -> Int -> Map.Map Point [Strip]
 playableEnclosingStripsOfBlankPoints board axis trayCapacity =
   let enclosing = enclosingStripsOfBlankPoints board axis

@@ -53,9 +53,9 @@ spec = do
     it "compute masked words" $ do
       Dict.isMaskedWord dictionary " A " `shouldBe` True
       Dict.isMaskedWord dictionary "  D" `shouldBe` True
-  describe "playable strips with blanks" $
-    it "playableEnclosingStripsOfBlankPoints" $ do
-      let playableX = Board.playableEnclosingStripsOfBlankPoints board Axis.X trayCapacity
-      sequence_ $ print <$> playableX
-      let playableY = Board.playableEnclosingStripsOfBlankPoints board Axis.Y trayCapacity
-      sequence_ $ print <$> playableY
+  describe "set hopeless blank points as dead recursive" $
+    it "set hopeless blank points as dead recursive" $ do
+      let (finalBoard, deadPoints) = StripMatcher.setHopelessBlankPointsAsDeadRecursive board dictionary trayCapacity
+      print deadPoints
+      print $ Board.rowsAsPieces finalBoard
+

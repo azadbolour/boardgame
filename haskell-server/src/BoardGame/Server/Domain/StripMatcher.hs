@@ -15,6 +15,7 @@ module BoardGame.Server.Domain.StripMatcher (
   , groupedPlayableStrips -- expose for testing
   , hopelessBlankPoints
   , hopelessBlankPointsForAxis
+  , setHopelessBlankPointsAsDeadRecursive
   ) where
 
 import qualified Data.Set as Set
@@ -29,7 +30,6 @@ import qualified BoardGame.Common.Domain.Piece as Piece
 -- import qualified Bolour.Grid.GridValue as GridValue
 import qualified Bolour.Grid.Point as Axis
 import Bolour.Grid.Point (Point, Axis)
-
 import Bolour.Grid.Point (Coordinate)
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil
@@ -244,10 +244,16 @@ hopelessBlankPointsForAxis board dictionary @ WordDictionary {maxMaskedLetters} 
       allDense = all (\s -> Strip.isDense s maxBlanks)
       stripsFilter predicate point strips = predicate strips
       denselyEnclosedBlanks = Map.filterWithKey (stripsFilter allDense) blanksToStrips
-      stripMatchExists = any (\s @ Strip {content} -> WordDictionary.isMaskedWord dictionary content)
+      stripMatchExists = any (\s @ Strip {content} -> WordDictionary.isMaskedWord dictionary (nullsToBlanks content))
       stripsForHopelessBlanks = Map.filterWithKey (stripsFilter (not . stripMatchExists)) denselyEnclosedBlanks
   in
     Set.fromList $ Map.keys stripsForHopelessBlanks
+
+-- TODO. Should change strips to have blanks instead of null chars for empty slots.
+nullsToBlanks :: String -> String
+nullsToBlanks s =
+  let nullToBlank ch = if Piece.isEmptyChar ch then ' ' else ch
+  in nullToBlank <$> s
 
 hopelessBlankPoints :: Board -> WordDictionary -> Int -> Set.Set Point
 hopelessBlankPoints board dictionary trayCapacity =
@@ -257,3 +263,17 @@ hopelessBlankPoints board dictionary trayCapacity =
       (anchoredY, freeY) = Set.partition (\pt -> Board.pointHasRealNeighbor board pt Axis.Y) forY
   in
      Set.unions [anchoredX, anchoredY, Set.intersection freeX freeY]
+
+setHopelessBlankPointsAsDeadRecursive :: Board -> WordDictionary -> Int -> (Board, [Point])
+setHopelessBlankPointsAsDeadRecursive board dictionary trayCapacity =
+  let directDeadPoints = Set.toList $ hopelessBlankPoints board dictionary trayCapacity
+      newBoard = Board.setDeadPoints board directDeadPoints
+  in if null directDeadPoints then
+       (newBoard, directDeadPoints)
+     else
+       let (b, moreDeadPoints) = setHopelessBlankPointsAsDeadRecursive newBoard dictionary trayCapacity
+           allDeadPoints = directDeadPoints ++ moreDeadPoints
+       in (b, allDeadPoints)
+
+
+
