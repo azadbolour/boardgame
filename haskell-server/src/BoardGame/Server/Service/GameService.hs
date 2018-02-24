@@ -188,7 +188,8 @@ validateCrossWords board dictionary strip word = do
 -- | Find points on the board that cannot possibly be played
 --   and update board accordingly.
 updateDeadPoints :: Board -> WordDictionary -> Int -> (Board, [Point])
-updateDeadPoints board dictionary trayCapacity = (board, []) -- TODO. Implement.
+-- updateDeadPoints board dictionary trayCapacity = (board, []) -- TODO. Implement
+updateDeadPoints = Matcher.setHopelessBlankPointsAsDeadRecursive
 
 -- | Service function to commit a user play - reflecting it on the
 --   game's board, and and refilling the user tray.
