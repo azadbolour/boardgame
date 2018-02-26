@@ -62,7 +62,6 @@ library
       Bolour.Grid.Point
       Bolour.Grid.GridValue
       Bolour.Grid.Grid
-      Bolour.Grid.SparseGrid
       Bolour.Grid.BlackWhiteGrid
       BoardGame.Common.GameApi
       BoardGame.Server.Domain.ServerConfig

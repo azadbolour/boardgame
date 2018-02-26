@@ -69,16 +69,18 @@ import qualified BoardGame.Common.Domain.Piece as Piece
 import Bolour.Grid.Point (Coordinate, Axis(..), Point, Point(Point))
 import qualified Bolour.Grid.Point as Point
 import qualified Bolour.Grid.Point as Axis
-import Bolour.Grid.SparseGrid (SparseGrid)
-import qualified Bolour.Grid.SparseGrid as SparseGrid
+import Bolour.Util.BlackWhite
+import Bolour.Grid.BlackWhiteGrid (BlackWhiteGrid, BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
+import qualified Bolour.Grid.BlackWhiteGrid as Gr
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import qualified BoardGame.Server.Domain.Strip as Strip
+import qualified Bolour.Util.Empty as Empty
 
 {--
-   A Board uses a SparseGrid to represent the contents of the board.
-   Within a sparse grid, an empty slot is represented
+   A Board uses a BlackWhiteGrid to represent the contents of the board.
+   Within the grid, an empty slot is represented
    by Maybe.Nothing. But Board exposes pieces that represent
    emptiness by their value being null: '\0'. Where necessary,
    this module translates between these two representations of
@@ -88,55 +90,68 @@ import qualified BoardGame.Server.Domain.Strip as Strip
 -- | The game board.
 data Board = Board {
     dimension :: Int
-  , grid :: SparseGrid Piece
+  , grid :: BlackWhiteGrid Piece
 }
   deriving (Show)
+
+pieceToBlackWhite :: Piece -> BlackWhite Piece
+pieceToBlackWhite piece | piece == Piece.deadPiece = Black
+                        | piece == Piece.emptyPiece = White Nothing
+                        | otherwise = White (Just piece)
+
+blackWhiteToPiece :: BlackWhite Piece -> Piece
+blackWhiteToPiece Black = Piece.deadPiece
+blackWhiteToPiece (White Nothing) = Piece.emptyPiece
+blackWhiteToPiece (White (Just piece)) = piece
+
+pieceExtractor :: BlackWhitePoint Piece -> Piece
+pieceExtractor BlackWhitePoint {value = bwPiece, point} = blackWhiteToPiece bwPiece
 
 -- TODO. Check rectangular. Check parameters. See below.
 mkBoardFromPieces :: [[Maybe Piece]] -> Int -> Board
 mkBoardFromPieces cells =
-  let cellMaker row col = cells !! row !! col
+  let cellMaker row col = White $ cells !! row !! col
   in mkBoard' cellMaker
 
 -- TODO. Ditto.
 mkBoard :: (Int -> Int -> Piece) -> Int -> Board
 mkBoard pieceMaker =
-  let cellMaker row col = Piece.toMaybe $ pieceMaker row col
+  let cellMaker row col = White $ Piece.toMaybe $ pieceMaker row col
   in mkBoard' cellMaker
 
 mkEmptyBoard :: Int -> Board
 mkEmptyBoard dimension =
-  let grid = SparseGrid.mkEmptyGrid dimension dimension
+  let grid = Gr.mkEmptyGrid dimension dimension
   in Board dimension grid
 
-mkBoard' :: (Int -> Int -> Maybe Piece) -> Int -> Board
+mkBoard' :: (Int -> Int -> BlackWhite Piece) -> Int -> Board
 mkBoard' cellMaker dimension =
-  let grid = SparseGrid.mkGrid cellMaker dimension dimension
+  let grid = Gr.mkGrid cellMaker dimension dimension
   in Board dimension grid
 
 rowsAsPieces :: Board -> [[Piece]]
 rowsAsPieces Board {grid} =
-  let lineMapper row = (Piece.fromMaybe . fst) <$> row
-  in lineMapper <$> SparseGrid.rows grid
+  let lineMapper row = pieceExtractor <$> row
+  in lineMapper <$> Gr.rows grid
 
 colsAsPieces :: Board -> [[Piece]]
 colsAsPieces Board {grid} =
-  let lineMapper row = (Piece.fromMaybe . fst) <$> row
-  in lineMapper <$> SparseGrid.cols grid
+  let lineMapper col = pieceExtractor <$> col
+  in lineMapper <$> Gr.cols grid
 
 next :: Board -> Point -> Axis -> Maybe Piece
 next Board {grid} point axis = do
-  (maybePiece, _) <- SparseGrid.next grid point axis
+  (maybePiece, _) <- Gr.next grid point axis
   maybePiece
 
 prev :: Board -> Point -> Axis -> Maybe Piece
 prev Board {grid} point axis = do
-  (maybePiece, _) <- SparseGrid.prev grid point axis
+  (maybePiece, _) <- Gr.prev grid point axis
   maybePiece
 
 adjacent :: Board -> Point -> Axis -> Int -> Maybe Piece
 adjacent Board {grid} point axis direction = do
-  (maybePiece, _) <- SparseGrid.adjacent grid point axis direction
+  (maybePiece, _) <- Gr.adjacent grid point axis direction
   maybePiece
 
 -- | Nothing if out of bounds, noPiece if empty but in bounds.
@@ -144,8 +159,8 @@ get :: Board -> Point -> Maybe Piece
 get board @ Board { grid } point =
   if not (inBounds board point) then Nothing
   else
-    let maybeVal = SparseGrid.get grid point
-    in Just $ Piece.fromMaybe maybeVal
+    let bwVal = Gr.get grid point
+    in Just $ blackWhiteToPiece bwVal
 
 -- | Assume point is valid.
 getLetter :: Board -> Point -> Char
@@ -154,22 +169,21 @@ getLetter board point =
 
 getGridPieces :: Board -> [GridPiece]
 getGridPieces Board {grid} =
-  let locatedPieces = SparseGrid.getJusts grid
+  let locatedPieces = Gr.getValues grid
       toGridPiece (piece, point) = GridValue piece point
   in toGridPiece <$> locatedPieces
 
 set :: Board -> Point -> Piece -> Board
 set Board { dimension, grid } point piece =
-  let maybePiece = Piece.toMaybe piece
-      grid' = SparseGrid.set grid point maybePiece
+  let bwPiece = pieceToBlackWhite piece
+      grid' = Gr.set grid point bwPiece
   in Board dimension grid'
 
 setN :: Board -> [GridPiece] -> Board
 setN board @ Board {dimension, grid} gridPoints =
-  let toLocatedPoint GridValue {value = piece, point} =
-        (Piece.toMaybe piece, point)
-      locatedPoints = toLocatedPoint <$> gridPoints
-      grid' = SparseGrid.setN grid locatedPoints
+  let toBWPoint GridValue {value = piece, point} = BlackWhitePoint (pieceToBlackWhite piece) point
+      bwPoints = toBWPoint <$> gridPoints
+      grid' = Gr.setN grid bwPoints
   in Board dimension grid'
 
 setDeadPoints :: Board -> [Point] -> Board
@@ -178,21 +192,20 @@ setDeadPoints board points =
       deadGridPieces = deadGridPiece <$> points
   in setN board deadGridPieces
 
--- TODO. Implement SparseGrid.isEmpty and use it.
 isEmpty :: Board -> Bool
-isEmpty Board { grid } =
-  let cellList = concat $ SparseGrid.rows grid
-  in all (Maybe.isNothing . fst) cellList
+isEmpty Board { grid } = Empty.isEmpty grid
+  -- let cellList = concat $ Gr.rows grid
+  -- in all (Maybe.isNothing . fst) cellList
 
 pointIsEmpty :: Board -> Point -> Bool
-pointIsEmpty Board {grid} point =
-  Maybe.isNothing $ SparseGrid.get grid point
+pointIsEmpty Board {grid} point = Gr.isEmpty grid point
+  -- Maybe.isNothing $ Gr.get grid point
 
 pointIsNonEmpty :: Board -> Point -> Bool
 pointIsNonEmpty board point = not $ pointIsEmpty board point
 
 inBounds :: Board -> Point -> Bool
-inBounds Board {grid} = SparseGrid.inBounds grid
+inBounds Board {grid} = Gr.inBounds grid
 
 validateCoordinate :: MonadError GameError m =>
   Board -> Axis -> Coordinate -> m Coordinate
@@ -213,7 +226,7 @@ rowsAsStrings :: Board -> [String]
 rowsAsStrings board = ((\Piece {value} -> value) <$>) <$> rowsAsPieces board
 
 pointIsIsolatedInLine :: Board -> Point -> Axis -> Bool
-pointIsIsolatedInLine Board {grid} = SparseGrid.isolatedInLine grid
+pointIsIsolatedInLine Board {grid} = Gr.isIsolatedInLine grid
 
 pointHasRealNeighbor :: Board -> Point -> Axis -> Bool
 pointHasRealNeighbor board point axis =
@@ -223,7 +236,7 @@ pointHasRealNeighbor board point axis =
        (isJust maybePrev && Piece.isReal (fromJust maybePrev))
 
 farthestNeighbor :: Board -> Point -> Axis -> Int -> Point
-farthestNeighbor Board {grid} = SparseGrid.farthestNeighbor grid
+farthestNeighbor Board {grid} = Gr.farthestNeighbor grid
 
 stripOfPlay :: Board -> [PlayPiece] -> Maybe Strip
 stripOfPlay board [] = Nothing
@@ -256,7 +269,7 @@ stripOfPlayN board playPieces =
     in mkStrip <$> maybeAxis
 
 surroundingRange :: Board -> Point -> Axis -> [Point]
-surroundingRange Board {grid} = SparseGrid.surroundingRange grid
+surroundingRange Board {grid} = Gr.surroundingRange grid
 
 -- | Check that a strip has no neighbors on either side - is disconnected
 --   from the rest of its line. If it is has neighbors, it is not playable
