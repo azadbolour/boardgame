@@ -152,6 +152,7 @@ test-suite spec
     , logging-effect >= 1.1
     , containers
   other-modules:
+      Bolour.Grid.BlackWhiteGridSpec
       Bolour.Util.DataFileSpec
       Bolour.Util.SpecUtil
       BoardGame.Util.TestUtil

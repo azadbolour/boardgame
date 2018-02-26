@@ -15,6 +15,9 @@
 
 module Bolour.Grid.BlackWhiteGrid (
     BlackWhiteGrid(..)
+  , BlackWhitePoint(..)
+  , mkGrid
+  , mkEmptyGrid
   )
   where
 

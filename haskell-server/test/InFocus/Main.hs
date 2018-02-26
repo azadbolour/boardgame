@@ -19,7 +19,7 @@ module Main (
 import Test.Hspec
 
 import qualified BoardGame.Server.Domain.HopelessBlanksSpec as Test2
-import qualified BoardGame.Server.Domain.StripMatcherSpec as Test3
+import qualified Bolour.Grid.BlackWhiteGridSpec as Test3
 import qualified BoardGame.Server.Service.GameServiceSpec as Test4
 
 main :: IO ()
@@ -29,7 +29,7 @@ main = do
 
 spec :: Spec
 spec = do
-  describe "Test2" Test2.spec
+  describe "Test3" Test3.spec
   -- describe "Test2" Test2.spec
   -- describe "Test3" Test3.spec
   -- describe "Test4" Test4.spec
