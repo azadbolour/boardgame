@@ -40,8 +40,6 @@ import qualified BoardGame.Server.Domain.Strip as Strip
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 import BoardGame.Server.Domain.WordDictionary (WordDictionary, WordDictionary(WordDictionary))
 import qualified BoardGame.Server.Domain.WordDictionary as WordDictionary
-import Bolour.Grid.SparseGrid (SparseGrid)
-import qualified Bolour.Grid.SparseGrid as SparseGrid
 
 import Bolour.Util.MiscUtil as MiscUtil
 
@@ -201,11 +199,6 @@ playableStrips board trayCapacity =
       playables' = filter Strip.hasAnchor playables
       playables'' = filter (Board.stripIsDisconnectedInLine board) playables'
    in playables''
-
--- computeAllStrips :: Board -> [Strip]
--- computeAllStrips Board {grid} =
---   let gridStrips = SparseGrid.lineSegments grid
---   in gridStripToStrip <$> gridStrips
 
 playableEmptyStrips :: Board -> [Strip]
 playableEmptyStrips board @ Board {dimension}=

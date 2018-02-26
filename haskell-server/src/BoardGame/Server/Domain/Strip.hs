@@ -39,8 +39,6 @@ import Bolour.Grid.Point (Point, Point(Point), Axis, Coordinate)
 import qualified Bolour.Grid.Point as Axis
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
-import qualified Bolour.Grid.SparseGrid as SparseGrid
-import Bolour.Grid.SparseGrid(SparseGrid)
 
 {--
   In this module the term 'blank' means an empty slot on the board.
