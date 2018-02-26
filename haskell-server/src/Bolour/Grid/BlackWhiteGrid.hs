@@ -59,10 +59,13 @@ data BlackWhiteGrid val = BlackWhiteGrid {
   , next :: Point -> Axis -> Maybe (Maybe val, Point)
   , prev :: Point -> Axis -> Maybe (Maybe val, Point)
   , adjacent :: Point -> Axis -> Direction -> Maybe (Maybe val, Point)
+
   , isBlack :: Point -> Bool
   , isWhite :: Point -> Bool
   , isEmpty :: Point -> Bool
   , hasValue :: Point -> Bool
+  -- | The point is isolated in its horizontal (X) or vertical (Y) line.
+  --   It has no neighbors on either side on the line.
   , isIsolatedInLine :: Point -> Axis -> Bool
   , inBounds :: Point -> Bool
     -- | Get the farthest neighbor of a point along a given axis
