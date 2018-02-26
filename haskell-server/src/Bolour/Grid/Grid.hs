@@ -134,8 +134,8 @@ prev (grid @ Grid {height, width}) (point @ (Point {row, col})) Axis.Y =
     then Nothing
     else get' grid (row - 1) col
 
-adjacentCell :: Grid val -> Point -> Axis -> Int -> Int -> Maybe val
-adjacentCell grid point axis direction limit =
+adjacentCell :: Grid val -> Point -> Axis -> Int -> Maybe val
+adjacentCell grid point axis direction =
   let calcAdj = if direction == 1 then next else prev
   in calcAdj grid point axis
 

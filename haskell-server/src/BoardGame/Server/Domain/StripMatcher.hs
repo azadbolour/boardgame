@@ -195,17 +195,17 @@ groupedPlayableStrips board trayCapacity valuation =
 
 playableStrips :: Board -> Int -> [Strip]
 playableStrips board trayCapacity =
-  let strips = computeAllStrips board
+  let strips = Board.computeAllLiveStrips board
       playableBlanks Strip {blanks} = blanks > 0 && blanks <= trayCapacity
       playables = filter playableBlanks strips
       playables' = filter Strip.hasAnchor playables
       playables'' = filter (Board.stripIsDisconnectedInLine board) playables'
    in playables''
 
-computeAllStrips :: Board -> [Strip]
-computeAllStrips Board {grid} =
-  let gridStrips = SparseGrid.lineSegments grid
-  in gridStripToStrip <$> gridStrips
+-- computeAllStrips :: Board -> [Strip]
+-- computeAllStrips Board {grid} =
+--   let gridStrips = SparseGrid.lineSegments grid
+--   in gridStripToStrip <$> gridStrips
 
 playableEmptyStrips :: Board -> [Strip]
 playableEmptyStrips board @ Board {dimension}=

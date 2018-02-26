@@ -48,6 +48,9 @@ import Bolour.Grid.Grid (Grid, Grid(Grid))
 
 type LocatedValue val = (Maybe val, Point)
 
+-- TODO. Add the notion of dead cells to SparseGrid.
+-- A sparse grid may have some dead cells (out of play) and some empty cells (no content).
+
 -- | A grid that may have some empty slots.
 --
 --   The term 'sparse' is used to signify that this grid is aware of
@@ -82,7 +85,7 @@ data SparseGrid val = SparseGrid {
     --   Nothing means the point has no next (is the last point on a line).
   , next :: Point -> Axis -> Maybe (LocatedValue val)
     -- | Get the previous located value on a grid line. Axis X/Y horizontal/vertical.
-    --   Nothing means the point has no next (is the first point on a line).
+    --   Nothing means the point has no prev (is the first point on a line).
   , prev :: Point -> Axis -> Maybe (LocatedValue val)
     -- | Get an adjacent located value on a grid line in a given direction.
     --   Axis X/Y horizontal/vertical. Direction Axis.forward or Axis.backward.

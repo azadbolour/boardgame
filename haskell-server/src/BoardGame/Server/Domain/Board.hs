@@ -43,6 +43,7 @@ module BoardGame.Server.Domain.Board (
   , getLetter
   , stripIsDisconnectedInLine
   , playableEnclosingStripsOfBlankPoints
+  , computeAllLiveStrips
   -- , groupedStrips
 )
 where
@@ -276,16 +277,20 @@ stripIsDisconnectedInLine board (strip @ Strip {axis, begin, end, content})
               Just piece -> Piece.isEmpty piece
       in isSeparator maybePrevPiece && isSeparator maybeNextPiece
 
-computeAllLiveStrips :: Board -> Axis -> [Strip]
-computeAllLiveStrips board axis =
+computeAllLiveStripsForAxis :: Board -> Axis -> [Strip]
+computeAllLiveStripsForAxis board axis =
   let lines = case axis of
                 Axis.X -> rowsAsPieces board
                 Axis.Y -> colsAsPieces board
   in Strip.allLiveStrips axis (Piece.piecesToString <$> lines)
 
+computeAllLiveStrips :: Board -> [Strip]
+computeAllLiveStrips board =
+  computeAllLiveStripsForAxis board Axis.X ++ computeAllLiveStripsForAxis board Axis.Y
+
 enclosingStripsOfBlankPoints :: Board -> Axis -> Map.Map Point [Strip]
 enclosingStripsOfBlankPoints board axis =
-  let liveStrips = computeAllLiveStrips board axis
+  let liveStrips = computeAllLiveStripsForAxis board axis
       stripsEnclosingBlanks = filter Strip.hasBlanks liveStrips
   in Util.inverseMultiValuedMapping Strip.blankPoints stripsEnclosingBlanks
 

@@ -22,6 +22,7 @@ module Bolour.Grid.Point (
   , Point(..)
   , Height
   , Width
+  , Direction
   , forward
   , backward
   , colinearPoint
@@ -51,6 +52,8 @@ instance ToJSON Axis
 crossAxis :: Axis -> Axis
 crossAxis X = Y
 crossAxis Y = X
+
+type Direction = Int
 
 -- | Increment for going forward in a line.
 forward :: Int

@@ -149,7 +149,8 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
 
   def playableStrips(traySize: Int): List[Strip] = {
     // val traySize = tray.pieces.length
-    val allStrips = computeAllStrips
+    // val allStrips = computeAllStrips
+    val allStrips = computeAllLiveStrips
     def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= traySize
     val conformantStrips1 = allStrips.filter(hasFillableBlanks)
     val conformantStrips2 = conformantStrips1.filter(_.hasAnchor)
@@ -193,6 +194,9 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
     val yStrips = Strip.allStrips(Axis.Y, dimension, columnsAsStrings)
     xStrips ++ yStrips
   }
+
+  def computeAllLiveStrips : List[Strip] =
+    computeAllLiveStrips(Axis.X) ++ computeAllLiveStrips(Axis.Y)
 
   def computeAllLiveStrips(axis: Axis): List[Strip] = {
     axis match {

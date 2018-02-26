@@ -237,19 +237,12 @@ machinePlayService gameId = do
       -- gridRows = Board.charRows board
       maybeMatch = Matcher.findOptimalMatch dictionary board trayChars
       -- yields Maybe (Strip, DictWord)
-  liftIO $ print "machine tray"
-  liftIO $ print $ show machineTray
   (game', machinePlayPieces, deadPoints) <- case maybeMatch of
     Nothing -> do
-      liftIO $ print "no machine play match"
       gm <- exchangeMachinePiece game
       return (gm, [], []) -- If no pieces were used - we know it was a swap.
     Just (strip, word) -> do
-      liftIO $ print "machine play match"
-      liftIO $ print $ show word
       (playPieces, depletedTray) <- stripMatchAsPlay board machineTray strip word
-      liftIO $ print "playPieces"
-      liftIO $ print $ show playPieces
       (gm @ Game {board = newBoard, trays, playNumber}, refills) <- Game.reflectPlayOnGame game MachinePlayer playPieces
 
       let machineTray @ Tray {capacity} = trays !! Player.machineIndex
