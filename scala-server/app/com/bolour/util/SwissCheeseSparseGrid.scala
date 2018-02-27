@@ -35,7 +35,7 @@ case class SwissCheeseSparseGrid[T](grid: Grid[(Option[Option[T]], Point)]) {
     rows map rowMapper
   }
 
-  def get(point: Point): Opt2[T] = grid.cell(point)._1
+  def get(point: Point): Opt2[T] = grid.get(point)._1
   // def set(point: Point, value: Opt2[T]): SwissCheeseSparseGrid[T] = ???
 
   def setN(pointedValues: List[(Opt2[T], Point)]): SwissCheeseSparseGrid[T] = {

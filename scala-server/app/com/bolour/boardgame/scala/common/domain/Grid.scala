@@ -46,27 +46,23 @@ case class Grid[T](cells: List[List[T]]) {
     Grid(cellMaker _, height, width)
   }
 
-  def rows = cells
-  def columns = _columns
+  def rows: List[List[T]] = cells
+  def columns: List[List[T]] = _columns
 
-  def cell(point: Point): T = rows(point.row)(point.col)
+  def inBounds(point: Point): Boolean = {
+    val Point(row, col) = point
+    row > 0 && row < height && col > 0 && col < width
+  }
+
+  def get(point: Point): Option[T] =
+    if (!inBounds(point)) None else Some(rows(point.row)(point.col))
 
   def prevCell(point: Point, axis: Axis): Option[T] = adjacentCell(point, axis, -1)
 
   def nextCell(point: Point, axis: Axis): Option[T] = adjacentCell(point, axis, +1)
 
-  def adjacentCell(point: Point, axis: Axis, direction: Int): Option[T] = {
-    val Point(row, col) = point
-    axis match {
-      case Axis.X =>
-        val adjCol = col + direction
-        if (adjCol < 0 || adjCol >= width) None else Some(cell(Point(row, adjCol)))
-      case Axis.Y =>
-        val adjRow = row + direction
-        if (adjRow < 0 || adjRow >= height) None else Some(cell(Point(adjRow, col)))
-    }
-  }
-
+  def adjacentCell(point: Point, axis: Axis, direction: Int): Option[T] =
+    get(Point.adjPoint(point, axis, direction))
 }
 
 object Grid {

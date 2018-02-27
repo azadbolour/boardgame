@@ -161,7 +161,7 @@ setN' grid bwPoints =
   mkInternal (Grid.setN grid (addPoint <$> bwPoints))
     where addPoint bwPoint @ BlackWhitePoint {value, point} = (bwPoint, point)
 
--- | When a related cell is Black, it is as if no related cell exist, and so
+-- | When a related cell is Black, it is as if no related cell exists, and so
 --   convert it to Nothing, the same as if a related cell is out of bounds.
 unwindBlackWhite :: Maybe (BlackWhitePoint val) -> Maybe (Maybe val, Point)
 unwindBlackWhite maybe =
