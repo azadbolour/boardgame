@@ -14,12 +14,12 @@ case class Piece(value: Char, id: String) {
 
   def worth: Int = worths(value)
 
-  def toAliveAndNonEmptyPiece: Option[Option[Piece]] =
-    this match {
-      case `deadPiece` => None
-      case `emptyPiece` => Some(None)
-      case _ => Some(Some(this))
-    }
+//  def toAliveAndNonEmptyPiece: Option[Option[Piece]] =
+//    this match {
+//      case `deadPiece` => None
+//      case `emptyPiece` => Some(None)
+//      case _ => Some(Some(this))
+//    }
 }
 
 object Piece {
@@ -40,11 +40,11 @@ object Piece {
   def isDead(ch: Char) = ch == deadChar
   def isAlive(ch: Char) = !isDead(ch)
 
-  def fromAliveAndNonEmptyPiece(opt2Piece: Option[Option[Piece]]): Piece =
-    opt2Piece match {
-      case None => deadPiece
-      case Some(optPiece) => fromOption(optPiece)
-    }
+//  def fromAliveAndNonEmptyPiece(opt2Piece: Option[Option[Piece]]): Piece =
+//    opt2Piece match {
+//      case None => deadPiece
+//      case Some(optPiece) => fromOption(optPiece)
+//    }
 
   def fromOption(optPiece: Option[Piece]): Piece = {
     optPiece match {
