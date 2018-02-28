@@ -86,15 +86,6 @@ object Strip {
   def fitsSlot(slotLetter: Char, wordLetter: Char): Boolean =
     slotLetter == ' ' || slotLetter == wordLetter
 
-  def allStrips(axis: Axis, dimension: Int, lines: List[String]): List[Strip] = {
-    for {
-      lineNumber <- lines.indices.toList
-      // TODO. Call stripsInLine.
-      begin <- 0 until dimension
-      end <- (begin + 1) until dimension
-    } yield Strip.lineStrip(axis, lineNumber, lines(lineNumber), begin, end)
-  }
-
   // TODO dimension is redundant == line.length.
 
   def stripsInLine(axis: Axis, dimension: Int, lineNumber: Int, line: String): List[Strip] = {

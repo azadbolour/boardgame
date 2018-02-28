@@ -123,7 +123,7 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
     val prevOpt = prev(point, axis)
     if (prevOpt.isDefined && prevOpt.get.piece.isReal)
       return true
-    return false
+    false
   }
 
   def rowsAsPieces: List[List[Piece]] = grid map { bw => blackWhiteToPiece(bw) }
@@ -139,8 +139,6 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
   }
 
   def playableStrips(traySize: Int): List[Strip] = {
-    // val traySize = tray.pieces.length
-    // val allStrips = computeAllStrips
     val allStrips = computeAllLiveStrips
     def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= traySize
     val conformantStrips1 = allStrips.filter(hasFillableBlanks)
@@ -176,14 +174,6 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
       }
     }
     isSeparator(maybePrevPiece) && isSeparator(maybeNextPiece)
-  }
-
-  def computeAllStrips: List[Strip] = {
-    def rowsAsStrings: List[String] = rowsAsPieces.map(Piece.piecesToString)
-    def columnsAsStrings: List[String] = columnsAsPieces.map(Piece.piecesToString)
-    val xStrips = Strip.allStrips(Axis.X, dimension, rowsAsStrings)
-    val yStrips = Strip.allStrips(Axis.Y, dimension, columnsAsStrings)
-    xStrips ++ yStrips
   }
 
   def computeAllLiveStrips : List[Strip] =

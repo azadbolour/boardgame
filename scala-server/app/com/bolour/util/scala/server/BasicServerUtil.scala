@@ -30,20 +30,4 @@ object BasicServerUtil {
   def mkResourceSource(path: String, classLoader: ClassLoader): Try[BufferedSource] =
     Try { Source.fromResource(path, classLoader)}
 
-  type GiverTaker[A] = (Vector[A], Vector[A])
-
-  def giveRandomElement[A](giverTaker: GiverTaker[A]): GiverTaker[A] = {
-    val (giver, taker) = giverTaker
-    val index = (Math.random() * giver.length).toInt
-    val element = giver(index)
-    val giver1 = giver.patch(index, Nil, 1)
-    (giver1, taker :+ element)
-  }
-
-  def giveRandomElements[A](giverTaker: GiverTaker[A], n : Int): GiverTaker[A] = {
-    if (n == 0) return giverTaker
-    val giverTaker1 = giveRandomElement(giverTaker)
-    giveRandomElements(giverTaker1, n - 1)
-  }
-
 }

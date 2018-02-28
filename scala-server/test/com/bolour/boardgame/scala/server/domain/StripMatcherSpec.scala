@@ -47,12 +47,6 @@ class StripMatcherSpec extends FlatSpec with Matchers { self =>
     override def board = self.board
   }
 
-  "for board" should "find all board strips" in {
-    val strips = board.computeAllStrips
-    logger.info(s"number of strips for 15x15 board: ${strips.length}")
-    strips.length shouldEqual 2 * dimension * (dimension * (dimension - 1) / 2)
-  }
-
   "strip matcher" should "find all playable board strips" in {
     val valuation: Strip => Int = _.numBlanks
     val playableStrips = stripMatcher.groupPlayableStrips(valuation)
