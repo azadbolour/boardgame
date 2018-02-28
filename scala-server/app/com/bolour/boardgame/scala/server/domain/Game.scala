@@ -8,8 +8,8 @@ package com.bolour.boardgame.scala.server.domain
 import java.time.Instant
 
 import com.bolour.boardgame.scala.common.domain.PieceProviderType.PieceProviderType
-import com.bolour.util.scala.common.util.CommonUtil.{ID}
-import com.bolour.util.scala.server.util.BasicServerUtil.{stringId}
+import com.bolour.util.scala.common.CommonUtil.{ID}
+import com.bolour.util.scala.server.BasicServerUtil.{stringId}
 import com.bolour.boardgame.scala.common.domain.{GameParams, Piece}
 import com.bolour.boardgame.scala.server.util.WordUtil.english
 

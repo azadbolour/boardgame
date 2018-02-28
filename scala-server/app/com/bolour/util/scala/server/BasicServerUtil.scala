@@ -3,12 +3,12 @@
  * Licensed under GNU Affero General Public License v3.0 -
  *    https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
-package com.bolour.util.scala.server.util
+package com.bolour.util.scala.server
 
 import java.util.UUID
 
 import com.bolour.boardgame.scala.server.domain.WordDictionary.classLoader
-import com.bolour.util.scala.common.util.CommonUtil.javaListToScala
+import com.bolour.util.scala.common.CommonUtil.javaListToScala
 import com.typesafe.config.ConfigFactory
 
 import scala.io.{BufferedSource, Source}

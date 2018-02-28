@@ -1,7 +1,7 @@
 package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.server.domain.Strip._
-import com.bolour.util.scala.common.domain.Axis
+import com.bolour.plane.scala.domain.Axis
 import org.scalatest.{FlatSpec, Matchers}
 
 class StripSpec extends FlatSpec with Matchers {

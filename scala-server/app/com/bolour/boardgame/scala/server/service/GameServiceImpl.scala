@@ -12,8 +12,8 @@ import javax.inject.Inject
 
 import scala.collection.mutable.{Map => MutableMap}
 import com.typesafe.config.Config
-import com.bolour.util.scala.common.util.CommonUtil.{ID}
-import com.bolour.util.scala.server.util.BasicServerUtil.{readConfigStringList}
+import com.bolour.util.scala.common.CommonUtil.ID
+import com.bolour.util.scala.server.BasicServerUtil.readConfigStringList
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType._
 import com.bolour.boardgame.scala.common.domain.Piece.Pieces
@@ -23,7 +23,7 @@ import com.bolour.boardgame.scala.server.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
 import com.bolour.boardgame.scala.server.domain.Scorer.Score
 import com.bolour.boardgame.scala.server.domain.WordDictionary.mkWordDictionary
-import com.bolour.util.scala.common.domain.Point
+import com.bolour.plane.scala.domain.Point
 import org.slf4j.LoggerFactory
 
 import scala.collection.immutable.Nil

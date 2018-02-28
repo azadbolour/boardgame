@@ -1,4 +1,4 @@
-package com.bolour.util.scala.server.domain
+package com.bolour.util.scala.common
 
 sealed abstract class BlackWhite[T] {
   def isWhite: Boolean

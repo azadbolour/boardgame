@@ -12,10 +12,10 @@ import scala.concurrent.duration._
 import slick.jdbc.JdbcProfile
 import slick.jdbc.JdbcBackend.Database
 import com.typesafe.config.Config
-import com.bolour.util.scala.common.util.CommonUtil.ID
+import com.bolour.util.scala.common.CommonUtil.ID
 import com.bolour.boardgame.scala.common.domain.{PieceProviderType, PlayPiece}
 import com.bolour.boardgame.scala.server.domain.{Game, GameState, Player, PieceProvider}
-import com.bolour.util.scala.server.service.SlickUtil.{CustomColumnTypes, configuredDbAndProfile, tableNames}
+import com.bolour.util.scala.server.SlickUtil.{CustomColumnTypes, configuredDbAndProfile, tableNames}
 import org.slf4j.LoggerFactory
 
 import scala.util.{Success, Try}

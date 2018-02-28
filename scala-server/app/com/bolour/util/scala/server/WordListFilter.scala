@@ -1,4 +1,4 @@
-package com.bolour.util.scala.server.service
+package com.bolour.util.scala.server
 
 import org.slf4j.LoggerFactory
 

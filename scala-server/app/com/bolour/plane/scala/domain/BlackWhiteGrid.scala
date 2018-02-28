@@ -1,7 +1,7 @@
-package com.bolour.util.scala.server.domain
+package com.bolour.plane.scala.domain
 
-import com.bolour.util.scala.common.domain.Axis.Axis
-import com.bolour.util.scala.common.domain.{Grid, Point}
+import com.bolour.plane.scala.domain.Axis.Axis
+import com.bolour.util.scala.common.{Black, BlackWhite, White}
 
 
 /**

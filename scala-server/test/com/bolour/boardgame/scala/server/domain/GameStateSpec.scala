@@ -1,10 +1,10 @@
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.util.scala.server.util.BasicServerUtil.{stringId}
-import com.bolour.util.scala.common.domain.Axis.Axis
+import com.bolour.util.scala.server.BasicServerUtil.stringId
+import com.bolour.plane.scala.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType._
-import com.bolour.util.scala.common.domain.{Axis, Point}
+import com.bolour.plane.scala.domain.{Axis, Point}
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
 

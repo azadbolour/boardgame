@@ -5,7 +5,7 @@
  */
 package com.bolour.boardgame.scala.common.domain
 
-import com.bolour.util.scala.common.domain.Point
+import com.bolour.plane.scala.domain.Point
 
 // TODO. Change to the more general: GridValue[Val](value: Val, point: Point]
 // Will need custom json format.

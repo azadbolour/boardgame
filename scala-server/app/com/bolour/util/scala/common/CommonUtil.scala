@@ -3,7 +3,7 @@
  * Licensed under GNU Affero General Public License v3.0 -
  *    https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
-package com.bolour.util.scala.common.util
+package com.bolour.util.scala.common
 
 object CommonUtil {
   type ID = String

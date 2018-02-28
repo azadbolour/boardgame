@@ -6,7 +6,7 @@
 package com.bolour.boardgame.scala.common.message
 
 import com.bolour.boardgame.scala.common.domain.{GameMiniState, PlayPiece}
-import com.bolour.util.scala.common.domain.Point
+import com.bolour.plane.scala.domain.Point
 
 case class MachinePlayResponse(
   gameMiniState: GameMiniState,

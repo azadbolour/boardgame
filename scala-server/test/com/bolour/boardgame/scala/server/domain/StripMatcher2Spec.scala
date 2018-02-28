@@ -4,7 +4,7 @@ import java.util.UUID
 
 import com.bolour.boardgame.scala.common.domain.{GridPiece, Piece}
 import com.bolour.boardgame.scala.server.util.WordUtil
-import com.bolour.util.scala.common.domain.Point
+import com.bolour.plane.scala.domain.Point
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
 

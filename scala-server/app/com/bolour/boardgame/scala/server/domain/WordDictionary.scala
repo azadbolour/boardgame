@@ -8,7 +8,7 @@ package com.bolour.boardgame.scala.server.domain
 import java.io.File
 
 import com.bolour.boardgame.scala.server.domain.GameExceptions.MissingDictionaryException
-import com.bolour.util.scala.server.util.BasicServerUtil.{mkFileSource, mkResourceSource}
+import com.bolour.util.scala.server.BasicServerUtil.{mkFileSource, mkResourceSource}
 import com.bolour.boardgame.scala.server.util.WordUtil._
 
 import scala.collection.immutable.HashSet

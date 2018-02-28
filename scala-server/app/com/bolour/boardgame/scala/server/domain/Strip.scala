@@ -5,13 +5,13 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.util.scala.common.domain.Axis._
-import com.bolour.util.scala.common.domain.Axis.Axis
+import com.bolour.plane.scala.domain.Axis._
+import com.bolour.plane.scala.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain.Piece._
 import com.bolour.boardgame.scala.common.domain.PlayPiece
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
 import com.bolour.boardgame.scala.server.util.WordUtil.{BLANK, DictWord, Length, LetterCombo, NumBlanks, nonBlankLetterCombo}
-import com.bolour.util.scala.common.domain.Point
+import com.bolour.plane.scala.domain.Point
 
 case class Strip(
   axis: Axis,               // direction

@@ -10,7 +10,7 @@ import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
 import com.bolour.boardgame.scala.common.domain.{GridPiece, Piece}
 import com.bolour.boardgame.scala.server.util.WordUtil
-import com.bolour.util.scala.common.domain.Point
+import com.bolour.plane.scala.domain.Point
 
 class StripMatcherSpec extends FlatSpec with Matchers { self =>
   val logger = LoggerFactory.getLogger(this.getClass)

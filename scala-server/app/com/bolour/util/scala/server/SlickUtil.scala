@@ -3,7 +3,7 @@
  * Licensed under GNU Affero General Public License v3.0 -
  *    https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
-package com.bolour.util.scala.server.service
+package com.bolour.util.scala.server
 
 import java.sql.Timestamp
 import java.time.Instant

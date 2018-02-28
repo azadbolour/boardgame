@@ -5,7 +5,7 @@
  */
 package controllers
 
-import com.bolour.util.scala.server.util.BasicServerUtil.{stringId}
+import com.bolour.util.scala.server.BasicServerUtil.stringId
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.message._
 import com.bolour.boardgame.scala.server.domain.Scorer.Score
@@ -18,7 +18,7 @@ import org.scalatestplus.play._
 import play.api.test._
 import play.api.test.Helpers._
 import com.bolour.boardgame.scala.server.service.GameServiceImpl
-import com.bolour.util.scala.common.domain.Point
+import com.bolour.plane.scala.domain.Point
 import controllers.GameJsonSupport._
 import org.slf4j.LoggerFactory
 

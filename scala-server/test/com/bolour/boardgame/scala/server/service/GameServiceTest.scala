@@ -1,9 +1,9 @@
 package com.bolour.boardgame.scala.server.service
 
-import com.bolour.util.scala.server.util.BasicServerUtil.{stringId}
+import com.bolour.util.scala.server.BasicServerUtil.stringId
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.Player
-import com.bolour.util.scala.common.domain.Point
+import com.bolour.plane.scala.domain.Point
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
