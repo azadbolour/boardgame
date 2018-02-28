@@ -5,9 +5,7 @@
  */
 package com.bolour.boardgame.scala.common.domain
 
-import com.bolour.util.BasicUtil._
-
-case class Piece(value: Char, id: String = stringId()) {
+case class Piece(value: Char, id: String) {
   import Piece._
 
   def isEmpty = this == emptyPiece

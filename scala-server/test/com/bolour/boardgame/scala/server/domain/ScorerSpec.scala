@@ -1,6 +1,7 @@
 package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain._
+import com.bolour.util.scala.common.domain.Axis
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
 

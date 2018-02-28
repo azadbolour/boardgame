@@ -2,8 +2,9 @@ package com.bolour.boardgame.scala.server.domain
 
 import java.util.UUID
 
-import com.bolour.boardgame.scala.common.domain.{Axis, GridPiece, Piece, Point}
+import com.bolour.boardgame.scala.common.domain.{GridPiece, Piece}
 import com.bolour.boardgame.scala.server.util.WordUtil
+import com.bolour.util.scala.common.domain.{Axis, Point}
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
 

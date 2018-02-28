@@ -5,10 +5,11 @@
  */
 package com.bolour.boardgame.scala.server.service
 
-import com.bolour.util.BasicUtil.ID
+import com.bolour.util.scala.common.util.CommonUtil.ID
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.Scorer.Score
 import com.bolour.boardgame.scala.server.domain.{Game, GameState, Player}
+import com.bolour.util.scala.common.domain.Point
 
 import scala.util.Try
 

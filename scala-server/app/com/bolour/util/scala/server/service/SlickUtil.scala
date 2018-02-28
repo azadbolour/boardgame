@@ -3,18 +3,18 @@
  * Licensed under GNU Affero General Public License v3.0 -
  *    https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
-package com.bolour.util
+package com.bolour.util.scala.server.service
 
-import java.time.Instant
 import java.sql.Timestamp
-
-import scala.concurrent.Await
-import scala.concurrent.duration._
+import java.time.Instant
 
 import com.typesafe.config.ConfigFactory
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.meta.MTable
 import slick.jdbc.{H2Profile, JdbcProfile}
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 object SlickUtil {
   val h2Driver = "org.h2.Driver"

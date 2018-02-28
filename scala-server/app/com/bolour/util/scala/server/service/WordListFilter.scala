@@ -1,8 +1,7 @@
-package com.bolour.util
+package com.bolour.util.scala.server.service
 
 import org.slf4j.LoggerFactory
 
-import scala.collection.immutable.TreeSet
 import scala.io.Source
 
 object WordListFilter extends App {

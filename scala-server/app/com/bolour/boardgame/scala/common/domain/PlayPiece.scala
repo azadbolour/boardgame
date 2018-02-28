@@ -5,6 +5,8 @@
  */
 package com.bolour.boardgame.scala.common.domain
 
+import com.bolour.util.scala.common.domain.Point
+
 case class PlayPiece(piece: Piece, point: Point, moved: Boolean) {
   def gridPiece = GridPiece(piece, point)
 }

@@ -5,7 +5,7 @@
  */
 package com.bolour.boardgame.scala.server.service
 
-import com.bolour.util.BasicUtil.ID
+import com.bolour.util.scala.common.util.CommonUtil.ID
 import com.bolour.boardgame.scala.common.domain.PlayPiece
 import com.bolour.boardgame.scala.server.domain.{Game, GameState, PieceProvider, Player}
 

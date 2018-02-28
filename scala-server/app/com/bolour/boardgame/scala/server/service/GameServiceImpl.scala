@@ -12,7 +12,8 @@ import javax.inject.Inject
 
 import scala.collection.mutable.{Map => MutableMap}
 import com.typesafe.config.Config
-import com.bolour.util.BasicUtil.{ID, readConfigStringList}
+import com.bolour.util.scala.common.util.CommonUtil.{ID}
+import com.bolour.util.scala.server.util.BasicServerUtil.{readConfigStringList}
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType._
 import com.bolour.boardgame.scala.common.domain.Piece.Pieces
@@ -22,6 +23,7 @@ import com.bolour.boardgame.scala.server.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
 import com.bolour.boardgame.scala.server.domain.Scorer.Score
 import com.bolour.boardgame.scala.server.domain.WordDictionary.mkWordDictionary
+import com.bolour.util.scala.common.domain.Point
 import org.slf4j.LoggerFactory
 
 import scala.collection.immutable.Nil
@@ -176,13 +178,6 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
         (b, allDeadPoints)
     }
   }
-
-//  private def updateDeadPoints(state: GameState, dictionary: WordDictionary, trayCapacity: Int, recurse: Int): (Set[Point], GameState) = {
-//    val deadPoints = StripMatcher.hopelessBlankPoints(state.board, dictionary, trayCapacity).toList
-//      st = state.setDeadPoints(deadPoints)
-//    }
-//    st
-//  }
 
   // TODO. Persist play.
   private def savePlay(gameState: GameState, playPieces: PlayPieces, replacements: Pieces): Try[Unit] = {

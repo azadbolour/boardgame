@@ -1,8 +1,9 @@
 package com.bolour.boardgame.scala.server.service
 
+import com.bolour.util.scala.server.util.BasicServerUtil.{stringId}
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.Player
-import com.bolour.boardgame.scala.server.util.WordUtil
+import com.bolour.util.scala.common.domain.Point
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
@@ -23,7 +24,7 @@ class GameServiceTest extends FlatSpec with Matchers {
   service.migrate()
   service.addPlayer(Player(name))
 
-  def gp(letter: Char, row: Int, col: Int) = GridPiece(Piece(letter), Point(row, col))
+  def gp(letter: Char, row: Int, col: Int) = GridPiece(Piece(letter, stringId()), Point(row, col))
 
   val top = gp('S', center - 1, center)
   val bottom = gp('T', center + 1, center)
@@ -48,7 +49,7 @@ class GameServiceTest extends FlatSpec with Matchers {
 
   "game service" should "accept valid crosswords" in {
     // Allow only O to be used.
-    val uPieces = List(Piece('O'), Piece('O'))
+    val uPieces = List(Piece('O', stringId()), Piece('O', stringId()))
     val playPieces = List(
       PlayPiece(bottom.piece, bottom.point, false),
       // Add O to the bottom right getting word TO and crossword TO (which is valid).
@@ -62,7 +63,7 @@ class GameServiceTest extends FlatSpec with Matchers {
 
   "game service" should "reject invalid crosswords" in {
     // Allow only Q to be used.
-    val uPieces = List(Piece('O'), Piece('O'))
+    val uPieces = List(Piece('O', stringId()), Piece('O', stringId()))
     val playPieces = List(
       PlayPiece(top.piece, top.point, false),
       // Add O to the top right getting word SO and crossword OT (which is invalid).

@@ -9,6 +9,7 @@ import com.bolour.boardgame.scala.common.domain.PieceProviderType._
 import com.bolour.boardgame.scala.common.domain._
 import play.api.libs.json.Json.{reads, writes}
 import com.bolour.boardgame.scala.common.message._
+import com.bolour.util.scala.common.domain.Point
 import play.api.libs.json._
 
 /**

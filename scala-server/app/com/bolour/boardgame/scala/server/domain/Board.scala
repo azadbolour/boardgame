@@ -5,11 +5,15 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.boardgame.scala.common.domain.Axis.Axis
+import com.bolour.util.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
-import com.bolour.util.BasicUtil.inverseMultiValuedMapping
+import com.bolour.util.scala.common.util.CommonUtil.inverseMultiValuedMapping
 import com.bolour.util._
+import com.bolour.util.scala._
+import com.bolour.util.scala.common.domain.{Axis, Point}
+import com.bolour.util.scala.server._
+import com.bolour.util.scala.server.domain._
 
 case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
 

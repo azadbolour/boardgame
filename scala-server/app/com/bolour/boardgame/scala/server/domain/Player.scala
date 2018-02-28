@@ -5,7 +5,8 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.util.BasicUtil.{ID, stringId}
+import com.bolour.util.scala.common.util.CommonUtil.{ID}
+import com.bolour.util.scala.server.util.BasicServerUtil.{stringId}
 
 case class Player(id: ID, name: String)
 

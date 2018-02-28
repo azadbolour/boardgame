@@ -1,8 +1,10 @@
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.boardgame.scala.common.domain.Axis.Axis
+import com.bolour.util.scala.server.util.BasicServerUtil.{stringId}
+import com.bolour.util.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType._
+import com.bolour.util.scala.common.domain.{Axis, Point}
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
 
@@ -55,7 +57,7 @@ class GameStateSpec extends FlatSpec with Matchers {
     val pointValues = List.fill(dimension, dimension)(1)
     val game = Game(gameParams, pointValues, "123")
 
-    def pc(ch: Char): Piece = Piece(ch)
+    def pc(ch: Char): Piece = Piece(ch, stringId())
 
     // Plays wil yield:
     /*

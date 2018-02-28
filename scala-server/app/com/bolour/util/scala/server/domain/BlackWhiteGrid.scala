@@ -1,7 +1,7 @@
-package com.bolour.util
+package com.bolour.util.scala.server.domain
 
-import com.bolour.boardgame.scala.common.domain.Axis.Axis
-import com.bolour.boardgame.scala.common.domain.{Grid, Point}
+import com.bolour.util.scala.common.domain.Axis.Axis
+import com.bolour.util.scala.common.domain.{Grid, Point}
 
 
 /**

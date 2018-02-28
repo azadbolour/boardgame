@@ -5,6 +5,7 @@
  */
 package controllers
 
+import com.bolour.util.scala.server.util.BasicServerUtil.{stringId}
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.message._
 import com.bolour.boardgame.scala.server.domain.Scorer.Score
@@ -17,6 +18,7 @@ import org.scalatestplus.play._
 import play.api.test._
 import play.api.test.Helpers._
 import com.bolour.boardgame.scala.server.service.GameServiceImpl
+import com.bolour.util.scala.common.domain.Point
 import controllers.GameJsonSupport._
 import org.slf4j.LoggerFactory
 
@@ -61,8 +63,8 @@ class GameControllerSpec extends PlaySpec with Results {
     val name = "Bill"
     val dimension = 5
     val gameParams = GameParams(dimension, 5, languageCode, name, PieceProviderType.Cyclic)
-    val uPieces = List(Piece('B'), Piece('E'), Piece('T')) // User to play "BET".
-    val mPieces = List(Piece('S'), Piece('T'), Piece('Z')) // Machine to play "SET" using user's 'E'.
+    val uPieces = List(Piece('B', stringId()), Piece('E', stringId()), Piece('T', stringId())) // User to play "BET".
+    val mPieces = List(Piece('S', stringId()), Piece('T', stringId()), Piece('Z', stringId())) // Machine to play "SET" using user's 'E'.
     val pointValues = List.fill(dimension, dimension)(1)
     val startGameRequest = StartGameRequest(gameParams, Nil, uPieces, mPieces, pointValues)
 

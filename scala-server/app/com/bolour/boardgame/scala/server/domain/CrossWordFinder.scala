@@ -1,8 +1,9 @@
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.boardgame.scala.common.domain.Axis.Axis
+import com.bolour.util.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain.PlayPieceObj.PlayPieces
 import com.bolour.boardgame.scala.common.domain._
+import com.bolour.util.scala.common.domain.{Axis, Point}
 
 class CrossWordFinder(board: Board) {
   val dimension = board.dimension

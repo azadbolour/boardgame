@@ -8,6 +8,7 @@ package com.bolour.boardgame.scala.server.domain
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType.{playerIndex, _}
 import com.bolour.boardgame.scala.server.domain.GameExceptions.{InvalidCrosswordsException, MalformedPlayException}
+import com.bolour.util.scala.common.domain.Point
 import org.slf4j.LoggerFactory
 
 import scala.util.{Success, Try}
