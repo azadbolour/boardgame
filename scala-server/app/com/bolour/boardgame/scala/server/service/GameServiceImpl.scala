@@ -22,7 +22,7 @@ import com.bolour.boardgame.scala.common.domain.PlayPieceObj.PlayPieces
 import com.bolour.boardgame.scala.server.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
 import com.bolour.boardgame.scala.server.domain.Scorer.Score
-import com.bolour.boardgame.scala.server.domain.WordDictionary.mkWordDictionary
+import com.bolour.language.scala.domain.WordDictionary
 import com.bolour.plane.scala.domain.Point
 import org.slf4j.LoggerFactory
 
@@ -58,13 +58,21 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     case Success(languageCodes) =>
       languageCodes.foreach {
         languageCode =>
-          mkWordDictionary(languageCode, dictionaryDir, MaxMaskedLetters) match {
-            case Failure(ex) => throw ex
+          WordDictionary.mkWordDictionary(languageCode, dictionaryDir, MaxMaskedLetters) match {
+            case Failure(ex) => throw convertException(ex)
             case Success(dictionary) =>
               logger.info(s"adding language dictionary: ${languageCode}")
               dictionaryCache(languageCode) = dictionary
           }
       }
+  }
+
+  private def convertException(ex: Throwable): GameException = {
+    ex match {
+      case com.bolour.language.scala.domain.LanguageExceptions.MissingDictionaryException(languageCode, dictionaryDir, ex) =>
+        MissingDictionaryException(languageCode, dictionaryDir, ex)
+      case _ => InternalGameException("unable to make word dictionary", ex)
+    }
   }
 
   val defaultDb = config.getString(defaultDbPath)

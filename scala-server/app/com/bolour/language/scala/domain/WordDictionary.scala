@@ -3,21 +3,16 @@
  * Licensed under GNU Affero General Public License v3.0 -
  *    https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
-package com.bolour.boardgame.scala.server.domain
+package com.bolour.language.scala.domain
 
 import java.io.File
 
-import com.bolour.boardgame.scala.server.domain.GameExceptions.MissingDictionaryException
-import com.bolour.util.scala.server.BasicServerUtil.{mkFileSource, mkResourceSource}
 import com.bolour.boardgame.scala.server.util.WordUtil._
+import com.bolour.language.scala.domain.LanguageExceptions.MissingDictionaryException
+import com.bolour.language.scala.domain.WordDictionary._
+import com.bolour.util.scala.server.BasicServerUtil.{mkFileSource, mkResourceSource}
 
-import scala.collection.immutable.HashSet
-import scala.collection.parallel.mutable.{ParHashSet, ParSet}
-import scala.io.{BufferedSource, Source}
 import scala.util.{Failure, Success, Try}
-import WordDictionary._
-
-import scala.collection.mutable
 
 /** Word dictionary - indexed by combinations of letters in a word.
   * A combination is represented as the sorted string of letters.
@@ -52,9 +47,6 @@ case class WordDictionary(languageCode: String, words: List[DictWord], maxMasked
 
 object WordDictionary {
 
-//  def apply(languageCode: String, words: List[DictWord]): WordDictionary =
-//    WordDictionary(languageCode, mkWordIndex(words))
-
   def mkWordDictionary(languageCode: String, dictionaryDir: String, maxMaskedLetters: Int): Try[WordDictionary] = Try {
     readDictionary(languageCode, dictionaryDir) match {
       case Failure(ex) => throw new MissingDictionaryException(languageCode, dictionaryDir, ex)
@@ -73,7 +65,7 @@ object WordDictionary {
     val name = dictionaryFileName(languageCode)
     val path = s"${dictionaryDir}${File.separator}${name}"
     for {
-      source <- mkFileSource(path).orElse(mkResourceSource(path))
+      source <- mkFileSource(path).orElse(mkResourceSource(path, WordDictionary.classLoader))
       words <- Try {
         // TODO. Better pattern for closing source?
         try {
@@ -96,23 +88,6 @@ object WordDictionary {
       masked <- maskWithBlanks(word, maxMaskedLetters)
     } yield masked
     list.toSet
-  }
-
-//  def mkMaskedWords(words: List[DictWord], maxMaskedLetters: Int): mutable.HashSet[String] = {
-//    // val wordSet = HashSet(words:_*)
-//    val wordSet = listToSet(words)
-//    for {
-//      word <- wordSet
-//      masked <- maskWithBlanks(word, maxMaskedLetters)
-//    } yield masked
-//  }
-
-  private def listToSet[A](list: List[A]): mutable.HashSet[A] = {
-    var set = mutable.HashSet[A]()
-    list.foreach { element =>
-      set += element
-    }
-    set
   }
 
 }

@@ -7,7 +7,6 @@ package com.bolour.util.scala.server
 
 import java.util.UUID
 
-import com.bolour.boardgame.scala.server.domain.WordDictionary.classLoader
 import com.bolour.util.scala.common.CommonUtil.javaListToScala
 import com.typesafe.config.ConfigFactory
 
@@ -28,7 +27,7 @@ object BasicServerUtil {
   def mkFileSource(path: String): Try[BufferedSource] =
     Try { Source.fromFile(path) }
 
-  def mkResourceSource(path: String): Try[BufferedSource] =
+  def mkResourceSource(path: String, classLoader: ClassLoader): Try[BufferedSource] =
     Try { Source.fromResource(path, classLoader)}
 
   type GiverTaker[A] = (Vector[A], Vector[A])

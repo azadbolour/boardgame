@@ -7,7 +7,7 @@
 package com.bolour.boardgame.scala.server.domain
 
 import org.scalatest.{FlatSpec, Matchers}
-import com.bolour.boardgame.scala.server.domain.WordDictionary._
+import com.bolour.language.scala.domain.WordDictionary._
 import org.slf4j.LoggerFactory
 
 class WordDictionarySpec extends FlatSpec with Matchers {

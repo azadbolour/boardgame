@@ -13,6 +13,7 @@ import com.bolour.boardgame.scala.common.domain.Piece.isBlank
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
 import com.bolour.boardgame.scala.server.util.WordUtil
 import com.bolour.boardgame.scala.server.util.WordUtil.{DictWord, Length, LetterCombo, NumBlanks}
+import com.bolour.language.scala.domain.WordDictionary
 import com.bolour.plane.scala.domain.{Axis, Point}
 import org.slf4j.LoggerFactory
 

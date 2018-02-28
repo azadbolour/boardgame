@@ -6,7 +6,6 @@
 package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain.Piece
-import com.bolour.util.scala.common.CommonUtil
 import org.slf4j.LoggerFactory
 
 import scala.util.{Success, Try}
