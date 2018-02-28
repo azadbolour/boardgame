@@ -8,7 +8,7 @@ package com.bolour.boardgame.scala.server.domain
 import com.bolour.plane.scala.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
-import com.bolour.plane.scala.domain.{Axis, BlackWhiteGrid, BlackWhitePoint, Point}
+import com.bolour.plane.scala.domain._
 import com.bolour.util.scala.common.CommonUtil.inverseMultiValuedMapping
 import com.bolour.util.scala.common.{Black, BlackWhite, White}
 
@@ -131,9 +131,11 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
 
   def playableEmptyStrips(traySize: Int): List[Strip] = {
     val center = dimension/2
-    val centerRowAsPieces = rowsAsPieces(center)
-    val centerRowAsString = Piece.piecesToString(centerRowAsPieces) // converts null chars to blanks
-    val strips = Strip.stripsInLine(Axis.X, dimension, center, centerRowAsString)
+
+    // val centerRowAsPieces = rowsAsPieces(center)
+    // val centerRowAsString = Piece.piecesToString(centerRowAsPieces) // converts null chars to blanks
+    // val strips = Strip.liveStripsInLine(Axis.X, center, centerRowAsString)
+    val strips = grid.segmentsForLineNumber(Axis.X, center) map lineSegmentToStrip
     val conformantStrips = strips.filter { strip => strip.begin <= center && strip.end >= center}
     conformantStrips
   }
@@ -149,17 +151,12 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
 
   def potentialPlayableStrips(axis: Axis, trayCapacity: Int): List[Strip] = {
     // val traySize = tray.capacity
-    val allStrips = computeAllLiveStrips(axis)
+    // val allStrips = computeAllLiveStrips(axis)
+    val allStrips = grid.segmentsAlongAxis(axis) map lineSegmentToStrip
     def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= trayCapacity
     val conformantStrips1 = allStrips.filter(hasFillableBlanks)
     val conformantStrips2 = conformantStrips1.filter(stripIsDisconnectedInLine)
     conformantStrips2
-  }
-
-  // TODO. Obsolete remove once replacement is tested. Also remove obsolete dependencies.
-  def potentialPlayableStripsForBlanks(axis: Axis, trayCapacity: Int): Map[Point, List[Strip]] = {
-    val ppStrips = potentialPlayableStrips(axis, trayCapacity)
-    inverseMultiValuedMapping((strip: Strip) => strip.blankPoints)(ppStrips)
   }
 
   def stripIsDisconnectedInLine(strip: Strip): Boolean = {
@@ -176,22 +173,10 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
     isSeparator(maybePrevPiece) && isSeparator(maybeNextPiece)
   }
 
-  def computeAllLiveStrips : List[Strip] =
-    computeAllLiveStrips(Axis.X) ++ computeAllLiveStrips(Axis.Y)
-
-  def computeAllLiveStrips(axis: Axis): List[Strip] = {
-    axis match {
-      case Axis.X =>
-        def rowsAsStrings: List[String] = rowsAsPieces.map(Piece.piecesToString)
-        Strip.allLiveStrips(Axis.X, rowsAsStrings)
-      case Axis.Y =>
-        def columnsAStrings: List[String] = columnsAsPieces.map(Piece.piecesToString)
-        Strip.allLiveStrips(Axis.Y, columnsAStrings)
-    }
-  }
+  def computeAllLiveStrips : List[Strip] = grid.allSegments map lineSegmentToStrip
 
   def enclosingStripsOfBlankPoints(axis: Axis): Map[Point, List[Strip]] = {
-    val stripsEnclosingBlanks = computeAllLiveStrips(axis) filter { _.numBlanks > 0 }
+    val stripsEnclosingBlanks = (grid.segmentsAlongAxis(axis) map lineSegmentToStrip) filter { _.numBlanks > 0 }
     inverseMultiValuedMapping((strip: Strip) => strip.blankPoints)(stripsEnclosingBlanks)
   }
 
@@ -207,7 +192,6 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
     }
     playable
   }
-
 }
 
 object Board {
@@ -255,6 +239,19 @@ object Board {
       case Black() => Piece.deadPiece
       case White(None) => Piece.emptyPiece
       case White(Some(piece)) => piece
+    }
+  }
+
+  def lineSegmentToStrip(lineSegment: LineSegment[Piece]): Strip = {
+    def optToChar(opt: Option[Piece]): Char =
+      opt match {
+        case None => ' '
+        case Some(piece) => piece.value
+      }
+
+    lineSegment match {
+      case LineSegment(axis, lineNumber, begin, end, segment) =>
+        Strip(axis, lineNumber, begin, end, (segment map optToChar).mkString)
     }
   }
 

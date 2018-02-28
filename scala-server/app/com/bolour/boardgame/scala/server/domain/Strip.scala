@@ -86,40 +86,5 @@ object Strip {
   def fitsSlot(slotLetter: Char, wordLetter: Char): Boolean =
     slotLetter == ' ' || slotLetter == wordLetter
 
-  // TODO dimension is redundant == line.length.
-
-  def stripsInLine(axis: Axis, dimension: Int, lineNumber: Int, line: String): List[Strip] = {
-    for {
-      begin <- (0 until dimension).toList
-      end <- (begin + 1) until dimension
-    } yield Strip.lineStrip(axis, lineNumber, line, begin, end)
-  }
-
-  def liveStripsInLine(axis: Axis, lineNumber: Int, line: String): List[Strip] = {
-    def dead(i: Int) = i < 0 || i >= line.length || isDead(line(i))
-    def live(i: Int) = !dead(i)
-    def beginLive(i: Int) = live(i) && dead(i - 1)
-    def endLive(i: Int) = live(i) && dead(i + 1)
-
-    val begins = line.indices filter beginLive
-    val ends = line.indices filter endLive
-    val liveIntervals = begins zip ends
-    val strips =
-      for {
-        (intervalBegin, intervalEnd) <- liveIntervals
-        begin <- intervalBegin to intervalEnd
-        end <- begin to intervalEnd
-      } yield Strip.lineStrip(axis, lineNumber, line, begin, end)
-    strips.toList
-  }
-
-  def allLiveStrips(axis: Axis, lines: List[String]): List[Strip] = {
-    for {
-      lineNumber <- lines.indices.toList
-      liveStrip <- liveStripsInLine(axis, lineNumber, lines(lineNumber))
-    } yield liveStrip
-  }
-
-
 }
 

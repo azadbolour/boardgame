@@ -28,4 +28,7 @@ object BlackWhite {
     }
   }
 
+  def fromWhites[T](line: List[BlackWhite[T]], begin: Int, end: Int): List[Option[T]] =
+    (begin to end).toList map { i => BlackWhite.fromWhite(line(i))}
+
 }

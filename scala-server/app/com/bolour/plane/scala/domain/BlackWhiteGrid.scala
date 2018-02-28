@@ -1,6 +1,7 @@
 package com.bolour.plane.scala.domain
 
 import com.bolour.plane.scala.domain.Axis.Axis
+import com.bolour.plane.scala.domain.LineSegment.segmentsInLine
 import com.bolour.util.scala.common.{Black, BlackWhite, White}
 
 
@@ -96,6 +97,31 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
   def getValues: List[(T, Point)] = fromJustWhites(grid.flatten)
 
   def isEmpty: Boolean = grid.flatten.forall { _.value.isEmpty }
+
+  def segmentsForLineNumber(axis: Axis, lineNumber: Int): List[LineSegment[T]] = {
+    val line = linesAlongAxis(axis)(lineNumber)
+    segmentsInLine(axis, lineNumber, line)
+  }
+
+  def linesAlongAxis(axis: Axis): List2D[BlackWhite[T]] = {
+    val rowValues = this.map(identity)
+    axis match {
+      case Axis.X => rowValues
+      case Axis.Y => rowValues.transpose
+    }
+  }
+
+  def segmentsAlongAxis(axis: Axis): List[LineSegment[T]] = {
+    val lines = linesAlongAxis(axis)
+    val segments = for {
+      lineNumber <- lines.indices.toList
+      segment <- segmentsInLine(axis, lineNumber, lines(lineNumber))
+    } yield segment
+    segments
+  }
+
+  def allSegments: List[LineSegment[T]] =
+    segmentsAlongAxis(Axis.X) ++ segmentsAlongAxis(Axis.Y)
 
 }
 
