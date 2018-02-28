@@ -46,32 +46,35 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
   /** When a related cell is Black, it is as if no related cell exists, and so
     * convert it to None, the same as if a related cell is out of bounds.
     */
-  private def unwindBlackWhite(optBWPoint: Option[BlackWhitePoint[T]]): Option[(Option[T], Point)] = {
-    optBWPoint match {
-      case None => None // on the boundary
-      case Some(bwPoint) =>
-        val BlackWhitePoint(bw, point) = bwPoint
-        bw match {
-          case Black() => None // it is like non-existent
-          case White(opt) => Some((opt, point))
-        }
-    }
-  }
+//  private def unwindBlackWhite(optBWPoint: Option[BlackWhitePoint[T]]): Option[(Option[T], Point)] = {
+//    optBWPoint match {
+//      case None => None // on the boundary
+//      case Some(bwPoint) =>
+//        val BlackWhitePoint(bw, point) = bwPoint
+//        bw match {
+//          case Black() => None // it is like non-existent
+//          case White(opt) => Some((opt, point))
+//        }
+//    }
+//  }
 
-  def next(point: Point, axis: Axis): Option[(Option[T], Point)] = {
-    val optPair = grid.nextCell(point, axis)
-    unwindBlackWhite(optPair)
-  }
+  /**
+    * Get the next value-point pair on the grid (None if out of bounds).
+    */
+  def next(point: Point, axis: Axis): Option[BlackWhitePoint[T]] =
+    grid.nextCell(point, axis)
 
-  def prev(point: Point, axis: Axis): Option[(Option[T], Point)] = {
-    val optPair = grid.prevCell(point, axis)
-    unwindBlackWhite(optPair)
-  }
+  /**
+    * Get the previous value-point pair on the grid (None if out of bounds).
+    */
+  def prev(point: Point, axis: Axis): Option[BlackWhitePoint[T]] =
+    grid.prevCell(point, axis)
 
-  def adjacent(point: Point, axis: Axis, direction: Int): Option[(Option[T], Point)] = {
-    val optPair = grid.adjacentCell(point, axis, direction)
-    unwindBlackWhite(optPair)
-  }
+  /**
+    * Get an adjacent value-point pair on the grid (None if out of bounds).
+    */
+  def adjacent(point: Point, axis: Axis, direction: Int): Option[BlackWhitePoint[T]] =
+    grid.adjacentCell(point, axis, direction)
 
   def isDead(point: Point): Boolean = get(point) == Black()
 

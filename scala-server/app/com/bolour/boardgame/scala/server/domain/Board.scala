@@ -101,27 +101,31 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
     }
   }
 
-  def next(point: Point, axis: Axis): Option[GridPiece] = {
-    val pointedPairOpt = grid.next(point, axis)
-    toGridPieceOption(pointedPairOpt)
-  }
+  /**
+    * Get the value of the next point on the grid (None if next is off the grid).
+    */
+  def next(point: Point, axis: Axis): Option[BlackWhite[Piece]] =
+    grid.next(point, axis) map { _.value }
 
-  def prev(point: Point, axis: Axis): Option[GridPiece] = {
-    val pointedPairOpt = grid.prev(point, axis)
-    toGridPieceOption(pointedPairOpt)
-  }
+  /**
+    * Get the value of the previous point on the grid (None if previous is off the grid).
+    */
+  def prev(point: Point, axis: Axis): Option[BlackWhite[Piece]] =
+    grid.prev(point, axis) map { _.value }
 
-  def adjacent(point: Point, axis: Axis, direction: Int): Option[GridPiece] = {
-    val pointedPairOpt = grid.adjacent(point, axis, direction)
-    toGridPieceOption(pointedPairOpt)
-  }
+  /**
+    * Get the value of an adjacent point on the grid (None if adjacent is off the grid).
+    */
+  def adjacent(point: Point, axis: Axis, direction: Int): Option[BlackWhite[Piece]] =
+    grid.adjacent(point, axis, direction) map { _.value }
+
 
   def hasRealNeighbor(point: Point, axis: Axis): Boolean = {
     val nextOpt = next(point, axis)
-    if (nextOpt.isDefined && nextOpt.get.piece.isReal)
+    if (nextOpt.isDefined && nextOpt.get.hasValue)
       return true
     val prevOpt = prev(point, axis)
-    if (prevOpt.isDefined && prevOpt.get.piece.isReal)
+    if (prevOpt.isDefined && prevOpt.get.hasValue)
       return true
     false
   }
@@ -162,12 +166,18 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
   def stripIsDisconnectedInLine(strip: Strip): Boolean = {
     val firstPoint = strip.point(0)
     val lastPoint = strip.point(strip.end - strip.begin)
-    val maybePrevPiece = prev(firstPoint, strip.axis).map {_.value}
-    val maybeNextPiece = next(lastPoint, strip.axis).map {_.value}
-    def isSeparator(maybePiece: Option[Piece]): Boolean = {
-      maybePiece match {
+    val maybePrevPiece = prev(firstPoint, strip.axis)
+    val maybeNextPiece = next(lastPoint, strip.axis)
+
+    def isSeparator(maybeBlackWhitePiece: Option[BlackWhite[Piece]]): Boolean = {
+      maybeBlackWhitePiece match {
         case None => true
-        case Some(piece) => piece.isEmpty
+        case Some(bwPiece) => 
+          bwPiece match {
+            case Black() => true
+            case White(None) => true
+            case White(Some(_)) => false
+          }
       }
     }
     isSeparator(maybePrevPiece) && isSeparator(maybeNextPiece)
