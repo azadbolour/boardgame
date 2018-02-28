@@ -9,20 +9,20 @@ import com.bolour.boardgame.scala.common.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
 import com.bolour.util.BasicUtil.inverseMultiValuedMapping
-import com.bolour.util.SwissCheeseSparseGrid
-import com.bolour.util.SwissCheeseSparseGrid.Opt2
+import com.bolour.util._
 
-case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
+case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
+
+  import Board._
   def gridPieces: List[GridPiece] = {
-    val piecesAndPoints = grid.getAllAliveAndNonEmpty
+    val piecesAndPoints = grid.getValues
     piecesAndPoints map { case (piece, point) => GridPiece(piece, point)}
   }
 
-  // TODO. URGENT. Rename to setN.
   def setN(gridPieces: List[GridPiece]): Board = {
-    val pairs = gridPieces map
-      { case GridPiece(piece, point) => (piece.toAliveAndNonEmptyPiece, point) }
-    val augmentedGrid = grid.setN(pairs)
+    val bwPoints = gridPieces map
+      { case GridPiece(piece, point) => BlackWhitePoint(pieceToBlackWhite(piece), point) }
+    val augmentedGrid = grid.setN(bwPoints)
     Board(dimension, augmentedGrid)
   }
 
@@ -35,16 +35,13 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
   private def rows = grid.rows
   private def columns = grid.columns
 
-  def isEmpty = grid.getAllAliveAndNonEmpty.isEmpty
+  def isEmpty: Boolean = grid.isEmpty
 
   // TODO. Make sure in-bounds.
-  def get(point: Point): Piece = {
-    val (opt2Piece, _) = grid.rows(point.row)(point.col)
-    Piece.fromAliveAndNonEmptyPiece(opt2Piece)
-  }
+  def get(point: Point): Piece = blackWhiteToPiece(grid.get(point))
 
-  def lineToString(pointedCells: List[(Opt2[Piece], Point)]): String = {
-    val pieces = pointedCells map { _._1 } map { Piece.fromAliveAndNonEmptyPiece }
+  def lineToString(bwPoints: List[BlackWhitePoint[Piece]]): String = {
+    val pieces = bwPoints map { case BlackWhitePoint(value, _) => blackWhiteToPiece(value) }
     Piece.piecesToString(pieces)
   }
 
@@ -80,7 +77,7 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
     Strip.lineStrip(axis, lineNumber, content, begin, end)
   }
 
-  def pointIsEmpty(point: Point): Boolean = grid.isPointAliveAndEmpty(point)
+  def pointIsEmpty(point: Point): Boolean = grid.get(point).isEmpty
 
   def inBounds(point: Point): Boolean = {
     val Point(row, col) = point
@@ -89,15 +86,8 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
 
   def inBounds(coordinate: Int): Boolean = coordinate >= 0 && coordinate < dimension
 
-  // TODO. Should really check in bounds and return Option[Point].
   def nthNeighbor(point: Point, axis: Axis, direction: Int)(steps: Int): Option[Point] = {
-    val offset = steps * direction
-    val Point(row, col) = point
-    val nth = axis match {
-      case Axis.X => Point(row, col + offset)
-      case Axis.Y => Point(row + offset, col)
-    }
-
+    val nth = point.nthNeighbor(axis, direction)(steps)
     if (!inBounds(nth)) None else Some(nth)
   }
 
@@ -110,32 +100,32 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
     }
   }
 
-  def nextCell(point: Point, axis: Axis): Option[GridPiece] = {
+  def next(point: Point, axis: Axis): Option[GridPiece] = {
     val pointedPairOpt = grid.next(point, axis)
     toGridPieceOption(pointedPairOpt)
   }
 
-  def prevCell(point: Point, axis: Axis): Option[GridPiece] = {
+  def prev(point: Point, axis: Axis): Option[GridPiece] = {
     val pointedPairOpt = grid.prev(point, axis)
     toGridPieceOption(pointedPairOpt)
   }
 
-  def adjacentCell(point: Point, axis: Axis, direction: Int): Option[GridPiece] = {
+  def adjacent(point: Point, axis: Axis, direction: Int): Option[GridPiece] = {
     val pointedPairOpt = grid.adjacent(point, axis, direction)
     toGridPieceOption(pointedPairOpt)
   }
 
   def hasRealNeighbor(point: Point, axis: Axis): Boolean = {
-    val nextOpt = nextCell(point, axis)
+    val nextOpt = next(point, axis)
     if (nextOpt.isDefined && nextOpt.get.piece.isReal)
       return true
-    val prevOpt = prevCell(point, axis)
+    val prevOpt = prev(point, axis)
     if (prevOpt.isDefined && prevOpt.get.piece.isReal)
       return true
     return false
   }
 
-  def rowsAsPieces: List[List[Piece]] = grid map Piece.fromAliveAndNonEmptyPiece
+  def rowsAsPieces: List[List[Piece]] = grid map { bw => blackWhiteToPiece(bw) }
   def columnsAsPieces: List[List[Piece]] = rowsAsPieces.transpose
 
   def playableEmptyStrips(traySize: Int): List[Strip] = {
@@ -176,8 +166,8 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
   def stripIsDisconnectedInLine(strip: Strip): Boolean = {
     val firstPoint = strip.point(0)
     val lastPoint = strip.point(strip.end - strip.begin)
-    val maybePrevPiece = prevCell(firstPoint, strip.axis).map {_.value}
-    val maybeNextPiece = nextCell(lastPoint, strip.axis).map {_.value}
+    val maybePrevPiece = prev(firstPoint, strip.axis).map {_.value}
+    val maybeNextPiece = next(lastPoint, strip.axis).map {_.value}
     def isSeparator(maybePiece: Option[Piece]): Boolean = {
       maybePiece match {
         case None => true
@@ -231,17 +221,17 @@ case class Board(dimension: Int, grid: SwissCheeseSparseGrid[Piece]) {
 
 object Board {
   def apply(dimension: Int, cellMaker: Int => Int => GridPiece) : Board = {
-    def op2CellMaker(row: Int)(col: Int): Opt2[Piece] = {
+    def bwCellMaker(row: Int)(col: Int): BlackWhite[Piece] = {
       val GridPiece(piece, point) = cellMaker(row)(col)
-      piece.toAliveAndNonEmptyPiece
+      pieceToBlackWhite(piece)
     }
-    val grid = SwissCheeseSparseGrid[Piece](op2CellMaker _, dimension, dimension)
+    val grid = BlackWhiteGrid[Piece](bwCellMaker _, dimension, dimension)
     Board(dimension, grid)
   }
 
   def apply(dimension: Int) : Board = {
-    def cellMaker(row: Int)(col: Int): Opt2[Piece] = Piece.emptyPiece.toAliveAndNonEmptyPiece
-    val grid = SwissCheeseSparseGrid[Piece](cellMaker _, dimension, dimension)
+    def cellMaker(row: Int)(col: Int): BlackWhite[Piece] = White(None)
+    val grid = BlackWhiteGrid[Piece](cellMaker _, dimension, dimension)
     Board(dimension, grid)
 
   }
@@ -259,6 +249,23 @@ object Board {
   }
 
   def emptyGridPiece(row: Int, col: Int) = GridPiece(Piece.emptyPiece, Point(row, col))
+
+  def pieceToBlackWhite(piece: Piece): BlackWhite[Piece] = {
+    if (piece == Piece.deadPiece)
+      Black()
+    else if (piece == Piece.emptyPiece)
+      White(None)
+    else
+      White(Some(piece))
+  }
+
+  def blackWhiteToPiece(bw: BlackWhite[Piece]): Piece = {
+    bw match {
+      case Black() => Piece.deadPiece
+      case White(None) => Piece.emptyPiece
+      case White(Some(piece)) => piece
+    }
+  }
 
 }
 

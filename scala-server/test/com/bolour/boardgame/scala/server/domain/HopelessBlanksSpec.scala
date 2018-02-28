@@ -1,6 +1,6 @@
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.boardgame.scala.common.domain.{GridPiece, Piece, Point}
+import com.bolour.boardgame.scala.common.domain.{Axis, GridPiece, Piece, Point}
 import com.bolour.boardgame.scala.server.util.WordUtil
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
@@ -26,6 +26,12 @@ class HopelessBlanksSpec extends FlatSpec with Matchers { self =>
   )
 
   val board = emptyBoard.setN(gridPieces)
+
+  "board" should "find disconnected strip" in {
+    val strip = Strip.lineStrip(Axis.Y, 0, Piece.piecesToString(board.columnsAsPieces(0)), 0, 1)
+    val disconnected = board.stripIsDisconnectedInLine(strip)
+    disconnected shouldBe false
+  }
 
   "strip matcher" should "find hopeless blanks" in {
     val hopelessBlankPoints = StripMatcher.hopelessBlankPoints(board, dictionary, trayCapacity)

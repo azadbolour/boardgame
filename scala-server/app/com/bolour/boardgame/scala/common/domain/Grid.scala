@@ -51,7 +51,7 @@ case class Grid[T](cells: List[List[T]]) {
 
   def inBounds(point: Point): Boolean = {
     val Point(row, col) = point
-    row > 0 && row < height && col > 0 && col < width
+    row >= 0 && row < height && col >= 0 && col < width
   }
 
   def get(point: Point): Option[T] =
@@ -62,7 +62,7 @@ case class Grid[T](cells: List[List[T]]) {
   def nextCell(point: Point, axis: Axis): Option[T] = adjacentCell(point, axis, +1)
 
   def adjacentCell(point: Point, axis: Axis, direction: Int): Option[T] =
-    get(Point.adjPoint(point, axis, direction))
+    get(point.adjPoint(axis, direction))
 }
 
 object Grid {

@@ -76,7 +76,7 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
 
   def isAlive(point: Point): Boolean = !isDead(point)
 
-  def hasValue(point: Point): Boolean = BlackWhite.isJustWhite(get(point))
+  def hasValue(point: Point): Boolean = get(point).hasValue
 
   def inBounds(point: Point): Boolean = grid.inBounds(point)
 
@@ -94,6 +94,8 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
   }
 
   def getValues: List[(T, Point)] = fromJustWhites(grid.flatten)
+
+  def isEmpty: Boolean = grid.flatten.forall { _.value.isEmpty }
 
 }
 
