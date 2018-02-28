@@ -135,10 +135,6 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
 
   def playableEmptyStrips(traySize: Int): List[Strip] = {
     val center = dimension/2
-
-    // val centerRowAsPieces = rowsAsPieces(center)
-    // val centerRowAsString = Piece.piecesToString(centerRowAsPieces) // converts null chars to blanks
-    // val strips = Strip.liveStripsInLine(Axis.X, center, centerRowAsString)
     val strips = grid.segmentsForLineNumber(Axis.X, center) map lineSegmentToStrip
     val conformantStrips = strips.filter { strip => strip.begin <= center && strip.end >= center}
     conformantStrips
@@ -154,8 +150,6 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
   }
 
   def potentialPlayableStrips(axis: Axis, trayCapacity: Int): List[Strip] = {
-    // val traySize = tray.capacity
-    // val allStrips = computeAllLiveStrips(axis)
     val allStrips = grid.segmentsAlongAxis(axis) map lineSegmentToStrip
     def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= trayCapacity
     val conformantStrips1 = allStrips.filter(hasFillableBlanks)
@@ -172,7 +166,7 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
     def isSeparator(maybeBlackWhitePiece: Option[BlackWhite[Piece]]): Boolean = {
       maybeBlackWhitePiece match {
         case None => true
-        case Some(bwPiece) => 
+        case Some(bwPiece) =>
           bwPiece match {
             case Black() => true
             case White(None) => true
