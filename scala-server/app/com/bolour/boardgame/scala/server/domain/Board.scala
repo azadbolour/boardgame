@@ -15,22 +15,62 @@ import com.bolour.util.scala.common.{Black, BlackWhite, White}
 case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
 
   import Board._
+
+  /**
+    * Is the board empty? Empty means all of its points are White(None)?
+    * Note that a black point makes the board non-empty in this
+    * interpretation.
+    */
+  def isEmpty: Boolean = grid.isEmpty
+
+  /**
+    * If there is a piece at the given point return it in Some, otherwise
+    * return None.
+    */
+  def getPiece(point: Point): Option[Piece] = {
+    val bw = grid.get(point)
+    bw match {
+      case White(Some(piece)) => Some(piece)
+      case _ => None
+    }
+  }
+
+  /**
+    * Get the value of a point on the board (if the point is out of bounds return black -
+    * same as if the point is black).
+    */
+  def get(point: Point): BlackWhite[Piece] = grid.get(point)
+
+  /**
+    * Get the board pieces and their locations as grid pieces.
+    */
   def gridPieces: List[GridPiece] = {
     val piecesAndPoints = grid.getValues
     piecesAndPoints map { case (piece, point) => GridPiece(piece, point)}
   }
 
+  /**
+    * Update a number of values of the board returning the updated board.
+    * @param bwPoints List of (piece, point) pairs (housed in BlackWhitePoints) to update.
+    *                 Out of bound points are ignored.
+    */
   def setN(bwPoints: List[BlackWhitePoint[Piece]]): Board = {
     val augmentedGrid = grid.setN(bwPoints)
     Board(dimension, augmentedGrid)
   }
 
+  /**
+    * Similar to setN but provides the (piece, point) pairs in a list of GridPieces.
+    */
   def setGridPieces(gridPieces: List[GridPiece]): Board = {
     val bwPoints = gridPieces map { case GridPiece(piece, point) => BlackWhitePoint(White(Some(piece)), point)}
     setN(bwPoints)
   }
 
-  def setDeadPoints(deadPoints: List[Point]): Board = {
+  /**
+    * Set a number of the board's points to black.
+    */
+  def setBlackPoints(deadPoints: List[Point]): Board = {
     val bwPoints = deadPoints map { point => BlackWhitePoint(Black[Piece](), point) }
     setN(bwPoints)
   }
@@ -38,30 +78,15 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
   private def rows = grid.rows
   private def columns = grid.columns
 
-  def isEmpty: Boolean = grid.isEmpty
-
-  /**
-    * If the point does not have a piece throws runtime exception.
-    */
-  def getPiece(point: Point): Piece = {
-    val bw = grid.get(point)
-    bw match {
-      case White(Some(piece)) => piece
-      case _ => throw new RuntimeException(s"no piece at point ${point} of board")
-    }
-  }
-
-  /**
-    * If point is out of bounds returns black - same as if point is black.
-    */
-  def get(point: Point): BlackWhite[Piece] = grid.get(point)
-
-  def lineToString(bwPoints: List[BlackWhitePoint[Piece]]): String = {
+  private def lineToString(bwPoints: List[BlackWhitePoint[Piece]]): String = {
     val chars = bwPoints map { case BlackWhitePoint(bwPiece, _) => Piece.bwPieceToChar(bwPiece) }
     chars.mkString
   }
 
   /**
+    * Given a play in terms of a list of play pieces, find the strip
+    * on which the play is made.
+    *
     * TODO. Assumes play is contiguous.
     */
   def stripOfPlay(playPieces: List[PlayPiece]): Strip = {

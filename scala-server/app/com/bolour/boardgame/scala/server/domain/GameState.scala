@@ -56,7 +56,7 @@ case class GameState(
   }
 
   def setDeadPoints(deadPoints: List[Point]): GameState = {
-    val newBoard = board.setDeadPoints(deadPoints)
+    val newBoard = board.setBlackPoints(deadPoints)
     this.copy(board = newBoard)
   }
 

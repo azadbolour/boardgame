@@ -5,20 +5,44 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.util.scala.common.CommonUtil._
-import com.bolour.plane.scala.domain.Axis.Axis
-import com.bolour.boardgame.scala.common.domain.PlayerType.{MachinePlayer, playerIndex}
-import com.bolour.boardgame.scala.common.domain._
-import com.bolour.boardgame.scala.common.domain.Piece.isBlank
-import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
-import com.bolour.boardgame.scala.server.util.WordUtil
-import com.bolour.boardgame.scala.server.util.WordUtil.{DictWord, Length, LetterCombo, NumBlanks}
-import com.bolour.language.scala.domain.WordDictionary
-import com.bolour.plane.scala.domain.{Axis, Point}
 import org.slf4j.LoggerFactory
-
 import scala.collection.mutable
+import com.bolour.boardgame.scala.common.domain.Piece.isBlank
+import com.bolour.boardgame.scala.common.domain._
+import com.bolour.language.scala.domain.WordDictionary
+import com.bolour.plane.scala.domain.Axis.Axis
+import com.bolour.plane.scala.domain.{Axis, Point}
+import com.bolour.boardgame.scala.server.util.WordUtil
+import com.bolour.boardgame.scala.server.util.WordUtil.{DictWord, LetterCombo, NumBlanks}
 
+/**
+  * StripMatcher finds the best word match to a given board.
+  *
+  * A match is the tuple (word, strip) where the word exists in the
+  * dictionary and can legally be played onto the strip: that is,
+  * the blanks of the strip can be filled by letters in the tray,
+  * and all crosswords formed by the playing the word exist in
+  * the dictionary.
+  *
+  * The algorithm first groups the strips of the board by the "value"
+  * of a play on them. The value of a strip is supposed to be reflective of the
+  * expected added score by playing a word on that strip. So the
+  * algorithm checks for matches in decreasing order of strip value,
+  * stopping as soon as a match is found.
+  *
+  * The naive valuation used here initially simply uses the number of
+  * blank characters within the strip, in the hope that in general
+  * the more characters played to form a word the higher the score.
+  * For now, this naive valuation scheme works reasonably well.
+  * To experiment with different valuation schemes, sub-class this
+  * trait and override the "stripValuation" function.
+  *
+  * Additionally within each group of equally-valued strips, the strips
+  * of the group are further grouped by the number of blanks appearing
+  * in each. Then for each sub-group of a given blank-count,
+  * all combinations of tray letters of size blank-count are
+  * tried against all strips of the sub-group.
+  */
 trait StripMatcher {
   // abstract members
   def dictionary: WordDictionary
@@ -28,22 +52,20 @@ trait StripMatcher {
 
   import StripMatcher._
 
-  val logger = LoggerFactory.getLogger(this.getClass)
+  protected[this] val logger = LoggerFactory.getLogger(this.getClass)
 
-  val dimension = board.dimension
-  // val grid = board.grid
-  val trayLetters = tray.pieces.map(_.value).mkString
-  val trayCombosByLength = WordUtil.computeCombosGroupedByLength(trayLetters)
+  protected[this] val dimension = board.dimension
+  protected[this] val trayLetters = tray.pieces.map(_.value).mkString
+  protected[this] val trayCombosByLength = WordUtil.computeCombosGroupedByLength(trayLetters)
   // TODO. Improve strip valuation by summing the point values of its blanks.
-  val stripValuation: Strip => StripValue = _.numBlanks
-  val playableStripsGroupedByValueAndBlanks: Map[StripValue, Map[NumBlanks, List[Strip]]] =
+  protected[this] val stripValuation: Strip => StripValue = _.numBlanks
+  protected[this] val playableStripsGroupedByValueAndBlanks: Map[StripValue, Map[NumBlanks, List[Strip]]] =
     groupPlayableStrips(stripValuation)
-  val allValues = playableStripsGroupedByValueAndBlanks.keySet
-  val maxStripValue = if (allValues.isEmpty) 0 else allValues.max
-  val crossWordFinder = new CrossWordFinder(board)
+  protected[this] val allValues = playableStripsGroupedByValueAndBlanks.keySet
+  protected[this] val maxStripValue = if (allValues.isEmpty) 0 else allValues.max
+  protected[this] val crossWordFinder = new CrossWordFinder(board)
 
-  // def bestMatch(): StripMatch = bestMatchUpToLength(dimension)
-
+  /** Main entry point - find the best match if any (empty list means none found). */
   def bestMatch(): List[PlayPiece] = {
     bestMatchUpToValue(maxStripValue) match {
       case None => Nil
@@ -51,6 +73,11 @@ trait StripMatcher {
     }
   }
 
+  /**
+    * A match is represented internally as the tuple (strip, word)
+    * meaning the word matches (and is to be played on) the strip -
+    * convert the match to a list of play pieces (needed by clients).
+    */
   def matchedStripPlayPieces(strip: Strip, word: String): List[PlayPiece] = {
     // Buffer used to peel off played letters from tray pieces - leaving tray immutable.
     val restTrayPieces: mutable.Buffer[Piece] = tray.pieces.toBuffer
@@ -64,7 +91,7 @@ trait StripMatcher {
       val stripLetter = strip.content(stripOffset)
       val wordLetter = word(stripOffset)
       val moved = isBlank(stripLetter)
-      val piece = if (moved) removeTrayChar(wordLetter) else board.getPiece(point)
+      val piece = if (moved) removeTrayChar(wordLetter) else board.getPiece(point).get
       PlayPiece(piece, point, moved)
     }
 
@@ -72,28 +99,28 @@ trait StripMatcher {
     stripOffsets.map(offset => toPlayPiece(offset))
   }
 
-
+  /**
+    * Find the best word match on the board among all matches whose
+    * values are less than or equal to a given value.
+    */
   def bestMatchUpToValue(maxValue: StripValue): StripMatch = {
     if (maxValue <= 1)
       return None
     maxValue match {
-      case 2 => bestMatchForValue(2) // TODO. Special-casing not needed.
-      case _ => bestMatchForValue(maxValue) orElse
+      case 2 => findMatchForValue(2) // TODO. Special-casing not needed.
+      case _ => findMatchForValue(maxValue) orElse
         bestMatchUpToValue(maxValue - 1)
     }
   }
 
-  val EMPTY = true
-  val NON_EMPTY = false
-
-  def bestMatchForValue(value: StripValue): StripMatch = {
+  def findMatchForValue(value: StripValue): StripMatch = {
     // TODO. Try not to special-case empty board here. Only in getting playable strips.
     if (board.isEmpty)
-      return bestMatchForValueOnEmptyBoard(value)
+      return findMatchForValueOnEmptyBoard(value)
 
     for /* option */ {
       stripsByBlanks <- playableStripsGroupedByValueAndBlanks.get(value)
-      optimal <- bestMatchForStrips(stripsByBlanks)
+      optimal <- findMatchForStrips(stripsByBlanks)
     } yield optimal
   }
 
@@ -101,11 +128,11 @@ trait StripMatcher {
     * First match on empty board is special - no anchor.
     * For the first play we use an all-blank center strip of the given length.
     */
-  def bestMatchForValueOnEmptyBoard(len: StripValue): StripMatch = {
+  def findMatchForValueOnEmptyBoard(len: StripValue): StripMatch = {
     for /* option */ {
       combos <- trayCombosByLength.get(len)
       // _ = println(combos)
-      optimal <- bestMatchForStrip(emptyCenterStrip(len), combos)
+      optimal <- findMatchForStrip(emptyCenterStrip(len), combos)
     } yield optimal
   }
 
@@ -121,7 +148,7 @@ trait StripMatcher {
     * Find the best match for all strips of a given length - they are indexed by the
     * number of blank slots. TODO. Should length be a parameter?
     */
-  def bestMatchForStrips(stripsByBlanks: Map[NumBlanks, List[Strip]]): StripMatch = {
+  def findMatchForStrips(stripsByBlanks: Map[NumBlanks, List[Strip]]): StripMatch = {
 
     /*
      * For each set of strips with a given number of blanks, get the
@@ -134,11 +161,11 @@ trait StripMatcher {
       case (blanks, strips) => (blanks, strips, trayCombosByLength(blanks))
     }
     val sortedGroups = groupedStripsAndCombos.sortWith(_._1 > _._1)
-    bestMatchForStripsAndCombosGroupedByBlanks(sortedGroups)
+    findMatchForStripsAndCombosGroupedByBlanks(sortedGroups)
   }
 
   /**
-    * Find the best match for corresponding strips and tray combos
+    * Find a match for corresponding strips and tray combos
     * grouped by the number of blanks in strips and equivalently by the
     * length of combos in tray, so that the tray combos may exactly
     * fill in the blanks of the corresponding strips.
@@ -146,44 +173,45 @@ trait StripMatcher {
     * The groups are ordered in decreasing order of the number of blanks.
     * The first match found in that order is returned - otherwise recurse.
     */
-  private def bestMatchForStripsAndCombosGroupedByBlanks(
+  private def findMatchForStripsAndCombosGroupedByBlanks(
     groupedStripsAndCombos: List[(NumBlanks, List[Strip], List[LetterCombo])]): StripMatch =
     groupedStripsAndCombos match {
       case Nil => None
       case (blanks, strips, combos) :: groups =>
-        val bestHeadMatch = bestMatchForCorrespondingStripsAndCombos(blanks, strips, combos)
-        bestHeadMatch match {
-          case Some(_) => bestHeadMatch
-          case None => bestMatchForStripsAndCombosGroupedByBlanks(groups)
+        val headMatch = findMatchForCorrespondingStripsAndCombos(blanks, strips, combos)
+        headMatch match {
+          case Some(_) => headMatch
+          case None => findMatchForStripsAndCombosGroupedByBlanks(groups)
         }
     }
 
   /**
-    * Find the best match given a set of strips and a set of tray combos
-    * each of which can exactly fill in the blanks of each strip.
+    * Find a match for a set of strips and a set of tray combos
+    * each of which can exactly fill in the blanks of each of the strips.
     *
     * @param blanks The number of blanks in each strip and the number
     *               of letters in each combo. // TODO. Unnecessary??
     * @param strips List of strips to try.
     * @param combos List of combos to try.
     */
-  private def bestMatchForCorrespondingStripsAndCombos(
+  private def findMatchForCorrespondingStripsAndCombos(
     blanks: NumBlanks, strips: List[Strip], combos: List[LetterCombo]): StripMatch =
     strips match {
       case Nil => None
       case strip :: rest =>
-        val bestStripMatch = bestMatchForStrip(strip, combos)
+        val bestStripMatch = findMatchForStrip(strip, combos)
         bestStripMatch match {
           case Some(_) => bestStripMatch
-          case None => bestMatchForCorrespondingStripsAndCombos(blanks, rest, combos)
+          case None => findMatchForCorrespondingStripsAndCombos(blanks, rest, combos)
         }
     }
 
   /**
     * Given a list of tray letter combinations each of which can fill in
-    * the blank slots of a strip exactly, find the best word match.
+    * the blank slots of a strip exactly, find a combination that when
+    * played on the strip produces a legal play.
     */
-  def bestMatchForStrip(strip: Strip, combos: List[LetterCombo]): StripMatch = {
+  def findMatchForStrip(strip: Strip, combos: List[LetterCombo]): StripMatch = {
     combos match {
       case Nil => None
       case combo :: restCombos =>
@@ -198,7 +226,7 @@ trait StripMatcher {
 
         // strip.findFittingWord(words) match {
         crossCheckedFittingWords.headOption match {
-          case None => bestMatchForStrip(strip, restCombos)
+          case None => findMatchForStrip(strip, restCombos)
           case Some(word) => Some((strip, word))
         }
     }
