@@ -17,11 +17,9 @@ import com.bolour.util.scala.server.BasicServerUtil.readConfigStringList
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType._
 import com.bolour.boardgame.scala.common.domain.Piece.Pieces
-import com.bolour.boardgame.scala.common.domain.Piece.emptyPiece
 import com.bolour.boardgame.scala.common.domain.PlayPieceObj.PlayPieces
 import com.bolour.boardgame.scala.server.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
-import com.bolour.boardgame.scala.server.domain.Scorer.Score
 import com.bolour.language.scala.domain.WordDictionary
 import com.bolour.plane.scala.domain.Point
 import org.slf4j.LoggerFactory

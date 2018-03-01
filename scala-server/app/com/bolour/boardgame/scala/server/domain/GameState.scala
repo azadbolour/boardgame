@@ -9,7 +9,8 @@ import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType.{playerIndex, _}
 import com.bolour.boardgame.scala.server.domain.GameExceptions.{InvalidCrosswordsException, MalformedPlayException}
 import com.bolour.language.scala.domain.WordDictionary
-import com.bolour.plane.scala.domain.Point
+import com.bolour.plane.scala.domain.{BlackWhitePoint, Point}
+import com.bolour.util.scala.common.White
 import org.slf4j.LoggerFactory
 
 import scala.util.{Success, Try}
@@ -66,7 +67,7 @@ case class GameState(
   }
 
   private def addGoodPlay(playerType: PlayerType, gridPieces: List[GridPiece], score: Int): Try[(GameState, List[Piece])] = {
-    val newBoard = board.setN(gridPieces)
+    val newBoard = board.setGridPieces(gridPieces)
     val usedPieces = gridPieces map { _.value }
     val succPasses = if (score > 0) 0 else numSuccessivePasses + 1
     val ind = playerIndex(playerType)

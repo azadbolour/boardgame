@@ -20,17 +20,19 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
     piecesAndPoints map { case (piece, point) => GridPiece(piece, point)}
   }
 
-  def setN(gridPieces: List[GridPiece]): Board = {
-    val bwPoints = gridPieces map
-      { case GridPiece(piece, point) => BlackWhitePoint(pieceToBlackWhite(piece), point) }
+  def setN(bwPoints: List[BlackWhitePoint[Piece]]): Board = {
     val augmentedGrid = grid.setN(bwPoints)
     Board(dimension, augmentedGrid)
   }
 
+  def setGridPieces(gridPieces: List[GridPiece]): Board = {
+    val bwPoints = gridPieces map { case GridPiece(piece, point) => BlackWhitePoint(White(Some(piece)), point)}
+    setN(bwPoints)
+  }
+
   def setDeadPoints(deadPoints: List[Point]): Board = {
-    def deadGridPiece(point: Point) = GridPiece(Piece.deadPiece, point)
-    val gridPieces = deadPoints map deadGridPiece
-    setN(gridPieces)
+    val bwPoints = deadPoints map { point => BlackWhitePoint(Black[Piece](), point) }
+    setN(bwPoints)
   }
 
   private def rows = grid.rows
@@ -38,12 +40,25 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
 
   def isEmpty: Boolean = grid.isEmpty
 
-  // TODO. Make sure in-bounds.
-  def get(point: Point): Piece = blackWhiteToPiece(grid.get(point))
+  /**
+    * If the point does not have a piece throws runtime exception.
+    */
+  def getPiece(point: Point): Piece = {
+    val bw = grid.get(point)
+    bw match {
+      case White(Some(piece)) => piece
+      case _ => throw new RuntimeException(s"no piece at point ${point} of board")
+    }
+  }
+
+  /**
+    * If point is out of bounds returns black - same as if point is black.
+    */
+  def get(point: Point): BlackWhite[Piece] = grid.get(point)
 
   def lineToString(bwPoints: List[BlackWhitePoint[Piece]]): String = {
-    val pieces = bwPoints map { case BlackWhitePoint(value, _) => blackWhiteToPiece(value) }
-    Piece.piecesToString(pieces)
+    val chars = bwPoints map { case BlackWhitePoint(bwPiece, _) => Piece.bwPieceToChar(bwPiece) }
+    chars.mkString
   }
 
   /**
@@ -73,7 +88,6 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
       case Axis.Y => (head.col, columns(head.col), head.row)
     }
     val end = begin + points.length - 1
-    // val content = Piece.piecesToString(line.map(_.piece)) // converts null chars to blanks
     val content = lineToString(line)
     Strip.lineStrip(axis, lineNumber, content, begin, end)
   }
@@ -90,15 +104,6 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
   def nthNeighbor(point: Point, axis: Axis, direction: Int)(steps: Int): Option[Point] = {
     val nth = point.nthNeighbor(axis, direction)(steps)
     if (!inBounds(nth)) None else Some(nth)
-  }
-
-  private def toGridPieceOption(pointedPairOpt: Option[(Option[Piece], Point)]): Option[GridPiece] = {
-    pointedPairOpt match {
-      case None => None
-      case Some((optPiece, point)) =>
-        val piece = Piece.fromOption(optPiece)
-        Some(GridPiece(piece, point))
-    }
   }
 
   /**
@@ -129,9 +134,6 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
       return true
     false
   }
-
-  def rowsAsPieces: List[List[Piece]] = grid map { bw => blackWhiteToPiece(bw) }
-  def columnsAsPieces: List[List[Piece]] = rowsAsPieces.transpose
 
   def playableEmptyStrips(traySize: Int): List[Strip] = {
     val center = dimension/2
@@ -199,12 +201,8 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
 }
 
 object Board {
-  def apply(dimension: Int, cellMaker: Int => Int => GridPiece) : Board = {
-    def bwCellMaker(row: Int)(col: Int): BlackWhite[Piece] = {
-      val GridPiece(piece, point) = cellMaker(row)(col)
-      pieceToBlackWhite(piece)
-    }
-    val grid = BlackWhiteGrid[Piece](bwCellMaker _, dimension, dimension)
+  def apply(dimension: Int, cellMaker: Int => Int => BlackWhite[Piece]) : Board = {
+    val grid = BlackWhiteGrid[Piece](cellMaker, dimension, dimension)
     Board(dimension, grid)
   }
 
@@ -212,38 +210,20 @@ object Board {
     def cellMaker(row: Int)(col: Int): BlackWhite[Piece] = White(None)
     val grid = BlackWhiteGrid[Piece](cellMaker _, dimension, dimension)
     Board(dimension, grid)
-
   }
 
-  // TODO. Check that grid pieces fall inside the board boundaries.
+  /**
+    * Create a board with the given pieces at the given positions in the grid pieces.
+    */
   def apply(dimension: Int, gridPieces: List[GridPiece]): Board = {
     def maybeGridPiece(r: Int, c: Int) = gridPieces.find(_.point == Point(r, c))
-    def cellMaker(row: Int)(col: Int) = {
+    def cellMaker(row: Int)(col: Int): BlackWhite[Piece] = {
       maybeGridPiece(row, col) match {
-        case Some(gridPiece) => gridPiece
-        case None => emptyGridPiece(row, col)
+        case Some(GridPiece(piece, point)) => White(Some(piece))
+        case None => White(None)
       }
     }
     Board(dimension, cellMaker _)
-  }
-
-  def emptyGridPiece(row: Int, col: Int) = GridPiece(Piece.emptyPiece, Point(row, col))
-
-  def pieceToBlackWhite(piece: Piece): BlackWhite[Piece] = {
-    if (piece == Piece.deadPiece)
-      Black()
-    else if (piece == Piece.emptyPiece)
-      White(None)
-    else
-      White(Some(piece))
-  }
-
-  def blackWhiteToPiece(bw: BlackWhite[Piece]): Piece = {
-    bw match {
-      case Black() => Piece.deadPiece
-      case White(None) => Piece.emptyPiece
-      case White(Some(piece)) => piece
-    }
   }
 
   def lineSegmentToStrip(lineSegment: LineSegment[Piece]): Strip = {
@@ -258,6 +238,5 @@ object Board {
         Strip(axis, lineNumber, begin, end, (segment map optToChar).mkString)
     }
   }
-
 }
 

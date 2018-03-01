@@ -27,13 +27,7 @@ class HopelessBlanksSpec extends FlatSpec with Matchers { self =>
     GridPiece(Piece('A', "4"), Point(1, 1))
   )
 
-  val board = emptyBoard.setN(gridPieces)
-
-  "board" should "find disconnected strip" in {
-    val strip = Strip.lineStrip(Axis.Y, 0, Piece.piecesToString(board.columnsAsPieces(0)), 0, 1)
-    val disconnected = board.stripIsDisconnectedInLine(strip)
-    disconnected shouldBe false
-  }
+  val board = emptyBoard.setGridPieces(gridPieces)
 
   "strip matcher" should "find hopeless blanks" in {
     val hopelessBlankPoints = StripMatcher.hopelessBlankPoints(board, dictionary, trayCapacity)

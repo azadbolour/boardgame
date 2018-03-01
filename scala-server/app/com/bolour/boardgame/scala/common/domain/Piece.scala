@@ -5,57 +5,29 @@
  */
 package com.bolour.boardgame.scala.common.domain
 
+import com.bolour.util.scala.common.{Black, BlackWhite, White}
+
 case class Piece(value: Char, id: String) {
   import Piece._
 
-  def isEmpty = this == emptyPiece
-
-  def isReal = this != emptyPiece && this != deadPiece
-
   def worth: Int = worths(value)
-
-//  def toAliveAndNonEmptyPiece: Option[Option[Piece]] =
-//    this match {
-//      case `deadPiece` => None
-//      case `emptyPiece` => Some(None)
-//      case _ => Some(Some(this))
-//    }
 }
 
 object Piece {
   type Pieces = List[Piece]
 
-  val emptyChar = '\u0000'
-  val emptyPieceId = "-1"
-  val emptyPiece = Piece(emptyChar, emptyPieceId)
-
   val blank = ' '
-  def isBlank(ch: Char) = ch == blank
+  def isBlank(ch: Char): Boolean = ch == blank
 
   /** Represents a disabled/inactive/dead location. */
   val deadChar = '-'
-  val deadPieceId = "-2"
-  val deadPiece = Piece(deadChar, deadPieceId)
 
-  def isDead(ch: Char) = ch == deadChar
-  def isAlive(ch: Char) = !isDead(ch)
-
-//  def fromAliveAndNonEmptyPiece(opt2Piece: Option[Option[Piece]]): Piece =
-//    opt2Piece match {
-//      case None => deadPiece
-//      case Some(optPiece) => fromOption(optPiece)
-//    }
-
-  def fromOption(optPiece: Option[Piece]): Piece = {
-    optPiece match {
-      case None => emptyPiece
-      case Some(piece) => piece
-    }
+  def bwPieceToChar(bwPiece: BlackWhite[Piece]): Char =
+    bwPiece match {
+      case Black() => Piece.deadChar
+      case White(None) => Piece.blank
+      case White(Some(piece)) => piece.value
   }
-
-  /** get list of characters for pieces and convert null characters to blanks */
-  def piecesToString(pieces: List[Piece]): String =
-    pieces.map(pc => if (pc.isEmpty) ' ' else pc.value).mkString
 
   /** normalize the letter frequencies to obtain a given rough total
     * return the normalized frequencies and the actual total */

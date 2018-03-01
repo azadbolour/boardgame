@@ -64,7 +64,7 @@ trait StripMatcher {
       val stripLetter = strip.content(stripOffset)
       val wordLetter = word(stripOffset)
       val moved = isBlank(stripLetter)
-      val piece = if (moved) removeTrayChar(wordLetter) else board.get(point)
+      val piece = if (moved) removeTrayChar(wordLetter) else board.getPiece(point)
       PlayPiece(piece, point, moved)
     }
 

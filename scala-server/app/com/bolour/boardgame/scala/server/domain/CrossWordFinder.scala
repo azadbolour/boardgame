@@ -106,7 +106,7 @@ class CrossWordFinder(board: Board) {
     // Auxiliary functions.
 
     def boardPointInfo(p: Point): (Char, Point, Boolean) = {
-      val piece = board.get(p)
+      val piece = board.getPiece(p)
       val info = (piece.value, p, false) // Filled position across play direction cannot have moved.
       info
     }
