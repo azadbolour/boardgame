@@ -126,9 +126,46 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
 
   def inBounds(coordinate: Int): Boolean = coordinate >= 0 && coordinate < dimension
 
-  def nthNeighbor(point: Point, axis: Axis, direction: Int)(steps: Int): Option[Point] = {
-    val nth = point.nthNeighbor(axis, direction)(steps)
+  def colinearPoint(point: Point, axis: Axis, direction: Int)(steps: Int): Option[Point] = {
+    val nth = point.colinearPoint(axis, direction)(steps)
     if (!inBounds(nth)) None else Some(nth)
+  }
+
+  /**
+    * Considering a point to be a neighbor if it is recursively adjacent to
+    * the given point in the given direction, find the farthest one in that direction.
+    */
+  def farthestNeighbor1(point: Point, axis: Axis, direction: Int): Point = {
+
+    def outOfBoundsOrEmpty(oPoint: Option[Point]): Boolean =
+      oPoint.isEmpty || pointIsEmpty(oPoint.get)
+
+    def adjacent(p: Point): Option[Point] = colinearPoint(p, axis, direction)(1)
+
+    def isBoundary(p: Point): Boolean =
+      !pointIsEmpty(p) && outOfBoundsOrEmpty(adjacent(p))
+
+    // The starting point is special because it is empty.
+    if (outOfBoundsOrEmpty(adjacent(point)))
+      return point
+
+    val neighbors = (1 until dimension).toList map colinearPoint(point, axis, direction)
+    val farthest = neighbors find (_.exists(isBoundary))
+    farthest.get.get // A boundary always exists.
+  }
+
+  def farthestNeighbor(point: Point, axis: Axis, direction: Int): Point = {
+
+    def isBoundary(p: Point): Boolean =
+      getPiece(p).isDefined && getPiece(p.adjPoint(axis, direction)).isEmpty
+
+    // The starting point is special because it is empty.
+    if (getPiece(point.adjPoint(axis, direction)).isEmpty)
+      return point
+
+    val colinears = (1 until dimension).toList map colinearPoint(point, axis, direction)
+    val farthest = colinears find (_.exists(isBoundary))
+    farthest.get.get // A boundary always exists.
   }
 
   /**

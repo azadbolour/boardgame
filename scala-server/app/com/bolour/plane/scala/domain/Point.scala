@@ -8,7 +8,7 @@ package com.bolour.plane.scala.domain
 import com.bolour.plane.scala.domain.Axis.Axis
 
 case class Point(row: Int, col: Int) {
-  def nthNeighbor(axis: Axis, direction: Int)(steps: Int): Point = {
+  def colinearPoint(axis: Axis, direction: Int)(steps: Int): Point = {
     val offset = direction * steps
     axis match {
       case Axis.X => Point(row, col + offset)
@@ -17,6 +17,6 @@ case class Point(row: Int, col: Int) {
     }
   }
 
-  def adjPoint(axis: Axis, direction: Int): Point = nthNeighbor(axis, direction)(1)
+  def adjPoint(axis: Axis, direction: Int): Point = colinearPoint(axis, direction)(1)
 }
 

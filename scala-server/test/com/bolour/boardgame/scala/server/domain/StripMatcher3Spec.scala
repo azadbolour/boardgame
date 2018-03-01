@@ -58,8 +58,8 @@ class StripMatcher3Spec extends FlatSpec with Matchers { self =>
 
     // T is a cross point when ORGANIC is played against CODER
 
-    val playHelper = new CrossWordFinder(stripMatcher.board)
-    val crossChars = playHelper.findCrossingWord(Point(center - 1, center), 'I', Axis.X)
+    val crossWordFinder = new CrossWordFinder(stripMatcher.board)
+    val crossChars = crossWordFinder.findCrossingWord(Point(center - 1, center), 'I', Axis.X)
     crossChars shouldBe "IT"
 
     // TODO. Reinstate.
