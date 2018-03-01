@@ -44,9 +44,9 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
   /**
     * Get the board pieces and their locations as grid pieces.
     */
-  def gridPieces: List[GridPiece] = {
+  def gridPieces: List[PiecePoint] = {
     val piecesAndPoints = grid.getValues
-    piecesAndPoints map { case (piece, point) => GridPiece(piece, point)}
+    piecesAndPoints map { case (piece, point) => PiecePoint(piece, point)}
   }
 
   /**
@@ -60,10 +60,10 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
   }
 
   /**
-    * Similar to setN but provides the (piece, point) pairs in a list of GridPieces.
+    * Similar to setN but provides the (piece, point) pairs in a list of PiecePoint.
     */
-  def setGridPieces(gridPieces: List[GridPiece]): Board = {
-    val bwPoints = gridPieces map { case GridPiece(piece, point) => BlackWhitePoint(White(Some(piece)), point)}
+  def setPiecePoints(piecePoints: List[PiecePoint]): Board = {
+    val bwPoints = piecePoints map { case PiecePoint(piece, point) => BlackWhitePoint(White(Some(piece)), point)}
     setN(bwPoints)
   }
 
@@ -277,11 +277,11 @@ object Board {
   /**
     * Create a board with the given pieces at the given positions in the grid pieces.
     */
-  def apply(dimension: Int, gridPieces: List[GridPiece]): Board = {
+  def apply(dimension: Int, gridPieces: List[PiecePoint]): Board = {
     def maybeGridPiece(r: Int, c: Int) = gridPieces.find(_.point == Point(r, c))
     def cellMaker(row: Int)(col: Int): BlackWhite[Piece] = {
       maybeGridPiece(row, col) match {
-        case Some(GridPiece(piece, point)) => White(Some(piece))
+        case Some(PiecePoint(piece, point)) => White(Some(piece))
         case None => White(None)
       }
     }

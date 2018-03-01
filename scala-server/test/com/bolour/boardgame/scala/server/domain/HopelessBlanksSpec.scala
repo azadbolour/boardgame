@@ -1,6 +1,6 @@
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.boardgame.scala.common.domain.{GridPiece, Piece}
+import com.bolour.boardgame.scala.common.domain.{PiecePoint, Piece}
 import com.bolour.boardgame.scala.server.util.WordUtil
 import com.bolour.language.scala.domain.WordDictionary
 import com.bolour.plane.scala.domain.{Axis, Point}
@@ -20,14 +20,14 @@ class HopelessBlanksSpec extends FlatSpec with Matchers { self =>
   val tray = Tray(trayCapacity, Vector()) // Don't need the tray contents, just capacity.
 
   val gridPieces = List(
-    GridPiece(Piece('A', "0"), Point(2, 0)),
-    GridPiece(Piece('N', "1"), Point(2, 1)),
-    GridPiece(Piece('D', "2"), Point(2, 2)),
-    GridPiece(Piece('T', "3"), Point(0, 1)),
-    GridPiece(Piece('A', "4"), Point(1, 1))
+    PiecePoint(Piece('A', "0"), Point(2, 0)),
+    PiecePoint(Piece('N', "1"), Point(2, 1)),
+    PiecePoint(Piece('D', "2"), Point(2, 2)),
+    PiecePoint(Piece('T', "3"), Point(0, 1)),
+    PiecePoint(Piece('A', "4"), Point(1, 1))
   )
 
-  val board = emptyBoard.setGridPieces(gridPieces)
+  val board = emptyBoard.setPiecePoints(gridPieces)
 
   "strip matcher" should "find hopeless blanks" in {
     val hopelessBlankPoints = StripMatcher.hopelessBlankPoints(board, dictionary, trayCapacity)

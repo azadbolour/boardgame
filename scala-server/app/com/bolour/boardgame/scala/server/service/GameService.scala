@@ -25,7 +25,7 @@ trait GameService {
 
   def startGame(
     gameParams: GameParams,
-    gridPieces: List[GridPiece],
+    gridPieces: List[PiecePoint],
     initUserPieces: List[Piece],
     initMachinePieces: List[Piece],
     pointValues: List[List[Int]]

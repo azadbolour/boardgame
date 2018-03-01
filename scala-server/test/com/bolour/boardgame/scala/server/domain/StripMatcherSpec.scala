@@ -8,7 +8,7 @@ package com.bolour.boardgame.scala.server.domain
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
-import com.bolour.boardgame.scala.common.domain.{GridPiece, Piece}
+import com.bolour.boardgame.scala.common.domain.{PiecePoint, Piece}
 import com.bolour.boardgame.scala.server.util.WordUtil
 import com.bolour.language.scala.domain.WordDictionary
 import com.bolour.plane.scala.domain.Point
@@ -31,9 +31,9 @@ class StripMatcherSpec extends FlatSpec with Matchers { self =>
   val tray = Tray(7, pieces)
   val center: Int = dimension/2
 
-  val gridPieces = List(GridPiece(Piece('A', "idA"), Point(center, center)))
+  val gridPieces = List(PiecePoint(Piece('A', "idA"), Point(center, center)))
 
-  val board = emptyBoard.setGridPieces(gridPieces)
+  val board = emptyBoard.setPiecePoints(gridPieces)
 
   val emptyStripMatcher = new StripMatcher {
     override def tray = self.tray

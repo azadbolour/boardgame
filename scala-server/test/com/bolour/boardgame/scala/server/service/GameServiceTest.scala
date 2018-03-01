@@ -24,7 +24,7 @@ class GameServiceTest extends FlatSpec with Matchers {
   service.migrate()
   service.addPlayer(Player(name))
 
-  def gp(letter: Char, row: Int, col: Int) = GridPiece(Piece(letter, stringId()), Point(row, col))
+  def gp(letter: Char, row: Int, col: Int) = PiecePoint(Piece(letter, stringId()), Point(row, col))
 
   val top = gp('S', center - 1, center)
   val bottom = gp('T', center + 1, center)

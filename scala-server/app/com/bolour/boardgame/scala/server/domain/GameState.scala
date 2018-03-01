@@ -66,8 +66,8 @@ case class GameState(
     game.scorer.scorePlay(playPieces)
   }
 
-  private def addGoodPlay(playerType: PlayerType, gridPieces: List[GridPiece], score: Int): Try[(GameState, List[Piece])] = {
-    val newBoard = board.setGridPieces(gridPieces)
+  private def addGoodPlay(playerType: PlayerType, gridPieces: List[PiecePoint], score: Int): Try[(GameState, List[Piece])] = {
+    val newBoard = board.setPiecePoints(gridPieces)
     val usedPieces = gridPieces map { _.value }
     val succPasses = if (score > 0) 0 else numSuccessivePasses + 1
     val ind = playerIndex(playerType)
@@ -225,7 +225,7 @@ object GameState {
 
   def MaxSuccessivePasses = 10
 
-  def mkGameState(game: Game, gridPieces: List[GridPiece],
+  def mkGameState(game: Game, gridPieces: List[PiecePoint],
     initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[GameState] = {
 
     val board = Board(game.dimension, gridPieces)

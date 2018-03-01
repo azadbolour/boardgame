@@ -2,7 +2,7 @@ package com.bolour.boardgame.scala.server.domain
 
 import java.util.UUID
 
-import com.bolour.boardgame.scala.common.domain.{GridPiece, Piece}
+import com.bolour.boardgame.scala.common.domain.{PiecePoint, Piece}
 import com.bolour.boardgame.scala.server.util.WordUtil
 import com.bolour.language.scala.domain.WordDictionary
 import com.bolour.plane.scala.domain.{Axis, Point}
@@ -29,7 +29,7 @@ class StripMatcher3Spec extends FlatSpec with Matchers { self =>
   def mkInitialBoard(word: String): Board = {
     val l = word.length
     val pieces = mkPieces(word)
-    val gridPieces = (center until (center + l)).map { col => GridPiece(pieces(col - center), Point(center, col))}
+    val gridPieces = (center until (center + l)).map { col => PiecePoint(pieces(col - center), Point(center, col))}
     Board(dimension, gridPieces.toList)
   }
 
@@ -39,11 +39,11 @@ class StripMatcher3Spec extends FlatSpec with Matchers { self =>
   }
 
   "stripMatcher" should "find cross words" in {
-    val crossGridPiece = GridPiece(Piece('T', UUID.randomUUID().toString), Point(center - 1, center + 1))
+    val crossGridPiece = PiecePoint(Piece('T', UUID.randomUUID().toString), Point(center - 1, center + 1))
     val stripMatcher = new StripMatcher {
       override def tray = mkTray("ORGANIC");
       override def dictionary = WordDictionary(WordUtil.english, List("ORGANIC"), MaxMaskedLetters)
-      override def board = mkInitialBoard("CODER").setGridPieces(List(crossGridPiece))
+      override def board = mkInitialBoard("CODER").setPiecePoints(List(crossGridPiece))
     }
 
     // trying for

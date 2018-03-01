@@ -7,8 +7,7 @@ package com.bolour.boardgame.scala.common.domain
 
 import com.bolour.plane.scala.domain.Point
 
-// TODO. Change to the more general: GridValue[Val](value: Val, point: Point]
-// Will need custom json format.
-case class GridPiece(value: Piece, point: Point) {
+// TODO. Rename value to piece. Changes API. So have to do it for Haskell as well.
+case class PiecePoint(value: Piece, point: Point) {
   def piece = value
 }

@@ -2,7 +2,7 @@ package com.bolour.boardgame.scala.server.domain
 
 import java.util.UUID
 
-import com.bolour.boardgame.scala.common.domain.{GridPiece, Piece}
+import com.bolour.boardgame.scala.common.domain.{PiecePoint, Piece}
 import com.bolour.boardgame.scala.server.util.WordUtil
 import com.bolour.language.scala.domain.WordDictionary
 import com.bolour.plane.scala.domain.Point
@@ -30,7 +30,7 @@ class StripMatcher2Spec extends FlatSpec with Matchers { self =>
     val l = word.length
     val pieces = mkPieces(word)
     val center = dimension / 2
-    val gridPieces = (center until (center + l)).map { col => GridPiece(pieces(col - center), Point(center, col))}
+    val gridPieces = (center until (center + l)).map { col => PiecePoint(pieces(col - center), Point(center, col))}
     Board(dimension, gridPieces.toList)
   }
 

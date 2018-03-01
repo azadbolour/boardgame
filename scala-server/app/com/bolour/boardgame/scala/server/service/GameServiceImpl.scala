@@ -109,7 +109,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   // player name not empty - alphanumeric.
   override def startGame(
     gameParams: GameParams,
-    gridPieces: List[GridPiece],      // For testing only.
+    gridPieces: List[PiecePoint],      // For testing only.
     initUserPieces: List[Piece],      // For testing only.
     initMachinePieces: List[Piece],    // For testing only.
     pointValues: List[List[Int]]

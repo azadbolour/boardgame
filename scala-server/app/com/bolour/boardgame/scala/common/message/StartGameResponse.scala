@@ -5,11 +5,11 @@
  */
 package com.bolour.boardgame.scala.common.message
 
-import com.bolour.boardgame.scala.common.domain.{GameParams, GridPiece, Piece}
+import com.bolour.boardgame.scala.common.domain.{GameParams, PiecePoint, Piece}
 
 case class StartGameResponse(
   gameId: String,
   gameParams: GameParams,
-  gridPieces: List[GridPiece],
+  gridPieces: List[PiecePoint],
   trayPieces: List[Piece]
 )
