@@ -11,7 +11,7 @@ import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import Bolour.Plane.Domain.Point (Point, Point(Point))
-import qualified Bolour.Plane.Domain.Point as Axis
+import qualified Bolour.Plane.Domain.Axis as Axis
 
 trayCapacity :: Int
 trayCapacity = 3

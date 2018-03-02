@@ -19,9 +19,10 @@ module BoardGame.Server.Domain.CrossWordFinder (
 import Data.Maybe (fromJust, isNothing, catMaybes)
 import Data.List (transpose, find)
 
-import qualified Bolour.Plane.Domain.Point as Axis
+import qualified Bolour.Plane.Domain.Axis as Axis
 import qualified Bolour.Plane.Domain.Point as Point
-import Bolour.Plane.Domain.Point (Point, Point(Point), Axis)
+import Bolour.Plane.Domain.Axis (Axis)
+import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, MoveInfo)
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece

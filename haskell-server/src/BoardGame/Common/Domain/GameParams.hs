@@ -14,7 +14,7 @@ module BoardGame.Common.Domain.GameParams (
 import GHC.Generics (Generic)
 import Data.Aeson (FromJSON, ToJSON)
 import Control.DeepSeq (NFData)
-import Bolour.Plane.Domain.Point (Coordinate)
+import Bolour.Plane.Domain.Axis (Coordinate)
 import BoardGame.Common.Domain.PieceProviderType
 
 -- | Parameters used in creating a new game - provided by API clients.

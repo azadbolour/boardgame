@@ -20,6 +20,8 @@ import qualified Data.List as List
 
 import Bolour.Plane.Domain.Grid (Grid, Grid(Grid))
 import qualified Bolour.Plane.Domain.Grid as Grid
+import Bolour.Plane.Domain.Axis (Axis)
+import qualified Bolour.Plane.Domain.Axis as Axis
 import Bolour.Plane.Domain.Point (Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
@@ -118,23 +120,23 @@ spec = do
 
   describe "check line neighbours" $ do
     it "has X neighbors" $ do
-      Board.pointIsIsolatedInLine testBoard (Point 3 2) Point.X `shouldBe` False
-      Board.pointIsIsolatedInLine testBoard (Point 3 2) Point.X `shouldBe` False
+      Board.pointIsIsolatedInLine testBoard (Point 3 2) Axis.X `shouldBe` False
+      Board.pointIsIsolatedInLine testBoard (Point 3 2) Axis.X `shouldBe` False
     it "has no X neighbors" $ do
-      Board.pointIsIsolatedInLine testBoard (Point 3 1) Point.X `shouldBe` True
+      Board.pointIsIsolatedInLine testBoard (Point 3 1) Axis.X `shouldBe` True
 
     it "has Y neighbors" $ do
-      Board.pointIsIsolatedInLine testBoard (Point 4 5) Point.Y `shouldBe` False
+      Board.pointIsIsolatedInLine testBoard (Point 4 5) Axis.Y `shouldBe` False
     it "has no Y neighbors" $ do
-      Board.pointIsIsolatedInLine testBoard (Point 0 5) Point.Y `shouldBe` True
-      Board.pointIsIsolatedInLine testBoard (Point 3 2) Point.Y `shouldBe` True
+      Board.pointIsIsolatedInLine testBoard (Point 0 5) Axis.Y `shouldBe` True
+      Board.pointIsIsolatedInLine testBoard (Point 3 2) Axis.Y `shouldBe` True
 
   describe "make strip point" $ do
     it "X strip has correct strip point" $ do
       let lineNumber = 1
           col = 1
           size = 3
-          strip = Strip.lineStrip Point.X lineNumber (gridRows !! lineNumber) col size
+          strip = Strip.lineStrip Axis.X lineNumber (gridRows !! lineNumber) col size
           offset = 2
           point = Strip.stripPoint strip offset
       point `shouldBe` Point lineNumber (col + offset)
@@ -142,7 +144,7 @@ spec = do
       let lineNumber = 1
           row = 2
           size = 1
-          strip = Strip.lineStrip Point.Y lineNumber (List.transpose gridRows !! lineNumber) row size
+          strip = Strip.lineStrip Axis.Y lineNumber (List.transpose gridRows !! lineNumber) row size
           offset = 0
           point = Strip.stripPoint strip offset
       point `shouldBe` Point (row + offset) lineNumber

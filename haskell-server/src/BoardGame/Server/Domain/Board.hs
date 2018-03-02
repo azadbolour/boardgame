@@ -66,9 +66,10 @@ import qualified BoardGame.Common.Domain.GridPiece as GridPiece
 import qualified Bolour.Plane.Domain.GridValue as GridValue
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import Bolour.Plane.Domain.Point (Coordinate, Axis(..), Point, Point(Point))
+import Bolour.Plane.Domain.Axis (Coordinate, Axis(..))
+import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
-import qualified Bolour.Plane.Domain.Point as Axis
+import qualified Bolour.Plane.Domain.Axis as Axis
 import Bolour.Util.BlackWhite
 import Bolour.Plane.Domain.BlackWhiteGrid (BlackWhiteGrid, BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
 import qualified Bolour.Plane.Domain.BlackWhiteGrid as Gr

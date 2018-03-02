@@ -20,7 +20,7 @@ import Bolour.Plane.Domain.Grid (Grid, Grid(Grid))
 import qualified Bolour.Plane.Domain.Grid as Grid
 import Bolour.Plane.Domain.Point (Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
-import qualified Bolour.Plane.Domain.Point as Axis
+import qualified Bolour.Plane.Domain.Axis as Axis
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.GridPiece (GridPiece)

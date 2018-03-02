@@ -60,6 +60,7 @@ library
       Bolour.Util.Empty
       Bolour.Util.BlackWhite
       Bolour.Plane.Domain.Point
+      Bolour.Plane.Domain.Axis
       Bolour.Plane.Domain.GridValue
       Bolour.Plane.Domain.Grid
       Bolour.Plane.Domain.BlackWhiteGrid

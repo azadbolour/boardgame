@@ -28,9 +28,10 @@ import Bolour.Util.BlackWhite
 import qualified Bolour.Util.Empty as Empty
 import Bolour.Plane.Domain.Grid (Grid)
 import qualified Bolour.Plane.Domain.Grid as Grid
-import qualified Bolour.Plane.Domain.Point as Axis
+import qualified Bolour.Plane.Domain.Axis as Axis
 import qualified Bolour.Plane.Domain.Point as Point
-import Bolour.Plane.Domain.Point (Point, Point(Point), Axis, Height, Width, Direction)
+import Bolour.Plane.Domain.Axis (Axis, Height, Width, Direction)
+import Bolour.Plane.Domain.Point (Point, Point(Point))
 
 data BlackWhitePoint a = BlackWhitePoint {
     value :: BlackWhite a

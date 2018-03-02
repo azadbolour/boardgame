@@ -26,7 +26,7 @@ import qualified BoardGame.Server.Domain.Board as Board
 
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
-import qualified Bolour.Plane.Domain.Point as Axis
+import qualified Bolour.Plane.Domain.Axis as Axis
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 
 pce :: Char -> Maybe Piece

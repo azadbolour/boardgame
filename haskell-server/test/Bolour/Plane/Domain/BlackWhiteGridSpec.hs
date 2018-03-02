@@ -8,8 +8,9 @@ import Test.Hspec
 import Bolour.Util.BlackWhite
 import Bolour.Plane.Domain.BlackWhiteGrid (BlackWhiteGrid, BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
 import qualified Bolour.Plane.Domain.BlackWhiteGrid as G
-import Bolour.Plane.Domain.Point (Point, Point(Point), Height, Width)
-import qualified Bolour.Plane.Domain.Point as Axis
+import Bolour.Plane.Domain.Axis (Height, Width)
+import Bolour.Plane.Domain.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.Axis as Axis
 
 dim :: Int
 dim = 5

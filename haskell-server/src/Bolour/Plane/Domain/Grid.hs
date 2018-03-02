@@ -35,8 +35,9 @@ import Data.Maybe (fromJust)
 
 import qualified Bolour.Util.MiscUtil as Util
 
-import Bolour.Plane.Domain.Point (Point, Point(Point), Axis, Coordinate, Height, Width)
-import qualified Bolour.Plane.Domain.Point as Axis
+import Bolour.Plane.Domain.Axis (Axis, Coordinate, Height, Width)
+import Bolour.Plane.Domain.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.Axis as Axis
 import qualified Bolour.Plane.Domain.Point as Point
 
 -- |The 2-dimensional grid of squares on a game board.
