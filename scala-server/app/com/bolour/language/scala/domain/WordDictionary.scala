@@ -8,18 +8,18 @@ package com.bolour.language.scala.domain
 import java.io.File
 
 import com.bolour.boardgame.scala.server.util.WordUtil._
-import com.bolour.language.scala.domain.LanguageExceptions.MissingDictionaryException
 import com.bolour.language.scala.domain.WordDictionary._
 import com.bolour.util.scala.server.BasicServerUtil.{mkFileSource, mkResourceSource}
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
-/** Word dictionary - indexed by combinations of letters in a word.
+/**
+  * Word dictionary - indexed by combinations of letters in a word.
   * A combination is represented as the sorted string of letters.
   *
   * The dictionary also includes an index of "dense" masked words. A masked word
   * is a word some of whose letters have been changed to blanks (for the purpose
-  * of matching with with the contents of strips on teh board). If a strip
+  * of matching with the contents of strips on the board). If a strip
   * is at all playable, then its content as a masked word must exist in the
   * masked words index. However, we do not store all masked versions of
   * a word: only those that are "dense", that is, those that only have a few
@@ -27,41 +27,45 @@ import scala.util.{Failure, Success, Try}
   * be filled, because their eligible play strips are all dense but have contents
   * that do not exist as masked words in the masked word index.
   *
-  * @param languageCode The ISO language code of the dictionary.
-  * @param words List of words in the dictionary.
+  * The class MaskedWordsPreprocessor is used to pre-compute dense masked words.
+  *
+  * Dictionary files reside in the "dict" directory. The words file is named
+  * "${languageCode}${dictionaryFileSuffix}", where languageCode is the locale
+  * code for the language, e.g., "en", and dictionaryFileSuffix = "-words.txt".
+  * Similarly, the masked words file is named "${languageCode}${maskedWordsFileSuffix}",
+  * where maskedWordsFileSuffix = "-masked-words.txt".
   */
-// case class WordDictionary(languageCode: String, words: List[DictWord], maxMaskedLetters: Int) {
 case class WordDictionary(languageCode: String, words: List[DictWord], maskedWords: Set[String], maxMaskedLetters: Int) {
 
-  val wordsByCombo = mkWordsByCombo(words)
-  // val maskedWords = mkMaskedWords(words, maxMaskedLetters)
+  /**
+    * Map of letter combinations to words in the dictionary.
+    */
+  private val wordsByCombo = mkWordsByCombo(words)
 
-  /** Is the given word in the dictionary? */
+  /**
+    * Is the given word in the dictionary?
+    */
   def hasWord(word: String): Boolean = permutations(stringToLetterCombo(word)) contains word
 
   def hasMaskedWord(maskedWord: String): Boolean = maskedWords.contains(maskedWord)
 
-  /** Get the words in the dictionary that have exactly the same letters
-    * as the given sorted list of letter. */
+  /**
+    * Get the words in the dictionary that have exactly the same letters
+    * as the given sorted list of letter.
+    * */
   def permutations(combo: LetterCombo): List[DictWord] = wordsByCombo.getOrElse(combo, Nil)
 }
 
 object WordDictionary {
 
   def mkWordDictionary(languageCode: String, dictionaryDir: String, maxMaskedLetters: Int): Try[WordDictionary] = {
-
     for {
       words <- readDictionary(languageCode, dictionaryDir)
       maskedWords <- readMaskedWords(languageCode, dictionaryDir)
     } yield WordDictionary(languageCode, words, maskedWords, maxMaskedLetters)
-
-//      match {
-//      case Failure(ex) => throw new MissingDictionaryException(languageCode, dictionaryDir, ex)
-//      case Success(words) => WordDictionary(languageCode, words, maxMaskedLetters)
-//    }
   }
 
-  val classLoader = this.getClass.getClassLoader
+  private val classLoader = this.getClass.getClassLoader
 
   val dictionaryFileSuffix = "-words.txt"
   val maskedWordsFileSuffix = "-masked-words.txt"
@@ -85,8 +89,7 @@ object WordDictionary {
         }
         finally {source.close}
       }
-    } // yield WordDictionary(languageCode, words)
-      yield words
+    } yield words
   }
 
   def readMaskedWords(languageCode: String, dictionaryDir: String): Try[Set[String]] = {
@@ -95,23 +98,27 @@ object WordDictionary {
     for {
       source <- mkFileSource(path).orElse(mkResourceSource(path, WordDictionary.classLoader))
       maskedWords <- Try {
-        // TODO. Better pattern for closing source?
         try {
           val lines = source.getLines().toSet
           lines.map(_.toUpperCase)
         }
         finally {source.close}
       }
-    } // yield WordDictionary(languageCode, words)
-      yield maskedWords
+    } yield maskedWords
   }
 
-
-
-  // val MaxMaskedLetters = 2
-
+  /**
+    * Create a map of letter combinations to words in the dictionary.
+    * The combinations of letters in a word is represented by the sorted
+    * list of the letters in teh word.
+    */
   def mkWordsByCombo(words: List[DictWord]): WordsByCombo = words.groupBy(stringToLetterCombo)
 
+  /**
+    * Given the words in the dictionary, created the set of all dense masked versions
+    * of the words. A dense masked version of the word has up to "maxMaskedLetters"
+    * of its letters "masked" (that is replaced) by blanks.
+    */
   def mkMaskedWords(words: List[DictWord], maxMaskedLetters: Int): Set[String] = {
     val list = for {
       word <- words
@@ -119,6 +126,5 @@ object WordDictionary {
     } yield masked
     list.toSet
   }
-
 }
 
