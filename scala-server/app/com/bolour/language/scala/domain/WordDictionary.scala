@@ -30,10 +30,11 @@ import scala.util.{Failure, Success, Try}
   * @param languageCode The ISO language code of the dictionary.
   * @param words List of words in the dictionary.
   */
-case class WordDictionary(languageCode: String, words: List[DictWord], maxMaskedLetters: Int) {
+// case class WordDictionary(languageCode: String, words: List[DictWord], maxMaskedLetters: Int) {
+case class WordDictionary(languageCode: String, words: List[DictWord], maskedWords: Set[String], maxMaskedLetters: Int) {
 
   val wordsByCombo = mkWordsByCombo(words)
-  val maskedWords = mkMaskedWords(words, maxMaskedLetters)
+  // val maskedWords = mkMaskedWords(words, maxMaskedLetters)
 
   /** Is the given word in the dictionary? */
   def hasWord(word: String): Boolean = permutations(stringToLetterCombo(word)) contains word
@@ -47,19 +48,29 @@ case class WordDictionary(languageCode: String, words: List[DictWord], maxMasked
 
 object WordDictionary {
 
-  def mkWordDictionary(languageCode: String, dictionaryDir: String, maxMaskedLetters: Int): Try[WordDictionary] = Try {
-    readDictionary(languageCode, dictionaryDir) match {
-      case Failure(ex) => throw new MissingDictionaryException(languageCode, dictionaryDir, ex)
-      case Success(words) => WordDictionary(languageCode, words, maxMaskedLetters)
-    }
+  def mkWordDictionary(languageCode: String, dictionaryDir: String, maxMaskedLetters: Int): Try[WordDictionary] = {
+
+    for {
+      words <- readDictionary(languageCode, dictionaryDir)
+      maskedWords <- readMaskedWords(languageCode, dictionaryDir)
+    } yield WordDictionary(languageCode, words, maskedWords, maxMaskedLetters)
+
+//      match {
+//      case Failure(ex) => throw new MissingDictionaryException(languageCode, dictionaryDir, ex)
+//      case Success(words) => WordDictionary(languageCode, words, maxMaskedLetters)
+//    }
   }
 
   val classLoader = this.getClass.getClassLoader
 
   val dictionaryFileSuffix = "-words.txt"
+  val maskedWordsFileSuffix = "-masked-words.txt"
 
   private def dictionaryFileName(languageCode: String): String =
     s"${languageCode}${dictionaryFileSuffix}"
+
+  private def maskedWordsFileName(languageCode: String): String =
+    s"${languageCode}${maskedWordsFileSuffix}"
 
   def readDictionary(languageCode: String, dictionaryDir: String): Try[List[DictWord]] = {
     val name = dictionaryFileName(languageCode)
@@ -77,6 +88,25 @@ object WordDictionary {
     } // yield WordDictionary(languageCode, words)
       yield words
   }
+
+  def readMaskedWords(languageCode: String, dictionaryDir: String): Try[Set[String]] = {
+    val name = maskedWordsFileName(languageCode)
+    val path = s"${dictionaryDir}${File.separator}${name}"
+    for {
+      source <- mkFileSource(path).orElse(mkResourceSource(path, WordDictionary.classLoader))
+      maskedWords <- Try {
+        // TODO. Better pattern for closing source?
+        try {
+          val lines = source.getLines().toSet
+          lines.map(_.toUpperCase)
+        }
+        finally {source.close}
+      }
+    } // yield WordDictionary(languageCode, words)
+      yield maskedWords
+  }
+
+
 
   // val MaxMaskedLetters = 2
 

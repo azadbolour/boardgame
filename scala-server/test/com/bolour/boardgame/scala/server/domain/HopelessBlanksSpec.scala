@@ -14,7 +14,8 @@ class HopelessBlanksSpec extends FlatSpec with Matchers { self =>
   val trayCapacity = 3
 
   val words = List("AND", "TAN")
-  val dictionary = WordDictionary(WordUtil.english, words, MaxMaskedLetters)
+  val maskedWords = WordDictionary.mkMaskedWords(words, MaxMaskedLetters)
+  val dictionary = WordDictionary(WordUtil.english, words, maskedWords, MaxMaskedLetters)
   val dimension = 3
   val emptyBoard = Board(dimension)
   val tray = Tray(trayCapacity, Vector()) // Don't need the tray contents, just capacity.

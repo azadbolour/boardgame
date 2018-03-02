@@ -50,7 +50,7 @@ object MaskedWordsPreprocessor extends App {
   println(s"number of masked words: ${maskedWords.size}")
   val elapsed = (t2 - t1)/1000
   println(s"time to load masked words: ${elapsed}")
-  
+
   val num = maskedWords.size
   println(s"number of masked words: ${num}")
 

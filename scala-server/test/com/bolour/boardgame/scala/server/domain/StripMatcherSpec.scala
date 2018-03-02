@@ -20,7 +20,8 @@ class StripMatcherSpec extends FlatSpec with Matchers { self =>
 
   // val config = ConfigFactory.load()
   val words = List("BAT", "BET", "EATEN")
-  val dictionary = WordDictionary(WordUtil.english, words, MaxMaskedLetters)
+  val maskedWords = WordDictionary.mkMaskedWords(words, MaxMaskedLetters)
+  val dictionary = WordDictionary(WordUtil.english, words, maskedWords, MaxMaskedLetters)
   val dimension = 7
   val emptyBoard = Board(dimension)
   val pieces = Vector(
