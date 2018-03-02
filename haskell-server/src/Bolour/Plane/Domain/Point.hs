@@ -15,7 +15,7 @@ A point of a grid and related definitions.
 These are very unlikely to change over time and are therefore
 shared with the web interface layer and with clients.
 -}
-module Bolour.Grid.Point (
+module Bolour.Plane.Domain.Point (
     Axis(..)
   , crossAxis
   , Coordinate

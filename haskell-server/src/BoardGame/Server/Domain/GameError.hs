@@ -17,7 +17,7 @@ import GHC.Generics
 import Data.Aeson
 import Control.Monad.Except (ExceptT)
 
-import Bolour.Grid.Point
+import Bolour.Plane.Domain.Point
 import BoardGame.Common.Domain.Piece
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 

@@ -19,7 +19,7 @@ module Main (
 import Test.Hspec
 
 import qualified BoardGame.Server.Domain.HopelessBlanksSpec as Test2
-import qualified Bolour.Grid.BlackWhiteGridSpec as Test3
+import qualified Bolour.Plane.Domain.BlackWhiteGridSpec as Test3
 import qualified BoardGame.Server.Service.GameServiceSpec as Test4
 
 main :: IO ()

@@ -8,7 +8,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
-module Bolour.Grid.GridValue (
+module Bolour.Plane.Domain.GridValue (
     GridValue(..)
 )
 where
@@ -16,7 +16,7 @@ where
 import GHC.Generics (Generic)
 import Control.DeepSeq (NFData)
 import Data.Aeson (FromJSON, ToJSON)
-import Bolour.Grid.Point (Point)
+import Bolour.Plane.Domain.Point (Point)
 
 -- | A value located on a grid.
 data GridValue val = GridValue {

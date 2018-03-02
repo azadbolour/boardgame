@@ -1,15 +1,15 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 
-module Bolour.Grid.BlackWhiteGridSpec where
+module Bolour.Plane.Domain.BlackWhiteGridSpec where
 
 import Test.Hspec
 
 import Bolour.Util.BlackWhite
-import Bolour.Grid.BlackWhiteGrid (BlackWhiteGrid, BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
-import qualified Bolour.Grid.BlackWhiteGrid as G
-import Bolour.Grid.Point (Point, Point(Point), Height, Width)
-import qualified Bolour.Grid.Point as Axis
+import Bolour.Plane.Domain.BlackWhiteGrid (BlackWhiteGrid, BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
+import qualified Bolour.Plane.Domain.BlackWhiteGrid as G
+import Bolour.Plane.Domain.Point (Point, Point(Point), Height, Width)
+import qualified Bolour.Plane.Domain.Point as Axis
 
 dim :: Int
 dim = 5

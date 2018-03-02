@@ -18,14 +18,14 @@ import qualified Data.List as List
 -- import qualified Data.ByteString.Char8 as BS
 -- import Data.ByteString.Char8 (ByteString)
 
-import Bolour.Grid.Grid (Grid, Grid(Grid))
-import qualified Bolour.Grid.Grid as Grid
-import Bolour.Grid.Point (Point(Point))
-import qualified Bolour.Grid.Point as Point
+import Bolour.Plane.Domain.Grid (Grid, Grid(Grid))
+import qualified Bolour.Plane.Domain.Grid as Grid
+import Bolour.Plane.Domain.Point (Point(Point))
+import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import Bolour.Grid.GridValue (GridValue(GridValue))
+import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
 import qualified BoardGame.Server.Domain.Board as Board
 import qualified BoardGame.Server.Domain.StripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip

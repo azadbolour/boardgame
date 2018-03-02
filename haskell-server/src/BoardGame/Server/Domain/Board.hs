@@ -60,18 +60,18 @@ import Control.Monad.Except (MonadError(..))
 
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
-import Bolour.Grid.GridValue (GridValue(GridValue))
+import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import qualified BoardGame.Common.Domain.GridPiece as GridPiece
-import qualified Bolour.Grid.GridValue as GridValue
+import qualified Bolour.Plane.Domain.GridValue as GridValue
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import Bolour.Grid.Point (Coordinate, Axis(..), Point, Point(Point))
-import qualified Bolour.Grid.Point as Point
-import qualified Bolour.Grid.Point as Axis
+import Bolour.Plane.Domain.Point (Coordinate, Axis(..), Point, Point(Point))
+import qualified Bolour.Plane.Domain.Point as Point
+import qualified Bolour.Plane.Domain.Point as Axis
 import Bolour.Util.BlackWhite
-import Bolour.Grid.BlackWhiteGrid (BlackWhiteGrid, BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
-import qualified Bolour.Grid.BlackWhiteGrid as Gr
+import Bolour.Plane.Domain.BlackWhiteGrid (BlackWhiteGrid, BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
+import qualified Bolour.Plane.Domain.BlackWhiteGrid as Gr
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))

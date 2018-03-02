@@ -21,8 +21,8 @@ where
 import GHC.Generics (Generic)
 import Control.DeepSeq (NFData)
 import Data.Aeson (FromJSON, ToJSON)
-import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
-import Bolour.Grid.Point (Point)
+import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
+import Bolour.Plane.Domain.Point (Point)
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 

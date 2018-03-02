@@ -14,19 +14,19 @@ import Test.Hspec
 import Data.Maybe (fromJust)
 import qualified Data.Maybe as Maybe
 
-import Bolour.Grid.Grid (Grid, Grid(Grid))
-import qualified Bolour.Grid.Grid as Grid
+import Bolour.Plane.Domain.Grid (Grid, Grid(Grid))
+import qualified Bolour.Plane.Domain.Grid as Grid
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import Bolour.Grid.GridValue (GridValue(GridValue))
-import qualified Bolour.Grid.GridValue as GridValue
+import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
+import qualified Bolour.Plane.Domain.GridValue as GridValue
 import qualified BoardGame.Server.Domain.Board as Board
 
-import Bolour.Grid.Point (Point, Point(Point))
-import qualified Bolour.Grid.Point as Point
-import qualified Bolour.Grid.Point as Axis
+import Bolour.Plane.Domain.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.Point as Point
+import qualified Bolour.Plane.Domain.Point as Axis
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 
 pce :: Char -> Maybe Piece

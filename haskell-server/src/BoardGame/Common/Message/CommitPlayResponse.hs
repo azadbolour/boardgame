@@ -17,7 +17,7 @@ import GHC.Generics (Generic)
 import Data.Aeson (FromJSON, ToJSON)
 import Control.DeepSeq (NFData)
 
-import Bolour.Grid.Point
+import Bolour.Plane.Domain.Point
 import BoardGame.Common.Domain.Piece
 import BoardGame.Common.Domain.GameMiniState
 

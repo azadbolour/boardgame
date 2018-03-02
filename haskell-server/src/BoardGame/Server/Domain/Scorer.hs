@@ -20,8 +20,8 @@ module BoardGame.Server.Domain.Scorer (
   ) where
 
 import qualified Data.List as List
-import Bolour.Grid.Point (Point, Point(Point))
-import qualified Bolour.Grid.Point as Point
+import Bolour.Plane.Domain.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece), MoveInfo)
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 

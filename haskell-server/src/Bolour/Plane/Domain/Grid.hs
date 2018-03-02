@@ -13,7 +13,7 @@
 {-|
 Definition of the game grid and its dependencies.
 -}
-module Bolour.Grid.Grid (
+module Bolour.Plane.Domain.Grid (
     Grid(..)
   , mkGrid
   , get
@@ -35,9 +35,9 @@ import Data.Maybe (fromJust)
 
 import qualified Bolour.Util.MiscUtil as Util
 
-import Bolour.Grid.Point (Point, Point(Point), Axis, Coordinate, Height, Width)
-import qualified Bolour.Grid.Point as Axis
-import qualified Bolour.Grid.Point as Point
+import Bolour.Plane.Domain.Point (Point, Point(Point), Axis, Coordinate, Height, Width)
+import qualified Bolour.Plane.Domain.Point as Axis
+import qualified Bolour.Plane.Domain.Point as Point
 
 -- |The 2-dimensional grid of squares on a game board.
 data Grid val = Grid {

@@ -14,8 +14,8 @@ module BoardGame.Common.Domain.GridPiece (
   , isEmpty
   ) where
 
-import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
-import qualified Bolour.Grid.GridValue as GridValue
+import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
+import qualified Bolour.Plane.Domain.GridValue as GridValue
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 

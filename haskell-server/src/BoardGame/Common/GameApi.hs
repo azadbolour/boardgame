@@ -23,9 +23,9 @@ module BoardGame.Common.GameApi (
 where
 
 import Servant
+import Bolour.Plane.Domain.GridValue (GridValue)
 import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
-import Bolour.Grid.GridValue (GridValue)
 import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse)
 import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse)
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest)

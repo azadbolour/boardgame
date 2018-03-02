@@ -13,7 +13,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Bolour.Grid.BlackWhiteGrid (
+module Bolour.Plane.Domain.BlackWhiteGrid (
     BlackWhiteGrid(..)
   , BlackWhitePoint(..)
   , mkGrid
@@ -26,11 +26,11 @@ import Data.Maybe (isJust, isNothing, fromJust, catMaybes)
 
 import Bolour.Util.BlackWhite
 import qualified Bolour.Util.Empty as Empty
-import Bolour.Grid.Grid (Grid)
-import qualified Bolour.Grid.Grid as Grid
-import qualified Bolour.Grid.Point as Axis
-import qualified Bolour.Grid.Point as Point
-import Bolour.Grid.Point (Point, Point(Point), Axis, Height, Width, Direction)
+import Bolour.Plane.Domain.Grid (Grid)
+import qualified Bolour.Plane.Domain.Grid as Grid
+import qualified Bolour.Plane.Domain.Point as Axis
+import qualified Bolour.Plane.Domain.Point as Point
+import Bolour.Plane.Domain.Point (Point, Point(Point), Axis, Height, Width, Direction)
 
 data BlackWhitePoint a = BlackWhitePoint {
     value :: BlackWhite a

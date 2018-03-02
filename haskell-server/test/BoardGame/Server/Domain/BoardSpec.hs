@@ -9,8 +9,8 @@ module BoardGame.Server.Domain.BoardSpec where
 import Test.Hspec
 import Data.Either
 import Bolour.Util.SpecUtil (satisfiesRight, satisfiesLeft)
-import qualified Bolour.Grid.Grid as Grid
-import Bolour.Grid.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.Grid as Grid
+import Bolour.Plane.Domain.Point (Point, Point(Point))
 import BoardGame.Server.Domain.Board (validatePoint)
 import qualified BoardGame.Server.Domain.Board as Board
 

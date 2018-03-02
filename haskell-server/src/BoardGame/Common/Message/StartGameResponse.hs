@@ -18,7 +18,7 @@ import Control.DeepSeq (NFData)
 
 import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.Piece (Piece)
-import Bolour.Grid.GridValue (GridValue)
+import Bolour.Plane.Domain.GridValue (GridValue)
 
 -- | Data transfer object for a game.
 --   The machine tray is excluded -

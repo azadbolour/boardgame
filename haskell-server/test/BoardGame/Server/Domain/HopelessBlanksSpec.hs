@@ -7,11 +7,11 @@ import qualified BoardGame.Server.Domain.StripMatcher as StripMatcher
 import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Board (Board, Board(Board))
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
-import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
+import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
-import Bolour.Grid.Point (Point, Point(Point))
-import qualified Bolour.Grid.Point as Axis
+import Bolour.Plane.Domain.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.Point as Axis
 
 trayCapacity :: Int
 trayCapacity = 3

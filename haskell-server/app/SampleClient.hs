@@ -9,8 +9,8 @@ import Servant.Common.BaseUrl()
 import BoardGame.Common.Domain.Player (Player(Player))
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
-import Bolour.Grid.Point (Point(Point))
-import qualified Bolour.Grid.Point as Point
+import Bolour.Plane.Domain.Point (Point(Point))
+import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.GameParams (GameParams(GameParams))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import qualified BoardGame.Common.Domain.GameParams as GameParams

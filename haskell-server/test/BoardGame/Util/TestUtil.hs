@@ -16,10 +16,10 @@ import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 -- import qualified BoardGame.Common.Domain.GridPiece as GridPiece
-import Bolour.Grid.GridValue (GridValue(GridValue))
-import qualified Bolour.Grid.GridValue as GridValue
-import Bolour.Grid.Point (Point, Point(Point))
-import qualified Bolour.Grid.Point as Point
+import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
+import qualified Bolour.Plane.Domain.GridValue as GridValue
+import Bolour.Plane.Domain.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.Point as Point
 
 mkInitialPlayPieces :: GridPiece -> [Piece] -> [PlayPiece]
 mkInitialPlayPieces (centerBoardPiece @ GridValue.GridValue {value = piece, point}) trayPieces = playPieces where

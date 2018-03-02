@@ -17,8 +17,8 @@ import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import qualified BoardGame.Server.Domain.Board as Board
 
-import Bolour.Grid.Point (Point(Point))
-import qualified Bolour.Grid.Point as Axis
+import Bolour.Plane.Domain.Point (Point(Point))
+import qualified Bolour.Plane.Domain.Point as Axis
 import qualified BoardGame.Server.Domain.Scorer as Scorer
 
 pce :: Char -> Maybe Piece

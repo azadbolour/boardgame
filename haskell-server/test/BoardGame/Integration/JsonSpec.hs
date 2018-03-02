@@ -13,7 +13,7 @@ import Data.Aeson
 import Control.Monad.Trans.Except (runExceptT)
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import BoardGame.Common.Domain.Piece (Piece)
-import Bolour.Grid.Point (Point, Point(Point))
+import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Server.Domain.Game (Game, Game(Game))
 import qualified BoardGame.Server.Domain.Game as Game

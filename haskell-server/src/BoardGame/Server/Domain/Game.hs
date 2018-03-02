@@ -37,15 +37,15 @@ import Control.Monad.Except (MonadError(..))
 import qualified Bolour.Util.MiscUtil as Util
 
 import BoardGame.Common.Domain.GameParams as GameParams -- allows both qualified and unqualified names
-import qualified Bolour.Grid.Point as Point
+import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.Player (PlayerType(..))
 import qualified BoardGame.Common.Domain.Player as PlayerType
 import qualified BoardGame.Common.Domain.Player as Player
-import Bolour.Grid.GridValue (GridValue(GridValue))
+import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import qualified Bolour.Grid.GridValue as GridValue
+import qualified Bolour.Plane.Domain.GridValue as GridValue
 import BoardGame.Common.Domain.PlayPiece (PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameMiniState (GameMiniState, GameMiniState(GameMiniState))

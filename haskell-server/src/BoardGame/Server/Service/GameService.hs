@@ -50,15 +50,15 @@ import BoardGame.Common.Domain.Player (Player(Player), PlayerType(..))
 import qualified BoardGame.Common.Domain.Player as Player
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import Bolour.Grid.Point (Point, Point(Point))
--- import qualified Bolour.Grid.Point as Point
--- import Bolour.Grid.Point (Axis)
-import qualified Bolour.Grid.Point as Axis
+import Bolour.Plane.Domain.Point (Point, Point(Point))
+-- import qualified Bolour.Plane.Domain.Point as Point
+-- import Bolour.Plane.Domain.Point (Axis)
+import qualified Bolour.Plane.Domain.Point as Axis
 import BoardGame.Common.Domain.GameMiniState (GameMiniState)
 import BoardGame.Common.Domain.GameSummary (GameSummary)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
--- import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
--- import qualified Bolour.Grid.GridValue as GridValue
+-- import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
+-- import qualified Bolour.Plane.Domain.GridValue as GridValue
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameParams (GameParams)

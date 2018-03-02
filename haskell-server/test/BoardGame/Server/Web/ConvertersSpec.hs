@@ -16,10 +16,10 @@ import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import BoardGame.Common.Domain.Player (userIndex)
-import Bolour.Grid.Point (Point, Point(Point))
-import qualified Bolour.Grid.Point as Point
-import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
-import qualified Bolour.Grid.GridValue as GridValue
+import Bolour.Plane.Domain.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.Point as Point
+import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
+import qualified Bolour.Plane.Domain.GridValue as GridValue
 import BoardGame.Common.Message.StartGameResponse as StartGameResponse
 import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))

@@ -26,11 +26,11 @@ import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerCo
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import BoardGame.Common.Domain.Player(Player, Player(Player))
 import BoardGame.Common.Domain.Piece (Piece(Piece))
-import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
-import qualified Bolour.Grid.GridValue as GridValue
+import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
+import qualified Bolour.Plane.Domain.GridValue as GridValue
 import qualified BoardGame.Common.Domain.GridPiece as GridPiece
-import Bolour.Grid.Point (Point, Point(Point))
-import qualified Bolour.Grid.Point as Point
+import Bolour.Plane.Domain.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import BoardGame.Server.Domain.GameCache as GameCache
 import BoardGame.Server.Service.GameDao (cleanupDb)

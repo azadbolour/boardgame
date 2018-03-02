@@ -22,7 +22,7 @@ import Control.Monad.Log (runLoggingT)
 import BoardGame.Common.Domain.Player (Player, Player(Player))
 import BoardGame.Common.Domain.GameParams (GameParams(..))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
-import qualified Bolour.Grid.Point as Point (Axis(..))
+import qualified Bolour.Plane.Domain.Point as Point (Axis(..))
 import qualified Bolour.Util.PersistRunner as PersistRunner
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig

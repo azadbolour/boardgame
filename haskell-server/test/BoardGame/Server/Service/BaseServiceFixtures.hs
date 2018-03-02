@@ -23,9 +23,9 @@ import BoardGame.Common.Domain.Player (Player, Player(Player))
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import Bolour.Grid.GridValue (GridValue, GridValue(GridValue))
-import qualified Bolour.Grid.GridValue as GridValue
-import Bolour.Grid.Point (Point, Point(Point))
+import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
+import qualified Bolour.Plane.Domain.GridValue as GridValue
+import Bolour.Plane.Domain.Point (Point, Point(Point))
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Server.Domain.GameCache as GameCache

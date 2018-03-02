@@ -11,8 +11,8 @@
 module BoardGame.Server.Domain.CommonSpec where
 
 import Test.Hspec
-import Bolour.Grid.Point (Point, Point(Point))
-import qualified Bolour.Grid.Point as Point
+import Bolour.Plane.Domain.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.Point as Point
 
 spec :: Spec
 spec = do

@@ -35,8 +35,8 @@ import qualified Data.Map as Map
 import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified BoardGame.Util.WordUtil as WordUtil
 import qualified Bolour.Util.MiscUtil as MiscUtil
-import Bolour.Grid.Point (Point, Point(Point), Axis, Coordinate)
-import qualified Bolour.Grid.Point as Axis
+import Bolour.Plane.Domain.Point (Point, Point(Point), Axis, Coordinate)
+import qualified Bolour.Plane.Domain.Point as Axis
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 
