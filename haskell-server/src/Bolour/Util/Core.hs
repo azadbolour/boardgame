@@ -5,7 +5,7 @@
 --
 
 
-module BoardGame.Server.Domain.Core (
+module Bolour.Util.Core (
     EntityId
 ) where
 

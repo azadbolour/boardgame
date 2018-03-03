@@ -68,7 +68,7 @@ import Database.Persist.Sql (
   )
 
 import Database.Persist.TH
-import BoardGame.Server.Domain.Core(EntityId)
+import Bolour.Util.Core(EntityId)
 import BoardGame.Server.Domain.GameError(GameError(..))
 import Bolour.Plane.Domain.Axis(Coordinate)
 import BoardGame.Common.Domain.Player (PlayerName)

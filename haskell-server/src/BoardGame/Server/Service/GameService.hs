@@ -45,13 +45,20 @@ import Control.Monad.Trans.Class (lift)
 import Bolour.Util.MiscUtil (
   isAlphaNumString,
  )
+import Bolour.Util.Core (EntityId)
+
+import Bolour.Plane.Domain.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.Axis as Axis
+
+import Bolour.Language.Util.WordUtil (DictWord)
+import qualified Bolour.Language.Domain.WordDictionary as Dict
+import Bolour.Language.Domain.WordDictionary (WordDictionary)
+import qualified Bolour.Language.Domain.DictionaryCache as DictionaryCache
 
 import BoardGame.Common.Domain.Player (Player(Player), PlayerType(..))
 import qualified BoardGame.Common.Domain.Player as Player
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import Bolour.Plane.Domain.Point (Point, Point(Point))
-import qualified Bolour.Plane.Domain.Axis as Axis
 import BoardGame.Common.Domain.GameMiniState (GameMiniState)
 import BoardGame.Common.Domain.GameSummary (GameSummary)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
@@ -59,7 +66,6 @@ import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameParams (GameParams)
 import qualified BoardGame.Common.Domain.GameParams as GameParams (GameParams(..))
-import BoardGame.Server.Domain.Core (EntityId)
 import BoardGame.Server.Domain.Game (Game, Game(Game))
 import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.GameError (GameError(..))
@@ -70,10 +76,7 @@ import qualified BoardGame.Server.Domain.Tray as Tray
 import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Board (Board)
 import qualified BoardGame.Server.Domain.GameCache as GameCache
-import qualified Bolour.Language.Domain.DictionaryCache as DictionaryCache
-import qualified Bolour.Language.Domain.WordDictionary as Dict
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
-import Bolour.Language.Domain.WordDictionary (WordDictionary)
 import BoardGame.Server.Domain.PlayInfo (PlayInfo, PlayInfo(PlayInfo))
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack, liftGameExceptToStack)
@@ -93,8 +96,6 @@ import qualified BoardGame.Server.Domain.StripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
-import Bolour.Language.Util.WordUtil (DictWord)
--- import qualified Bolour.Util.DbConfig as DbConfig
 
 unknownPlayerName = "You"
 unknownPlayer = Player unknownPlayerName
