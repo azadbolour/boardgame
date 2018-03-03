@@ -34,7 +34,7 @@ module BoardGame.Server.Domain.Board (
   , inBounds
   , pointIsEmpty
   , pointIsNonEmpty
-  , pointIsIsolatedInLine
+  -- , pointIsIsolatedInLine
   , pointHasRealNeighbor
   , validateCoordinate
   , validatePoint
@@ -70,9 +70,11 @@ import Bolour.Plane.Domain.Axis (Coordinate, Axis(..))
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
 import qualified Bolour.Plane.Domain.Axis as Axis
-import Bolour.Util.BlackWhite
+import Bolour.Util.BlackWhite (BlackWhite, BlackWhite(Black, White))
+import qualified Bolour.Util.BlackWhite as BlackWhite
 import Bolour.Plane.Domain.BlackWhiteGrid (BlackWhiteGrid, BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
 import qualified Bolour.Plane.Domain.BlackWhiteGrid as Gr
+import qualified Bolour.Plane.Domain.BlackWhiteGrid as BlackWhitePoint
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
@@ -140,20 +142,14 @@ colsAsPieces Board {grid} =
   let lineMapper col = pieceExtractor <$> col
   in lineMapper <$> Gr.cols grid
 
-next :: Board -> Point -> Axis -> Maybe Piece
-next Board {grid} point axis = do
-  (maybePiece, _) <- Gr.next grid point axis
-  maybePiece
+next :: Board -> Point -> Axis -> Maybe (BlackWhite Piece)
+next Board {grid} point axis = BlackWhitePoint.value <$> Gr.next grid point axis
 
-prev :: Board -> Point -> Axis -> Maybe Piece
-prev Board {grid} point axis = do
-  (maybePiece, _) <- Gr.prev grid point axis
-  maybePiece
+prev :: Board -> Point -> Axis -> Maybe (BlackWhite Piece)
+prev Board {grid} point axis = BlackWhitePoint.value <$> Gr.prev grid point axis
 
-adjacent :: Board -> Point -> Axis -> Int -> Maybe Piece
-adjacent Board {grid} point axis direction = do
-  (maybePiece, _) <- Gr.adjacent grid point axis direction
-  maybePiece
+adjacent :: Board -> Point -> Axis -> Int -> Maybe (BlackWhite Piece)
+adjacent Board {grid} point axis direction = BlackWhitePoint.value <$> Gr.adjacent grid point axis direction
 
 -- | Nothing if out of bounds, noPiece if empty but in bounds.
 get :: Board -> Point -> Maybe Piece
@@ -226,15 +222,21 @@ validatePoint board (point @ Point { row, col }) = do
 rowsAsStrings :: Board -> [String]
 rowsAsStrings board = ((\Piece {value} -> value) <$>) <$> rowsAsPieces board
 
-pointIsIsolatedInLine :: Board -> Point -> Axis -> Bool
-pointIsIsolatedInLine Board {grid} = Gr.isIsolatedInLine grid
+-- pointIsIsolatedInLine :: Board -> Point -> Axis -> Bool
+-- pointIsIsolatedInLine Board {grid} = Gr.isIsolatedInLine grid
+
+maybeBlackWhiteHasPiece :: Maybe (BlackWhite Piece) -> Bool
+maybeBlackWhiteHasPiece Nothing = False
+maybeBlackWhiteHasPiece (Just bwPiece) = BlackWhite.hasValue bwPiece
 
 pointHasRealNeighbor :: Board -> Point -> Axis -> Bool
 pointHasRealNeighbor board point axis =
   let maybeNext = next board point axis
       maybePrev = prev board point axis
-  in (isJust maybeNext && Piece.isReal (fromJust maybeNext)) ||
-       (isJust maybePrev && Piece.isReal (fromJust maybePrev))
+  in maybeBlackWhiteHasPiece maybeNext || maybeBlackWhiteHasPiece maybePrev
+
+--   in (isJust maybeNext && Piece.isReal (fromJust maybeNext)) ||
+--        (isJust maybePrev && Piece.isReal (fromJust maybePrev))
 
 farthestNeighbor :: Board -> Point -> Axis -> Int -> Point
 farthestNeighbor Board {grid} = Gr.farthestNeighbor grid
@@ -285,10 +287,10 @@ stripIsDisconnectedInLine board (strip @ Strip {axis, begin, end, content})
           -- limit = dimension
           maybePrevPiece = prev board f axis
           maybeNextPiece = next board l axis
-          isSeparator maybePiece =
-            case maybePiece of
-              Nothing -> True
-              Just piece -> Piece.isEmpty piece
+          isSeparator maybeBlackWhitePiece = not $ maybeBlackWhiteHasPiece maybeBlackWhitePiece
+--             case maybePiece of
+--               Nothing -> True
+--               Just piece -> Piece.isEmpty piece
       in isSeparator maybePrevPiece && isSeparator maybeNextPiece
 
 computeAllLiveStripsForAxis :: Board -> Axis -> [Strip]

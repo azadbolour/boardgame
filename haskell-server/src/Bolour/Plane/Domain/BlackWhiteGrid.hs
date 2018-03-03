@@ -55,11 +55,11 @@ data BlackWhiteGrid val = BlackWhiteGrid {
   -- | Update the value of a point on the grid.
   , set :: Point -> BlackWhite val -> BlackWhiteGrid val
   , setN :: [BlackWhitePoint val] -> BlackWhiteGrid val
-  -- | Get the white value and its location next to a point along an axis, if any.
-  --   Nothing means the point does not have a white neighbor in the forward direction.
-  , next :: Point -> Axis -> Maybe (Maybe val, Point)
-  , prev :: Point -> Axis -> Maybe (Maybe val, Point)
-  , adjacent :: Point -> Axis -> Direction -> Maybe (Maybe val, Point)
+  -- | Get the value and location of the next point along an axis, if any.
+  --   Nothing means next is out of bounds.
+  , next :: Point -> Axis -> Maybe (BlackWhitePoint val)
+  , prev :: Point -> Axis -> Maybe (BlackWhitePoint val)
+  , adjacent :: Point -> Axis -> Direction -> Maybe (BlackWhitePoint val)
 
   , isBlack :: Point -> Bool
   , isWhite :: Point -> Bool
@@ -67,7 +67,7 @@ data BlackWhiteGrid val = BlackWhiteGrid {
   , hasValue :: Point -> Bool
   -- | The point is isolated in its horizontal (X) or vertical (Y) line.
   --   It has no neighbors on either side on the line.
-  , isIsolatedInLine :: Point -> Axis -> Bool
+  -- , isIsolatedInLine :: Point -> Axis -> Bool
   , inBounds :: Point -> Bool
     -- | Get the farthest neighbor of a point along a given axis
     --   in a given direction.
@@ -128,7 +128,7 @@ mkInternal grid =
       (isWhite' grid)
       (isEmpty' grid)
       (hasValue' grid)
-      (isIsolatedInLine' grid)
+      -- (isIsolatedInLine' grid)
       (Grid.inBounds grid)
 
       (farthestNeighbor' grid)
@@ -164,25 +164,25 @@ setN' grid bwPoints =
 
 -- | When a related cell is Black, it is as if no related cell exists, and so
 --   convert it to Nothing, the same as if a related cell is out of bounds.
-unwindBlackWhite :: Maybe (BlackWhitePoint val) -> Maybe (Maybe val, Point)
-unwindBlackWhite maybe =
-  case maybe of
-       Nothing -> Nothing
-       Just bwPoint ->
-         case bwPoint of
-         BlackWhitePoint {value, point} ->
-           case value of
-           Black -> Nothing
-           White maybeVal -> Just (maybeVal, point)
+-- unwindBlackWhite :: Maybe (BlackWhitePoint val) -> Maybe (Maybe val, Point)
+-- unwindBlackWhite maybe =
+--   case maybe of
+--        Nothing -> Nothing
+--        Just bwPoint ->
+--          case bwPoint of
+--          BlackWhitePoint {value, point} ->
+--            case value of
+--            Black -> Nothing
+--            White maybeVal -> Just (maybeVal, point)
 
-next' :: Grid' val -> Point -> Axis -> Maybe (Maybe val, Point)
-next' grid point axis = unwindBlackWhite $ Grid.next grid point axis
+next' :: Grid' val -> Point -> Axis -> Maybe (BlackWhitePoint val)
+next' grid point axis = Grid.next grid point axis
 
-prev' :: Grid' val -> Point -> Axis -> Maybe (Maybe val, Point)
-prev' grid point axis = unwindBlackWhite $ Grid.prev grid point axis
+prev' :: Grid' val -> Point -> Axis -> Maybe (BlackWhitePoint val)
+prev' grid point axis = Grid.prev grid point axis
 
-adjacent' :: Grid' val -> Point -> Axis -> Direction -> Maybe (Maybe val, Point)
-adjacent' grid point axis direction = unwindBlackWhite $ Grid.adjacentCell grid point axis direction
+adjacent' :: Grid' val -> Point -> Axis -> Direction -> Maybe (BlackWhitePoint val)
+adjacent' grid point axis direction = Grid.adjacentCell grid point axis direction
 
 -- | Out of bounds is considered to be black!
 isBlack' :: Grid' val -> Point -> Bool
@@ -207,19 +207,18 @@ hasValue' grid point =
   let bw = get' grid point
   in isJustWhite bw
 
-isIsolatedInLine' :: Grid' val -> Point -> Axis -> Bool
-isIsolatedInLine' grid point axis =
-  let maybeNext = do (maybe, _) <- next' grid point axis; maybe
-      maybePrev = do (maybe, _) <- prev' grid point axis; maybe
-  in isNothing maybeNext && isNothing maybePrev
+-- isIsolatedInLine' :: Grid' val -> Point -> Axis -> Bool
+-- isIsolatedInLine' grid point axis =
+--   let maybeNext = do (maybe, _) <- next' grid point axis; maybe
+--       maybePrev = do (maybe, _) <- prev' grid point axis; maybe
+--   in isNothing maybeNext && isNothing maybePrev
 
 adjHasValue :: Grid' val -> Point -> Axis -> Int -> Bool
 adjHasValue grid point axis direction =
-  let adjMaybeValue =
-        do
-          (maybeVal, _) <- adjacent' grid point axis direction
-          maybeVal
-  in isJust adjMaybeValue
+  let maybe = do
+                BlackWhitePoint {value} <- adjacent' grid point axis direction
+                fromWhite value
+  in isJust maybe
 
 valuedNotValuedTransitionPoint :: Grid' val -> Point -> Axis -> Int -> Bool
 valuedNotValuedTransitionPoint grid point axis direction =

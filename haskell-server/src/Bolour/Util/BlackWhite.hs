@@ -12,10 +12,13 @@ module Bolour.Util.BlackWhite (
     BlackWhite(..)
   , isJustWhite
   , fromWhite
+  , isWhite
+  , isBlack
+  , hasValue
   )
   where
 
-import Data.Maybe (isNothing)
+import Data.Maybe (isNothing, isJust)
 import qualified Bolour.Util.Empty as Empty
 
 -- | Black represents a value in an inactive or disabled location, for example,
@@ -36,11 +39,30 @@ fromWhite Black = Nothing
 fromWhite (White Nothing) = Nothing
 fromWhite (White x) = x
 
+fromWhites :: [BlackWhite val] -> Int -> Int -> [Maybe val]
+fromWhites line begin end =
+  toMaybe <$> [begin .. end]
+    where toMaybe i = fromWhite (line !! i)
+
 instance Empty.Empty (BlackWhite val)
   where isEmpty bw =
           case bw of
           Black -> False
           White maybe -> isNothing maybe
+
+isWhite :: BlackWhite val -> Bool
+isWhite (White _) = True
+isWhite Black = False
+
+isBlack :: BlackWhite val -> Bool
+isBlack (White _) = False
+isBlack Black = True
+
+hasValue :: BlackWhite val -> Bool
+hasValue (White value) = isJust value
+hasValue Black = False
+
+
 
 
 

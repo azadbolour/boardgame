@@ -116,18 +116,18 @@ spec = do
           optimal = Maybe.fromJust $ Matcher.findOptimalMatch dictionary testBoard trayContents
       snd optimal `shouldBe` "PACKER"
 
-  describe "check line neighbours" $ do
-    it "has X neighbors" $ do
-      Board.pointIsIsolatedInLine testBoard (Point 3 2) Axis.X `shouldBe` False
-      Board.pointIsIsolatedInLine testBoard (Point 3 2) Axis.X `shouldBe` False
-    it "has no X neighbors" $ do
-      Board.pointIsIsolatedInLine testBoard (Point 3 1) Axis.X `shouldBe` True
-
-    it "has Y neighbors" $ do
-      Board.pointIsIsolatedInLine testBoard (Point 4 5) Axis.Y `shouldBe` False
-    it "has no Y neighbors" $ do
-      Board.pointIsIsolatedInLine testBoard (Point 0 5) Axis.Y `shouldBe` True
-      Board.pointIsIsolatedInLine testBoard (Point 3 2) Axis.Y `shouldBe` True
+--   describe "check line neighbours" $ do
+--     it "has X neighbors" $ do
+--       Board.pointIsIsolatedInLine testBoard (Point 3 2) Axis.X `shouldBe` False
+--       Board.pointIsIsolatedInLine testBoard (Point 3 2) Axis.X `shouldBe` False
+--     it "has no X neighbors" $ do
+--       Board.pointIsIsolatedInLine testBoard (Point 3 1) Axis.X `shouldBe` True
+--
+--     it "has Y neighbors" $ do
+--       Board.pointIsIsolatedInLine testBoard (Point 4 5) Axis.Y `shouldBe` False
+--     it "has no Y neighbors" $ do
+--       Board.pointIsIsolatedInLine testBoard (Point 0 5) Axis.Y `shouldBe` True
+--       Board.pointIsIsolatedInLine testBoard (Point 3 2) Axis.Y `shouldBe` True
 
   describe "make strip point" $ do
     it "X strip has correct strip point" $ do

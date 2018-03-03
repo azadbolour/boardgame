@@ -74,13 +74,13 @@ spec = do
       G.get grid' (Point 0 1) `shouldBe` black
   describe "next, prev, adjacent" $ do
     it "finds next" $ do
-      G.next grid (Point 0 0) Axis.X `shouldBe` Just (Nothing, Point 0 1)
+      G.next grid (Point 0 0) Axis.X `shouldBe` (Just $ BlackWhitePoint (White Nothing) (Point 0 1))
       G.next grid (Point 4 0) Axis.Y `shouldBe` Nothing
     it "finds prev" $ do
-      G.prev grid (Point 2 2) Axis.X `shouldBe` Nothing
+      G.prev grid (Point 2 2) Axis.X `shouldBe` (Just $ BlackWhitePoint Black (Point 2 1))
       G.prev grid (Point 0 0) Axis.Y `shouldBe` Nothing
     it "finds adjacent" $ do
-      G.adjacent grid (Point 1 3) Axis.X Axis.backward `shouldBe` Just (Just 'A', Point 1 2)
+      G.adjacent grid (Point 1 3) Axis.X Axis.backward `shouldBe` (Just $ BlackWhitePoint (White $ Just 'A') (Point 1 2))
       G.adjacent grid (Point 4 4) Axis.Y Axis.forward `shouldBe` Nothing
   describe "point predicates" $ do
     it "checks black, white, empty, hasValue" $ do
@@ -90,12 +90,6 @@ spec = do
       Point 3 0 `shouldSatisfy` G.isWhite grid
       Point 3 0 `shouldSatisfy` G.hasValue grid
       Point 3 0 `shouldNotSatisfy` G.isEmpty grid
-    it "checks isolated points" $ do
-      G.isIsolatedInLine grid (Point 4 3) Axis.X `shouldBe` True
-      G.isIsolatedInLine grid (Point 2 4) Axis.X `shouldBe` True
-      G.isIsolatedInLine grid (Point 3 2) Axis.Y `shouldBe` True
-      G.isIsolatedInLine grid (Point 3 1) Axis.Y `shouldBe` False
-      G.isIsolatedInLine grid (Point 1 2) Axis.X `shouldBe` False
     it "checks in bounds" $ do
       Point 0 0 `shouldSatisfy` G.inBounds grid
       Point 5 0 `shouldNotSatisfy` G.inBounds grid
