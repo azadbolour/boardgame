@@ -6,7 +6,9 @@ module Bolour.Plane.Domain.BlackWhiteGridSpec where
 import Test.Hspec
 
 import Bolour.Util.BlackWhite
-import Bolour.Plane.Domain.BlackWhiteGrid (BlackWhiteGrid, BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
+import qualified Bolour.Plane.Domain.BlackWhitePoint as BlackWhitePoint
+import Bolour.Plane.Domain.BlackWhitePoint (BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
+import Bolour.Plane.Domain.BlackWhiteGrid (BlackWhiteGrid)
 import qualified Bolour.Plane.Domain.BlackWhiteGrid as G
 import Bolour.Plane.Domain.Axis (Height, Width)
 import Bolour.Plane.Domain.Point (Point, Point(Point))

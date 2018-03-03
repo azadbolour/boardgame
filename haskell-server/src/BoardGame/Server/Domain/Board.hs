@@ -72,9 +72,10 @@ import qualified Bolour.Plane.Domain.Point as Point
 import qualified Bolour.Plane.Domain.Axis as Axis
 import Bolour.Util.BlackWhite (BlackWhite, BlackWhite(Black, White))
 import qualified Bolour.Util.BlackWhite as BlackWhite
-import Bolour.Plane.Domain.BlackWhiteGrid (BlackWhiteGrid, BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
+import Bolour.Plane.Domain.BlackWhitePoint (BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
+import qualified Bolour.Plane.Domain.BlackWhitePoint as BlackWhitePoint
+import Bolour.Plane.Domain.BlackWhiteGrid (BlackWhiteGrid)
 import qualified Bolour.Plane.Domain.BlackWhiteGrid as Gr
-import qualified Bolour.Plane.Domain.BlackWhiteGrid as BlackWhitePoint
 import BoardGame.Server.Domain.GameError (GameError(..))
 import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))

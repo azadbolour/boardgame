@@ -15,7 +15,6 @@
 
 module Bolour.Plane.Domain.BlackWhiteGrid (
     BlackWhiteGrid(..)
-  , BlackWhitePoint(..)
   , mkGrid
   , mkEmptyGrid
   )
@@ -32,16 +31,8 @@ import qualified Bolour.Plane.Domain.Axis as Axis
 import qualified Bolour.Plane.Domain.Point as Point
 import Bolour.Plane.Domain.Axis (Axis, Height, Width, Direction)
 import Bolour.Plane.Domain.Point (Point, Point(Point))
-
-data BlackWhitePoint a = BlackWhitePoint {
-    value :: BlackWhite a
-  , point :: Point
-}
-deriving instance (Eq a) => Eq (BlackWhitePoint a)
-deriving instance (Show a) => Show (BlackWhitePoint a)
-
-instance Empty.Empty (BlackWhitePoint a)
-  where isEmpty BlackWhitePoint {value} = Empty.isEmpty value
+import Bolour.Plane.Domain.BlackWhitePoint(BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
+import qualified Bolour.Plane.Domain.BlackWhitePoint as BlackWhitePoint
 
 data BlackWhiteGrid val = BlackWhiteGrid {
     height :: Height
