@@ -61,9 +61,9 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
   def adjacent(point: Point, axis: Axis, direction: Int): Option[BlackWhitePoint[T]] =
     grid.adjacentCell(point, axis, direction)
 
-  def isDead(point: Point): Boolean = get(point) == Black()
+  def isBlack(point: Point): Boolean = get(point) == Black()
 
-  def isAlive(point: Point): Boolean = !isDead(point)
+  def isWhite(point: Point): Boolean = !isBlack(point)
 
   def hasValue(point: Point): Boolean = get(point).hasValue
 
