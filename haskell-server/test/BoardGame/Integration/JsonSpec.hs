@@ -19,7 +19,7 @@ import BoardGame.Server.Domain.Game (Game, Game(Game))
 import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.GameError
 import qualified Bolour.Util.SpecUtil as SpecUtil
-import qualified BoardGame.Server.Domain.WordDictionary as Dict
+import qualified Bolour.Language.Domain.WordDictionary as Dict
 import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
 import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 

@@ -56,7 +56,7 @@ import BoardGame.Server.Service.GameService (
 -- TODO. Should not depend on higher level module.
 import BoardGame.Util.TestUtil (mkInitialPlayPieces)
 import qualified BoardGame.Server.Service.ServiceTestFixtures as Fixtures
-import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
+import qualified Bolour.Language.Domain.DictionaryCache as DictCache
 
 printx :: String -> ExceptT GameError IO ()
 printx s = do

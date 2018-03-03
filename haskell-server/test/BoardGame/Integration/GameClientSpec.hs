@@ -59,9 +59,9 @@ import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import BoardGame.Server.Domain.GameEnv (GameEnv(GameEnv))
 import Bolour.Util.WaiUtil
 import qualified BoardGame.Client.GameClient as Client
-import qualified BoardGame.Server.Domain.WordDictionary as Dict
+import qualified Bolour.Language.Domain.WordDictionary as Dict
 import qualified BoardGame.Server.Domain.GameCache as GameCache
-import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
+import qualified Bolour.Language.Domain.DictionaryCache as DictCache
 import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 
 
@@ -85,7 +85,8 @@ getGameEnv = do
   GameDao.migrateDb connectionProvider
   GameDao.cleanupDb connectionProvider
   cache <- GameCache.mkGameCache maxActiveGames
-  dictionaryCache <- DictCache.mkCache "" 100 2
+  dictionaryDir <- GameEnv.getDictionaryDir ""
+  dictionaryCache <- DictCache.mkCache dictionaryDir 100 2
   return $ GameEnv serverConfig connectionProvider cache dictionaryCache
 
 startApp :: IO (ThreadId, BaseUrl)

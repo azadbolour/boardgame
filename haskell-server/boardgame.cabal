@@ -59,6 +59,9 @@ library
       Bolour.Util.FileUtil
       Bolour.Util.Empty
       Bolour.Util.BlackWhite
+      Bolour.Language.Util.WordUtil
+      Bolour.Language.Domain.WordDictionary
+      Bolour.Language.Domain.DictionaryCache
       Bolour.Plane.Domain.Point
       Bolour.Plane.Domain.Axis
       Bolour.Plane.Domain.GridValue
@@ -92,10 +95,8 @@ library
       BoardGame.Server.Domain.PlayInfo
       BoardGame.Server.Domain.PlayDetails
       BoardGame.Server.Domain.StripMatcher
-      BoardGame.Server.Domain.WordDictionary
       BoardGame.Server.Domain.GameCache
       BoardGame.Server.Domain.GameEnv
-      BoardGame.Server.Domain.DictionaryCache
       BoardGame.Server.Domain.CrossWordFinder
       BoardGame.Server.Domain.Scorer
       BoardGame.Server.Web.GameEndPoint
@@ -103,7 +104,6 @@ library
       BoardGame.Server.Service.GameTransformerStack
       BoardGame.Server.Service.GameService
       BoardGame.Server.Service.GameDao
-      BoardGame.Util.WordUtil
       BoardGame.Client.GameClient
   other-modules:
       Paths_boardgame

@@ -8,7 +8,7 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module BoardGame.Server.Domain.DictionaryCache (
+module Bolour.Language.Domain.DictionaryCache (
     DictionaryCache
   , mkCache
   , lookup
@@ -17,8 +17,6 @@ module BoardGame.Server.Domain.DictionaryCache (
 
 import Prelude hiding (lookup)
 import qualified Data.Char as Char
--- import Data.ByteString.Char8 (ByteString)
--- import qualified Data.ByteString.Char8 as BS
 
 import Control.Exception (SomeException)
 import Control.Exception.Enclosed (catchAny)
@@ -27,10 +25,10 @@ import Control.Monad.IO.Class (liftIO)
 import Bolour.Util.Cache (Cache)
 import qualified Bolour.Util.Cache as Cache
 import Bolour.Util.MiscUtil (IOEither, IOExceptT)
-import BoardGame.Server.Domain.WordDictionary (WordDictionary)
-import qualified BoardGame.Server.Domain.WordDictionary as Dict
+import Bolour.Language.Domain.WordDictionary (WordDictionary)
+import qualified Bolour.Language.Domain.WordDictionary as Dict
 
-import qualified Paths_boardgame as ResourcePaths
+-- TODO. Configure [supported] languageCodes and read their dictionaries when cache is created.
 
 -- | Cache of language dictionaries identified by language code.
 data DictionaryCache = DictionaryCache {
@@ -57,9 +55,19 @@ lookupDefault = lookup Dict.defaultLanguageCode
 
 -- Private functions.
 
+dictionaryFileSuffix = "-words.txt"
+maskedWordsFileSuffix = "-masked-words.txt"
+
+dictionaryFileName :: String -> String
+dictionaryFileName languageCode = languageCode ++ dictionaryFileSuffix
+
+maskedWordsFileName :: String -> String
+maskedWordsFileName languageCode = languageCode ++ maskedWordsFileSuffix
+
 readDictionaryFile :: DictionaryCache -> String -> IOExceptT String WordDictionary
 readDictionaryFile DictionaryCache {dictionaryDirectory, maxMaskedLetters, cache} languageCode = do
-  path <- liftIO $ mkDictionaryPath dictionaryDirectory languageCode
+  -- path <- liftIO $ mkDictionaryPath dictionaryDirectory languageCode
+  let path = mkDictionaryPath dictionaryDirectory languageCode
   lines <- ExceptT $ catchAny (readDictionaryInternal path) showException
   let words = (Char.toUpper <$>) <$> lines
       dictionary = Dict.mkDictionary languageCode words maxMaskedLetters
@@ -72,18 +80,9 @@ readDictionaryInternal path = do
   contents <- readFile path
   return $ Right $ lines contents
 
-mkDictionaryPath :: String -> String -> IO String
-mkDictionaryPath dictionaryDirectory languageCode = do
-  directory <- if null dictionaryDirectory
-    then do
-          -- no explicit dictionary path provided
-          -- default to look up dictionaries as program resources
-          -- in the resources 'data' directory
-          dataDir <- ResourcePaths.getDataDir
-          return $ dataDir ++ "/data"
-    else return dictionaryDirectory
-  let fileName = languageCode ++ "-words.txt"
-  return $ directory ++ "/" ++ fileName
+mkDictionaryPath :: String -> String -> String
+mkDictionaryPath dictionaryDirectory languageCode =
+  dictionaryDirectory ++ "/" ++ dictionaryFileName languageCode
 
 showException :: SomeException -> IOEither String [String]
 showException someExc = return $ Left $ show someExc

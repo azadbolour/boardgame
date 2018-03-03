@@ -35,7 +35,7 @@ import qualified BoardGame.Server.Service.GameService as GameService
 import qualified BoardGame.Server.Domain.GameError as GameError
 import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
 import BoardGame.Server.Service.GameTransformerStack
-import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
+import qualified Bolour.Language.Domain.DictionaryCache as DictCache
 
 import qualified BoardGame.Server.Service.ServiceTestFixtures as Fixtures
 

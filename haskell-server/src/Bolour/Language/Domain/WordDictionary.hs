@@ -9,10 +9,9 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
 
-module BoardGame.Server.Domain.WordDictionary (
+module Bolour.Language.Domain.WordDictionary (
     WordDictionary(WordDictionary, languageCode, maxMaskedLetters)
   , mkDictionary
-  , validateWord
   , defaultLanguageCode
   , isWord
   , isMaskedWord
@@ -24,17 +23,11 @@ import Data.Bool (bool)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Maybe as Maybe
--- import Data.ByteString.Char8 (ByteString)
--- import qualified Data.ByteString.Char8 as BS
 import qualified Data.Map as Map
 
-import Control.Monad.IO.Class (MonadIO(..))
-import Control.Monad.Except (MonadError(..), throwError)
-
-import BoardGame.Server.Domain.GameError
-import BoardGame.Util.WordUtil (LetterCombo, WordIndex, DictWord)
-import qualified BoardGame.Util.WordUtil as WordUtil
 import qualified Bolour.Util.MiscUtil as MiscUtil
+import Bolour.Language.Util.WordUtil (LetterCombo, WordIndex, DictWord)
+import qualified Bolour.Language.Util.WordUtil as WordUtil
 
 english :: String
 english = "en"
@@ -72,12 +65,6 @@ isWord WordDictionary {words} word = word `Set.member` words
 
 isMaskedWord :: WordDictionary -> String -> Bool
 isMaskedWord WordDictionary {maskedWords} masked = masked `Set.member` maskedWords
-
--- | Right iff given string represents a word.
-validateWord :: (MonadError GameError m, MonadIO m) => WordDictionary -> String -> m String
-validateWord languageDictionary word = do
-  let valid = isWord languageDictionary word
-  bool (throwError $ InvalidWordError $ word) (return word) valid
 
 -- | Look up the words that are permutations of a given combination of letters.
 getWordPermutations ::

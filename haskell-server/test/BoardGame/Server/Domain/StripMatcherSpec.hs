@@ -15,8 +15,6 @@ import Test.Hspec
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.List as List
--- import qualified Data.ByteString.Char8 as BS
--- import Data.ByteString.Char8 (ByteString)
 
 import Bolour.Plane.Domain.Grid (Grid, Grid(Grid))
 import qualified Bolour.Plane.Domain.Grid as Grid
@@ -31,9 +29,9 @@ import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
 import qualified BoardGame.Server.Domain.Board as Board
 import qualified BoardGame.Server.Domain.StripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
-import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
-import qualified BoardGame.Util.WordUtil as WordUtil
-import qualified BoardGame.Server.Domain.WordDictionary as Dict
+import Bolour.Language.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
+import qualified Bolour.Language.Util.WordUtil as WordUtil
+import qualified Bolour.Language.Domain.WordDictionary as Dict
 
 pce :: Char -> Maybe Piece
 pce s = Just $ Piece s "" -- Ignore id.

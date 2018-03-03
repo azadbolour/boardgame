@@ -70,10 +70,10 @@ import qualified BoardGame.Server.Domain.Tray as Tray
 import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Board (Board)
 import qualified BoardGame.Server.Domain.GameCache as GameCache
-import qualified BoardGame.Server.Domain.DictionaryCache as DictionaryCache
-import qualified BoardGame.Server.Domain.WordDictionary as Dict
+import qualified Bolour.Language.Domain.DictionaryCache as DictionaryCache
+import qualified Bolour.Language.Domain.WordDictionary as Dict
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
-import BoardGame.Server.Domain.WordDictionary (WordDictionary)
+import Bolour.Language.Domain.WordDictionary (WordDictionary)
 import BoardGame.Server.Domain.PlayInfo (PlayInfo, PlayInfo(PlayInfo))
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack, liftGameExceptToStack)
@@ -93,7 +93,7 @@ import qualified BoardGame.Server.Domain.StripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
-import BoardGame.Util.WordUtil (DictWord)
+import Bolour.Language.Util.WordUtil (DictWord)
 -- import qualified Bolour.Util.DbConfig as DbConfig
 
 unknownPlayerName = "You"
@@ -200,7 +200,10 @@ commitPlayService gmId playPieces = do
   game @ Game {languageCode, board} <- liftGameExceptToStack $ GameCache.lookup gmId gameCache
   let playWord = PlayPiece.playPiecesToWord playPieces
   dictionary <- lookupDictionary languageCode
-  Dict.validateWord dictionary playWord
+  let wordExists = Dict.isWord dictionary playWord
+  -- TODO. Library function for if problem throw error?
+  bool (throwError $ InvalidWordError playWord) (return ()) wordExists
+  -- Dict.validateWord dictionary playWord
   let maybeStrip = Board.stripOfPlay board playPieces
   strip <- case maybeStrip of
            Nothing -> throwError $ WordTooShortError playWord

@@ -211,4 +211,19 @@
 
 - Aeson: https://www.schoolofhaskell.com/school/starting-with-haskell/libraries-and-frameworks/text-manipulation/json
 
+- Program resources in Haskell.
+
+  In project.cabal you can set data-files as the location of program resources:
+
+      `data-files:     data/*.txt`
+
+  Cabal then automatically creates a module called `Paths_project`, which 
+  you can import and use like this:
+
+  `
+  import qualified Paths_project as ResourcePaths
+  rootDir <- ResourcePaths.getDataDir -- IO String
+  `
+
+  Then you can read files from there, e.g., rootDir/data/some.txt.
 

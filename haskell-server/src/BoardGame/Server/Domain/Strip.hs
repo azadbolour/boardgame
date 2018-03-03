@@ -32,8 +32,8 @@ import Data.ByteString.Char8 (ByteString)
 import Data.Map (Map)
 import qualified Data.Map as Map
 
-import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
-import qualified BoardGame.Util.WordUtil as WordUtil
+import Bolour.Language.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
+import qualified Bolour.Language.Util.WordUtil as WordUtil
 import qualified Bolour.Util.MiscUtil as MiscUtil
 import Bolour.Plane.Domain.Axis (Axis, Coordinate)
 import Bolour.Plane.Domain.Point (Point, Point(Point))

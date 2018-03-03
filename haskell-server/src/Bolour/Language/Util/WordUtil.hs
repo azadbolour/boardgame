@@ -4,7 +4,7 @@
 --   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
 --
 
-module BoardGame.Util.WordUtil (
+module Bolour.Language.Util.WordUtil (
     LetterCombo
   , DictWord
   , WordIndex

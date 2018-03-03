@@ -30,8 +30,9 @@ import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Server.Domain.GameCache as GameCache
 import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
-import qualified BoardGame.Server.Domain.WordDictionary as Dict
-import qualified BoardGame.Server.Domain.DictionaryCache as DictCache
+import qualified BoardGame.Server.Domain.GameEnv as GameEnv
+import qualified Bolour.Language.Domain.WordDictionary as Dict
+import qualified Bolour.Language.Domain.DictionaryCache as DictCache
 import qualified Bolour.Util.PersistRunner as PersistRunner
 import qualified BoardGame.Server.Service.GameDao as GameDao
 import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
@@ -60,5 +61,6 @@ initTest = do
   GameDao.migrateDb connectionProvider
   GameDao.cleanupDb connectionProvider
   cache <- GameCache.mkGameCache maxActiveGames
-  dictionaryCache <- DictCache.mkCache "" 100 2
+  dictionaryDir <- GameEnv.getDictionaryDir ""
+  dictionaryCache <- DictCache.mkCache dictionaryDir 100 2
   return $ GameEnv serverConfig connectionProvider cache dictionaryCache

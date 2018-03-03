@@ -2,7 +2,7 @@ module BoardGame.Server.Domain.HopelessBlanksSpec where
 
 import Test.Hspec
 
-import qualified BoardGame.Server.Domain.WordDictionary as Dict
+import qualified Bolour.Language.Domain.WordDictionary as Dict
 import qualified BoardGame.Server.Domain.StripMatcher as StripMatcher
 import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Board (Board, Board(Board))

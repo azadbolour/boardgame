@@ -16,8 +16,8 @@ import qualified Data.List as List
 -- import qualified Data.ByteString.Char8 as BS
 -- import Data.ByteString.Char8 (ByteString)
 
-import BoardGame.Server.Domain.WordDictionary (WordDictionary, WordDictionary(WordDictionary))
-import qualified BoardGame.Server.Domain.WordDictionary as Dict
+import Bolour.Language.Domain.WordDictionary (WordDictionary, WordDictionary(WordDictionary))
+import qualified Bolour.Language.Domain.WordDictionary as Dict
 
 stringWords :: [String]
 stringWords = ["GLASS", "TABLE", "SCREEN", "NO", "ON"]

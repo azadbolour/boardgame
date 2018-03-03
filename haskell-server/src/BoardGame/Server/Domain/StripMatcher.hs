@@ -32,15 +32,15 @@ import qualified Bolour.Plane.Domain.Axis as Axis
 import Bolour.Plane.Domain.Axis (Axis)
 import Bolour.Plane.Domain.Point (Point)
 import Bolour.Plane.Domain.Axis (Coordinate)
-import BoardGame.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
-import qualified BoardGame.Util.WordUtil as WordUtil
+import Bolour.Language.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
+import qualified Bolour.Language.Util.WordUtil as WordUtil
 import BoardGame.Server.Domain.Board (Board, Board(Board))
 import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip), GroupedStrips)
 import qualified BoardGame.Server.Domain.Strip as Strip
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
-import BoardGame.Server.Domain.WordDictionary (WordDictionary, WordDictionary(WordDictionary))
-import qualified BoardGame.Server.Domain.WordDictionary as WordDictionary
+import Bolour.Language.Domain.WordDictionary (WordDictionary, WordDictionary(WordDictionary))
+import qualified Bolour.Language.Domain.WordDictionary as WordDictionary
 
 import Bolour.Util.MiscUtil as MiscUtil
 
