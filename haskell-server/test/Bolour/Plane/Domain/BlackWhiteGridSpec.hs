@@ -105,9 +105,12 @@ spec = do
     it "gets dimesions" $ do
       G.numLines grid Axis.X `shouldBe` dim
       G.numLines grid Axis.Y `shouldBe` dim
-    it "finds surrounding range" $ do
-      G.surroundingRange grid (Point 3 0) Axis.X `shouldBe` [Point 3 0, Point 3 1, Point 3 2, Point 3 3, Point 3 4]
-      G.surroundingRange grid (Point 1 2) Axis.Y `shouldBe` [Point 0 2, Point 1 2]
+    it "finds neighbors" $ do
+      snd <$> G.lineNeighbors grid (Point 3 0) Axis.X Axis.forward `shouldBe` [
+        Point 3 1, Point 3 2, Point 3 3, Point 3 4
+        ]
+      snd <$> G.lineNeighbors grid (Point 1 2) Axis.Y Axis.backward `shouldBe` [Point 0 2]
+      snd <$> G.lineNeighbors grid (Point 1 2) Axis.Y Axis.forward `shouldBe` []
 
 
 

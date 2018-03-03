@@ -39,12 +39,13 @@ module BoardGame.Server.Domain.Board (
   , validateCoordinate
   , validatePoint
   , farthestNeighbor
-  , surroundingRange
+  -- , surroundingRange
   , getLetter
   , stripIsDisconnectedInLine
   , playableEnclosingStripsOfBlankPoints
   , computeAllLiveStrips
   -- , groupedStrips
+  , lineNeighbors
 )
 where
 
@@ -272,8 +273,8 @@ stripOfPlayN board playPieces =
            in Strip.lineStrip axis lineNumber lineAsString begin (length points)
     in mkStrip <$> maybeAxis
 
-surroundingRange :: Board -> Point -> Axis -> [Point]
-surroundingRange Board {grid} = Gr.surroundingRange grid
+-- surroundingRange :: Board -> Point -> Axis -> [Point]
+-- surroundingRange Board {grid} = Gr.surroundingRange grid
 
 -- | Check that a strip has no neighbors on either side - is disconnected
 --   from the rest of its line. If it is has neighbors, it is not playable
@@ -311,8 +312,6 @@ enclosingStripsOfBlankPoints board axis =
       stripsEnclosingBlanks = filter Strip.hasBlanks liveStrips
   in Util.inverseMultiValuedMapping Strip.blankPoints stripsEnclosingBlanks
 
--- playableEnclosingStripsOfBlankPoints :: Axis -> Int -> Map.Map Point [Strip]
--- playableEnclosingStripsOfBlankPoints axis trayCapacity =
 playableEnclosingStripsOfBlankPoints :: Board -> Axis -> Int -> Map.Map Point [Strip]
 playableEnclosingStripsOfBlankPoints board axis trayCapacity =
   let enclosing = enclosingStripsOfBlankPoints board axis
@@ -323,3 +322,12 @@ playableEnclosingStripsOfBlankPoints board axis trayCapacity =
   in
     filter playable <$> enclosing
 
+-- | Get all the colinear neighbors in a given direction along a given axis
+--   ordered in increasing value of the line index (excluding the point
+--   itself). A colinear point is considered a neighbor if it has a real value,
+--   and is adjacent to the given point, or recursively adjacent to a neighbor.
+lineNeighbors :: Board -> Point -> Axis -> Int -> [GridPiece]
+lineNeighbors board @ Board {grid} point axis direction =
+  let piecePointPairs = Gr.lineNeighbors grid point axis direction
+  in toGridPiece <$> piecePointPairs
+     where toGridPiece (piece, point) = GridValue piece point

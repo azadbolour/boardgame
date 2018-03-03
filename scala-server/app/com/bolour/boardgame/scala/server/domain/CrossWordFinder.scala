@@ -62,6 +62,9 @@ class CrossWordFinder(board: Board) {
     acrossWordList.filter {word => word.length > 1}
   }
 
+  /**
+    * Not used for now but is needed when scores of cross plays figure in the total score.
+    */
   def findCrossPlays(playPieces: List[PlayPiece]): List[List[(Char, Point, Boolean)]] = {
     val strip = board.stripOfPlay(playPieces)
     val word = PlayPieceObj.playPiecesToWord(playPieces)

@@ -56,9 +56,6 @@ data BlackWhiteGrid val = BlackWhiteGrid {
   , isWhite :: Point -> Bool
   , isEmpty :: Point -> Bool
   , hasValue :: Point -> Bool
-  -- | The point is isolated in its horizontal (X) or vertical (Y) line.
-  --   It has no neighbors on either side on the line.
-  -- , isIsolatedInLine :: Point -> Axis -> Bool
   , inBounds :: Point -> Bool
     -- | Get the farthest neighbor of a point along a given axis
     --   in a given direction.
@@ -74,7 +71,8 @@ data BlackWhiteGrid val = BlackWhiteGrid {
     -- | Get the range of non-empty white points surrounding a point on a line.
     --   The point itself is always counted as part of the range whether or
     --   not it is empty.
-  , surroundingRange :: Point -> Axis -> [Point]
+  -- , surroundingRange :: Point -> Axis -> [Point]
+  , lineNeighbors :: Point -> Axis -> Int -> [(val, Point)]
 }
 
 instance (Show val) => Show (BlackWhiteGrid val)
@@ -114,9 +112,6 @@ mkInternal grid =
       (Grid.next grid)
       (Grid.prev grid)
       (Grid.adjacentCell grid)
---       (next' grid)
---       (prev' grid)
---       (adjacent' grid)
 
       (isBlack' grid)
       (isWhite' grid)
@@ -127,7 +122,8 @@ mkInternal grid =
 
       (farthestNeighbor' grid)
       (Grid.numLines grid)
-      (surroundingRange' grid)
+      -- (surroundingRange' grid)
+      (lineNeighbors' grid)
 
 get' :: Grid' val -> Point -> BlackWhite val
 get' grid point =
@@ -156,15 +152,6 @@ setN' grid bwPoints =
   mkInternal (Grid.setN grid (addPoint <$> bwPoints))
     where addPoint bwPoint @ BlackWhitePoint {value, point} = (bwPoint, point)
 
--- next' :: Grid' val -> Point -> Axis -> Maybe (BlackWhitePoint val)
--- next' grid point axis = Grid.next grid point axis
---
--- prev' :: Grid' val -> Point -> Axis -> Maybe (BlackWhitePoint val)
--- prev' grid point axis = Grid.prev grid point axis
---
--- adjacent' :: Grid' val -> Point -> Axis -> Direction -> Maybe (BlackWhitePoint val)
--- adjacent' grid point axis direction = Grid.adjacentCell grid point axis direction
-
 -- | Out of bounds is considered to be black!
 isBlack' :: Grid' val -> Point -> Bool
 isBlack' grid point =
@@ -187,12 +174,6 @@ hasValue' :: Grid' val -> Point -> Bool
 hasValue' grid point =
   let bw = get' grid point
   in isJustWhite bw
-
--- isIsolatedInLine' :: Grid' val -> Point -> Axis -> Bool
--- isIsolatedInLine' grid point axis =
---   let maybeNext = do (maybe, _) <- next' grid point axis; maybe
---       maybePrev = do (maybe, _) <- prev' grid point axis; maybe
---   in isNothing maybeNext && isNothing maybePrev
 
 adjHasValue :: Grid' val -> Point -> Axis -> Int -> Bool
 adjHasValue grid point axis direction =
@@ -225,10 +206,38 @@ surroundingRange' grid point axis =
        Axis.X -> Point row1 <$> [col1 .. colN]
        Axis.Y -> flip Point col1 <$> [row1 .. rowN]
 
+-- | Get all the colinear neighbors in a given direction along a given axis
+--   ordered in increasing value of the line index (excluding the point
+--   itself). A colinear point is considered a neighbor if it has a real value,
+--   and is adjacent to the given point, or recursively adjacent to a neighbor.
+lineNeighbors' :: Grid' val -> Point -> Axis -> Int -> [(val, Point)]
+lineNeighbors' grid point axis direction =
+  let farthestPoint = farthestNeighbor' grid point axis direction
+      Point {row = pointRow, col = pointCol} = point
+      Point {row = farRow, col = farCol} = farthestPoint
+      range pos limit =
+        -- Exclude the point itself.
+        if direction == Axis.forward then [pos + 1 .. limit] else [limit .. pos - 1]
+      points =
+        case axis of
+          Axis.X -> Point pointRow <$> colRange
+            where colRange = range pointCol farCol
+          Axis.Y -> flip Point pointCol <$> rowRange
+            where rowRange = range pointRow farRow
+      blackWhitePoints = catMaybes $ Grid.get grid <$> points
+  in fromJustWhites blackWhitePoints
 
-
-
-
+-- forward = Axis.forward
+-- backward = Axis.backward
+--
+-- neighbors :: Grid' val -> Point -> Point -> Axis -> Int -> [(val, Point)]
+-- neighbors grid point farthestPoint Axis.X forward =
+--   let Point {row, col = firstCol} = point
+--       Point {col = lastCol} = farthestPoint
+--       points = Point row <$> [firstCol .. lastCol]
+--       blackWhitePoints = catMaybes $ Grid.get grid <$> points
+--   in fromJustWhites blackWhitePoints
+--
 
 
 

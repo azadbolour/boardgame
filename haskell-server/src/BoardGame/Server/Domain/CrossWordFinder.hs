@@ -23,6 +23,8 @@ import qualified Bolour.Plane.Domain.Axis as Axis
 import qualified Bolour.Plane.Domain.Point as Point
 import Bolour.Plane.Domain.Axis (Axis)
 import Bolour.Plane.Domain.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.GridValue
+import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, MoveInfo)
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
@@ -52,10 +54,10 @@ findSurroundingWord board point letter axis =
   let play = findCrossPlay board point letter axis
   in ((\(char, _, _) -> char) <$>) <$> play
 
+-- | Not used for now but is needed when scores of cross plays figure in the total score.
 findCrossPlays :: Board -> [PlayPiece] -> [[MoveInfo]]
 findCrossPlays board playPieces =
-  let -- columns = Board.colsAsPieces board
-      -- TODO. Internal error if fromJust fails.
+  let -- TODO. Internal error if fromJust fails.
       strip = fromJust $ Board.stripOfPlay board playPieces
       word = PlayPiece.playPiecesToWord playPieces
   in findCrossPlays' board strip word
@@ -77,14 +79,29 @@ findCrossPlays' board (strip @ Strip {axis, content}) word =
 --   Note that the only moving piece in a cross play is the one
 --   at the given crossing point.
 --   Note also that the moving piece has yet to be placed on the board.
+-- findCrossPlay :: Board -> Point -> Char -> Axis -> Maybe [MoveInfo]
+-- findCrossPlay board point movingLetter crossAxis =
+--   let crossRange = Board.surroundingRange board point crossAxis
+--   in if length crossRange < 2 then Nothing
+--      else Just $ moveInfo <$> crossRange
+--      where moveInfo crossLinePoint =
+--              let moving = crossLinePoint == point
+--                  crossLetter =
+--                    if moving then movingLetter
+--                    else Board.getLetter board crossLinePoint
+--              in (crossLetter, crossLinePoint, moving)
+--
+
 findCrossPlay :: Board -> Point -> Char -> Axis -> Maybe [MoveInfo]
 findCrossPlay board point movingLetter crossAxis =
-  let crossRange = Board.surroundingRange board point crossAxis
-  in if length crossRange < 2 then Nothing
-     else Just $ moveInfo <$> crossRange
-     where moveInfo crossLinePoint =
-             let moving = crossLinePoint == point
-                 crossLetter =
-                   if moving then movingLetter
-                   else Board.getLetter board crossLinePoint
-             in (crossLetter, crossLinePoint, moving)
+  let crossingMoveInfo = (movingLetter, point, True)
+      forthNeighbors = Board.lineNeighbors board point crossAxis Axis.forward
+      backNeighbors = Board.lineNeighbors board point crossAxis Axis.backward
+      moveInfo neighbor =
+        let GridValue {value = piece, point} = neighbor
+        in (Piece.value piece, point, False)
+  in if null backNeighbors && null forthNeighbors then Nothing
+     else Just $ (moveInfo <$> backNeighbors) ++ [crossingMoveInfo] ++ (moveInfo <$> forthNeighbors)
+
+
+
