@@ -250,10 +250,10 @@ checkMoveTrayPieces game = return
 checkPlayPositionsOccupied :: MonadError GameError m => Game -> [PlayPiece] -> m [PlayPiece]
 checkPlayPositionsOccupied Game {board} playPieces =
   let boardPlayPieces = filter (not . PlayPiece.moved) playPieces
-      maybeFreePlayPiece = find (Board.pointIsEmpty board . PlayPiece.point) boardPlayPieces
+      maybeFreePlayPiece = find (not . Board.pointHasValue board . PlayPiece.point) boardPlayPieces
   in case maybeFreePlayPiece of
      Nothing -> return playPieces
-     Just freePlayPiece -> throwError $ MissingBoardPlayPieceError $ PlayPiece.getGridPiece freePlayPiece
+     Just missingPlayPiece -> throwError $ MissingBoardPlayPieceError $ PlayPiece.getGridPiece missingPlayPiece
 
 -- | Check that purported play pieces already on the board indicated on a play
 --   do exist on the board.

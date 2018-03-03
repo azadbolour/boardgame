@@ -34,11 +34,12 @@ module BoardGame.Server.Domain.Board (
   , inBounds
   , pointIsEmpty
   , pointIsNonEmpty
+  , pointHasValue
   -- , pointIsIsolatedInLine
   , pointHasRealNeighbor
   , validateCoordinate
   , validatePoint
-  , farthestNeighbor
+  -- , farthestNeighbor
   -- , surroundingRange
   , getLetter
   , stripIsDisconnectedInLine
@@ -203,6 +204,9 @@ pointIsEmpty Board {grid} point = Gr.isEmpty grid point
 pointIsNonEmpty :: Board -> Point -> Bool
 pointIsNonEmpty board point = not $ pointIsEmpty board point
 
+pointHasValue :: Board -> Point -> Bool
+pointHasValue Board {grid} point = Gr.hasValue grid point
+
 inBounds :: Board -> Point -> Bool
 inBounds Board {grid} = Gr.inBounds grid
 
@@ -224,9 +228,6 @@ validatePoint board (point @ Point { row, col }) = do
 rowsAsStrings :: Board -> [String]
 rowsAsStrings board = ((\Piece {value} -> value) <$>) <$> rowsAsPieces board
 
--- pointIsIsolatedInLine :: Board -> Point -> Axis -> Bool
--- pointIsIsolatedInLine Board {grid} = Gr.isIsolatedInLine grid
-
 maybeBlackWhiteHasPiece :: Maybe (BlackWhite Piece) -> Bool
 maybeBlackWhiteHasPiece Nothing = False
 maybeBlackWhiteHasPiece (Just bwPiece) = BlackWhite.hasValue bwPiece
@@ -236,12 +237,6 @@ pointHasRealNeighbor board point axis =
   let maybeNext = next board point axis
       maybePrev = prev board point axis
   in maybeBlackWhiteHasPiece maybeNext || maybeBlackWhiteHasPiece maybePrev
-
---   in (isJust maybeNext && Piece.isReal (fromJust maybeNext)) ||
---        (isJust maybePrev && Piece.isReal (fromJust maybePrev))
-
-farthestNeighbor :: Board -> Point -> Axis -> Int -> Point
-farthestNeighbor Board {grid} = Gr.farthestNeighbor grid
 
 stripOfPlay :: Board -> [PlayPiece] -> Maybe Strip
 stripOfPlay board [] = Nothing
@@ -282,7 +277,7 @@ stripOfPlayN board playPieces =
 --   strip will be playable and so we can forget about this strip.
 stripIsDisconnectedInLine :: Board -> Strip -> Bool
 stripIsDisconnectedInLine board (strip @ Strip {axis, begin, end, content})
-  | (null content) = False
+  | null content = False
   | otherwise =
       let f = Strip.stripPoint strip 0
           l = Strip.stripPoint strip (end - begin)
@@ -290,9 +285,6 @@ stripIsDisconnectedInLine board (strip @ Strip {axis, begin, end, content})
           maybePrevPiece = prev board f axis
           maybeNextPiece = next board l axis
           isSeparator maybeBlackWhitePiece = not $ maybeBlackWhiteHasPiece maybeBlackWhitePiece
---             case maybePiece of
---               Nothing -> True
---               Just piece -> Piece.isEmpty piece
       in isSeparator maybePrevPiece && isSeparator maybeNextPiece
 
 computeAllLiveStripsForAxis :: Board -> Axis -> [Strip]
