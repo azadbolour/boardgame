@@ -1,7 +1,6 @@
 package com.bolour.plane.scala.domain
 
 import com.bolour.plane.scala.domain.Axis.Axis
-import com.bolour.plane.scala.domain.LineSegment.segmentsInLine
 import com.bolour.util.scala.common.{Black, BlackWhite, White}
 
 
@@ -126,11 +125,6 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
     points map { pt => (get(pt).fromWhite.get, pt)}
   }
 
-  def segmentsForLineNumber(axis: Axis, lineNumber: Int): List[LineSegment[T]] = {
-    val line = linesAlongAxis(axis)(lineNumber)
-    segmentsInLine(axis, lineNumber, line)
-  }
-
   def linesAlongAxis(axis: Axis): List2D[BlackWhite[T]] = {
     val rowValues = this.map(identity)
     axis match {
@@ -140,16 +134,38 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
   }
 
   def segmentsAlongAxis(axis: Axis): List[LineSegment[T]] = {
-    val lines = linesAlongAxis(axis)
+    val dim = numLines(axis)
     val segments = for {
-      lineNumber <- lines.indices.toList
-      segment <- segmentsInLine(axis, lineNumber, lines(lineNumber))
+      lineNumber <- (0 until dim).toList
+      segment <- segmentsInLine(axis, lineNumber)
     } yield segment
     segments
   }
 
   def allSegments: List[LineSegment[T]] =
     segmentsAlongAxis(Axis.X) ++ segmentsAlongAxis(Axis.Y)
+
+  def segmentsInLine(axis: Axis, lineNumber: Int): List[LineSegment[T]] = {
+    val line = linesAlongAxis(axis)(lineNumber)
+    def black(i: Int) = i < 0 || i >= line.length || line(i) == Black()
+    def white(i: Int) = !black(i)
+    def isBeginSegment(i: Int) = white(i) && black(i - 1)
+    def isEndSegment(i: Int) = white(i) && black(i + 1)
+
+    val indices = line.indices.toList
+    val begins = indices filter isBeginSegment
+    val ends = indices filter isEndSegment
+    val liveIntervals = begins zip ends
+
+    val segments = for {
+      (intervalBegin, intervalEnd) <- liveIntervals
+      begin <- intervalBegin to intervalEnd
+      end <- begin to intervalEnd
+      segment = BlackWhite.fromWhites(line, begin, end)
+    } yield LineSegment(axis, lineNumber, begin, end, segment)
+    segments
+  }
+
 
 }
 
@@ -164,5 +180,7 @@ object BlackWhiteGrid {
     val grid = Grid(pointedCellMaker, height, width)
     BlackWhiteGrid(grid)
   }
+
+
 
 }

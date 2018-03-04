@@ -67,6 +67,7 @@ library
       Bolour.Plane.Domain.Axis
       Bolour.Plane.Domain.GridValue
       Bolour.Plane.Domain.Grid
+      Bolour.Plane.Domain.LineSegment
       Bolour.Plane.Domain.BlackWhitePoint
       Bolour.Plane.Domain.BlackWhiteGrid
       BoardGame.Common.GameApi

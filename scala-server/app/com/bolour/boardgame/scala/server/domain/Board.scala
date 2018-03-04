@@ -190,7 +190,7 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
 
   def playableEmptyStrips(traySize: Int): List[Strip] = {
     val center = dimension/2
-    val strips = grid.segmentsForLineNumber(Axis.X, center) map lineSegmentToStrip
+    val strips = grid.segmentsInLine(Axis.X, center) map lineSegmentToStrip
     val conformantStrips = strips.filter { strip => strip.begin <= center && strip.end >= center}
     conformantStrips
   }

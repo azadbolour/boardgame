@@ -12,6 +12,7 @@ module Bolour.Util.BlackWhite (
     BlackWhite(..)
   , isJustWhite
   , fromWhite
+  , fromWhites
   , isWhite
   , isBlack
   , hasValue

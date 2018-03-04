@@ -23,12 +23,15 @@ module Bolour.Plane.Domain.BlackWhiteGrid (
 import Data.List
 import Data.Maybe (isJust, isNothing, fromJust, catMaybes)
 
-import Bolour.Util.BlackWhite
+import Bolour.Util.BlackWhite (BlackWhite(..))
+import qualified Bolour.Util.BlackWhite as BlackWhite
 import qualified Bolour.Util.Empty as Empty
-import Bolour.Plane.Domain.Grid (Grid)
+import Bolour.Plane.Domain.Grid (Grid, Grid(Grid))
 import qualified Bolour.Plane.Domain.Grid as Grid
 import qualified Bolour.Plane.Domain.Axis as Axis
 import qualified Bolour.Plane.Domain.Point as Point
+import qualified Bolour.Plane.Domain.LineSegment as LineSegment
+import Bolour.Plane.Domain.LineSegment (LineSegment, LineSegment(LineSegment))
 import Bolour.Plane.Domain.Axis (Axis, Height, Width, Direction)
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import Bolour.Plane.Domain.BlackWhitePoint(BlackWhitePoint, BlackWhitePoint(BlackWhitePoint))
@@ -84,6 +87,7 @@ instance Empty.Empty (BlackWhiteGrid val)
 instance Empty.Empty (Maybe val, Point)
   where isEmpty x = let maybe = fst x in isNothing maybe
 
+
 mkGrid :: (Height -> Width -> BlackWhite val) -> Height -> Width -> BlackWhiteGrid val
 mkGrid cellMaker height width =
   let pointedCellMaker row col = BlackWhitePoint (cellMaker row col) (Point row col)
@@ -135,7 +139,7 @@ get' grid point =
 fromJustWhites :: [BlackWhitePoint val] -> [(val, Point)]
 fromJustWhites bwPoints =
   let maybePair BlackWhitePoint {value = bw, point} =
-               let maybe = fromWhite bw
+               let maybe = BlackWhite.fromWhite bw
                in case maybe of
                   Nothing -> Nothing
                   Just v -> Just (v, point)
@@ -173,13 +177,13 @@ isEmpty' grid point =
 hasValue' :: Grid' val -> Point -> Bool
 hasValue' grid point =
   let bw = get' grid point
-  in isJustWhite bw
+  in BlackWhite.isJustWhite bw
 
 adjHasValue :: Grid' val -> Point -> Axis -> Int -> Bool
 adjHasValue grid point axis direction =
   let maybe = do
                 BlackWhitePoint {value} <- Grid.adjacentCell grid point axis direction
-                fromWhite value
+                BlackWhite.fromWhite value
   in isJust maybe
 
 valuedNotValuedTransitionPoint :: Grid' val -> Point -> Axis -> Int -> Bool
@@ -196,15 +200,6 @@ farthestNeighbor' grid point axis direction =
         valuedToNotValued pnt = valuedNotValuedTransitionPoint grid pnt axis direction
         dimension = Grid.numLines grid axis
         neighbors = Point.nthNeighbor point axis direction <$> [1 .. dimension - 1]
-
--- surroundingRange' :: Grid' val -> Point -> Axis -> [Point]
--- surroundingRange' grid point axis =
---   let rangeLimit = farthestNeighbor' grid point axis
---       Point {row = row1, col = col1} = rangeLimit Axis.backward
---       Point {row = rowN, col = colN} = rangeLimit Axis.forward
---   in case axis of
---        Axis.X -> Point row1 <$> [col1 .. colN]
---        Axis.Y -> flip Point col1 <$> [row1 .. rowN]
 
 -- | Get all the colinear neighbors in a given direction along a given axis
 --   ordered in increasing value of the line index (excluding the point
@@ -226,6 +221,41 @@ lineNeighbors' grid point axis direction =
             where rowRange = range pointRow farRow
       blackWhitePoints = catMaybes $ Grid.get grid <$> points
   in fromJustWhites blackWhitePoints
+
+linesAlongAxis :: Grid' val -> Axis -> [[BlackWhite val]]
+linesAlongAxis grid axis =
+  let Grid {rows = blackWhiteRows} = BlackWhitePoint.value <$> grid
+  in case axis of
+       Axis.X -> blackWhiteRows
+       Axis.Y -> transpose blackWhiteRows
+
+segmentsAlongAxis :: Grid' val -> Axis -> [LineSegment val]
+segmentsAlongAxis grid axis = do
+  lineNumber <- [0 .. Grid.numLines grid axis - 1]
+  segmentsInLine grid axis lineNumber
+
+allSegments :: Grid' val -> [LineSegment val]
+allSegments grid = segmentsAlongAxis grid Axis.X ++ segmentsAlongAxis grid Axis.Y
+
+segmentsInLine :: Grid' val -> Axis -> Int -> [LineSegment val]
+segmentsInLine grid axis lineNumber =
+  let line = linesAlongAxis grid axis !! lineNumber
+      len = length line
+      black i = i < 0 || i >= len || BlackWhite.isBlack (line !! i)
+      white i = not (black i)
+      isBeginSegment i = white i && black (i - 1)
+      isEndSegment i = white i && black (i + 1)
+      range = [0 .. len - 1]
+      begins = filter isBeginSegment range
+      ends = filter isEndSegment range
+      liveIntervals = zip begins ends
+  in do
+    (intervalBegin, intervalEnd) <- liveIntervals
+    begin <- [intervalBegin .. intervalEnd]
+    end <- [begin .. intervalEnd]
+    let segment = BlackWhite.fromWhites line begin end
+    return $ LineSegment axis lineNumber begin end segment
+
 
 
 
