@@ -197,14 +197,14 @@ farthestNeighbor' grid point axis direction =
         dimension = Grid.numLines grid axis
         neighbors = Point.nthNeighbor point axis direction <$> [1 .. dimension - 1]
 
-surroundingRange' :: Grid' val -> Point -> Axis -> [Point]
-surroundingRange' grid point axis =
-  let rangeLimit = farthestNeighbor' grid point axis
-      Point {row = row1, col = col1} = rangeLimit Axis.backward
-      Point {row = rowN, col = colN} = rangeLimit Axis.forward
-  in case axis of
-       Axis.X -> Point row1 <$> [col1 .. colN]
-       Axis.Y -> flip Point col1 <$> [row1 .. rowN]
+-- surroundingRange' :: Grid' val -> Point -> Axis -> [Point]
+-- surroundingRange' grid point axis =
+--   let rangeLimit = farthestNeighbor' grid point axis
+--       Point {row = row1, col = col1} = rangeLimit Axis.backward
+--       Point {row = rowN, col = colN} = rangeLimit Axis.forward
+--   in case axis of
+--        Axis.X -> Point row1 <$> [col1 .. colN]
+--        Axis.Y -> flip Point col1 <$> [row1 .. rowN]
 
 -- | Get all the colinear neighbors in a given direction along a given axis
 --   ordered in increasing value of the line index (excluding the point
@@ -226,18 +226,6 @@ lineNeighbors' grid point axis direction =
             where rowRange = range pointRow farRow
       blackWhitePoints = catMaybes $ Grid.get grid <$> points
   in fromJustWhites blackWhitePoints
-
--- forward = Axis.forward
--- backward = Axis.backward
---
--- neighbors :: Grid' val -> Point -> Point -> Axis -> Int -> [(val, Point)]
--- neighbors grid point farthestPoint Axis.X forward =
---   let Point {row, col = firstCol} = point
---       Point {col = lastCol} = farthestPoint
---       points = Point row <$> [firstCol .. lastCol]
---       blackWhitePoints = catMaybes $ Grid.get grid <$> points
---   in fromJustWhites blackWhitePoints
---
 
 
 

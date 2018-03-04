@@ -62,7 +62,7 @@ class StripMatcher3Spec extends FlatSpec with Matchers { self =>
 
     val crossWordFinder = new CrossWordFinder(stripMatcher.board)
     val crossChars = crossWordFinder.findCrossingWord(Point(center - 1, center), 'I', Axis.X)
-    crossChars shouldBe "IT"
+    crossChars shouldBe Some("IT")
 
     // TODO. Reinstate.
     val playStrip = Strip(Axis.Y, center, center - 6, center, "      C")

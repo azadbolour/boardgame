@@ -86,6 +86,46 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
 
   def isEmpty: Boolean = grid.flatten.forall { _.value.isEmpty }
 
+  private def adjHasValue(point: Point, axis: Axis, direction: Int): Boolean = {
+    val opt = for {
+      BlackWhitePoint(value, _) <- grid.adjacentCell(point, axis, direction)
+    } yield value.fromWhite
+    opt.isDefined && opt.get.isDefined
+  }
+
+  private def valuedNotValuedTransitionPoint(point: Point, axis: Axis, direction: Int): Boolean = {
+    val transitioning = get(point).hasValue && !adjHasValue(point, axis, direction)
+    transitioning
+  }
+
+  def numLines(axis: Axis): Int = grid.numLines(axis)
+
+  def farthestNeighbor(point: Point, axis: Axis, direction: Int): Point = {
+    if (!adjHasValue(point, axis, direction)) point
+    else {
+      val colinears = (1 until numLines(axis)).toList map point.colinearPoint(axis, direction)
+      val maybeFarthest = colinears find { pt => valuedNotValuedTransitionPoint(pt, axis, direction)}
+      maybeFarthest.get // Transition is guaranteed at the latest at the boundary.
+    }
+  }
+
+  def lineNeighbors(point: Point, axis: Axis, direction: Int): List[(T, Point)] = {
+    val farthest = farthestNeighbor(point, axis, direction)
+    val Point(pointRow, pointCol) = point
+    val Point(farRow, farCol) = farthest
+
+    def lineRange(pos: Int, limit: Int) =
+      (if (direction == Axis.forward) (pos + 1) to limit else limit until pos).toList
+
+    val points = axis match {
+      case Axis.X => lineRange(pointCol, farCol) map { col => Point(pointRow, col) }
+      case Axis.Y => lineRange(pointRow, farRow) map { row => Point(row, pointCol) }
+    }
+
+    // All neighboring points are guaranteed to have values so 'get' is defined on all of them.
+    points map { pt => (get(pt).fromWhite.get, pt)}
+  }
+
   def segmentsForLineNumber(axis: Axis, lineNumber: Int): List[LineSegment[T]] = {
     val line = linesAlongAxis(axis)(lineNumber)
     segmentsInLine(axis, lineNumber, line)

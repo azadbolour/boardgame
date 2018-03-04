@@ -154,18 +154,9 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
     farthest.get.get // A boundary always exists.
   }
 
-  def farthestNeighbor(point: Point, axis: Axis, direction: Int): Point = {
-
-    def isBoundary(p: Point): Boolean =
-      getPiece(p).isDefined && getPiece(p.adjPoint(axis, direction)).isEmpty
-
-    // The starting point is special because it is empty.
-    if (getPiece(point.adjPoint(axis, direction)).isEmpty)
-      return point
-
-    val colinears = (1 until dimension).toList map colinearPoint(point, axis, direction)
-    val farthest = colinears find (_.exists(isBoundary))
-    farthest.get.get // A boundary always exists.
+  def lineNeighbors(point: Point, axis: Axis, direction: Int): List[PiecePoint] = {
+    val piecePointPairs = grid.lineNeighbors(point, axis, direction)
+    piecePointPairs map { case (piece, pt) => PiecePoint(piece, pt) }
   }
 
   /**

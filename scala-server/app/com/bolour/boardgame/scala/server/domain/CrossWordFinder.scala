@@ -1,7 +1,7 @@
 package com.bolour.boardgame.scala.server.domain
 
+import com.bolour.util.scala.common.CommonUtil
 import com.bolour.plane.scala.domain.Axis.Axis
-import com.bolour.boardgame.scala.common.domain.PlayPieceObj.PlayPieces
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.plane.scala.domain.{Axis, Point}
 
@@ -14,35 +14,6 @@ class CrossWordFinder(board: Board) {
   val ForwardDir = 1
   val BackwardDir = -1
 
-//  /**
-//    * Considering a point to be a neighbor if it is recursively adjacent to
-//    * the given point in the given direction, find the farthest one in that direction.
-//    * This is a helper method for finding surrounding plays and words.
-//    *
-//    * @param point The point whose farthest neighbor is being sought.
-//    * @param axis The axis along which we are looking for the neighbor.
-//    * @param direction The direction along the axis to look.
-//    * @return The farthest (recursive) neighbor.
-//    */
-//  private def farthestNeighbor(point: Point, axis: Axis, direction: Int): Point = {
-//
-//    def outOfBoundsOrEmpty(oPoint: Option[Point]): Boolean =
-//      oPoint.isEmpty || board.pointIsEmpty(oPoint.get)
-//
-//    def adjacent(p: Point): Option[Point] = board.colinearPoint(p, axis, direction)(1)
-//
-//    def isBoundary(p: Point): Boolean =
-//      !board.pointIsEmpty(p) && outOfBoundsOrEmpty(adjacent(p))
-//
-//    // The starting point is special because it is empty.
-//    if (outOfBoundsOrEmpty(adjacent(point)))
-//      return point
-//
-//    val neighbors = (1 until dimension).toList map board.colinearPoint(point, axis, direction)
-//    val farthest = neighbors find (_.exists(isBoundary))
-//    farthest.get.get // A boundary always exists.
-//  }
-//
   /**
     * A crossing is cross word that includes one of the new
     * letters played on a strip.
@@ -58,8 +29,7 @@ class CrossWordFinder(board: Board) {
       val playedChar = word(i)
       findCrossingWord(point, playedChar, Axis.crossAxis(strip.axis))
     }
-
-    acrossWordList.filter {word => word.length > 1}
+    CommonUtil.catOptions(acrossWordList)
   }
 
   /**
@@ -75,17 +45,18 @@ class CrossWordFinder(board: Board) {
     val l = word.length
     val range = (0 until l).toList
     val crossingIndices = range.filter { i => Piece.isBlank(strip.content(i)) }
-    val plays = crossingIndices map { i =>
+    val crossPlayOpts = crossingIndices map { i =>
       val point = strip.point(i)
       crossingPlay(point, word(i), Axis.crossAxis(strip.axis))
     }
-    plays
+    CommonUtil.catOptions(crossPlayOpts)
   }
 
-  def findCrossingWord(crossPoint: Point, crossingChar: Char, axis: Axis): String = {
-    val play: List[(Char, Point, Boolean)] = crossingPlay(crossPoint, crossingChar, axis)
-    val word = (play map { case (char, _, _) => char } ).mkString
-    word
+  def findCrossingWord(crossPoint: Point, crossingChar: Char, axis: Axis): Option[String] = {
+    val optCrossPlay: Option[List[(Char, Point, Boolean)]] = crossingPlay(crossPoint, crossingChar, axis)
+    optCrossPlay map { play => (play map { case (char, _, _) => char } ).mkString}
+    // val word = (play map { case (char, _, _) => char } ).mkString
+    // word
   }
 
   // TODO. Too much going on within this function. Make it more readable as in Haskell server.
@@ -94,51 +65,28 @@ class CrossWordFinder(board: Board) {
     * playing a letter on a point.
     * @param crossPoint The point at which the letter is played.
     * @param crossingChar The letter played at that point.
-    * @param axis The cross axis along which the crossword lies.
+    * @param crossAxis The cross axis along which the crossword lies.
     *
     * @return List of tuples (char, point, moved) for the crossword
     *         providing information about the crossword. Each tuple
     *         includes a letter of the crossword, its location on the board,
     *         and whether the letter is being played. The only letter that
     *         is being moved is the one at the cross point. All others
-    *         exist on the board.
+    *         exist on the board. Return None is there is no cross word at the given point.
     */
-  def crossingPlay(crossPoint: Point, crossingChar: Char, axis: Axis): List[(Char, Point, Boolean)] = {
-    val Point(row, col) = crossPoint
-
-    // Auxiliary functions.
-
-    def boardPointInfo(p: Point): (Char, Point, Boolean) = {
-      val piece = board.getPiece(p).get
-      val info = (piece.value, p, false) // Filled position across play direction cannot have moved.
-      info
+  def crossingPlay(crossPoint: Point, crossingChar: Char, crossAxis: Axis): Option[List[(Char, Point, Boolean)]] = {
+    def toMoveInfo(piecePoint: PiecePoint) = piecePoint match {
+      case PiecePoint(piece, point) => (piece.value, point, false)
     }
 
-    val Point(beforeRow, beforeCol) = board.farthestNeighbor(crossPoint, axis, -1)
-    val Point(afterRow, afterCol) = board.farthestNeighbor(crossPoint, axis, +1)
+    val forthNeighborsInfo = board.lineNeighbors(crossPoint, crossAxis, Axis.forward) map toMoveInfo
+    val backNeighborsInfo = board.lineNeighbors(crossPoint, crossAxis, Axis.backward) map toMoveInfo
 
-    def crossPlayPoint(i: Int): Point = axis match {
-      case Axis.X => Point(row, i)
-      case Axis.Y => Point(i, col)
-    }
-    def crossPlayInfo(i: Int): (Char, Point, Boolean) =
-      boardPointInfo(crossPlayPoint(i))
+    val crossingMoveInfo = (crossingChar, crossPoint, true)
 
-    val (beforeInfo, afterInfo) = axis match {
-      case Axis.X => (
-        (beforeCol until col).map { crossPlayInfo(_) },
-        (col + 1 to afterCol).map { crossPlayInfo(_)}
-      )
-      case Axis.Y => (
-        (beforeRow until row).map { crossPlayInfo(_) },
-        (row + 1 to afterRow).map { crossPlayInfo(_) }
-      )
-    }
-
-    val crossingInfo = (crossingChar, crossPoint, true)
-    val crossInfoSeq = beforeInfo ++ List(crossingInfo) ++ afterInfo
-
-    crossInfoSeq.toList
+    if (forthNeighborsInfo.isEmpty && backNeighborsInfo.isEmpty)
+      return None
+    Some (backNeighborsInfo ++ List(crossingMoveInfo) ++ forthNeighborsInfo)
   }
 
 }

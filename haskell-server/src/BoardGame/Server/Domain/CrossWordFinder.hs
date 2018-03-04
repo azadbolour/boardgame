@@ -79,19 +79,6 @@ findCrossPlays' board (strip @ Strip {axis, content}) word =
 --   Note that the only moving piece in a cross play is the one
 --   at the given crossing point.
 --   Note also that the moving piece has yet to be placed on the board.
--- findCrossPlay :: Board -> Point -> Char -> Axis -> Maybe [MoveInfo]
--- findCrossPlay board point movingLetter crossAxis =
---   let crossRange = Board.surroundingRange board point crossAxis
---   in if length crossRange < 2 then Nothing
---      else Just $ moveInfo <$> crossRange
---      where moveInfo crossLinePoint =
---              let moving = crossLinePoint == point
---                  crossLetter =
---                    if moving then movingLetter
---                    else Board.getLetter board crossLinePoint
---              in (crossLetter, crossLinePoint, moving)
---
-
 findCrossPlay :: Board -> Point -> Char -> Axis -> Maybe [MoveInfo]
 findCrossPlay board point movingLetter crossAxis =
   let crossingMoveInfo = (movingLetter, point, True)

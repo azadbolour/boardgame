@@ -10,5 +10,10 @@ object Axis extends Enumeration {
   val X, Y = Value
 
   def crossAxis(axis: Axis): Axis = if (axis == X) Y else X
+
+  // TODO. Direction should be enum.
+  val forward = +1
+  val backward = -1
+
 }
 

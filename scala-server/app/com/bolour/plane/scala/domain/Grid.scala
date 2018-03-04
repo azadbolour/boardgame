@@ -63,6 +63,12 @@ case class Grid[T](cells: List[List[T]]) {
 
   def adjacentCell(point: Point, axis: Axis, direction: Int): Option[T] =
     get(point.adjPoint(axis, direction))
+
+  def numLines(axis: Axis): Int =
+    axis match {
+      case Axis.X => height
+      case Axis.Y => width
+    }
 }
 
 object Grid {

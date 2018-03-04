@@ -24,4 +24,14 @@ object CommonUtil {
     pairs.groupBy(_._2).mapValues(_ map {case (a, b) => a})
   }
 
+  def catOptions[T](options: List[Option[T]]): List[T] = {
+    def folder(opt: Option[T], list: List[T]): List[T] = {
+      opt match {
+        case None => list
+        case Some(t) => t :: list
+      }
+    }
+    options.foldRight(List[T]())(folder)
+  }
+
 }
