@@ -186,50 +186,16 @@ groupedPlayableStrips ::
 
 groupedPlayableStrips board trayCapacity valuation =
   let conformantStrips =
-        if Board.isEmpty board then playableEmptyStrips board
-        else playableStrips board trayCapacity
+        if Board.isEmpty board then Board.playableStripsForEmptyBoard board
+        else Board.playableStrips board trayCapacity
       mapByValue = MiscUtil.mapFromValueList valuation conformantStrips
       blankMapMaker = MiscUtil.mapFromValueList Strip.blanks
     in blankMapMaker <$> mapByValue
-
-playableStrips :: Board -> Int -> [Strip]
-playableStrips board trayCapacity =
-  let strips = Board.computeAllLiveStrips board
-      playableBlanks Strip {blanks} = blanks > 0 && blanks <= trayCapacity
-      playables = filter playableBlanks strips
-      playables' = filter Strip.hasAnchor playables
-      playables'' = filter (Board.stripIsDisconnectedInLine board) playables'
-   in playables''
-
-playableEmptyStrips :: Board -> [Strip]
-playableEmptyStrips board @ Board {dimension}=
-  let center = dimension `div` 2
-      centerRowAsString = Board.rowsAsStrings board !! center
-      strips = Strip.stripsInLine Axis.X dimension center centerRowAsString
-      includesCenter Strip {begin, end} = begin <= center && end >= center
-  in filter includesCenter strips
 
 gridStripToStrip :: (Axis.Axis, Coordinate, Coordinate, Int, [Maybe Piece]) -> Strip
 gridStripToStrip (axis, lineNumber, offset, size, maybeCharList) =
   Strip.mkStrip axis lineNumber offset (offset + size - 1) content
     where content = (Piece.value . Piece.fromMaybe) <$> maybeCharList
-
-emptyCenterStrip :: ByteCount -> Coordinate -> Strip
-emptyCenterStrip len dimension =
-  let center = dimension `div` 2
-      mid = len `div` 2
-      line = List.replicate dimension Piece.emptyChar
-  in Strip.lineStrip Axis.X center line (center - mid) len
-
-mkEmptyCenterStripMapElement :: ByteCount -> Coordinate -> (ByteCount, Map BlankCount [Strip])
-mkEmptyCenterStripMapElement len dimension =
-  let strips = [emptyCenterStrip len dimension]
-      blankCount = len
-  in (len, Map.singleton len strips)
-
-emptyCenterStripsByLengthByBlanks :: Coordinate -> Map ByteCount (Map BlankCount [Strip])
-emptyCenterStripsByLengthByBlanks dimension =
-  Map.fromList $ flip mkEmptyCenterStripMapElement dimension <$> [2 .. dimension]
 
 hopelessBlankPointsForAxis :: Board -> WordDictionary -> Int -> Axis -> Set.Set Point
 hopelessBlankPointsForAxis board dictionary @ WordDictionary {maxMaskedLetters} trayCapacity axis =

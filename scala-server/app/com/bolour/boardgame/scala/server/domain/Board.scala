@@ -204,13 +204,13 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
     conformantStrips3
   }
 
-  def potentialPlayableStrips(axis: Axis, trayCapacity: Int): List[Strip] = {
-    val allStrips = grid.segmentsAlongAxis(axis) map lineSegmentToStrip
-    def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= trayCapacity
-    val conformantStrips1 = allStrips.filter(hasFillableBlanks)
-    val conformantStrips2 = conformantStrips1.filter(stripIsDisconnectedInLine)
-    conformantStrips2
-  }
+//  def potentialPlayableStrips(axis: Axis, trayCapacity: Int): List[Strip] = {
+//    val allStrips = grid.segmentsAlongAxis(axis) map lineSegmentToStrip
+//    def hasFillableBlanks = (s: Strip) => s.numBlanks > 0 && s.numBlanks <= trayCapacity
+//    val conformantStrips1 = allStrips.filter(hasFillableBlanks)
+//    val conformantStrips2 = conformantStrips1.filter(stripIsDisconnectedInLine)
+//    conformantStrips2
+//  }
 
   def stripIsDisconnectedInLine(strip: Strip): Boolean = {
     val firstPoint = strip.point(0)

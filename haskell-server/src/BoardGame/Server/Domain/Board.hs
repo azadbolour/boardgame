@@ -11,42 +11,22 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module BoardGame.Server.Domain.Board (
-    Board
-  , Board(Board)
-  , Board(dimension)
-  , Board(grid)
-  , mkBoard
-  , mkEmptyBoard
-  , mkBoardFromPieces
-  , rowsAsPieces
-  , rowsAsStrings
-  , colsAsPieces
-  , next
-  , prev
-  , adjacent
-  , get
-  , getGridPieces
-  , set
-  , setN
-  , setDeadPoints
-  , isEmpty
+    Board(..)
+  , mkBoard, mkEmptyBoard, mkBoardFromPieces
+  , rowsAsPieces, colsAsPieces, rowsAsStrings
+  , next, prev, adjacent
+  , get, getGridPieces
+  , set, setN, setDeadPoints
+  , isEmpty, inBounds
   , stripOfPlay
-  , inBounds
-  , pointIsEmpty
-  , pointIsNonEmpty
-  , pointHasValue
-  -- , pointIsIsolatedInLine
-  , pointHasRealNeighbor
-  , validateCoordinate
-  , validatePoint
-  -- , farthestNeighbor
-  -- , surroundingRange
+  , pointIsEmpty, pointIsNonEmpty
+  , pointHasValue, pointHasRealNeighbor
+  , validateCoordinate, validatePoint
   , getLetter
   , stripIsDisconnectedInLine
   , playableEnclosingStripsOfBlankPoints
-  , computeAllLiveStrips
-  -- , groupedStrips
   , lineNeighbors
+  , computeAllLiveStrips, playableStrips, playableStripsForEmptyBoard
 )
 where
 
@@ -55,9 +35,6 @@ import qualified Data.Maybe as Maybe
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust, isJust)
-
--- import qualified Data.ByteString.Char8 as BS
-
 import Control.Monad.Except (MonadError(..))
 
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
@@ -71,6 +48,8 @@ import qualified BoardGame.Common.Domain.Piece as Piece
 import Bolour.Plane.Domain.Axis (Coordinate, Axis(..))
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
+import Bolour.Plane.Domain.LineSegment (LineSegment, LineSegment(LineSegment))
+import qualified Bolour.Plane.Domain.LineSegment as LineSegment
 import qualified Bolour.Plane.Domain.Axis as Axis
 import Bolour.Util.BlackWhite (BlackWhite, BlackWhite(Black, White))
 import qualified Bolour.Util.BlackWhite as BlackWhite
@@ -83,15 +62,6 @@ import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import qualified BoardGame.Server.Domain.Strip as Strip
 import qualified Bolour.Util.Empty as Empty
-
-{--
-   A Board uses a BlackWhiteGrid to represent the contents of the board.
-   Within the grid, an empty slot is represented
-   by Maybe.Nothing. But Board exposes pieces that represent
-   emptiness by their value being null: '\0'. Where necessary,
-   this module translates between these two representations of
-   emptiness.
---}
 
 -- | The game board.
 data Board = Board {
@@ -198,14 +168,13 @@ isEmpty Board { grid } = Empty.isEmpty grid
   -- in all (Maybe.isNothing . fst) cellList
 
 pointIsEmpty :: Board -> Point -> Bool
-pointIsEmpty Board {grid} point = Gr.isEmpty grid point
-  -- Maybe.isNothing $ Gr.get grid point
+pointIsEmpty Board {grid} = Gr.isEmpty grid
 
 pointIsNonEmpty :: Board -> Point -> Bool
 pointIsNonEmpty board point = not $ pointIsEmpty board point
 
 pointHasValue :: Board -> Point -> Bool
-pointHasValue Board {grid} point = Gr.hasValue grid point
+pointHasValue Board {grid} = Gr.hasValue grid
 
 inBounds :: Board -> Point -> Bool
 inBounds Board {grid} = Gr.inBounds grid
@@ -268,9 +237,6 @@ stripOfPlayN board playPieces =
            in Strip.lineStrip axis lineNumber lineAsString begin (length points)
     in mkStrip <$> maybeAxis
 
--- surroundingRange :: Board -> Point -> Axis -> [Point]
--- surroundingRange Board {grid} = Gr.surroundingRange grid
-
 -- | Check that a strip has no neighbors on either side - is disconnected
 --   from the rest of its line. If it is has neighbors, it is not playable
 --   since a matching word will run into the neighbors. However, a containing
@@ -287,6 +253,23 @@ stripIsDisconnectedInLine board (strip @ Strip {axis, begin, end, content})
           isSeparator maybeBlackWhitePiece = not $ maybeBlackWhiteHasPiece maybeBlackWhitePiece
       in isSeparator maybePrevPiece && isSeparator maybeNextPiece
 
+playableStripsForEmptyBoard :: Board -> [Strip]
+playableStripsForEmptyBoard board @ Board {dimension}=
+  let center = dimension `div` 2
+      centerRowAsString = rowsAsStrings board !! center
+      strips = Strip.stripsInLine Axis.X dimension center centerRowAsString
+      includesCenter Strip {begin, end} = begin <= center && end >= center
+  in filter includesCenter strips
+
+playableStrips :: Board -> Int -> [Strip]
+playableStrips board trayCapacity =
+  let strips = computeAllLiveStrips board
+      playableBlanks Strip {blanks} = blanks > 0 && blanks <= trayCapacity
+      playables = filter playableBlanks strips
+      playables' = filter Strip.hasAnchor playables
+      playables'' = filter (stripIsDisconnectedInLine board) playables'
+   in playables''
+
 computeAllLiveStripsForAxis :: Board -> Axis -> [Strip]
 computeAllLiveStripsForAxis board axis =
   let lines = case axis of
@@ -295,12 +278,20 @@ computeAllLiveStripsForAxis board axis =
   in Strip.allLiveStrips axis (Piece.piecesToString <$> lines)
 
 computeAllLiveStrips :: Board -> [Strip]
-computeAllLiveStrips board =
-  computeAllLiveStripsForAxis board Axis.X ++ computeAllLiveStripsForAxis board Axis.Y
+computeAllLiveStrips Board {grid} = lineSegmentToStrip <$> Gr.allSegments grid
+
+lineSegmentToStrip :: LineSegment Piece -> Strip
+lineSegmentToStrip LineSegment {axis, lineNumber, begin, end, segment} =
+  let maybePieceToChar maybePiece =
+        case maybePiece of
+          Nothing -> Piece.emptyChar
+          Just (piece @ Piece {value}) -> value
+      content = maybePieceToChar <$> segment
+  in Strip.mkStrip axis lineNumber begin end content
 
 enclosingStripsOfBlankPoints :: Board -> Axis -> Map.Map Point [Strip]
-enclosingStripsOfBlankPoints board axis =
-  let liveStrips = computeAllLiveStripsForAxis board axis
+enclosingStripsOfBlankPoints Board {grid} axis =
+  let liveStrips = lineSegmentToStrip <$> Gr.segmentsAlongAxis grid axis
       stripsEnclosingBlanks = filter Strip.hasBlanks liveStrips
   in Util.inverseMultiValuedMapping Strip.blankPoints stripsEnclosingBlanks
 
