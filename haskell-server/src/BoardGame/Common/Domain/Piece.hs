@@ -18,11 +18,14 @@
 module BoardGame.Common.Domain.Piece (
     Piece(..)
   , mkPiece
-  , emptyChar
-  , isEmptyChar
-  , emptyPiece
-  , isEmpty
-  , isNonEmpty
+  -- , emptyChar
+  , blankChar
+  , deadChar
+  -- , isEmptyChar
+  -- , emptyPiece
+  -- , isEmpty
+  -- , isNonEmpty
+  , isBlankChar
   , deadPiece
   , isDeadChar
   , isDead
@@ -85,6 +88,10 @@ isDead :: Piece -> Bool
 isDead = (== deadPiece)
 isAlive :: Piece -> Bool
 isAlive = (/= deadPiece)
+
+blankChar = ' '
+isBlankChar :: Char -> Bool
+isBlankChar = (== blankChar)
 
 isReal :: Piece -> Bool
 isReal piece = isAlive piece && isNonEmpty piece

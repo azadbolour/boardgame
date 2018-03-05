@@ -12,17 +12,16 @@
 
 module BoardGame.Server.Domain.Board (
     Board(..)
-  , mkBoard, mkEmptyBoard, mkBoardFromPieces
-  , rowsAsPieces, colsAsPieces, rowsAsStrings
+  , mkBoard, mkEmptyBoard, mkBoardFromPieces, mkBoardFromPiecePoints
+  , rows, cols, lineAsString
   , next, prev, adjacent
-  , get, getGridPieces
-  , set, setN, setBlackPoints
+  , get, getPiece, getGridPieces
+  , setN, setBlackPoints
   , isEmpty, inBounds
   , stripOfPlay
   , pointIsEmpty, pointIsNonEmpty
   , pointHasValue, pointHasRealNeighbor
   , validateCoordinate, validatePoint
-  , getLetter
   , stripIsDisconnectedInLine
   , playableEnclosingStripsOfBlankPoints
   , lineNeighbors
@@ -70,26 +69,36 @@ data Board = Board {
 }
   deriving (Show)
 
-pieceToBlackWhite :: Piece -> BlackWhite Piece
-pieceToBlackWhite piece | piece == Piece.deadPiece = Black
-                        | piece == Piece.emptyPiece = White Nothing
-                        | otherwise = White (Just piece)
+-- pieceToBlackWhite :: Piece -> BlackWhite Piece
+-- pieceToBlackWhite piece | piece == Piece.deadPiece = Black
+--                         | piece == Piece.emptyPiece = White Nothing
+--                         | otherwise = White (Just piece)
+--
+-- blackWhiteToPiece :: BlackWhite Piece -> Piece
+-- blackWhiteToPiece Black = Piece.deadPiece
+-- blackWhiteToPiece (White Nothing) = Piece.emptyPiece
+-- blackWhiteToPiece (White (Just piece)) = piece
 
-blackWhiteToPiece :: BlackWhite Piece -> Piece
-blackWhiteToPiece Black = Piece.deadPiece
-blackWhiteToPiece (White Nothing) = Piece.emptyPiece
-blackWhiteToPiece (White (Just piece)) = piece
-
-pieceExtractor :: BlackWhitePoint Piece -> Piece
-pieceExtractor BlackWhitePoint {value = bwPiece, point} = blackWhiteToPiece bwPiece
+-- pieceExtractor :: BlackWhitePoint Piece -> Piece
+-- pieceExtractor BlackWhitePoint {value = bwPiece, point} = blackWhiteToPiece bwPiece
 
 -- TODO. Check rectangular. Check parameters. See below.
+-- Deprecated. Replace with mkBoard'
 mkBoardFromPieces :: [[Maybe Piece]] -> Int -> Board
 mkBoardFromPieces cells =
   let cellMaker row col = White $ cells !! row !! col
   in mkBoard' cellMaker
 
--- TODO. Ditto.
+mkBoardFromPiecePoints :: [GridPiece] -> Int -> Board
+mkBoardFromPiecePoints piecePoints dimension =
+  let maybePiecePoint row col = find (\GridValue {point} -> point == Point row col) piecePoints
+      pieceMaker row col =
+        case maybePiecePoint row col of
+          Nothing -> White Nothing
+          Just (GridValue value point) -> White (Just value)
+  in mkBoard' pieceMaker dimension
+
+-- Deprecated. Remove and replace by mkBoard'.
 mkBoard :: (Int -> Int -> Piece) -> Int -> Board
 mkBoard pieceMaker =
   let cellMaker row col = White $ Piece.toMaybe $ pieceMaker row col
@@ -105,15 +114,42 @@ mkBoard' cellMaker dimension =
   let grid = Gr.mkGrid cellMaker dimension dimension
   in Board dimension grid
 
-rowsAsPieces :: Board -> [[Piece]]
-rowsAsPieces Board {grid} =
-  let lineMapper row = pieceExtractor <$> row
-  in lineMapper <$> Gr.rows grid
+rows :: Board -> [[BlackWhitePoint Piece]]
+rows Board {grid} = Gr.rows grid
 
-colsAsPieces :: Board -> [[Piece]]
-colsAsPieces Board {grid} =
-  let lineMapper col = pieceExtractor <$> col
-  in lineMapper <$> Gr.cols grid
+cols :: Board -> [[BlackWhitePoint Piece]]
+cols Board {grid} = Gr.cols grid
+
+-- | Converts a real piece to its value, a black to a Piece.deadChar,
+--   and an empty white to a Piece.blankChar.
+lineAsString :: Board -> Axis -> Int -> String
+lineAsString board Axis.X lineNumber = lineToString $ rows board !! lineNumber
+lineAsString board Axis.Y lineNumber = lineToString $ cols board !! lineNumber
+
+bwCharToChar :: BlackWhite Char -> Char
+bwCharToChar bw = BlackWhite.toValueWithDefaults bw Piece.deadChar Piece.blankChar
+
+lineToString :: [BlackWhitePoint Piece] -> String
+lineToString bwPoints =
+  let bwPieceToBWChar = (Piece.value <$>)
+  in (bwCharToChar . bwPieceToBWChar . BlackWhitePoint.value) <$> bwPoints
+
+
+  -- in bwCharToChar <$> (bwPieceToBWChar <$> (BlackWhitePoint.value <$> bwPoints))
+
+--   let bwPieces = BlackWhitePoint.value <$> bwPoints
+--       bwChars = Piece.value <$> bwPieces
+--   in valueOf <$>
+
+-- rowsAsPieces :: Board -> [[Piece]]
+-- rowsAsPieces Board {grid} =
+--   let lineMapper row = pieceExtractor <$> row
+--   in lineMapper <$> Gr.rows grid
+--
+-- colsAsPieces :: Board -> [[Piece]]
+-- colsAsPieces Board {grid} =
+--   let lineMapper col = pieceExtractor <$> col
+--   in lineMapper <$> Gr.cols grid
 
 next :: Board -> Point -> Axis -> Maybe (BlackWhite Piece)
 next Board {grid} point axis = BlackWhitePoint.value <$> Gr.next grid point axis
@@ -125,17 +161,16 @@ adjacent :: Board -> Point -> Axis -> Int -> Maybe (BlackWhite Piece)
 adjacent Board {grid} point axis direction = BlackWhitePoint.value <$> Gr.adjacent grid point axis direction
 
 -- | Nothing if out of bounds, noPiece if empty but in bounds.
-get :: Board -> Point -> Maybe Piece
-get board @ Board { grid } point =
-  if not (inBounds board point) then Nothing
-  else
-    let bwVal = Gr.get grid point
-    in Just $ blackWhiteToPiece bwVal
+get :: Board -> Point -> BlackWhite Piece
+get board @ Board { grid }  = Gr.get grid
 
--- | Assume point is valid.
-getLetter :: Board -> Point -> Char
-getLetter board point =
-  Piece.value $ Maybe.fromJust $ get board point
+getPiece :: Board -> Point -> Maybe Piece
+getPiece board point = BlackWhite.fromWhite $ get board point
+
+--   if not (inBounds board point) then Nothing
+--   else
+--     let bwVal = Gr.get grid point
+--     in Just $ blackWhiteToPiece bwVal
 
 getGridPieces :: Board -> [GridPiece]
 getGridPieces Board {grid} =
@@ -143,15 +178,16 @@ getGridPieces Board {grid} =
       toGridPiece (piece, point) = GridValue piece point
   in toGridPiece <$> locatedPieces
 
-set :: Board -> Point -> Piece -> Board
-set Board { dimension, grid } point piece =
-  let bwPiece = pieceToBlackWhite piece
-      grid' = Gr.set grid point bwPiece
-  in Board dimension grid'
+-- set :: Board -> Point -> Piece -> Board
+-- set Board { dimension, grid } point piece = Board dimension (Gr.set grid point piece)
+
+--   let bwPiece = pieceToBlackWhite piece
+--       grid' = Gr.set grid point bwPiece
+--   in Board dimension grid'
 
 setN :: Board -> [GridPiece] -> Board
 setN board @ Board {dimension, grid} gridPoints =
-  let toBWPoint GridValue {value = piece, point} = BlackWhitePoint (pieceToBlackWhite piece) point
+  let toBWPoint GridValue {value = piece, point} = BlackWhitePoint (White (Just piece)) point
       bwPoints = toBWPoint <$> gridPoints
       grid' = Gr.setN grid bwPoints
   in Board dimension grid'
@@ -194,8 +230,8 @@ validatePoint board (point @ Point { row, col }) = do
   _ <- validateCoordinate board X col
   return point
 
-rowsAsStrings :: Board -> [String]
-rowsAsStrings board = ((\Piece {value} -> value) <$>) <$> rowsAsPieces board
+-- rowsAsStrings :: Board -> [String]
+-- rowsAsStrings board = ((\Piece {value} -> value) <$>) <$> rowsAsPieces board
 
 maybeBlackWhiteHasPiece :: Maybe (BlackWhite Piece) -> Bool
 maybeBlackWhiteHasPiece Nothing = False
@@ -216,14 +252,14 @@ stripOfPlay1 :: Board -> PlayPiece -> Maybe Strip
 stripOfPlay1 board PlayPiece {point} =
   let Point {row, col} = point
       -- Arbitrarily choose the row of the single move play.
-      line = rowsAsPieces board !! row
-      lineAsString = Piece.piecesToString line
+      theRow = rows board !! row
+      lineAsString = lineToString theRow
   in Just $ Strip.lineStrip Axis.X row lineAsString col 1
 
 stripOfPlayN :: Board -> [PlayPiece] -> Maybe Strip
 stripOfPlayN board playPieces =
-  let rows = rowsAsPieces board
-      cols = colsAsPieces board
+  let -- rows = rowsAsPieces board
+      -- cols = colsAsPieces board
       points = (\PlayPiece {point} -> point) <$> playPieces
       Point {row = hdRow, col = hdCol} = head points
       maybeAxis = Point.axisOfLine points
@@ -231,9 +267,9 @@ stripOfPlayN board playPieces =
     let mkStrip axis =
           let (lineNumber, line, begin) =
                 case axis of
-                  Axis.X -> (hdRow, rows !! hdRow, hdCol)
-                  Axis.Y -> (hdCol, cols !! hdCol, hdRow)
-              lineAsString = Piece.piecesToString line
+                  Axis.X -> (hdRow, rows board !! hdRow, hdCol)
+                  Axis.Y -> (hdCol, cols board !! hdCol, hdRow)
+              lineAsString = lineToString line
            in Strip.lineStrip axis lineNumber lineAsString begin (length points)
     in mkStrip <$> maybeAxis
 
@@ -262,7 +298,8 @@ playableStrips board trayCapacity =
 playableStripsForEmptyBoard :: Board -> Int -> [Strip]
 playableStripsForEmptyBoard board @ Board {dimension} trayCapacity =
   let center = dimension `div` 2
-      centerRowAsString = rowsAsStrings board !! center
+      centerRow = rows board !! center
+      centerRowAsString = lineToString centerRow
       strips = Strip.stripsInLine Axis.X dimension center centerRowAsString
       includesCenter Strip {begin, end} = begin <= center && end >= center
       withinTraySize Strip {begin, end} = end - begin < trayCapacity
@@ -277,12 +314,12 @@ playableStripsForNonEmptyBoard board trayCapacity =
       playables'' = filter (stripIsDisconnectedInLine board) playables'
    in playables''
 
-computeAllLiveStripsForAxis :: Board -> Axis -> [Strip]
-computeAllLiveStripsForAxis board axis =
-  let lines = case axis of
-                Axis.X -> rowsAsPieces board
-                Axis.Y -> colsAsPieces board
-  in Strip.allLiveStrips axis (Piece.piecesToString <$> lines)
+-- computeAllLiveStripsForAxis :: Board -> Axis -> [Strip]
+-- computeAllLiveStripsForAxis board axis =
+--   let lines = case axis of
+--                 Axis.X -> rowsAsPieces board
+--                 Axis.Y -> colsAsPieces board
+--   in Strip.allLiveStrips axis (Piece.piecesToString <$> lines)
 
 computeAllLiveStrips :: Board -> [Strip]
 computeAllLiveStrips Board {grid} = lineSegmentToStrip <$> Gr.allSegments grid
@@ -291,7 +328,7 @@ lineSegmentToStrip :: LineSegment Piece -> Strip
 lineSegmentToStrip LineSegment {axis, lineNumber, begin, end, segment} =
   let maybePieceToChar maybePiece =
         case maybePiece of
-          Nothing -> Piece.emptyChar
+          Nothing -> Piece.blankChar
           Just (piece @ Piece {value}) -> value
       content = maybePieceToChar <$> segment
   in Strip.mkStrip axis lineNumber begin end content

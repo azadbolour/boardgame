@@ -7,6 +7,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE DeriveFunctor #-}
 
 module Bolour.Util.BlackWhite (
     BlackWhite(..)
@@ -16,10 +17,11 @@ module Bolour.Util.BlackWhite (
   , isWhite
   , isBlack
   , hasValue
+  , toValueWithDefaults
   )
   where
 
-import Data.Maybe (isNothing, isJust)
+import Data.Maybe (isNothing, isJust, fromJust)
 import qualified Bolour.Util.Empty as Empty
 
 -- | Black represents a value in an inactive or disabled location, for example,
@@ -27,8 +29,15 @@ import qualified Bolour.Util.Empty as Empty
 --   value in a live location, which may be empty at the moment (represented
 --   as Maybe).
 data BlackWhite val = Black | White (Maybe val)
+  deriving Functor
+
 deriving instance (Eq val) => Eq (BlackWhite val)
 deriving instance (Show val) => Show (BlackWhite val)
+
+toValueWithDefaults :: BlackWhite val -> val -> val -> val
+toValueWithDefaults bw blackDefault whiteDefault | isBlack bw = blackDefault
+                           | Empty.isEmpty bw = whiteDefault
+                           | otherwise = fromJust $ fromWhite bw
 
 isJustWhite :: BlackWhite val -> Bool
 isJustWhite Black = False

@@ -82,14 +82,12 @@ matchWordsToStrip :: Strip -> [DictWord] -> Maybe (Strip, DictWord)
 
 matchWordsToStrip strip words = Nothing
 
-emptyChar = Piece.emptyChar
-
 numBlanks :: String -> Int
-numBlanks string = length $ filter (== emptyChar) string
+numBlanks string = length $ filter Piece.isBlankChar string
 
 nonBlankCombo :: String -> LetterCombo
 nonBlankCombo string =
-  let nonBlanks = filter (/= emptyChar) string
+  let nonBlanks = filter (not . Piece.isBlankChar) string
   in WordUtil.mkLetterCombo nonBlanks
 
 lineStrip :: Axis -> Coordinate -> String -> Int -> ByteCount -> Strip
@@ -132,12 +130,6 @@ stripPoint Strip {axis, lineNumber, begin} offset =
   Axis.X -> Point lineNumber (begin + offset)
   Axis.Y -> Point (begin + offset) lineNumber
 
--- emptyPoints :: Strip -> [Point]
--- emptyPoints strip @ Strip {content} =
---   let indexedContent = [0 .. length content] `zip` content
---       emptyIndexes = fst <$> ((Piece.isEmptyChar . snd) `filter` indexedContent)
---   in stripPoint strip <$> emptyIndexes
-
 hasAnchor :: Strip -> Bool
 hasAnchor strip @ Strip { letters } = length letters > 0
 
@@ -149,7 +141,7 @@ isDense strip @ Strip {blanks} maxBlanks = hasAnchor strip && blanks <= maxBlank
 
 blankPoints :: Strip -> [Point]
 blankPoints strip @ Strip {content} =
-  let blankOffsets = filter (\offset -> (content !! offset) == emptyChar) [0 .. length content - 1]
+  let blankOffsets = filter (\offset -> Piece.isBlankChar (content !! offset)) [0 .. length content - 1]
   in stripPoint strip <$> blankOffsets
 
 -- TODO. Redundant. See stripPoint.

@@ -11,7 +11,6 @@
 module BoardGame.Common.Domain.GridPiece (
     GridPiece
   , gridLetter
-  , isEmpty
   ) where
 
 import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
@@ -25,7 +24,7 @@ type GridPiece = GridValue Piece
 gridLetter :: GridPiece -> Char
 gridLetter GridValue {value = piece} = Piece.value piece
 
-isEmpty :: GridPiece -> Bool
-isEmpty GridValue {value = piece} = Piece.isEmpty piece
+-- isEmpty :: GridPiece -> Bool
+-- isEmpty GridValue {value = piece} = Piece.isEmpty piece
 
 

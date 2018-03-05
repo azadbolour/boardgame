@@ -44,21 +44,19 @@ import qualified Bolour.Language.Domain.WordDictionary as WordDictionary
 
 import Bolour.Util.MiscUtil as MiscUtil
 
-blank = Piece.emptyChar
-
 -- | We know that the word and the strip have the same length.
 --   So just check that the word matches the non-blank positions of the strip.
 --   TODO. Inner loop. Should be made as efficient as possible.
 wordFitsContent :: String -> DictWord -> Bool
 wordFitsContent stripContent word
   | null stripContent && null word = True
-  | null stripContent || null word = False -- TODO. This case should not be necessary. Assert equal length.
+  | null stripContent || null word = False -- For good measure!
   | otherwise =
      let stripHead = head stripContent
          stripTail = tail stripContent
          wordHead = head word
          wordTail = tail word
-     in (stripHead == blank || stripHead == wordHead) && wordFitsContent stripTail wordTail
+     in (Piece.isBlankChar stripHead || stripHead == wordHead) && wordFitsContent stripTail wordTail
      -- TODO. Does the compiler optimize this to tail-recursive? Otherwise use explicit if-then-else.
 
 -- | Find a match (if any) for a given strip.

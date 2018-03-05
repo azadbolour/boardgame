@@ -143,8 +143,7 @@ mkInitialGame :: (MonadError GameError m, MonadIO m) =>
 mkInitialGame gameParams pieceProvider initGridPieces initUserPieces initMachinePieces pointValues playerName = do
   let GameParams.GameParams { dimension, trayCapacity, languageCode } = gameParams
   gameId <- Util.mkUuid
-  let board = Board.mkEmptyBoard dimension
-  board' <- primeBoard board initGridPieces
+  let board' = Board.mkBoardFromPiecePoints initGridPieces dimension
   now <- liftIO getCurrentTime
   let emptyTray = Tray trayCapacity []
       emptyTrays = [emptyTray, emptyTray]
@@ -184,12 +183,12 @@ summary game @ Game {trays, scores} =
   let stopData = stopInfo game
   in GameSummary stopData
 
-primeBoard :: MonadIO m => Board -> [GridPiece] -> m Board
-primeBoard board inputGridPieces = do
-  -- defaultGridPieces <- defaultInitialGridPieces board
-  let addGridPiece bd (GridValue.GridValue {value = piece, point}) = Board.set bd point piece
-      board' = foldl' addGridPiece board inputGridPieces
-  return board'
+-- primeBoard :: MonadIO m => Board -> [GridPiece] -> m Board
+-- primeBoard board inputGridPieces = do
+--   -- defaultGridPieces <- defaultInitialGridPieces board
+--   let addGridPiece bd (GridValue.GridValue {value = piece, point}) = Board.set bd point piece
+--       board' = foldl' addGridPiece board inputGridPieces
+--   return board'
 
 setPlayerTray :: Game -> PlayerType -> Tray -> Game
 setPlayerTray (game @ Game {trays}) playerType tray =
@@ -262,7 +261,7 @@ checkPlayBoardPieces Game {board} playPieces =
   let boardPlayPieces = filter (not . PlayPiece.moved) playPieces
       gridPieces = PlayPiece.getGridPiece <$> boardPlayPieces
       gridPieceMatchesBoard GridValue {value = piece, point} =
-        let maybePiece = Board.get board point
+        let maybePiece = Board.getPiece board point
         in case maybePiece of
            Nothing -> False
            Just boardPiece -> boardPiece == piece

@@ -61,12 +61,11 @@ baseTestGrid1 = [
 
 -- testBoard1 = Board 7 testGrid1
 testBoard1 = Board.mkBoardFromPieces baseTestGrid1 7
-gridRows1 = Board.rowsAsStrings testBoard1
 
 testBoard = Board.mkBoardFromPieces baseTestGrid 6
-gridRows = Board.rowsAsStrings testBoard
+-- gridRows = Board.rowsAsStrings testBoard
 
-emptyChar = Piece.emptyChar
+blankChar = Piece.blankChar
 
 trayCapacity :: Int
 trayCapacity = 5
@@ -92,11 +91,11 @@ spec = do
 
   describe "check word against strip" $ do
     it "matching word" $ do
-      let content = ['A', 'B', emptyChar, emptyChar, 'N', 'D']
+      let content = ['A', 'B', blankChar, blankChar, 'N', 'D']
           word = "ABOUND"
       Matcher.wordFitsContent content word `shouldBe` True
     it "non-matching word" $ do
-      let content = ['A', emptyChar, 'E']
+      let content = ['A', blankChar, 'E']
           word = "ARK"
       Matcher.wordFitsContent content word `shouldBe` False
 
@@ -111,7 +110,8 @@ spec = do
       let lineNumber = 1
           col = 1
           size = 3
-          strip = Strip.lineStrip Axis.X lineNumber (gridRows !! lineNumber) col size
+          lineAsString = Board.lineAsString testBoard Axis.X lineNumber
+          strip = Strip.lineStrip Axis.X lineNumber lineAsString col size
           offset = 2
           point = Strip.stripPoint strip offset
       point `shouldBe` Point lineNumber (col + offset)
@@ -119,7 +119,8 @@ spec = do
       let lineNumber = 1
           row = 2
           size = 1
-          strip = Strip.lineStrip Axis.Y lineNumber (List.transpose gridRows !! lineNumber) row size
+          lineAsString = Board.lineAsString testBoard Axis.Y lineNumber
+          strip = Strip.lineStrip Axis.Y lineNumber lineAsString row size
           offset = 0
           point = Strip.stripPoint strip offset
       point `shouldBe` Point (row + offset) lineNumber

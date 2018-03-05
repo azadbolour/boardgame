@@ -92,8 +92,8 @@ spec = do
        let
            point3 = Point 2 3
            point4 = Point 2 4
-           piece3 = fromJust $ Board.get board point3
-           piece4 = fromJust $ Board.get board point4
+           piece3 = fromJust $ Board.getPiece board point3
+           piece4 = fromJust $ Board.getPiece board point4
            -- GridValue {value = piece3, point = point3} = Board.cell board $ Point 2 3
            -- GridValue {value = piece4, point = point4} = Board.cell board $ Point 2 4
            playPiece1 = PlayPiece (Piece 'L' "") (Point 2 1) True

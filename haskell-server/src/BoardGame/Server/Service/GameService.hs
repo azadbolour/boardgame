@@ -386,8 +386,8 @@ stripMatchAsPlay board tray strip word = do
   let playPiecePeeler [] position (playPieces, tray) = return (playPieces, tray)
       playPiecePeeler (wordHead : wordTail) position (playPieces, tray) = do
         let point = stripPoint strip position
-            piece = fromJust $ Board.get board point
-            moved = Piece.isEmpty piece
+            piece = fromJust $ Board.getPiece board point
+            moved = Piece.isBlankChar (Piece.value piece)
         (piece', tray') <- if not moved then return (piece, tray)
                            else Tray.removePieceByValue tray wordHead
         let playPiece = PlayPiece piece' point moved

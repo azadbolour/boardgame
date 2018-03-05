@@ -70,7 +70,7 @@ mkRow cellMaker width = cellMaker <$> [0 .. width - 1]
 --   let pointedCellMaker row col = GridValue (cellMaker row col) (Point row col)
 --   in mkGrid pointedCellMaker
 
--- | Get a cell on the grid.
+-- | Get a cell on the grid - None is out of bounds.
 get :: Grid val -> Point -> Maybe val
 get grid @ Grid {rows} (point @ Point {row, col}) =
   if not (inBounds grid point) then Nothing

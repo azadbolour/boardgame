@@ -14,7 +14,6 @@ module BoardGame.Server.Service.GameServiceSpec (
 
 import Test.Hspec
 import Data.Char (isUpper, toUpper)
-import Data.Maybe (fromJust)
 import Data.List
 import Control.Monad.Except (ExceptT, runExceptT)
 import Control.Monad.Reader (runReaderT)
@@ -101,10 +100,6 @@ spec = do
         (miniState, replacementPieces, deadPieces) <- runner'' $ do -- GameTransformerStack
           addPlayerService $ Player Fixtures.thePlayer
           Game {gameId, board, trays} <- startGameService Fixtures.gameParams [] uPieces mPieces []
---           let gridPieces = Board.getGridPieces board
---               GridValue {value = piece, point = centerPoint} =
---                 fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
---               Point {row, col} = centerPoint
           let pc0:pc1:pc2:_ = uPieces
               center = Fixtures.testDimension `div` 2
               playPieces = [
@@ -139,40 +134,3 @@ spec = do
           (miniState, Piece {value}) <- swapPieceService gameId piece
           return value
         value `shouldSatisfy` isUpper
-
--- TODO. Clean up and reinstate the following test according to the above procedure to start a game.
-
---   describe "get play details for a game" $
---     it "get play details for a game" $
---       do
---         env <- Fixtures.initTest
---         gridPiece <- liftIO $ Fixtures.centerGridPiece 'E'
---         includeUserPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'T'] -- Allow the word 'BET'
---
---         eitherPlayInfoList <- runner env $ do
---           addPlayerService $ Player Fixtures.thePlayer
---           -- play 1 - play in start - the first machine play
---           (Game {gameId, board, trays}, _) <- startGameService Fixtures.gameParams [gridPiece] includeUserPieces []
---           let trayPieces = Tray.pieces (trays !! 0)
---               theOnlyGridPiece = head $ Board.getGridPieces board
---               playPieces = mkInitialPlayPieces theOnlyGridPiece trayPieces
---           -- play 2 - user play
---           refills <- commitPlayService gameId playPieces
---           -- TODO. Need to update tray here.
---           -- play 3
---           machinePlayService gameId
---
---           let piece = head refills
---           -- play 4
---           (Piece {value}) <- swapPieceService gameId piece
---
---           getGamePlayDetailsService gameId
---         case eitherPlayInfoList of
---           Left err -> do
---             print err
---             -- TODO. How do you fail?
---             1 `shouldBe` 2
---           Right playInfoList -> do
---             print playInfoList
---             length playInfoList `shouldBe` 4
-

@@ -57,5 +57,4 @@ spec = do
     it "set hopeless blank points as dead recursive" $ do
       let (finalBoard, deadPoints) = StripMatcher.setHopelessBlankPointsAsDeadRecursive board dictionary trayCapacity
       print deadPoints
-      print $ Board.rowsAsPieces finalBoard
 
