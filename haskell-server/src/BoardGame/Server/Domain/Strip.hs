@@ -12,11 +12,9 @@ module BoardGame.Server.Domain.Strip (
     Strip(..)
   , GroupedStrips
   , mkStrip
-  -- , groupedStrips
   , stripPoint
   , stripLength
   , lineStrip
-  , emptyPoints
   , hasAnchor
   , hasBlanks
   , pointAtOffset
@@ -134,13 +132,11 @@ stripPoint Strip {axis, lineNumber, begin} offset =
   Axis.X -> Point lineNumber (begin + offset)
   Axis.Y -> Point (begin + offset) lineNumber
 
--- TODO. For better performance consider including emptyChar points in Strip data structure.
-
-emptyPoints :: Strip -> [Point]
-emptyPoints strip @ Strip {content} =
-  let indexedContent = [0 .. length content] `zip` content
-      emptyIndexes = fst <$> ((Piece.isEmptyChar . snd) `filter` indexedContent)
-  in stripPoint strip <$> emptyIndexes
+-- emptyPoints :: Strip -> [Point]
+-- emptyPoints strip @ Strip {content} =
+--   let indexedContent = [0 .. length content] `zip` content
+--       emptyIndexes = fst <$> ((Piece.isEmptyChar . snd) `filter` indexedContent)
+--   in stripPoint strip <$> emptyIndexes
 
 hasAnchor :: Strip -> Bool
 hasAnchor strip @ Strip { letters } = length letters > 0

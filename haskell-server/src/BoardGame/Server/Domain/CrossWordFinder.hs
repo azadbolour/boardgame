@@ -54,6 +54,23 @@ findSurroundingWord board point letter axis =
   let play = findCrossPlay board point letter axis
   in ((\(char, _, _) -> char) <$>) <$> play
 
+-- | Find the surrounding cross play to a given move (provided as
+--   the point and movingLetter parameters).
+--
+--   Note that the only moving piece in a cross play is the one
+--   at the given crossing point.
+--   Note also that the moving piece has yet to be placed on the board.
+findCrossPlay :: Board -> Point -> Char -> Axis -> Maybe [MoveInfo]
+findCrossPlay board point movingLetter crossAxis =
+  let crossingMoveInfo = (movingLetter, point, True)
+      forthNeighbors = Board.lineNeighbors board point crossAxis Axis.forward
+      backNeighbors = Board.lineNeighbors board point crossAxis Axis.backward
+      moveInfo neighbor =
+        let GridValue {value = piece, point} = neighbor
+        in (Piece.value piece, point, False)
+  in if null backNeighbors && null forthNeighbors then Nothing
+     else Just $ (moveInfo <$> backNeighbors) ++ [crossingMoveInfo] ++ (moveInfo <$> forthNeighbors)
+
 -- | Not used for now but is needed when scores of cross plays figure in the total score.
 findCrossPlays :: Board -> [PlayPiece] -> [[MoveInfo]]
 findCrossPlays board playPieces =
@@ -72,23 +89,6 @@ findCrossPlays' board (strip @ Strip {axis, content}) word =
         in findCrossPlay board point playedChar (Axis.crossAxis axis)
       crossingPlays = calcCrossing <$> crossingIndices
   in catMaybes crossingPlays
-
--- | Find the surrounding cross play to a given move (provided as
---   the point and movingLetter parameters).
---
---   Note that the only moving piece in a cross play is the one
---   at the given crossing point.
---   Note also that the moving piece has yet to be placed on the board.
-findCrossPlay :: Board -> Point -> Char -> Axis -> Maybe [MoveInfo]
-findCrossPlay board point movingLetter crossAxis =
-  let crossingMoveInfo = (movingLetter, point, True)
-      forthNeighbors = Board.lineNeighbors board point crossAxis Axis.forward
-      backNeighbors = Board.lineNeighbors board point crossAxis Axis.backward
-      moveInfo neighbor =
-        let GridValue {value = piece, point} = neighbor
-        in (Piece.value piece, point, False)
-  in if null backNeighbors && null forthNeighbors then Nothing
-     else Just $ (moveInfo <$> backNeighbors) ++ [crossingMoveInfo] ++ (moveInfo <$> forthNeighbors)
 
 
 
