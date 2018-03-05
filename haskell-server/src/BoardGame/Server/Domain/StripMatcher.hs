@@ -185,10 +185,8 @@ groupedPlayableStrips ::
   -> Map ByteCount (Map BlankCount [Strip])
 
 groupedPlayableStrips board trayCapacity valuation =
-  let conformantStrips =
-        if Board.isEmpty board then Board.playableStripsForEmptyBoard board
-        else Board.playableStrips board trayCapacity
-      mapByValue = MiscUtil.mapFromValueList valuation conformantStrips
+  let playableStrips = Board.playableStrips board trayCapacity
+      mapByValue = MiscUtil.mapFromValueList valuation playableStrips
       blankMapMaker = MiscUtil.mapFromValueList Strip.blanks
     in blankMapMaker <$> mapByValue
 
@@ -227,7 +225,7 @@ hopelessBlankPoints board dictionary trayCapacity =
 setHopelessBlankPointsAsDeadRecursive :: Board -> WordDictionary -> Int -> (Board, [Point])
 setHopelessBlankPointsAsDeadRecursive board dictionary trayCapacity =
   let directDeadPoints = Set.toList $ hopelessBlankPoints board dictionary trayCapacity
-      newBoard = Board.setDeadPoints board directDeadPoints
+      newBoard = Board.setBlackPoints board directDeadPoints
   in if null directDeadPoints then
        (newBoard, directDeadPoints)
      else

@@ -57,11 +57,11 @@ case class Grid[T](cells: List[List[T]]) {
   def get(point: Point): Option[T] =
     if (!inBounds(point)) None else Some(rows(point.row)(point.col))
 
-  def prevCell(point: Point, axis: Axis): Option[T] = adjacentCell(point, axis, -1)
+  def prevCell(point: Point, axis: Axis): Option[T] = adjacent(point, axis, -1)
 
-  def nextCell(point: Point, axis: Axis): Option[T] = adjacentCell(point, axis, +1)
+  def nextCell(point: Point, axis: Axis): Option[T] = adjacent(point, axis, +1)
 
-  def adjacentCell(point: Point, axis: Axis, direction: Int): Option[T] =
+  def adjacent(point: Point, axis: Axis, direction: Int): Option[T] =
     get(point.adjPoint(axis, direction))
 
   def numLines(axis: Axis): Int =

@@ -100,34 +100,11 @@ spec = do
           word = "ARK"
       Matcher.wordFitsContent content word `shouldBe` False
 
--- TODO. Needs board parameter.
---   describe "find fitting word given combinations of letters" $ do
---     it "finds fitting word" $ do
---       let blankCount = 5
---           wordLength = 6
---           groupedStrips = Matcher.groupedPlyableStrips testBoard trayCapacity
---           strips = Maybe.fromJust $ Map.lookup blankCount $ Maybe.fromJust $ Map.lookup wordLength groupedStrips
---           combos = [mkCombo "AXJQW", mkCombo "PCKER"]
---       Matcher.matchFittingCombos dictionary blankCount strips combos `shouldSatisfy` Maybe.isJust
-
   describe "find optimal match" $ do
     it "find optimal match" $ do
       let trayContents = "PCKER"
           optimal = Maybe.fromJust $ Matcher.findOptimalMatch dictionary testBoard trayContents
       snd optimal `shouldBe` "PACKER"
-
---   describe "check line neighbours" $ do
---     it "has X neighbors" $ do
---       Board.pointIsIsolatedInLine testBoard (Point 3 2) Axis.X `shouldBe` False
---       Board.pointIsIsolatedInLine testBoard (Point 3 2) Axis.X `shouldBe` False
---     it "has no X neighbors" $ do
---       Board.pointIsIsolatedInLine testBoard (Point 3 1) Axis.X `shouldBe` True
---
---     it "has Y neighbors" $ do
---       Board.pointIsIsolatedInLine testBoard (Point 4 5) Axis.Y `shouldBe` False
---     it "has no Y neighbors" $ do
---       Board.pointIsIsolatedInLine testBoard (Point 0 5) Axis.Y `shouldBe` True
---       Board.pointIsIsolatedInLine testBoard (Point 3 2) Axis.Y `shouldBe` True
 
   describe "make strip point" $ do
     it "X strip has correct strip point" $ do

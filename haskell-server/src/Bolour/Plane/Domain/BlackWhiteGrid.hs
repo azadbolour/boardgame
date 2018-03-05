@@ -111,7 +111,7 @@ prev :: BlackWhiteGrid val -> Point -> Axis -> Maybe (BlackWhitePoint val)
 prev grid = Grid.prev $ innerGrid grid
 
 adjacent :: BlackWhiteGrid val -> Point -> Axis -> Direction -> Maybe (BlackWhitePoint val)
-adjacent grid = Grid.adjacentCell $ innerGrid grid
+adjacent grid = Grid.adjacent $ innerGrid grid
 
 isBlack :: BlackWhiteGrid val -> Point -> Bool
 isBlack grid point = BlackWhite.isBlack $ get grid point

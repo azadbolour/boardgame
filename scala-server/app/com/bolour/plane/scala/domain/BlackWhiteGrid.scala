@@ -58,7 +58,7 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
     * Get an adjacent value-point pair on the grid (None if out of bounds).
     */
   def adjacent(point: Point, axis: Axis, direction: Int): Option[BlackWhitePoint[T]] =
-    grid.adjacentCell(point, axis, direction)
+    grid.adjacent(point, axis, direction)
 
   def isBlack(point: Point): Boolean = get(point) == Black()
 
@@ -87,7 +87,7 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
 
   private def adjHasValue(point: Point, axis: Axis, direction: Int): Boolean = {
     val opt = for {
-      BlackWhitePoint(value, _) <- grid.adjacentCell(point, axis, direction)
+      BlackWhitePoint(value, _) <- grid.adjacent(point, axis, direction)
     } yield value.fromWhite
     opt.isDefined && opt.get.isDefined
   }

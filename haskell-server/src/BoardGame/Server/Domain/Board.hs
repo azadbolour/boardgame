@@ -16,7 +16,7 @@ module BoardGame.Server.Domain.Board (
   , rowsAsPieces, colsAsPieces, rowsAsStrings
   , next, prev, adjacent
   , get, getGridPieces
-  , set, setN, setDeadPoints
+  , set, setN, setBlackPoints
   , isEmpty, inBounds
   , stripOfPlay
   , pointIsEmpty, pointIsNonEmpty
@@ -26,7 +26,7 @@ module BoardGame.Server.Domain.Board (
   , stripIsDisconnectedInLine
   , playableEnclosingStripsOfBlankPoints
   , lineNeighbors
-  , computeAllLiveStrips, playableStrips, playableStripsForEmptyBoard
+  , computeAllLiveStrips, playableStrips
 )
 where
 
@@ -156,8 +156,8 @@ setN board @ Board {dimension, grid} gridPoints =
       grid' = Gr.setN grid bwPoints
   in Board dimension grid'
 
-setDeadPoints :: Board -> [Point] -> Board
-setDeadPoints board points =
+setBlackPoints :: Board -> [Point] -> Board
+setBlackPoints board points =
   let deadGridPiece point = GridValue Piece.deadPiece point
       deadGridPieces = deadGridPiece <$> points
   in setN board deadGridPieces
@@ -253,16 +253,23 @@ stripIsDisconnectedInLine board (strip @ Strip {axis, begin, end, content})
           isSeparator maybeBlackWhitePiece = not $ maybeBlackWhiteHasPiece maybeBlackWhitePiece
       in isSeparator maybePrevPiece && isSeparator maybeNextPiece
 
-playableStripsForEmptyBoard :: Board -> [Strip]
-playableStripsForEmptyBoard board @ Board {dimension}=
+playableStrips :: Board -> Int -> [Strip]
+playableStrips board trayCapacity =
+  if isEmpty board
+    then playableStripsForEmptyBoard board trayCapacity
+    else playableStripsForNonEmptyBoard board trayCapacity
+
+playableStripsForEmptyBoard :: Board -> Int -> [Strip]
+playableStripsForEmptyBoard board @ Board {dimension} trayCapacity =
   let center = dimension `div` 2
       centerRowAsString = rowsAsStrings board !! center
       strips = Strip.stripsInLine Axis.X dimension center centerRowAsString
       includesCenter Strip {begin, end} = begin <= center && end >= center
-  in filter includesCenter strips
+      withinTraySize Strip {begin, end} = end - begin < trayCapacity
+  in (filter includesCenter . filter withinTraySize) strips
 
-playableStrips :: Board -> Int -> [Strip]
-playableStrips board trayCapacity =
+playableStripsForNonEmptyBoard :: Board -> Int -> [Strip]
+playableStripsForNonEmptyBoard board trayCapacity =
   let strips = computeAllLiveStrips board
       playableBlanks Strip {blanks} = blanks > 0 && blanks <= trayCapacity
       playables = filter playableBlanks strips
