@@ -36,7 +36,7 @@ gridPieces = [
     GridValue (Piece 'A' "4") (Point 1 1)
   ]
 
-board = Board.setN emptyBoard gridPieces
+board = Board.setPiecePoints emptyBoard gridPieces
 
 spec :: Spec
 spec = do

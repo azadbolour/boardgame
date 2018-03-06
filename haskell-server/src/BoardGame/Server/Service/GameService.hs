@@ -32,7 +32,7 @@ module BoardGame.Server.Service.GameService (
 
 import Data.Ord
 import Data.List
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, isNothing)
 import Data.Time (getCurrentTime)
 import Data.Bool (bool)
 
@@ -386,9 +386,10 @@ stripMatchAsPlay board tray strip word = do
   let playPiecePeeler [] position (playPieces, tray) = return (playPieces, tray)
       playPiecePeeler (wordHead : wordTail) position (playPieces, tray) = do
         let point = stripPoint strip position
-            piece = fromJust $ Board.getPiece board point
-            moved = Piece.isBlankChar (Piece.value piece)
-        (piece', tray') <- if not moved then return (piece, tray)
+            maybePiece = Board.getPiece board point
+            -- moved = Piece.isBlankChar (Piece.value piece)
+            moved = isNothing maybePiece
+        (piece', tray') <- if not moved then return (fromJust maybePiece, tray)
                            else Tray.removePieceByValue tray wordHead
         let playPiece = PlayPiece piece' point moved
         playPiecePeeler wordTail (position + 1) (playPiece : playPieces, tray')

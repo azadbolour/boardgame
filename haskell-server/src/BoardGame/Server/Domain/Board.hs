@@ -16,7 +16,7 @@ module BoardGame.Server.Domain.Board (
   , rows, cols, lineAsString
   , next, prev, adjacent
   , get, getPiece, getGridPieces
-  , setN, setBlackPoints
+  , setN, setBlackPoints, setPiecePoints
   , isEmpty, inBounds
   , stripOfPlay
   , pointIsEmpty, pointIsNonEmpty
@@ -69,21 +69,7 @@ data Board = Board {
 }
   deriving (Show)
 
--- pieceToBlackWhite :: Piece -> BlackWhite Piece
--- pieceToBlackWhite piece | piece == Piece.deadPiece = Black
---                         | piece == Piece.emptyPiece = White Nothing
---                         | otherwise = White (Just piece)
---
--- blackWhiteToPiece :: BlackWhite Piece -> Piece
--- blackWhiteToPiece Black = Piece.deadPiece
--- blackWhiteToPiece (White Nothing) = Piece.emptyPiece
--- blackWhiteToPiece (White (Just piece)) = piece
-
--- pieceExtractor :: BlackWhitePoint Piece -> Piece
--- pieceExtractor BlackWhitePoint {value = bwPiece, point} = blackWhiteToPiece bwPiece
-
 -- TODO. Check rectangular. Check parameters. See below.
--- Deprecated. Replace with mkBoard'
 mkBoardFromPieces :: [[Maybe Piece]] -> Int -> Board
 mkBoardFromPieces cells =
   let cellMaker row col = White $ cells !! row !! col
@@ -134,23 +120,6 @@ lineToString bwPoints =
   let bwPieceToBWChar = (Piece.value <$>)
   in (bwCharToChar . bwPieceToBWChar . BlackWhitePoint.value) <$> bwPoints
 
-
-  -- in bwCharToChar <$> (bwPieceToBWChar <$> (BlackWhitePoint.value <$> bwPoints))
-
---   let bwPieces = BlackWhitePoint.value <$> bwPoints
---       bwChars = Piece.value <$> bwPieces
---   in valueOf <$>
-
--- rowsAsPieces :: Board -> [[Piece]]
--- rowsAsPieces Board {grid} =
---   let lineMapper row = pieceExtractor <$> row
---   in lineMapper <$> Gr.rows grid
---
--- colsAsPieces :: Board -> [[Piece]]
--- colsAsPieces Board {grid} =
---   let lineMapper col = pieceExtractor <$> col
---   in lineMapper <$> Gr.cols grid
-
 next :: Board -> Point -> Axis -> Maybe (BlackWhite Piece)
 next Board {grid} point axis = BlackWhitePoint.value <$> Gr.next grid point axis
 
@@ -167,36 +136,27 @@ get board @ Board { grid }  = Gr.get grid
 getPiece :: Board -> Point -> Maybe Piece
 getPiece board point = BlackWhite.fromWhite $ get board point
 
---   if not (inBounds board point) then Nothing
---   else
---     let bwVal = Gr.get grid point
---     in Just $ blackWhiteToPiece bwVal
-
 getGridPieces :: Board -> [GridPiece]
 getGridPieces Board {grid} =
   let locatedPieces = Gr.getValues grid
       toGridPiece (piece, point) = GridValue piece point
   in toGridPiece <$> locatedPieces
 
--- set :: Board -> Point -> Piece -> Board
--- set Board { dimension, grid } point piece = Board dimension (Gr.set grid point piece)
+setN :: Board -> [BlackWhitePoint Piece] -> Board
+setN Board {dimension, grid} bwPiecePoints =
+  let updatedGrid = Gr.setN grid bwPiecePoints
+  in Board dimension updatedGrid
 
---   let bwPiece = pieceToBlackWhite piece
---       grid' = Gr.set grid point bwPiece
---   in Board dimension grid'
-
-setN :: Board -> [GridPiece] -> Board
-setN board @ Board {dimension, grid} gridPoints =
+setPiecePoints :: Board -> [GridPiece] -> Board
+setPiecePoints board piecePoints =
   let toBWPoint GridValue {value = piece, point} = BlackWhitePoint (White (Just piece)) point
-      bwPoints = toBWPoint <$> gridPoints
-      grid' = Gr.setN grid bwPoints
-  in Board dimension grid'
+      bwPiecePoints = toBWPoint <$> piecePoints
+  in setN board bwPiecePoints
 
 setBlackPoints :: Board -> [Point] -> Board
 setBlackPoints board points =
-  let deadGridPiece point = GridValue Piece.deadPiece point
-      deadGridPieces = deadGridPiece <$> points
-  in setN board deadGridPieces
+  let blackBWPoints = BlackWhitePoint Black <$> points
+  in setN board blackBWPoints
 
 isEmpty :: Board -> Bool
 isEmpty Board { grid } = Empty.isEmpty grid

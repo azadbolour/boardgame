@@ -171,6 +171,7 @@ test-suite spec
       BoardGame.Server.Domain.CrossWordFinderSpec
       BoardGame.Server.Domain.ScorerSpec
       BoardGame.Server.Domain.HopelessBlanksSpec
+      BoardGame.Server.Domain.HopelessBlanksSpec2
       BoardGame.Server.Service.BaseServiceFixtures
       BoardGame.Server.Service.ServiceTestFixtures
       BoardGame.Server.Service.GameServiceSpec
@@ -209,6 +210,7 @@ test-suite infocus
       BoardGame.Server.Service.GameServiceSpec
       BoardGame.Server.Domain.ServerParametersSpec
       BoardGame.Server.Domain.CrossWordFinderSpec
+      BoardGame.Server.Domain.HopelessBlanksSpec2
   default-language: Haskell2010
 
 -- END LIBRARY
@@ -259,21 +261,24 @@ executable boardgame-server
     , mtl
   default-language: Haskell2010
 
---executable trial
---  main-is: app/DistributionTrial.hs
---  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
---  build-depends:
---      base
---    , wai
---    , wai-cors
---    , warp
---    , aeson
---    , here
---    , http-types
---    , bytestring
---    , boardgame
---    , containers
---  default-language: Haskell2010
+executable trial
+  main-is: app/Trial.hs
+  ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
+  build-depends:
+      base
+    , wai
+    , wai-cors
+    , warp
+    , aeson
+    , here
+    , http-types
+    , bytestring
+    , boardgame
+    , containers
+    , transformers
+    , mtl
+    , logging-effect >= 1.1
+  default-language: Haskell2010
 
 --executable sqlite-memory-trial
 --  main-is: trial/SqliteTrial.hs

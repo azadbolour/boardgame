@@ -275,7 +275,7 @@ reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, s
   _ <- if playerType == PlayerType.UserPlayer then validatePlayAgainstGame game playPieces else return playPieces
   let movedPlayPieces = filter PlayPiece.moved playPieces
       movedGridPieces = PlayPiece.getGridPiece <$> movedPlayPieces
-      b = Board.setN board movedGridPieces
+      b = Board.setPiecePoints board movedGridPieces
       usedPieces = GridValue.value <$> movedGridPieces
       playerIndex = Player.playerTypeIndex playerType
   (game', newPieces) <- mkPieces (length usedPieces) game

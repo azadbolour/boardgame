@@ -200,16 +200,16 @@ hopelessBlankPointsForAxis board dictionary @ WordDictionary {maxMaskedLetters} 
       allDense = all (\s -> Strip.isDense s maxBlanks)
       stripsFilter predicate point strips = predicate strips
       denselyEnclosedBlanks = Map.filterWithKey (stripsFilter allDense) blanksToStrips
-      stripMatchExists = any (\s @ Strip {content} -> WordDictionary.isMaskedWord dictionary (nullsToBlanks content))
+      stripMatchExists = any (\s @ Strip {content} -> WordDictionary.isMaskedWord dictionary content)
       stripsForHopelessBlanks = Map.filterWithKey (stripsFilter (not . stripMatchExists)) denselyEnclosedBlanks
   in
     Set.fromList $ Map.keys stripsForHopelessBlanks
 
 -- TODO. Should change strips to have blanks instead of null chars for empty slots.
-nullsToBlanks :: String -> String
-nullsToBlanks s =
-  let nullToBlank ch = if Piece.isEmptyChar ch then ' ' else ch
-  in nullToBlank <$> s
+-- nullsToBlanks :: String -> String
+-- nullsToBlanks s =
+--   let nullToBlank ch = if Piece.isEmptyChar ch then ' ' else ch
+--   in nullToBlank <$> s
 
 hopelessBlankPoints :: Board -> WordDictionary -> Int -> Set.Set Point
 hopelessBlankPoints board dictionary trayCapacity =
