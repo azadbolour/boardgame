@@ -21,10 +21,6 @@ module BoardGame.Common.Domain.Piece (
   -- , emptyChar
   , blankChar
   , deadChar
-  -- , isEmptyChar
-  -- , emptyPiece
-  -- , isEmpty
-  -- , isNonEmpty
   , isBlankChar
   , deadPiece
   , isDeadChar
@@ -105,10 +101,6 @@ fromMaybe (Just piece) = piece
 
 piecesToString :: [Piece] -> String
 piecesToString pieces = value <$> pieces
---   let val piece =
---         let v = value piece
---         in if isEmptyChar v then ' ' else v
---   in val <$> pieces
 
 asciiA :: Int
 asciiA = ord 'A'
@@ -258,19 +250,3 @@ normalizedFrequencies roughTotal =
       normalized = normalizer <$> frequencyMap
       total = sum $ Map.elems normalized
   in (normalized, total)
-
-{-
-mkInitialRandomSackContent :: Int -> [Piece]
-mkInitialRandomSackContent dimension =
-  let frequenciesFor15Board = Piece.frequencies
-      area15 :: Float = fromIntegral (15 * 15)
-      area :: Float = fromIntegral (dimension * dimension)
-      factor = area / area15
-      letters = do
-        (ch, num) <- frequenciesFor15Board
-        let f' = max 1 (round $ fromIntegral num * factor)
-        replicate f' ch
-      ids = [0 .. length letters]
-  in (\(ch, id) -> Piece ch (show id)) <$> zip letters ids
-
--}

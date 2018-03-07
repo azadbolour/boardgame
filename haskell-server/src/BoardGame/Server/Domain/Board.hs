@@ -73,7 +73,7 @@ data Board = Board {
 mkBoardFromPieces :: [[Maybe Piece]] -> Int -> Board
 mkBoardFromPieces cells =
   let cellMaker row col = White $ cells !! row !! col
-  in mkBoard' cellMaker
+  in mkBoard cellMaker
 
 mkBoardFromPiecePoints :: [GridPiece] -> Int -> Board
 mkBoardFromPiecePoints piecePoints dimension =
@@ -82,21 +82,15 @@ mkBoardFromPiecePoints piecePoints dimension =
         case maybePiecePoint row col of
           Nothing -> White Nothing
           Just (GridValue value point) -> White (Just value)
-  in mkBoard' pieceMaker dimension
-
--- Deprecated. Remove and replace by mkBoard'.
-mkBoard :: (Int -> Int -> Piece) -> Int -> Board
-mkBoard pieceMaker =
-  let cellMaker row col = White $ Piece.toMaybe $ pieceMaker row col
-  in mkBoard' cellMaker
+  in mkBoard pieceMaker dimension
 
 mkEmptyBoard :: Int -> Board
 mkEmptyBoard dimension =
   let grid = Gr.mkEmptyGrid dimension dimension
   in Board dimension grid
 
-mkBoard' :: (Int -> Int -> BlackWhite Piece) -> Int -> Board
-mkBoard' cellMaker dimension =
+mkBoard :: (Int -> Int -> BlackWhite Piece) -> Int -> Board
+mkBoard cellMaker dimension =
   let grid = Gr.mkGrid cellMaker dimension dimension
   in Board dimension grid
 

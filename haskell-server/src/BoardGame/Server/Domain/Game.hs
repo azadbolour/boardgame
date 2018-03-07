@@ -9,7 +9,6 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
--- {-# LANGUAGE ExistentialQuantification #-}
 
 module BoardGame.Server.Domain.Game (
     Game(..)
@@ -182,13 +181,6 @@ summary :: Game -> GameSummary
 summary game @ Game {trays, scores} =
   let stopData = stopInfo game
   in GameSummary stopData
-
--- primeBoard :: MonadIO m => Board -> [GridPiece] -> m Board
--- primeBoard board inputGridPieces = do
---   -- defaultGridPieces <- defaultInitialGridPieces board
---   let addGridPiece bd (GridValue.GridValue {value = piece, point}) = Board.set bd point piece
---       board' = foldl' addGridPiece board inputGridPieces
---   return board'
 
 setPlayerTray :: Game -> PlayerType -> Tray -> Game
 setPlayerTray (game @ Game {trays}) playerType tray =
