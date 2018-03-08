@@ -62,6 +62,7 @@ import qualified BoardGame.Client.GameClient as Client
 import qualified Bolour.Language.Domain.WordDictionary as Dict
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified Bolour.Language.Domain.DictionaryCache as DictCache
+import qualified Bolour.Language.Domain.DictionaryIO as DictIO
 import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 
 
@@ -86,7 +87,8 @@ getGameEnv = do
   GameDao.cleanupDb connectionProvider
   cache <- GameCache.mkGameCache maxActiveGames
   dictionaryDir <- GameEnv.getDictionaryDir ""
-  dictionaryCache <- DictCache.mkCache dictionaryDir 100 2
+  -- dictionaryCache <- DictCache.mkCache dictionaryDir 100 2
+  Right dictionaryCache <- runExceptT $ DictIO.readAllDictionaries dictionaryDir ["en"] 100 2
   return $ GameEnv serverConfig connectionProvider cache dictionaryCache
 
 startApp :: IO (ThreadId, BaseUrl)

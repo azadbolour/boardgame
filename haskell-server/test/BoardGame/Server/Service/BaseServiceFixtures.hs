@@ -33,9 +33,11 @@ import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv
 import qualified Bolour.Language.Domain.WordDictionary as Dict
 import qualified Bolour.Language.Domain.DictionaryCache as DictCache
+import qualified Bolour.Language.Domain.DictionaryIO as DictIO
 import qualified Bolour.Util.PersistRunner as PersistRunner
 import qualified BoardGame.Server.Service.GameDao as GameDao
 import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
+import Control.Monad.Except (ExceptT(ExceptT), runExceptT)
 
 testConfigPath = "test-data/test-config.yml"
 thePlayer = "You"
@@ -62,5 +64,6 @@ initTest = do
   GameDao.cleanupDb connectionProvider
   cache <- GameCache.mkGameCache maxActiveGames
   dictionaryDir <- GameEnv.getDictionaryDir ""
-  dictionaryCache <- DictCache.mkCache dictionaryDir 100 2
+  -- dictionaryCache <- DictCache.mkCache dictionaryDir 100 2
+  Right dictionaryCache <- runExceptT $ DictIO.readAllDictionaries dictionaryDir ["en"] ServerConfig.maxDictionaries ServerConfig.dictionaryMaxMaskedLetters
   return $ GameEnv serverConfig connectionProvider cache dictionaryCache

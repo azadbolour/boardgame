@@ -11,6 +11,7 @@
 module Bolour.Language.Domain.DictionaryCache (
     DictionaryCache
   , mkCache
+  , insert
   , lookup
   , lookupDefault
 ) where
@@ -28,63 +29,29 @@ import Bolour.Util.MiscUtil (IOEither, IOExceptT)
 import Bolour.Language.Domain.WordDictionary (WordDictionary)
 import qualified Bolour.Language.Domain.WordDictionary as Dict
 
--- TODO. Configure [supported] languageCodes and read their dictionaries when cache is created.
-
 -- | Cache of language dictionaries identified by language code.
 data DictionaryCache = DictionaryCache {
-    dictionaryDirectory :: String
-  , maxMaskedLetters :: Int
-  , cache :: Cache String WordDictionary
+  cache :: Cache String WordDictionary
 }
 
 -- | Factory function (constructor is private).
-mkCache :: String -> Int -> Int -> IO DictionaryCache
-mkCache dictionaryDirectory capacity maxMaskedLetters = do
+mkCache :: Int -> IO DictionaryCache
+mkCache capacity = do
   theCache <- Cache.mkCache capacity
-  return $ DictionaryCache dictionaryDirectory maxMaskedLetters theCache
+  return $ DictionaryCache theCache
+
+insert :: String -> WordDictionary -> DictionaryCache -> IOExceptT String ()
+insert languageCode dictionary DictionaryCache {cache} =
+  Cache.insert languageCode dictionary cache
 
 -- Look up a dictionary by language code.
 lookup :: String -> DictionaryCache -> IOExceptT String WordDictionary
-lookup languageCode (dictionaryCache @ DictionaryCache {dictionaryDirectory, cache}) = do
+lookup languageCode (dictionaryCache @ DictionaryCache {cache}) = do
   let code = if null languageCode then Dict.defaultLanguageCode else languageCode
-  Cache.lookup code cache `catchError` (\_ -> readDictionaryFile dictionaryCache code)
+  Cache.lookup code cache
 
 -- Get the dictionary for the default language (defined in WordDictionary).
 lookupDefault :: DictionaryCache -> IOExceptT String WordDictionary
 lookupDefault = lookup Dict.defaultLanguageCode
-
--- Private functions.
-
-dictionaryFileSuffix = "-words.txt"
-maskedWordsFileSuffix = "-masked-words.txt"
-
-dictionaryFileName :: String -> String
-dictionaryFileName languageCode = languageCode ++ dictionaryFileSuffix
-
-maskedWordsFileName :: String -> String
-maskedWordsFileName languageCode = languageCode ++ maskedWordsFileSuffix
-
-readDictionaryFile :: DictionaryCache -> String -> IOExceptT String WordDictionary
-readDictionaryFile DictionaryCache {dictionaryDirectory, maxMaskedLetters, cache} languageCode = do
-  -- path <- liftIO $ mkDictionaryPath dictionaryDirectory languageCode
-  let path = mkDictionaryPath dictionaryDirectory languageCode
-  lines <- ExceptT $ catchAny (readDictionaryInternal path) showException
-  let words = (Char.toUpper <$>) <$> lines
-      dictionary = Dict.mkDictionary languageCode words maxMaskedLetters
-  Cache.insert languageCode dictionary cache
-  return dictionary
-
-readDictionaryInternal :: String -> IOEither String [String]
-readDictionaryInternal path = do
-  -- print $ "reading file: " ++ path
-  contents <- readFile path
-  return $ Right $ lines contents
-
-mkDictionaryPath :: String -> String -> String
-mkDictionaryPath dictionaryDirectory languageCode =
-  dictionaryDirectory ++ "/" ++ dictionaryFileName languageCode
-
-showException :: SomeException -> IOEither String [String]
-showException someExc = return $ Left $ show someExc
 
 

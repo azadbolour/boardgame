@@ -16,14 +16,19 @@ module BoardGame.Server.Domain.GameEnv (
  )
 where
 
+import Control.Monad.Except (ExceptT(ExceptT), MonadError(..), withExceptT)
+import Control.Monad.IO.Class (liftIO)
 import Bolour.Util.PersistRunner (ConnectionProvider)
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig))
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import BoardGame.Server.Domain.GameCache (GameCache, GameCache(GameCache))
+import BoardGame.Server.Domain.GameError (GameError, GameError(InternalError))
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import Bolour.Language.Domain.DictionaryCache (DictionaryCache)
 import qualified Bolour.Language.Domain.DictionaryCache as DictCache
+import qualified Bolour.Language.Domain.DictionaryIO as DictionaryIO
 import qualified Bolour.Util.PersistRunner as PersistRunner
+import Bolour.Util.MiscUtil (IOEither, IOExceptT)
 
 import qualified Paths_boardgame as ResourcePaths
 
@@ -34,13 +39,14 @@ data GameEnv = GameEnv {
   , dictionaryCache :: DictionaryCache
 }
 
-mkGameEnv :: ServerConfig -> IO GameEnv
+mkGameEnv :: ServerConfig -> IOExceptT GameError GameEnv
 mkGameEnv serverConfig = do
-    let ServerConfig {maxActiveGames, dictionaryDir = configuredDictionaryDir, dbConfig} = serverConfig
-    connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
-    gameCache <- GameCache.mkGameCache maxActiveGames
-    dictionaryDir <- getDictionaryDir configuredDictionaryDir
-    dictionaryCache <- DictCache.mkCache dictionaryDir ServerConfig.maxDictionaries ServerConfig.dictionaryMaxMaskedLetters
+    let ServerConfig {maxActiveGames, dictionaryDir = configuredDictionaryDir, languageCodes, dbConfig} = serverConfig
+    connectionProvider <- liftIO $ PersistRunner.mkConnectionProvider dbConfig
+    gameCache <- liftIO $ GameCache.mkGameCache maxActiveGames
+    dictionaryDir <- liftIO $ getDictionaryDir configuredDictionaryDir
+    let convertException = withExceptT $ \string -> InternalError string
+    dictionaryCache <- convertException $ DictionaryIO.readAllDictionaries dictionaryDir languageCodes ServerConfig.maxDictionaries ServerConfig.dictionaryMaxMaskedLetters
     return $ GameEnv serverConfig connectionProvider gameCache dictionaryCache
 
 getDictionaryDir :: String -> IO String

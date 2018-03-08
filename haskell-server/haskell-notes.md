@@ -77,10 +77,10 @@
 
   Just ("A",[])
 
-- class Monad m => MonadError em 
+- class Monad m => MonadError m 
 
     throwError :: e -> m a
-    catchError :: ExceptT e m a -> (e -> ExceptT e' m a) -> Except e' m a
+    catchError :: ExceptT e m a -> (e -> ExceptT e m a) -> Except e m a
 
   If you are doing something inside the IO monad that returns an either
   so that the result is IO Either left right, encapsulate it in ExceptT

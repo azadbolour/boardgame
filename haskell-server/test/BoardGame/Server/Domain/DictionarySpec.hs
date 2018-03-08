@@ -8,7 +8,7 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module BoardGame.Server.Domain.DictionaryCacheSpec where
+module BoardGame.Server.Domain.DictionarySpec where
 
 import Test.Hspec
 
@@ -20,17 +20,22 @@ import Bolour.Language.Domain.WordDictionary (
   , WordDictionary(WordDictionary)
   )
 import qualified Bolour.Language.Domain.WordDictionary as Dict
-import Bolour.Language.Domain.DictionaryCache (DictionaryCache)
-import qualified Bolour.Language.Domain.DictionaryCache as Cache
+import Bolour.Language.Domain.DictionaryIO (readDictionaryFile)
+
+
 
 spec :: Spec
 spec = do
   describe "test reading dictionary" $
     it "read english dictionary" $ do
-      cache <- Cache.mkCache "data" 20 2
-      eitherDictionary <- runExceptT $ Cache.lookup "" cache
-      let dictionary = head $ Either.rights [eitherDictionary]
+      dictionary <- getDictionary
       Dict.isWord dictionary "TEST" `shouldBe` True
+
+getDictionary :: IO WordDictionary
+getDictionary = do
+  Right dictionary <- runExceptT $ readDictionaryFile "en" "dict" 2
+  return dictionary
+
 
 
 

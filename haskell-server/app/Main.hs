@@ -53,7 +53,10 @@ main :: IO ()
 main = do
     serverConfig <- getServerConfig
     let ServerConfig {deployEnv, serverPort} = serverConfig
-    gameEnv <- GameEnv.mkGameEnv serverConfig
+    eitherGameEnv <- runExceptT $ GameEnv.mkGameEnv serverConfig
+    when (isLeft eitherGameEnv) $
+      die $ "unable to initialize the application environment for server config " ++ show serverConfig
+    let Right gameEnv = eitherGameEnv
     okEither <- prepareDb gameEnv
     when (isLeft okEither) $ do
       print $ show okEither

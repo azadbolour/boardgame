@@ -45,6 +45,7 @@ data ServerConfig = ServerConfig {
   , maxActiveGames :: Int
   , maxGameMinutes :: Int
   , dictionaryDir :: String
+  , languageCodes :: [String]
   , dbConfig :: DbConfig
 } deriving (Show, Generic)
 
@@ -56,6 +57,7 @@ defaultGameServerPort = 6587
 defaultMaxActiveGames = 100
 defaultMaxGameMinutes = 30
 defaultDictionaryDir = ""
+defaultLanguageCodes = ["en"]
 
 -- | Default configuration parameters of the application.
 defaultServerConfig :: ServerConfig
@@ -65,6 +67,7 @@ defaultServerConfig = ServerConfig
   defaultMaxActiveGames
   defaultMaxGameMinutes
   defaultDictionaryDir
+  defaultLanguageCodes
   DbConfig.defaultPostgresDbConfig -- TODO. Use defaultDbConfig (in-memory) sqlite not postgres.
 
 
