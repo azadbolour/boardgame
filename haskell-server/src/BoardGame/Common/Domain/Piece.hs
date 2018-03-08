@@ -18,10 +18,6 @@
 module BoardGame.Common.Domain.Piece (
     Piece(..)
   , mkPiece
-  , blankChar
-  , deadChar
-  , isBlankChar
-  , isDeadChar
   , eqValue
   , mkRandomPiece
   , mkRandomPieces
@@ -46,9 +42,6 @@ import Control.DeepSeq (NFData)
 import Data.Aeson (FromJSON, ToJSON)
 import Bolour.Util.MiscUtil as Misc
 
--- TODO. The value of a piece should be a single character and upper case.
--- TODO. Should validate value of piece, and maybe change its type to Char.
-
 -- |A game piece.
 data Piece = Piece {
     value :: Char,      -- ^ The letter - an upper case alpha character.
@@ -58,14 +51,6 @@ data Piece = Piece {
 
 instance FromJSON Piece
 instance ToJSON Piece
-
-deadChar = '-'
-isDeadChar :: Char -> Bool
-isDeadChar = (== deadChar)
-
-blankChar = ' '
-isBlankChar :: Char -> Bool
-isBlankChar = (== blankChar)
 
 piecesToString :: [Piece] -> String
 piecesToString pieces = value <$> pieces

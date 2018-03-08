@@ -15,6 +15,9 @@ module BoardGame.Server.Domain.Strip (
   , stripPoint
   , stripLength
   , lineStrip
+  , charLineSegmentToStrip
+  , stripFromBlackWhiteLine
+  , allStripsInBlackWhiteLine
   , hasAnchor
   , hasBlanks
   , pointAtOffset
@@ -22,22 +25,24 @@ module BoardGame.Server.Domain.Strip (
   , allLiveStrips
   , blankPoints
   , isDense
+  , blankChar, isBlankChar
   ) where
 
 import qualified Data.List as List
 import Data.ByteString.Char8 (ByteString)
--- import qualified Data.ByteString.Char8 as BS
 import Data.Map (Map)
 import qualified Data.Map as Map
 
+import qualified Bolour.Plane.Domain.LineSegment as LineSegment
+import Bolour.Plane.Domain.LineSegment (LineSegment, LineSegment(LineSegment))
+import Bolour.Util.BlackWhite (BlackWhite, BlackWhite(Black, White))
+import qualified Bolour.Util.BlackWhite as BlackWhite
 import Bolour.Language.Util.WordUtil (DictWord, LetterCombo, BlankCount, ByteCount)
 import qualified Bolour.Language.Util.WordUtil as WordUtil
 import qualified Bolour.Util.MiscUtil as MiscUtil
 import Bolour.Plane.Domain.Axis (Axis, Coordinate)
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Axis as Axis
-import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 
 {--
   In this module the term 'blank' means an empty slot on the board.
@@ -66,6 +71,15 @@ mkStrip axis lineNumber begin end content =
 --   only against those strips that have the right number of blanks (= the size of the combination).
 type GroupedStrips = Map ByteCount (Map BlankCount [Strip])
 
+blackChar = '-'
+isBlackChar :: Char -> Bool
+isBlackChar = (== blackChar)
+
+blankChar = ' '
+isBlankChar :: Char -> Bool
+isBlankChar = (== blankChar)
+
+
 -- | Does a given word fit exactly in a strip.
 --   The word have have been chosen to have the combination of the strip's letters
 --   and a combination of tray letters equal in size to the strip's blanks.
@@ -83,17 +97,39 @@ matchWordsToStrip :: Strip -> [DictWord] -> Maybe (Strip, DictWord)
 matchWordsToStrip strip words = Nothing
 
 numBlanks :: String -> Int
-numBlanks string = length $ filter Piece.isBlankChar string
+numBlanks string = length $ filter isBlankChar string
 
 nonBlankCombo :: String -> LetterCombo
 nonBlankCombo string =
-  let nonBlanks = filter (not . Piece.isBlankChar) string
+  let nonBlanks = filter (not . isBlankChar) string
   in WordUtil.mkLetterCombo nonBlanks
+
+charLineSegmentToStrip :: LineSegment Char -> Strip
+charLineSegmentToStrip LineSegment {axis, lineNumber, begin, end, segment} =
+  let content = maybeCharToChar <$> segment
+  in mkStrip axis lineNumber begin end content
 
 lineStrip :: Axis -> Coordinate -> String -> Int -> ByteCount -> Strip
 lineStrip axis lineNumber line offset size =
   mkStrip axis lineNumber offset (offset + size - 1) stringContent
     where stringContent = (take size . drop offset) line
+
+blackWhiteToChar :: BlackWhite Char -> Char
+blackWhiteToChar blackWhiteChar = BlackWhite.toValueWithDefaults blackWhiteChar blackChar blankChar
+
+maybeCharToChar :: Maybe Char -> Char
+maybeCharToChar Nothing = blankChar
+maybeCharToChar (Just ch) = ch
+
+stripFromBlackWhiteLine :: Axis -> Coordinate -> [BlackWhite Char] -> Int -> ByteCount -> Strip
+stripFromBlackWhiteLine axis lineNumber blackWhites offset size =
+  let lineAsString = blackWhiteToChar <$> blackWhites
+  in lineStrip axis lineNumber lineAsString offset size
+
+allStripsInBlackWhiteLine :: Axis -> Coordinate -> [BlackWhite Char] -> [Strip]
+allStripsInBlackWhiteLine axis lineNumber blackWhites =
+  let lineAsString = blackWhiteToChar <$> blackWhites
+  in stripsInLine axis (length lineAsString) lineNumber lineAsString
 
 -- TODO. Dimension is redundant. Use length chars.
 stripsInLine :: Axis -> Int -> Int -> String -> [Strip]
@@ -105,7 +141,7 @@ stripsInLine axis dimension lineNumber chars = do
 liveStripsInLine :: Axis -> Int -> String -> [Strip]
 liveStripsInLine axis lineNumber chars =
   let dimension = length chars
-      dead pos = pos < 0 || pos >= dimension || Piece.isDeadChar(chars !! pos)
+      dead pos = pos < 0 || pos >= dimension || isBlackChar(chars !! pos)
       live pos = not (dead pos)
       beginLive pos = live pos && dead (pos - 1)
       endLive pos = live pos && dead (pos + 1)
@@ -141,7 +177,7 @@ isDense strip @ Strip {blanks} maxBlanks = hasAnchor strip && blanks <= maxBlank
 
 blankPoints :: Strip -> [Point]
 blankPoints strip @ Strip {content} =
-  let blankOffsets = filter (\offset -> Piece.isBlankChar (content !! offset)) [0 .. length content - 1]
+  let blankOffsets = filter (\offset -> isBlankChar (content !! offset)) [0 .. length content - 1]
   in stripPoint strip <$> blankOffsets
 
 -- TODO. Redundant. See stripPoint.
@@ -150,8 +186,6 @@ pointAtOffset (Strip {lineNumber, begin, axis}) offset =
   case axis of
     Axis.X -> Point lineNumber (begin + offset)
     Axis.Y -> Point (begin + offset) lineNumber
-
--- type GroupedStrips = Map ByteCount (Map BlankCount [Strip])
 
 stripLength :: Strip -> Int
 stripLength Strip {begin, end} = end - begin + 1

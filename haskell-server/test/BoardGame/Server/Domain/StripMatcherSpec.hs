@@ -65,7 +65,7 @@ testBoard1 = Board.mkBoardFromPieces baseTestGrid1 7
 testBoard = Board.mkBoardFromPieces baseTestGrid 6
 -- gridRows = Board.rowsAsStrings testBoard
 
-blankChar = Piece.blankChar
+blankChar = Strip.blankChar
 
 trayCapacity :: Int
 trayCapacity = 5
@@ -110,8 +110,7 @@ spec = do
       let lineNumber = 1
           col = 1
           size = 3
-          lineAsString = Board.lineAsString testBoard Axis.X lineNumber
-          strip = Strip.lineStrip Axis.X lineNumber lineAsString col size
+          strip = Board.stripOfBoard testBoard Axis.X lineNumber col size
           offset = 2
           point = Strip.stripPoint strip offset
       point `shouldBe` Point lineNumber (col + offset)
@@ -119,8 +118,7 @@ spec = do
       let lineNumber = 1
           row = 2
           size = 1
-          lineAsString = Board.lineAsString testBoard Axis.Y lineNumber
-          strip = Strip.lineStrip Axis.Y lineNumber lineAsString row size
+          strip = Board.stripOfBoard testBoard Axis.Y lineNumber row size
           offset = 0
           point = Strip.stripPoint strip offset
       point `shouldBe` Point (row + offset) lineNumber

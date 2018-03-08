@@ -8,6 +8,7 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveFunctor #-}
 
 module Bolour.Plane.Domain.LineSegment (
     LineSegment(..)
@@ -30,7 +31,7 @@ data LineSegment val = LineSegment {
   , end :: Int
     -- | The values/non-values of the points in this line segment.
   , segment :: [Maybe val]
-}
+} deriving (Functor)
 
 row :: LineSegment val -> Int -> Int
 row LineSegment { axis, lineNumber, begin } offset =

@@ -56,7 +56,7 @@ wordFitsContent stripContent word
          stripTail = tail stripContent
          wordHead = head word
          wordTail = tail word
-     in (Piece.isBlankChar stripHead || stripHead == wordHead) && wordFitsContent stripTail wordTail
+     in (Strip.isBlankChar stripHead || stripHead == wordHead) && wordFitsContent stripTail wordTail
      -- TODO. Does the compiler optimize this to tail-recursive? Otherwise use explicit if-then-else.
 
 -- | Find a match (if any) for a given strip.
