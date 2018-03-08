@@ -254,8 +254,6 @@ playableStripsForEmptyBoard board @ Board {dimension} trayCapacity =
   let center = dimension `div` 2
       centerRow = rows board !! center
       centerRowAsBlackWhiteChars = bwPiecePointsToBWChars centerRow
-      -- centerRowAsString = lineToString centerRow
-      -- strips = Strip.stripsInLine Axis.X dimension center centerRowAsString
       strips = Strip.allStripsInBlackWhiteLine Axis.X center centerRowAsBlackWhiteChars
       includesCenter Strip {begin, end} = begin <= center && end >= center
       withinTraySize Strip {begin, end} = end - begin < trayCapacity

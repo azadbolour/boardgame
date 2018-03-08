@@ -129,11 +129,11 @@ stripFromBlackWhiteLine axis lineNumber blackWhites offset size =
 allStripsInBlackWhiteLine :: Axis -> Coordinate -> [BlackWhite Char] -> [Strip]
 allStripsInBlackWhiteLine axis lineNumber blackWhites =
   let lineAsString = blackWhiteToChar <$> blackWhites
-  in stripsInLine axis (length lineAsString) lineNumber lineAsString
+  in stripsInLine axis lineNumber lineAsString
 
--- TODO. Dimension is redundant. Use length chars.
-stripsInLine :: Axis -> Int -> Int -> String -> [Strip]
-stripsInLine axis dimension lineNumber chars = do
+stripsInLine :: Axis -> Int -> String -> [Strip]
+stripsInLine axis lineNumber chars = do
+  let dimension = length chars
   offset <- [0 .. (dimension - 1)]
   size <- [1 .. (dimension - offset - 1)]
   return $ lineStrip axis lineNumber chars offset size

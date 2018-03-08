@@ -20,7 +20,7 @@ module BoardGame.Server.Domain.StripMatcher (
 
 import qualified Data.Set as Set
 import Data.Map (Map)
-import qualified Data.List as List
+import Data.List (foldl')
 import qualified Data.Map as Map
 -- import qualified Data.ByteString.Char8 as BS
 -- import Data.ByteString.Char8 (ByteString)
@@ -48,16 +48,21 @@ import Bolour.Util.MiscUtil as MiscUtil
 --   So just check that the word matches the non-blank positions of the strip.
 --   TODO. Inner loop. Should be made as efficient as possible.
 wordFitsContent :: String -> DictWord -> Bool
-wordFitsContent stripContent word
-  | null stripContent && null word = True
-  | null stripContent || null word = False -- For good measure!
-  | otherwise =
-     let stripHead = head stripContent
-         stripTail = tail stripContent
-         wordHead = head word
-         wordTail = tail word
-     in (Strip.isBlankChar stripHead || stripHead == wordHead) && wordFitsContent stripTail wordTail
-     -- TODO. Does the compiler optimize this to tail-recursive? Otherwise use explicit if-then-else.
+wordFitsContent stripContent word =
+  let fits stripChar wordChar = Strip.isBlankChar stripChar || stripChar == wordChar
+      fitList = zipWith fits stripContent word
+  in foldl' (&&) True fitList
+
+-- wordFitsContent :: String -> DictWord -> Bool
+-- wordFitsContent stripContent word
+--   | null stripContent && null word = True
+--   | null stripContent || null word = False -- For good measure!
+--   | otherwise =
+--      let stripHead = head stripContent
+--          stripTail = tail stripContent
+--          wordHead = head word
+--          wordTail = tail word
+--      in (Strip.isBlankChar stripHead || stripHead == wordHead) && wordFitsContent stripTail wordTail
 
 -- | Find a match (if any) for a given strip.
 --   Any match would do since our optimality measure is the total length
