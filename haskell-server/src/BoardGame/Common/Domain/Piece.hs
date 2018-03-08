@@ -18,15 +18,10 @@
 module BoardGame.Common.Domain.Piece (
     Piece(..)
   , mkPiece
-  -- , emptyChar
   , blankChar
   , deadChar
   , isBlankChar
-  , deadPiece
   , isDeadChar
-  , isDead
-  , isAlive
-  , isReal
   , eqValue
   , mkRandomPiece
   , mkRandomPieces
@@ -34,14 +29,11 @@ module BoardGame.Common.Domain.Piece (
   , leastFrequentLetter
   , randomLetter
   , mkRandomPieceForId
-  , isEmptyChar
   , frequencies
   , normalizedFrequencies
   , worth
   , letterWorth
   , piecesToString
-  , toMaybe
-  , fromMaybe
 ) where
 
 import System.Random
@@ -67,37 +59,13 @@ data Piece = Piece {
 instance FromJSON Piece
 instance ToJSON Piece
 
-emptyChar = '\0'
-emptyPiece = Piece emptyChar "-1"
-isEmptyChar :: Char -> Bool
-isEmptyChar = (== emptyChar)
-isEmpty :: Piece -> Bool
-isEmpty = (== emptyPiece)
-isNonEmpty :: Piece -> Bool
-isNonEmpty = (/= emptyPiece)
-
 deadChar = '-'
-deadPiece = Piece deadChar "-2"
 isDeadChar :: Char -> Bool
 isDeadChar = (== deadChar)
-isDead :: Piece -> Bool
-isDead = (== deadPiece)
-isAlive :: Piece -> Bool
-isAlive = (/= deadPiece)
 
 blankChar = ' '
 isBlankChar :: Char -> Bool
 isBlankChar = (== blankChar)
-
-isReal :: Piece -> Bool
-isReal piece = isAlive piece && isNonEmpty piece
-
-toMaybe :: Piece -> Maybe Piece
-toMaybe piece = if isEmpty piece then Nothing else Just piece
-
-fromMaybe :: Maybe Piece -> Piece
-fromMaybe Nothing = emptyPiece
-fromMaybe (Just piece) = piece
 
 piecesToString :: [Piece] -> String
 piecesToString pieces = value <$> pieces

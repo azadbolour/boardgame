@@ -188,10 +188,10 @@ groupedPlayableStrips board trayCapacity valuation =
       blankMapMaker = MiscUtil.mapFromValueList Strip.blanks
     in blankMapMaker <$> mapByValue
 
-gridStripToStrip :: (Axis.Axis, Coordinate, Coordinate, Int, [Maybe Piece]) -> Strip
-gridStripToStrip (axis, lineNumber, offset, size, maybeCharList) =
-  Strip.mkStrip axis lineNumber offset (offset + size - 1) content
-    where content = (Piece.value . Piece.fromMaybe) <$> maybeCharList
+-- gridStripToStrip :: (Axis.Axis, Coordinate, Coordinate, Int, [Maybe Piece]) -> Strip
+-- gridStripToStrip (axis, lineNumber, offset, size, maybeCharList) =
+--   Strip.mkStrip axis lineNumber offset (offset + size - 1) content
+--     where content = (Piece.value . Piece.fromMaybe) <$> maybeCharList
 
 hopelessBlankPointsForAxis :: Board -> WordDictionary -> Int -> Axis -> Set.Set Point
 hopelessBlankPointsForAxis board dictionary @ WordDictionary {maxMaskedLetters} trayCapacity axis =
