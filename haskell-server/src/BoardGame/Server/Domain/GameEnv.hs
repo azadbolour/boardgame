@@ -46,7 +46,7 @@ mkGameEnv serverConfig = do
     gameCache <- liftIO $ GameCache.mkGameCache maxActiveGames
     dictionaryDir <- liftIO $ getDictionaryDir configuredDictionaryDir
     let convertException = withExceptT $ \string -> InternalError string
-    dictionaryCache <- convertException $ DictionaryIO.readAllDictionaries dictionaryDir languageCodes ServerConfig.maxDictionaries ServerConfig.dictionaryMaxMaskedLetters
+    dictionaryCache <- convertException $! DictionaryIO.readAllDictionaries dictionaryDir languageCodes ServerConfig.maxDictionaries ServerConfig.dictionaryMaxMaskedLetters
     return $ GameEnv serverConfig connectionProvider gameCache dictionaryCache
 
 getDictionaryDir :: String -> IO String

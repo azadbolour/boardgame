@@ -2,6 +2,8 @@ module BoardGame.Server.Domain.HopelessBlanksSpec where
 
 import Test.Hspec
 
+import qualified Data.Set as Set
+
 import qualified Bolour.Language.Domain.WordDictionary as Dict
 import qualified BoardGame.Server.Domain.StripMatcher as StripMatcher
 import qualified BoardGame.Server.Domain.Board as Board
@@ -24,8 +26,11 @@ emptyBoard = Board.mkEmptyBoard dimension
 tray :: Tray
 tray = Tray trayCapacity [] -- no need for pieces in this test
 
+maxMaskedWords :: Int
+maxMaskedWords = 2
 myWords = ["AND", "TAN"]
-dictionary = Dict.mkDictionary "en" myWords 2
+maskedWords = Set.toList $ Dict.mkMaskedWords myWords maxMaskedWords
+dictionary = Dict.mkDictionary "en" myWords maskedWords maxMaskedWords
 
 gridPieces :: [GridPiece]
 gridPieces = [

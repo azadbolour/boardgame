@@ -15,6 +15,7 @@ import Test.Hspec
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.List as List
+import qualified Data.Set as Set
 
 import Bolour.Plane.Domain.Grid (Grid, Grid(Grid))
 import qualified Bolour.Plane.Domain.Grid as Grid
@@ -72,10 +73,12 @@ trayCapacity = 5
 
 trayCapacity1 = 7
 
-stringWords :: [String]
-stringWords = ["FAN", "PICK", "PACKER", "SCREEN", "POTENT"]
-byteWords = stringWords
-dictionary = Dict.mkDictionary "en" byteWords 2
+maxMaskedWords :: Int
+maxMaskedWords = 2
+myWords :: [String]
+myWords = ["FAN", "PICK", "PACKER", "SCREEN", "POTENT"]
+maskedWords = Set.toList $ Dict.mkMaskedWords myWords maxMaskedWords
+dictionary = Dict.mkDictionary "en" myWords maskedWords maxMaskedWords
 
 mkCombo :: String -> String
 mkCombo string = WordUtil.mkLetterCombo string

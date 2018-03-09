@@ -56,14 +56,17 @@ readAndSaveDictionary languageCode dictionaryDir dictionaryCache maxMaskedLetter
 readDictionary :: String -> String -> Int -> IOExceptT String WordDictionary
 readDictionary languageCode dictionaryDir maxMaskedLetters = do
   words <- readWordsFile dictionaryDir languageCode dictionaryFileSuffix
-  let dictionary = Dict.mkDictionary languageCode words maxMaskedLetters
+  maskedWords <- readWordsFile dictionaryDir languageCode maskedWordsFileSuffix
+  let dictionary = ((Dict.mkDictionary languageCode $! words) $! maskedWords) maxMaskedLetters
   return dictionary
 
 readWordsFile :: String -> String -> String -> IOExceptT String [String]
 readWordsFile dictionaryDirectory languageCode fileSuffix = do
   let path = mkFilePath dictionaryDirectory languageCode fileSuffix
+  liftIO $ print ("reading dictionary path " ++ path)
   lines <- ExceptT $ catchAny (readLines path) showException
   let words = (Char.toUpper <$>) <$> lines
+  liftIO $ print ("number of lines read " ++ show (length words))
   return words
 
 mkFilePath :: String -> String -> String -> String
@@ -74,7 +77,7 @@ readLines :: String -> IOEither String [String]
 readLines path = do
   -- print $ "reading file: " ++ path
   contents <- readFile path
-  return $ Right $ lines contents
+  return $ Right (lines $! contents)
 
 showException :: SomeException -> IOEither String [String]
 showException someExc = return $ Left $ show someExc

@@ -23,12 +23,11 @@ import qualified Bolour.Language.Domain.WordDictionary as Dict
 import Bolour.Language.Domain.DictionaryIO (readDictionary)
 
 
-
 spec :: Spec
 spec = do
   describe "test reading dictionary" $
     it "read english dictionary" $ do
-      Right dictionary <- runExceptT $ readDictionary "en" "dict" 2
-      Dict.isWord dictionary "TEST" `shouldBe` True
+      Right dictionary <- runExceptT $ readDictionary "test" "data" 2
+      Dict.isWord dictionary "ABATEMENT" `shouldBe` True
 
 

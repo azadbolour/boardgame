@@ -69,5 +69,5 @@ spec = do
 
 getDictionary :: IO WordDictionary
 getDictionary = do
-  Right dictionary <- runExceptT $ readDictionary "en" "data" 2
+  Right dictionary <- runExceptT $ readDictionary "test" "data" 2
   return dictionary

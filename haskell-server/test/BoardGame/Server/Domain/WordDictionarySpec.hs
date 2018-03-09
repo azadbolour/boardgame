@@ -13,16 +13,17 @@ module BoardGame.Server.Domain.WordDictionarySpec where
 import Test.Hspec
 
 import qualified Data.List as List
--- import qualified Data.ByteString.Char8 as BS
--- import Data.ByteString.Char8 (ByteString)
+import qualified Data.Set as Set
 
 import Bolour.Language.Domain.WordDictionary (WordDictionary, WordDictionary(WordDictionary))
 import qualified Bolour.Language.Domain.WordDictionary as Dict
 
-stringWords :: [String]
-stringWords = ["GLASS", "TABLE", "SCREEN", "NO", "ON"]
-byteWords = stringWords
-dictionary = Dict.mkDictionary "en" byteWords 2
+maxMaskedWords :: Int
+maxMaskedWords = 2
+myWords :: [String]
+myWords = ["GLASS", "TABLE", "SCREEN", "NO", "ON"]
+maskedWords = Set.toList $ Dict.mkMaskedWords myWords maxMaskedWords
+dictionary = Dict.mkDictionary "en" myWords maskedWords maxMaskedWords
 
 spec :: Spec
 spec = do

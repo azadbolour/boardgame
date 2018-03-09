@@ -18,7 +18,7 @@ module Main (
 
 import Test.Hspec
 
-import qualified BoardGame.Server.Domain.DictionarySpec as Test1
+import qualified BoardGame.Integration.GameClientSpec as Test1
 import qualified BoardGame.Server.Domain.HopelessBlanksSpec2 as Test2
 import qualified BoardGame.Server.Domain.DictionarySpec as Test3
 import qualified BoardGame.Server.Service.GameServiceSpec as Test4
@@ -30,7 +30,7 @@ main = do
 
 spec :: Spec
 spec = do
-  describe "Test2" Test2.spec
+  describe "Test1" Test1.spec
   -- describe "Test2" Test2.spec
   -- describe "Test3" Test3.spec
   -- describe "Test4" Test4.spec

@@ -86,9 +86,9 @@ getGameEnv = do
   GameDao.migrateDb connectionProvider
   GameDao.cleanupDb connectionProvider
   cache <- GameCache.mkGameCache maxActiveGames
-  dictionaryDir <- GameEnv.getDictionaryDir ""
+  dictionaryDir <- GameEnv.getDictionaryDir "data"
   -- dictionaryCache <- DictCache.mkCache dictionaryDir 100 2
-  Right dictionaryCache <- runExceptT $ DictIO.readAllDictionaries dictionaryDir ["en"] 100 2
+  Right dictionaryCache <- runExceptT $ DictIO.readAllDictionaries dictionaryDir ["tiny"] 100 2
   return $ GameEnv serverConfig connectionProvider cache dictionaryCache
 
 startApp :: IO (ThreadId, BaseUrl)
@@ -103,7 +103,8 @@ dimension = 9
 center = dimension `div` 2
 thePlayer = "You"
 pieceProviderType = PieceProviderType.Cyclic
-params = GameParams dimension 12 Dict.defaultLanguageCode thePlayer pieceProviderType
+params = GameParams dimension 12 "tiny" thePlayer pieceProviderType
+-- params = GameParams dimension 12 Dict.defaultLanguageCode thePlayer pieceProviderType
 playerJohn = Player thePlayer
 
 pointValues :: [[Int]]

@@ -12,6 +12,7 @@
 module Bolour.Language.Domain.WordDictionary (
     WordDictionary(WordDictionary, languageCode, maxMaskedLetters)
   , mkDictionary
+  , mkMaskedWords
   , defaultLanguageCode
   , isWord
   , isMaskedWord
@@ -44,9 +45,14 @@ data WordDictionary = WordDictionary {
   , maxMaskedLetters :: Int
 }
 
-mkDictionary :: String -> [DictWord] -> Int -> WordDictionary
-mkDictionary languageCode words maxMaskedLetters =
-  WordDictionary languageCode (Set.fromList words) (mkWordIndex words) (mkMaskedWords words maxMaskedLetters) maxMaskedLetters
+mkDictionary :: String -> [DictWord] -> [String] -> Int -> WordDictionary
+mkDictionary languageCode words maskedWords maxMaskedLetters =
+  let wordSet = Set.fromList $! words
+      wordIndex = mkWordIndex $! words
+      maskedWordSet = Set.fromList $! maskedWords
+  in (((WordDictionary languageCode $! wordSet) $! wordIndex) $! maskedWordSet) maxMaskedLetters
+  -- WordDictionary languageCode (Set.fromList words) (mkWordIndex words) (mkMaskedWords words maxMaskedLetters) maxMaskedLetters
+
 
 mkMaskedWords :: [DictWord] -> Int -> Set String
 mkMaskedWords words maxMaskedLetters =

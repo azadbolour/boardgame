@@ -46,7 +46,8 @@ center = testDimension `div` 2
 testTrayCapacity = 3
 pieceProviderType = PieceProviderType.Cyclic
 
-gameParams = GameParams testDimension testTrayCapacity Dict.defaultLanguageCode thePlayer pieceProviderType
+-- gameParams = GameParams testDimension testTrayCapacity Dict.defaultLanguageCode thePlayer pieceProviderType
+gameParams = GameParams testDimension testTrayCapacity "tiny" thePlayer pieceProviderType
 
 centerGridPoint = Point center center
 
@@ -63,7 +64,7 @@ initTest = do
   GameDao.migrateDb connectionProvider
   GameDao.cleanupDb connectionProvider
   cache <- GameCache.mkGameCache maxActiveGames
-  dictionaryDir <- GameEnv.getDictionaryDir ""
+  dictionaryDir <- GameEnv.getDictionaryDir "data"
   -- dictionaryCache <- DictCache.mkCache dictionaryDir 100 2
-  Right dictionaryCache <- runExceptT $ DictIO.readAllDictionaries dictionaryDir ["en"] ServerConfig.maxDictionaries ServerConfig.dictionaryMaxMaskedLetters
+  Right dictionaryCache <- runExceptT $ DictIO.readAllDictionaries dictionaryDir ["tiny"] ServerConfig.maxDictionaries ServerConfig.dictionaryMaxMaskedLetters
   return $ GameEnv serverConfig connectionProvider cache dictionaryCache
