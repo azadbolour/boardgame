@@ -5,13 +5,12 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
+import com.bolour.boardgame.scala.server.util.WordUtil
 import com.bolour.plane.scala.domain.Axis._
 import com.bolour.plane.scala.domain.Axis.Axis
-import com.bolour.boardgame.scala.common.domain.Piece._
-import com.bolour.boardgame.scala.common.domain.PlayPiece
-import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
-import com.bolour.boardgame.scala.server.util.WordUtil.{BLANK, DictWord, Length, LetterCombo, NumBlanks, nonBlankLetterCombo}
+import com.bolour.boardgame.scala.server.util.WordUtil._
 import com.bolour.plane.scala.domain.Point
+import com.bolour.util.scala.common.BlackWhite
 
 case class Strip(
   axis: Axis,               // direction
@@ -21,11 +20,15 @@ case class Strip(
   content: String          // sequence of letters and blanks
 ) {
 
+  import Strip._
+
   /** combination of letters on strip (sorted - with dups) */
   val letters: LetterCombo = nonBlankLetterCombo(content)
   /** number of blank slots on strip */
   val numBlanks: Int = content.length - letters.length
   val len = end - begin + 1
+
+  def nonBlankLetterCombo(s: String): String = stringToLetterCombo(s.filter(_ != blankChar ))
 
   /**
     * Word can potentially be played to this strip.
@@ -70,7 +73,7 @@ case class Strip(
            fits(restContent.tail, restWord.tail)
 
   def blankPoints: List[Point] = {
-    val blankOffsets = content.indices.toList.filter(offset => isBlank(content(offset)))
+    val blankOffsets = content.indices.toList.filter(offset => WordUtil.isBlankChar(content(offset)))
     blankOffsets map point
   }
 }
@@ -85,6 +88,28 @@ object Strip {
 
   def fitsSlot(slotLetter: Char, wordLetter: Char): Boolean =
     slotLetter == ' ' || slotLetter == wordLetter
+
+  def stripFromBlackWhiteLine(axis: Axis, lineNumber: Int, blackWhiteChars: List[BlackWhite[Char]], offset: Int, size: Int): Strip = {
+    val lineAsString = (blackWhiteChars map blackWhiteToChar).mkString
+    lineStrip(axis, lineNumber, lineAsString, offset, offset + size - 1)
+  }
+
+  def stripsInLine(axis: Axis, lineNumber: Int, chars: String): List[Strip] = {
+    val dimension = chars.length
+    for {
+      offset <- (0 until dimension).toList
+      end <- offset until dimension
+    } yield lineStrip(axis, lineNumber, chars, offset, end)
+  }
+
+  def allStripsInBlackWhiteLine(axis: Axis, lineNumber: Int, line: List[BlackWhite[Char]]): List[Strip] = {
+    val lineAsString = (line map blackWhiteToChar).mkString
+    stripsInLine(axis, lineNumber, lineAsString)
+  }
+
+  def blackWhiteToChar(blackWhiteChar: BlackWhite[Char]): Char =
+    blackWhiteChar.toValueWithDefaults(blackChar, blankChar)
+
 
 }
 

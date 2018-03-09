@@ -65,7 +65,7 @@ testBoard1 = Board.mkBoardFromPieces baseTestGrid1 7
 testBoard = Board.mkBoardFromPieces baseTestGrid 6
 -- gridRows = Board.rowsAsStrings testBoard
 
-blankChar = Strip.blankChar
+blankChar = WordUtil.blankChar
 
 trayCapacity :: Int
 trayCapacity = 5

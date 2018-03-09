@@ -78,9 +78,21 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
   private def rows = grid.rows
   private def columns = grid.columns
 
-  private def lineToString(bwPoints: List[BlackWhitePoint[Piece]]): String = {
-    val chars = bwPoints map { case BlackWhitePoint(bwPiece, _) => Piece.bwPieceToChar(bwPiece) }
-    chars.mkString
+  def boardLine(axis: Axis, lineNumber: Int): List[BlackWhitePoint[Piece]] =
+    axis match {
+      case Axis.X => rows(lineNumber)
+      case Axis.Y => columns(lineNumber)
+    }
+
+  private def bwPiecePointToBWChar(blackWhitePiecePoint: BlackWhitePoint[Piece]): BlackWhite[Char] =
+    blackWhitePiecePoint.value map { _.value }
+
+  private def bwPiecePointsToBWChars(blackWhitePiecePoints: List[BlackWhitePoint[Piece]]): List[BlackWhite[Char]] =
+    blackWhitePiecePoints map bwPiecePointToBWChar
+
+  def stripOfBoard(axis: Axis, lineNumber: Int, offset: Int, size: Int): Strip = {
+    val blackWhiteChars = bwPiecePointsToBWChars(boardLine(axis, lineNumber))
+    Strip.stripFromBlackWhiteLine(axis, lineNumber, blackWhiteChars, offset, size)
   }
 
   /**
@@ -98,8 +110,8 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
       val PlayPiece(_, point, _) = playPieces.head
       // Arbitrarily consider the single play it as a horizontal play.
       val theRow = rows(point.row)
-      val content = lineToString(theRow)
-      return Strip.lineStrip(Axis.X, point.row, content, point.col, point.col)
+      val rowAsBlackWhiteChars = bwPiecePointsToBWChars(theRow)
+      return Strip.stripFromBlackWhiteLine(Axis.X, point.row, rowAsBlackWhiteChars, point.col, 1)
     }
 
     val points = playPieces.map(_.point)
@@ -112,9 +124,8 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
       case Axis.X => (head.row, rows(head.row), head.col)
       case Axis.Y => (head.col, columns(head.col), head.row)
     }
-    val end = begin + points.length - 1
-    val content = lineToString(line)
-    Strip.lineStrip(axis, lineNumber, content, begin, end)
+    val lineAsBlackWhiteChars = bwPiecePointsToBWChars(line)
+    Strip.stripFromBlackWhiteLine(axis, lineNumber, lineAsBlackWhiteChars, begin, points.length)
   }
 
   def pointIsEmpty(point: Point): Boolean = grid.get(point).isEmpty

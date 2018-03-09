@@ -49,7 +49,7 @@ import Bolour.Util.MiscUtil as MiscUtil
 --   TODO. Inner loop. Should be made as efficient as possible.
 wordFitsContent :: String -> DictWord -> Bool
 wordFitsContent stripContent word =
-  let fits stripChar wordChar = Strip.isBlankChar stripChar || stripChar == wordChar
+  let fits stripChar wordChar = WordUtil.isBlankChar stripChar || stripChar == wordChar
       fitList = zipWith fits stripContent word
   in foldl' (&&) True fitList
 

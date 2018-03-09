@@ -7,7 +7,7 @@ package com.bolour.boardgame.scala.server.domain
 
 import org.slf4j.LoggerFactory
 import scala.collection.mutable
-import com.bolour.boardgame.scala.common.domain.Piece.isBlank
+// import com.bolour.boardgame.scala.common.domain.Piece.isBlank
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.language.scala.domain.WordDictionary
 import com.bolour.plane.scala.domain.Axis.Axis
@@ -90,7 +90,7 @@ trait StripMatcher {
       val point = strip.point(stripOffset)
       val stripLetter = strip.content(stripOffset)
       val wordLetter = word(stripOffset)
-      val moved = isBlank(stripLetter)
+      val moved = WordUtil.isBlankChar(stripLetter)
       val piece = if (moved) removeTrayChar(wordLetter) else board.getPiece(point).get
       PlayPiece(piece, point, moved)
     }

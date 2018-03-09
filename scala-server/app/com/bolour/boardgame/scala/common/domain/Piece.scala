@@ -16,18 +16,18 @@ case class Piece(value: Char, id: String) {
 object Piece {
   type Pieces = List[Piece]
 
-  val blank = ' '
-  def isBlank(ch: Char): Boolean = ch == blank
+  // val blank = ' '
+  // def isBlank(ch: Char): Boolean = ch == blank
 
   /** Represents a disabled/inactive/dead location. */
-  val deadChar = '-'
+  // val deadChar = '-'
 
-  def bwPieceToChar(bwPiece: BlackWhite[Piece]): Char =
-    bwPiece match {
-      case Black() => Piece.deadChar
-      case White(None) => Piece.blank
-      case White(Some(piece)) => piece.value
-  }
+//  def bwPieceToChar(bwPiece: BlackWhite[Piece]): Char =
+//    bwPiece match {
+//      case Black() => Piece.deadChar
+//      case White(None) => Piece.blank
+//      case White(Some(piece)) => piece.value
+//  }
 
   /** normalize the letter frequencies to obtain a given rough total
     * return the normalized frequencies and the actual total */

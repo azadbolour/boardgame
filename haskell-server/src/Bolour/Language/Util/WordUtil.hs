@@ -12,10 +12,10 @@ module Bolour.Language.Util.WordUtil (
   , BlankCount
   , mkLetterCombo
   , mergeLetterCombos
-  -- , lookupWordIndex
   , computeCombos
   , computeCombosGroupedByLength
   , maskWithBlanks
+  , blankChar, isBlankChar, blackChar, isBlackChar
   ) where
 
 -- import Data.ByteString.Char8
@@ -40,6 +40,14 @@ type WordIndex = Map LetterCombo [DictWord]
 
 type ByteCount = Int
 type BlankCount = Int
+
+blackChar = '-'
+isBlackChar :: Char -> Bool
+isBlackChar = (== blackChar)
+
+blankChar = ' '
+isBlankChar :: Char -> Bool
+isBlankChar = (== blankChar)
 
 -- | Make a permutation of some letters, create the corresponding combination of those letters.
 --   In our representation just sort the letters.
@@ -78,9 +86,9 @@ computeCombosUnsorted bytes
 maskWithBlanks :: String -> Int -> [String]
 maskWithBlanks s maxBlanks
   | maxBlanks == 0 = [s]
-  | length s == 1 = [" ", s]
+  | length s == 1 = [[blankChar], s]
   | otherwise = let head:tail = s
-                in prepend head (maskWithBlanks tail maxBlanks) ++ prepend ' ' (maskWithBlanks tail (maxBlanks - 1))
+                in prepend head (maskWithBlanks tail maxBlanks) ++ prepend blankChar (maskWithBlanks tail (maxBlanks - 1))
 
 prepend :: Char -> [String] -> [String]
 prepend ch ss = (\s -> ch:s) <$> ss

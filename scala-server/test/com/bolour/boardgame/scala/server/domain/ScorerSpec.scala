@@ -1,6 +1,7 @@
 package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain._
+import com.bolour.boardgame.scala.server.util.WordUtil
 import com.bolour.plane.scala.domain.Axis
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
@@ -16,7 +17,7 @@ class ScorerSpec extends FlatSpec with Matchers {
     ((0 until word.length) map { i: Int =>
       val ch = word(i)
       val point = strip.point(i)
-      val moved = Piece.isBlank(strip.content(i))
+      val moved = WordUtil.isBlankChar(strip.content(i))
       PlayPiece(Piece(ch, ""), point, moved)
     }).toList
   }

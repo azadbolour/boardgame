@@ -3,6 +3,7 @@ package com.bolour.boardgame.scala.server.domain
 import com.bolour.util.scala.common.CommonUtil
 import com.bolour.plane.scala.domain.Axis.Axis
 import com.bolour.boardgame.scala.common.domain._
+import com.bolour.boardgame.scala.server.util.WordUtil
 import com.bolour.plane.scala.domain.{Axis, Point}
 
 class CrossWordFinder(board: Board) {
@@ -23,7 +24,7 @@ class CrossWordFinder(board: Board) {
   def findStripCrossWords(strip: Strip, word: String): List[String] = {
     val l = word.length
     val range = (0 until l).toList
-    val crossingIndices = range.filter { i => Piece.isBlank(strip.content(i)) }
+    val crossingIndices = range.filter { i => WordUtil.isBlankChar(strip.content(i)) }
     val acrossWordList = crossingIndices.map{ i =>
       val point = strip.point(i)
       val playedChar = word(i)
@@ -44,7 +45,7 @@ class CrossWordFinder(board: Board) {
   def findCrossPlays(strip: Strip, word: String): List[List[(Char, Point, Boolean)]] = {
     val l = word.length
     val range = (0 until l).toList
-    val crossingIndices = range.filter { i => Piece.isBlank(strip.content(i)) }
+    val crossingIndices = range.filter { i => WordUtil.isBlankChar(strip.content(i)) }
     val crossPlayOpts = crossingIndices map { i =>
       val point = strip.point(i)
       crossingPlay(point, word(i), Axis.crossAxis(strip.axis))

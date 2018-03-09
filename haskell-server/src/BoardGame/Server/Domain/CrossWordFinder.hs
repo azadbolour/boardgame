@@ -19,6 +19,7 @@ module BoardGame.Server.Domain.CrossWordFinder (
 import Data.Maybe (fromJust, isNothing, catMaybes)
 import Data.List (transpose, find)
 
+import qualified Bolour.Language.Util.WordUtil as WordUtil
 import qualified Bolour.Plane.Domain.Axis as Axis
 import qualified Bolour.Plane.Domain.Point as Point
 import Bolour.Plane.Domain.Axis (Axis)
@@ -40,7 +41,7 @@ backward = Axis.backward
 findStripCrossWords :: Board -> Strip -> String -> [String]
 findStripCrossWords board (strip @ Strip {axis, content}) word =
   let range = [0 .. length word - 1]
-      crossingIndices = filter (\i -> Strip.isBlankChar $ content !! i) range
+      crossingIndices = filter (\i -> WordUtil.isBlankChar $ content !! i) range
       calcCrossing :: Int -> Maybe String = \i ->
         let point = Strip.pointAtOffset strip i
             playedChar = word !! i
@@ -82,7 +83,7 @@ findCrossPlays board playPieces =
 findCrossPlays' :: Board -> Strip -> String -> [[MoveInfo]]
 findCrossPlays' board (strip @ Strip {axis, content}) word =
   let range = [0 .. length word - 1]
-      crossingIndices = filter (\i -> Strip.isBlankChar $ content !! i) range
+      crossingIndices = filter (\i -> WordUtil.isBlankChar $ content !! i) range
       calcCrossing :: Int -> Maybe [MoveInfo] = \i ->
         let point = Strip.pointAtOffset strip i
             playedChar = word !! i

@@ -19,10 +19,13 @@ object WordUtil {
   type DictWord = String        // dictionary word
   type WordsByCombo = Map[LetterCombo, List[DictWord]] // words by letter combination
 
-  val BLANK: Char = ' '
-
   val english = "en"
   val defaultLanguageCode = english
+
+  val blankChar: Char = ' '
+  def isBlankChar(ch: Char): Boolean = ch == blankChar
+  val blackChar: Char = '-'
+  def isBlackChar(ch: Char): Boolean = ch == blackChar
 
   def stringToLetterCombo(s: String): LetterCombo = s.sorted
 
@@ -49,8 +52,6 @@ object WordUtil {
   def mergeLetterCombos(combo1: LetterCombo, combo2: LetterCombo): LetterCombo =
     stringToLetterCombo(combo1.concat(combo2))
 
-  def nonBlankLetterCombo(s: String) = stringToLetterCombo(s.filter(_ != BLANK ))
-
   /**
     * Compute the set of all versions of a string masked by replacing
     * 0 to n of its characters with blanks.
@@ -65,9 +66,9 @@ object WordUtil {
       if (n == 0)
         List(s)
       else if (s.length == 1)
-        List(" ", s) // n > 0 but we can have at most 1 blank in this case, i.e., 0 or 1.
+        List(blankChar.toString, s) // n > 0 but we can have at most 1 blank in this case, i.e., 0 or 1.
       else
-        prepend(s.head, maskWithBlanks(s.tail, n)) ++ prepend(' ', maskWithBlanks(s.tail, n - 1))
+        prepend(s.head, maskWithBlanks(s.tail, n)) ++ prepend(blankChar, maskWithBlanks(s.tail, n - 1))
     maskedSet
   }
 }
