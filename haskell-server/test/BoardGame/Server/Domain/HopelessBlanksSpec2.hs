@@ -24,7 +24,7 @@ import BoardGame.Common.Domain.GridPiece
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Axis as Axis
-import Bolour.Language.Domain.DictionaryIO (readDictionaryFile)
+import Bolour.Language.Domain.DictionaryIO (readDictionary)
 
 
 trayCapacity :: Int
@@ -69,15 +69,5 @@ spec = do
 
 getDictionary :: IO WordDictionary
 getDictionary = do
-  Right dictionary <- runExceptT $ readDictionaryFile "" "data" 2
+  Right dictionary <- runExceptT $ readDictionary "en" "data" 2
   return dictionary
-
--- getDictionary :: IO WordDictionary
--- getDictionary = do
---   cache <- Cache.mkCache "data" 20 2
---   eitherDictionary <- runExceptT $ Cache.lookup "" cache
---   return $ head $ Either.rights [eitherDictionary]
---
-
-
-

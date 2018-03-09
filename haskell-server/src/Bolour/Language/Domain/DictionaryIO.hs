@@ -9,7 +9,7 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Bolour.Language.Domain.DictionaryIO (
-    readDictionaryFile
+    readDictionary
   , readAllDictionaries
 ) where
 
@@ -30,11 +30,11 @@ import qualified Bolour.Language.Domain.DictionaryCache as DictCache
 dictionaryFileSuffix = "-words.txt"
 maskedWordsFileSuffix = "-masked-words.txt"
 
-dictionaryFileName :: String -> String
-dictionaryFileName languageCode = languageCode ++ dictionaryFileSuffix
-
-maskedWordsFileName :: String -> String
-maskedWordsFileName languageCode = languageCode ++ maskedWordsFileSuffix
+-- dictionaryFileName :: String -> String
+-- dictionaryFileName languageCode = languageCode ++ dictionaryFileSuffix
+--
+-- maskedWordsFileName :: String -> String
+-- maskedWordsFileName languageCode = languageCode ++ maskedWordsFileSuffix
 
 -- TODO. Use specific exceptions for the language module.
 readAllDictionaries :: String -> [String] -> Int -> Int -> IOExceptT String DictionaryCache
@@ -50,26 +50,31 @@ readAndSaveDictionaries dictionaryDir dictionaryCache languageCodes maxMaskedLet
 
 readAndSaveDictionary :: String -> String -> DictionaryCache -> Int -> IOExceptT String ()
 readAndSaveDictionary languageCode dictionaryDir dictionaryCache maxMaskedLetters = do
-  dictionary <- readDictionaryFile languageCode dictionaryDir maxMaskedLetters
+  dictionary <- readDictionary languageCode dictionaryDir maxMaskedLetters
   DictCache.insert languageCode dictionary dictionaryCache
 
-readDictionaryFile :: String -> String -> Int -> IOExceptT String WordDictionary
-readDictionaryFile languageCode dictionaryDirectory maxMaskedLetters = do
-  let path = mkDictionaryPath dictionaryDirectory languageCode
-  lines <- ExceptT $ catchAny (readDictionaryInternal path) showException
-  let words = (Char.toUpper <$>) <$> lines
-      dictionary = Dict.mkDictionary languageCode words maxMaskedLetters
+readDictionary :: String -> String -> Int -> IOExceptT String WordDictionary
+readDictionary languageCode dictionaryDir maxMaskedLetters = do
+  words <- readWordsFile dictionaryDir languageCode dictionaryFileSuffix
+  let dictionary = Dict.mkDictionary languageCode words maxMaskedLetters
   return dictionary
 
-readDictionaryInternal :: String -> IOEither String [String]
-readDictionaryInternal path = do
+readWordsFile :: String -> String -> String -> IOExceptT String [String]
+readWordsFile dictionaryDirectory languageCode fileSuffix = do
+  let path = mkFilePath dictionaryDirectory languageCode fileSuffix
+  lines <- ExceptT $ catchAny (readLines path) showException
+  let words = (Char.toUpper <$>) <$> lines
+  return words
+
+mkFilePath :: String -> String -> String -> String
+mkFilePath dictionaryDir languageCode fileSuffix =
+  dictionaryDir ++ "/" ++ languageCode ++ fileSuffix
+
+readLines :: String -> IOEither String [String]
+readLines path = do
   -- print $ "reading file: " ++ path
   contents <- readFile path
   return $ Right $ lines contents
-
-mkDictionaryPath :: String -> String -> String
-mkDictionaryPath dictionaryDirectory languageCode =
-  dictionaryDirectory ++ "/" ++ dictionaryFileName languageCode
 
 showException :: SomeException -> IOEither String [String]
 showException someExc = return $ Left $ show someExc
