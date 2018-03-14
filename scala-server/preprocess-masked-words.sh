@@ -15,4 +15,4 @@ maxBlanks=$3
 preprocessor=com.bolour.language.scala.service.MaskedWordsPreprocessor
 
 sbt -batch "runMain $preprocessor $wordsFile $maskedWordsFile $maxBlanks"
-
+zip ${maskedWordsFile}.zip ${maskedWordsFile} 

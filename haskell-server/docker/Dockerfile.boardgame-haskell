@@ -58,9 +58,9 @@ RUN cd haskell-server && stack test
 RUN cd haskell-server && ./update-ui-bundle.sh
 
 #
-# Preprocess masked words.
+# Unzip the dictionary masked words file.
 #
-RUN cd haskell-server && ./preprocess-masked-words.sh 
+RUN cd dict && unzip moby-english-masked-words.txt.zip
 
 #
 # Expose the http port. Do it in the run command.

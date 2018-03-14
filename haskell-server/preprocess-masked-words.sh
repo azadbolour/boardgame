@@ -8,16 +8,10 @@
 # process. 4 would be better for a production deployment.
 #
 
-dict=${WORKSPACE}/dict
-wordsFile=${dict}/moby-english.txt
-maskedWordsFile=${dict}/moby-english-masked-words.txt
-maxBlanks=3
+wordsFile=$1
+maskedWordsFile=$2
+maxBlanks=$3
 
-#
-# Avoid repeated expensive opertion.
-#
-if [ ! -e ${maskedWordsFile} ]; then
-  stack exec masked-words-preprocessor ${wordsFile} ${maskedWordsFile} ${maxBlanks}
-fi
-
+stack exec masked-words-preprocessor ${wordsFile} ${maskedWordsFile} ${maxBlanks}
+zip ${maskedWordsFile}.zip ${maskedWordsFile} 
 

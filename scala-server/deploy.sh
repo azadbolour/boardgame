@@ -13,6 +13,25 @@ deployDir=dist
 projectDir=`pwd`
 outDir=${projectDir}/target/universal
 
+#
+# The real copies the dictionary files are in the "dict" directory of the 
+# boardgame project. (That is in "../dict" relative to the scala-server directory
+# where we are.) The real copies are shared by different server projects
+# by using symbolic links. Thus, in the "scala-server/dict" directory, there
+# are symbolic links to the real copies of teh dictionary files.
+#
+# Unzip the real copy of the masked words dictionary file in the top-level
+# dict directory.
+#
+cd ${projectDir}/../dict
+maskedWordsFile=moby-english-masked-words.txt
+if [ ! -e ${maskedWordsFile} ]; then 
+  echo "unzipping masked words file"
+  unzip ${maskedWordsFile}.zip
+fi
+
+cd ${projectDir}
+
 # TODO. Get version from build.sbt.
 version=0.9.1
 server=scala-server-${version}
@@ -23,18 +42,14 @@ cd $deployDir
 rm -rf ${server}/
 unzip $outDir/${server}.zip
 cd ${server}
-mkdir dict
-cp ${projectDir}/dict/en-words.txt dict/en-words.txt
 
-echo "preprocessing masked words"
-maskedWordsFile=${deployDir}/${server}/dict/moby-english-masked-words.txt
-# TODO. maxBlanks should be a deployment configuration parameter.
-maxBlanks=3
-cd ${projectDir}
-# Preprocessing masked words is time-consuming. No real need to redo it in deployments.
-if [ ! -e ${maskedWordsFile} ]; then
-  ./preprocess-masked-words.sh dict/en-words.txt ${maskedWordsFile} ${maxBlanks}
-fi
+#
+# Copy the dictionary file links from the project to the deployment area.
+#
+mkdir dict
+cp ${projectDir}/dict/en-words.txt dict
+cp ${projectDir}/dict/en-masked-words.txt dict
+
 echo "deployed"
 echo "server dictionary directory"
 ls -lt ${deployDir}/${server}/dict
