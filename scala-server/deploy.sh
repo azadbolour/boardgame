@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh -x
 
 #
 # Locally deploy the play executable to the dist directory.
@@ -52,5 +52,5 @@ cp ${projectDir}/dict/en-masked-words.txt dict
 
 echo "deployed"
 echo "server dictionary directory"
-ls -lt ${deployDir}/${server}/dict
+ls -lt ${projectDir}/${deployDir}/${server}/dict
 
