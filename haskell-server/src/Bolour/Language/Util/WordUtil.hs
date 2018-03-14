@@ -91,4 +91,4 @@ maskWithBlanks s maxBlanks
                 in prepend head (maskWithBlanks tail maxBlanks) ++ prepend blankChar (maskWithBlanks tail (maxBlanks - 1))
 
 prepend :: Char -> [String] -> [String]
-prepend ch ss = (\s -> ch:s) <$> ss
+prepend ch ss = (\s -> ch:s) <$> ss -- TODO. avoid lambda - can use section: (ch :) <$> ss
