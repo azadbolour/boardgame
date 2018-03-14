@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 #
 # Locally deploy the play executable to the dist directory.
@@ -14,7 +14,7 @@ projectDir=`pwd`
 outDir=${projectDir}/target/universal
 
 # TODO. Get version from build.sbt.
-version=0.9.0
+version=0.9.1
 server=scala-server-${version}
 
 echo "deploying board game scala server from ${outDir} to ${deployDir}"
@@ -27,11 +27,11 @@ mkdir dict
 cp ${projectDir}/dict/en-words.txt dict/en-words.txt
 
 echo "preprocessing masked words"
-maskedWordsFile=${deployDir}/${server}/dict/en-masked-words.txt
+maskedWordsFile=${deployDir}/${server}/dict/moby-english-masked-words.txt
 # TODO. maxBlanks should be a deployment configuration parameter.
 maxBlanks=3
 cd ${projectDir}
-# Preprocessing masked words is time-consuming. No reral need to redo it in deployments.
+# Preprocessing masked words is time-consuming. No real need to redo it in deployments.
 if [ ! -e ${maskedWordsFile} ]; then
   ./preprocess-masked-words.sh dict/en-words.txt ${maskedWordsFile} ${maxBlanks}
 fi

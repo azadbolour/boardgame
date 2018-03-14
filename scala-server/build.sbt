@@ -1,6 +1,6 @@
 name := "scala-server"
  
-version := "0.9.0"
+version := "0.9.1"
       
 lazy val `scala-server` = (project in file(".")).enablePlugins(PlayScala)
 
