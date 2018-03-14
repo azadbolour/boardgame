@@ -58,6 +58,11 @@ RUN cd haskell-server && stack test
 RUN cd haskell-server && ./update-ui-bundle.sh
 
 #
+# Preprocess masked words.
+#
+RUN cd haskell-server && ./preprocess-masked-words.sh 
+
+#
 # Expose the http port. Do it in the run command.
 #
 # EXPOSE ${serverPort}

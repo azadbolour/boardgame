@@ -8,11 +8,16 @@
 # process. 4 would be better for a production deployment.
 #
 
-wordsFile=$1
-maskedWordsFile=$2
-maxBlanks=$3
+dict=${WORKSPACE}/dict
+wordsFile=${dict}/moby-english.txt
+maskedWordsFile=${dict}/moby-english-masked-words.txt
+maxBlanks=3
 
-preprocessor=com.bolour.language.scala.service.MaskedWordsPreprocessor
+#
+# Avoid repeated expensive opertion.
+#
+if [ ! -e ${maskedWordsFile} ]; then
+  stack exec masked-words-preprocessor ${wordsFile} ${maskedWordsFile} ${maxBlanks}
+fi
 
-sbt -batch "runMain $preprocessor $wordsFile $maskedWordsFile $maxBlanks"
 

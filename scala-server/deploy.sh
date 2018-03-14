@@ -26,4 +26,16 @@ cd ${server}
 mkdir dict
 cp ${projectDir}/dict/en-words.txt dict/en-words.txt
 
+echo "preprocessing masked words"
+maskedWordsFile=${deployDir}/${server}/dict/en-masked-words.txt
+# TODO. maxBlanks should be a deployment configuration parameter.
+maxBlanks=3
+cd ${projectDir}
+# Preprocessing masked words is time-consuming. No reral need to redo it in deployments.
+if [ ! -e ${maskedWordsFile} ]; then
+  ./preprocess-masked-words.sh dict/en-words.txt ${maskedWordsFile} ${maxBlanks}
+fi
 echo "deployed"
+echo "server dictionary directory"
+ls -lt ${deployDir}/${server}/dict
+

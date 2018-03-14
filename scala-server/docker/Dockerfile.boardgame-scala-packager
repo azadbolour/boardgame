@@ -87,7 +87,8 @@ RUN wget --quiet https://dl.bintray.com/sbt/debian/sbt-1.1.0.deb \
 #
 RUN cd scala-server \
   && update-ui-bundle.sh \
-  && package.sh \
-  && deploy.sh
+  && package.sh 
+  
+#  && deploy.sh
 
 
