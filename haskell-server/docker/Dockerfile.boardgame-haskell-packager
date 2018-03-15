@@ -13,7 +13,7 @@ RUN apt-get update
 #
 # Get basic untilities.
 #
-RUN apt-get install -y apt-utils wget curl
+RUN apt-get install -y apt-utils wget curl zip unzip
 
 #
 # Install git.

@@ -5,7 +5,7 @@
 # Then can use docker run -d to create a detatched conatiner.
 # And the logs will be on teh host file system.
 image=boardgame-haskell
-tag=0.9
+tag=0.9.1
 nohup docker run -p 6587:6587 --restart on-failure:5 azadbolour/${image}:${tag} &
 
 # For development.

@@ -8,13 +8,16 @@
 #
 
 # The docker tag.
-ARG tag=0.9
+ARG tag=0.9.1
 #
 
 #
 # Base it on the same-tagged base.
 #
 FROM azadbolour/boardgame-haskell-packager:${tag}
+
+# TODO. Remove. Done in base packager.
+RUN apt-get install -y zip unzip
 
 #
 # Set up the base environment.
