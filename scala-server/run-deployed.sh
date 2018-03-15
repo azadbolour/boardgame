@@ -19,7 +19,7 @@ fi
 deployDir=dist
 
 # TODO. Get version from build.sbt.
-version=0.9.0
+version=0.9.1
 server=scala-server-${version}
 
 cd ${deployDir}/${server}
