@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Azad Bolour
+ * Copyright 2017-2018 Azad Bolour
  * Licensed under GNU Affero General Public License v3.0 -
  *   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
@@ -69,29 +69,6 @@ test('non-contiguous play', () => {
   }
 });
 
-test('parallel play OK', () => {
-  let dimension = 5;
-  let {mid, board} = initBoard(dimension);
-
-  let playPiece1 = mkMovePlayPiece(pcs[0], mkPoint(mid - 1, mid - 1));
-  let playPiece2 = mkMovePlayPiece(pcs[1], mkPoint(mid - 1, mid));
-  board = board.setPlayPiece(playPiece1);
-  board = board.setPlayPiece(playPiece2);
-  let playPieces = board.completedPlayPieces();
-  expect(playPieces.length).toBe(2);
-});
-
-test('parallel play OK 2', () => {
-  let dimension = 5;
-  let {mid, board} = initBoard(dimension);
-
-  let playPiece1 = mkMovePlayPiece(pcs[0], mkPoint(mid - 1, mid - 2));
-  let playPiece2 = mkMovePlayPiece(pcs[1], mkPoint(mid - 1, mid - 1));
-  board = board.setPlayPiece(playPiece1);
-  board = board.setPlayPiece(playPiece2);
-  let playPieces = board.completedPlayPieces();
-  expect(playPieces.length).toBe(2);
-});
 
 test('make word by adding a single cross letter', () => {
   let dimension = 5;

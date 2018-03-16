@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Azad Bolour
+ * Copyright 2017-2018 Azad Bolour
  * Licensed under GNU Affero General Public License v3.0 -
  *   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
@@ -92,7 +92,8 @@ class MockApiImpl {
     // console.log(`committed game: ${JSON.stringify(this.gameDto)}`);
     return {
       gameMiniState: this.mkMiniPlayState(),
-      replacementPieces: refills
+      replacementPieces: refills,
+      deadPoints: []
     };
   }
 
@@ -145,7 +146,8 @@ class MockApiImpl {
     // Return entire sequence of play pieces to be returned, moved or not.
     return {
       gameMiniState: this.mkMiniPlayState(),
-      playedPieces: playPieces
+      playedPieces: playPieces,
+      deadPoints: []
     };
   }
 
