@@ -42,13 +42,13 @@ class CompactStringSetSpec extends FlatSpec with Matchers {
 //    val source = Source.fromFile("dict/en-masked-words.txt")
 //    val maskedWords = source.getLines
 //    printMemory
-//    val set = new CompactStringSet()
-//    set ++ maskedWords
+//    val set = CompactStringSet(maskedWords)
 //    val end = System.currentTimeMillis()
 //    val time = (end - begin)/1000
 //    println(s"time: ${time} seconds")
 //    printMemory
 //    println(s"number of buckets: ${set.buckets.size}")
+//    set.contains("awash") shouldBe true
 //
 //  }
 

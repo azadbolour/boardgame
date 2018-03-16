@@ -43,6 +43,8 @@ class CompactStringSet {
 
   private def hash(string: String): Int = string.hashCode & hashMask
 
+  override def toString = buckets.toString
+
 }
 
 object CompactStringSet {
@@ -55,4 +57,12 @@ object CompactStringSet {
     packedStrings ++ delimiter ++ elem
 
   def unpack(packedStrings: String): List[String] = packedStrings.split(delimiter).toList
+
+  def apply(iterator: Iterator[String]): CompactStringSet = {
+    val set = new CompactStringSet()
+    set ++ iterator
+    set
+  }
+
+  def apply(list: List[String]): CompactStringSet = CompactStringSet(list.iterator)
 }
