@@ -29,9 +29,14 @@ NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
 MY_LOCAL=$HOME/.local
 LOCAL_GIT=/usr/local/git
 
+HASKELL_TOOLS_BIN=$HOME/.local/bin
+
+VS_CODE=/Applications/Visual\ Studio\ Code.app/Contents/Resources/app
+# code - from the command line
+
 base_path="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/bin"
 echo "base_path=$base_path"
-export PATH="$NPM_PACKAGES/bin:$MY_LOCAL/bin:$postgres_home/bin:$JAVA_HOME/bin:$WORKSPACE/script:$M2:$base_path:."
+export PATH="$NPM_PACKAGES/bin:$MY_LOCAL/bin:$postgres_home/bin:$JAVA_HOME/bin:$WORKSPACE/script:$M2:$base_path:.:$HASKELL_TOOLS_BIN:${VS_CODE}/bin"
 echo "PATH=$PATH"
 
 alias be='. branch.sh' # branch environment
@@ -46,4 +51,5 @@ alias sb='stack build'
 alias repl='stack repl'
 
 alias pq='psql -U postgres -h 127.0.0.1'
+
 

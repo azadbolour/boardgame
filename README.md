@@ -3,7 +3,7 @@
 
 ## Versions
 
-Version 1.0 alpha.
+Version 0.9.1 beta.
 
 ## The Board Game
 
