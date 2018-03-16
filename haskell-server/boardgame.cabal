@@ -46,6 +46,8 @@ library
     , enclosed-exceptions
     , deepseq
     , yaml
+    , split
+    , hashable
   exposed-modules:
       -- TODO. Separate out util, language, plane, and server into different packages.
       Bolour.Util.Core
@@ -60,6 +62,7 @@ library
       Bolour.Util.FileUtil
       Bolour.Util.Empty
       Bolour.Util.BlackWhite
+      Bolour.Util.CompactStringSet
       Bolour.Language.Util.WordUtil
       Bolour.Language.Domain.WordDictionary
       Bolour.Language.Domain.DictionaryIO
@@ -154,10 +157,12 @@ test-suite spec
     , http-types
     , logging-effect >= 1.1
     , containers
+    , time
   other-modules:
       Bolour.Plane.Domain.BlackWhiteGridSpec
       Bolour.Util.DataFileSpec
       Bolour.Util.SpecUtil
+      Bolour.Util.CompactStringSetSpec
       BoardGame.Util.TestUtil
       BoardGame.Integration.GameClientSpec
       BoardGame.Integration.JsonSpec
@@ -201,6 +206,7 @@ test-suite infocus
     , logging-effect >= 1.1
     , containers
     , bytestring
+    , time
   other-modules:
       Bolour.Util.SpecUtil
       BoardGame.Util.TestUtil

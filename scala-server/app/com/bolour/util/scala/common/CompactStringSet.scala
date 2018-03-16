@@ -47,7 +47,7 @@ class CompactStringSet {
 
 object CompactStringSet {
   // TODO. Hash bits and delimiter should be instance parameters.
-  val hashMask = 0x8FFF  // 589823
+  val hashMask = 0x8FFFF  // 589823
   val delimiterChar = '\u0000'
   val delimiter = delimiterChar.toString
 
