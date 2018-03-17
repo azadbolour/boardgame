@@ -159,6 +159,7 @@ test-suite spec
     , containers
     , time
   other-modules:
+      Bolour.Language.Domain.WordDictionarySpec
       Bolour.Plane.Domain.BlackWhiteGridSpec
       Bolour.Util.DataFileSpec
       Bolour.Util.SpecUtil
@@ -171,8 +172,6 @@ test-suite spec
       BoardGame.Server.Domain.CommonSpec
       BoardGame.Server.Domain.StripMatcherSpec
       BoardGame.Server.Domain.StripMatcherSpec2
-      BoardGame.Server.Domain.WordDictionarySpec
-      BoardGame.Server.Domain.DictionarySpec
       BoardGame.Server.Domain.ServerParametersSpec
       BoardGame.Server.Domain.CrossWordFinderSpec
       BoardGame.Server.Domain.ScorerSpec
@@ -208,12 +207,11 @@ test-suite infocus
     , bytestring
     , time
   other-modules:
+      Bolour.Language.Domain.WordDictionarySpec
       Bolour.Util.SpecUtil
       BoardGame.Util.TestUtil
       BoardGame.Server.Web.WebTestFixtures
       BoardGame.Server.Domain.StripMatcherSpec
-      BoardGame.Server.Domain.WordDictionarySpec
-      BoardGame.Server.Domain.DictionarySpec
       BoardGame.Server.Service.GameServiceSpec
       BoardGame.Server.Domain.ServerParametersSpec
       BoardGame.Server.Domain.CrossWordFinderSpec

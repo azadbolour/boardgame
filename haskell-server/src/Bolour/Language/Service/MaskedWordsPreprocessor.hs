@@ -6,6 +6,7 @@
 
 module Main where
 
+import qualified Data.Char as Char
 import System.Exit (die)
 import Data.Set as Set
 import System.Environment (getArgs)
@@ -30,7 +31,7 @@ main = do
 
 writeMaskedWords :: String -> Int -> String -> IO ()
 writeMaskedWords path maxBlanks word = do
-  let maskedWords = WordUtil.maskWithBlanks word maxBlanks
+  let maskedWords = (Char.toUpper <$>) <$> WordUtil.maskWithBlanks word maxBlanks
   sequence_ $ writeLine <$> maskedWords
     where writeLine line = appendFile path (line ++ "\n")
 

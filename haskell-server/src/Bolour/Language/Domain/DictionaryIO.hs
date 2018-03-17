@@ -11,10 +11,12 @@
 module Bolour.Language.Domain.DictionaryIO (
     readDictionary
   , readAllDictionaries
+  , readMaskedWordsFile -- for testing
 ) where
 
 import Prelude hiding (lookup)
 import qualified Data.Char as Char
+import qualified Data.ByteString.Lazy.Char8 as BS
 
 import Control.Exception (SomeException)
 import Control.Exception.Enclosed (catchAny)
@@ -56,9 +58,20 @@ readAndSaveDictionary languageCode dictionaryDir dictionaryCache maxMaskedLetter
 readDictionary :: String -> String -> Int -> IOExceptT String WordDictionary
 readDictionary languageCode dictionaryDir maxMaskedLetters = do
   words <- readWordsFile dictionaryDir languageCode dictionaryFileSuffix
-  maskedWords <- readWordsFile dictionaryDir languageCode maskedWordsFileSuffix
-  let dictionary = ((Dict.mkDictionary languageCode $! words) $! maskedWords) maxMaskedLetters
+  maskedWords <- readMaskedWordsFile dictionaryDir languageCode
+  let dictionary = Dict.mkDictionary languageCode words maskedWords maxMaskedLetters
   return dictionary
+
+-- | Use ByteStream to allow stream processing, and minimize memory overhead
+--   in getting the masked words in memory. The input file is expected to
+--   be in upper case.
+readMaskedWordsFile :: String -> String -> IOExceptT String [BS.ByteString]
+readMaskedWordsFile dictionaryDirectory languageCode = do
+  let path = mkFilePath dictionaryDirectory languageCode maskedWordsFileSuffix
+  liftIO $ print ("reading dictionary path " ++ path)
+  theLines <- ExceptT $ catchAny (readByteStringLines path) showBSException
+  liftIO $ print ("number of lines read " ++ show (length theLines))
+  return theLines
 
 readWordsFile :: String -> String -> String -> IOExceptT String [String]
 readWordsFile dictionaryDirectory languageCode fileSuffix = do
@@ -77,9 +90,18 @@ readLines :: String -> IOEither String [String]
 readLines path = do
   -- print $ "reading file: " ++ path
   contents <- readFile path
-  return $ Right (lines $! contents)
+  return $ Right (lines contents)
+  -- return $ Right (lines $! contents)
+
+readByteStringLines :: String -> IOEither String [BS.ByteString]
+readByteStringLines path = do
+  contents <- BS.readFile path
+  return $ Right (BS.lines contents)
 
 showException :: SomeException -> IOEither String [String]
 showException someExc = return $ Left $ show someExc
+
+showBSException :: SomeException -> IOEither String [BS.ByteString]
+showBSException someExc = return $ Left $ show someExc
 
 

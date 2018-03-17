@@ -38,34 +38,11 @@ object MaskedWordsPreprocessor extends App {
   val out = new PrintWriter(outFile)
 
   words.foreach { word =>
-    val maskedWords = WordUtil.maskWithBlanks(word, maxBlanks)
+    val maskedWords = WordUtil.maskWithBlanks(word, maxBlanks) map { _.toUpperCase }
     maskedWords.foreach { out.println }
   }
 
   out.close()
-
-  printMemory(runtime)
-
-  runtime.gc()
-  printMemory(runtime)
-
-  val t1 = System.currentTimeMillis()
-  val maskedInputSource = Source.fromFile(outFile)
-  val maskedWords = maskedInputSource.getLines().toSet
-  val t2 = System.currentTimeMillis()
-  println(s"number of masked words: ${maskedWords.size}")
-  val elapsed = (t2 - t1)/1000
-  println(s"time to load masked words: ${elapsed}")
-
-  val num = maskedWords.size
-  println(s"number of masked words: ${num}")
-
-  printMemory(runtime)
-  runtime.gc()
-  printMemory(runtime)
-
-  val s = maskedWords.size
-  println(s"masked words set size: ${s}")
 
   def printMemory(runtime: Runtime) = {
     val memory = runtime.totalMemory()
@@ -74,5 +51,30 @@ object MaskedWordsPreprocessor extends App {
 
     println(s"used memory: ${usedMemory}, free memory: ${freeMemory}")
   }
+
+//
+//  printMemory(runtime)
+//
+//  runtime.gc()
+//  printMemory(runtime)
+//
+//  val t1 = System.currentTimeMillis()
+//  val maskedInputSource = Source.fromFile(outFile)
+//  val maskedWords = maskedInputSource.getLines().toSet
+//  val t2 = System.currentTimeMillis()
+//  println(s"number of masked words: ${maskedWords.size}")
+//  val elapsed = (t2 - t1)/1000
+//  println(s"time to load masked words: ${elapsed}")
+//
+//  val num = maskedWords.size
+//  println(s"number of masked words: ${num}")
+//
+//  printMemory(runtime)
+//  runtime.gc()
+//  printMemory(runtime)
+//
+//  val s = maskedWords.size
+//  println(s"masked words set size: ${s}")
+
 
 }

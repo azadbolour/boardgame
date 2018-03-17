@@ -21,10 +21,12 @@ module Bolour.Language.Domain.WordDictionary (
   ) where
 
 import Data.Bool (bool)
+import qualified Data.Char as Char
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Maybe as Maybe
 import qualified Data.Map as Map
+import qualified Data.ByteString.Lazy.Char8 as BS
 
 import qualified Bolour.Util.MiscUtil as MiscUtil
 import Bolour.Language.Util.WordUtil (LetterCombo, WordIndex, DictWord)
@@ -41,24 +43,24 @@ data WordDictionary = WordDictionary {
     languageCode :: String  -- ^ public
   , words :: Set String     -- ^ private
   , index :: WordIndex      -- ^ private
-  , maskedWords :: Set String
+  , maskedWords :: Set BS.ByteString
   , maxMaskedLetters :: Int
 }
 
-mkDictionary :: String -> [DictWord] -> [String] -> Int -> WordDictionary
+mkDictionary :: String -> [DictWord] -> [BS.ByteString] -> Int -> WordDictionary
 mkDictionary languageCode words maskedWords maxMaskedLetters =
-  let wordSet = Set.fromList $! words
-      wordIndex = mkWordIndex $! words
-      maskedWordSet = Set.fromList $! maskedWords
-  in (((WordDictionary languageCode $! wordSet) $! wordIndex) $! maskedWordSet) maxMaskedLetters
+  let wordSet = Set.fromList words
+      wordIndex = mkWordIndex words
+      maskedWordSet = Set.fromList maskedWords
+  in WordDictionary languageCode wordSet wordIndex maskedWordSet maxMaskedLetters
   -- WordDictionary languageCode (Set.fromList words) (mkWordIndex words) (mkMaskedWords words maxMaskedLetters) maxMaskedLetters
 
-
-mkMaskedWords :: [DictWord] -> Int -> Set String
+mkMaskedWords :: [DictWord] -> Int -> Set BS.ByteString
 mkMaskedWords words maxMaskedLetters =
   let list = do
-               word <- words
-               WordUtil.maskWithBlanks word maxMaskedLetters
+       word <- words
+       masked <- WordUtil.maskWithBlanks word maxMaskedLetters
+       return $ BS.pack masked
   in Set.fromList list
 
 -- | Return all words of the dictionary as a set.
@@ -70,7 +72,9 @@ isWord :: WordDictionary -> String -> Bool
 isWord WordDictionary {words} word = word `Set.member` words
 
 isMaskedWord :: WordDictionary -> String -> Bool
-isMaskedWord WordDictionary {maskedWords} masked = masked `Set.member` maskedWords
+isMaskedWord WordDictionary {maskedWords} masked =
+  let rawMasked = BS.pack masked
+  in rawMasked `Set.member` maskedWords
 
 -- | Look up the words that are permutations of a given combination of letters.
 getWordPermutations ::
