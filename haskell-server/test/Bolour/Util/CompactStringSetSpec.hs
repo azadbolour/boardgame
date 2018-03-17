@@ -32,19 +32,21 @@ spec = do
       Set.contains set'' "four" `shouldBe` False
 
       -- Insertion of bulk data uses excessive memory. Not sure why. Give up for now.
---   describe "timing of insertions into compact string set" $ do
---     let set = Set.mkCompactStringSet
+--   describe "timing of insertions into compact string set" $
+--     -- let set = Set.mkCompactStringSet
 --     it "insert large lists in reasonable time" $ do
---       threadDelay (5 * 1000000)
+--       threadDelay (1 * 1000000)
 --       begin <- getCurrentTime
 --
 --       contents <- readFile "dict/en-masked-words.txt"
 --       let strings = lines contents
---       let s = strings !! 10000000
---       print s
---       threadDelay (5 * 1000000)
---       -- let Set.CompactStringSet { buckets } = Set.insertAll set strings
+--       -- let s = strings !! 10000000
+--       -- print s
+--       let set @ Set.CompactStringSet { buckets } = Set.mkFromList strings
 --       -- print $ "number of buckets: " ++ show (Map.size buckets)
+--       print $ "contains washy: " ++ show (Set.contains set "washy")
+--
+--       threadDelay (1 * 5000000)
 --
 --       end <- getCurrentTime
 --       let diffTime = diffUTCTime end begin

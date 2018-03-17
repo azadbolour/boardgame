@@ -10,6 +10,7 @@
 
 module Bolour.Util.CompactStringSet (
     CompactStringSet(..)
+  , mkFromList
   , mkCompactStringSet
   , insert
   , insertAll
@@ -21,6 +22,8 @@ import qualified Data.Map.Strict as Map
 import qualified Data.List as List
 import Data.Hashable
 import qualified Data.List.Split as Split
+
+import qualified Bolour.Util.MiscUtil as Util
 
 -- | Space efficient implementation of set of small strings.
 --   Packs a number of strings into a single bucket.
@@ -34,7 +37,8 @@ mkCompactStringSet = CompactStringSet Map.empty
 -- TODO. Size of hash table should be an input parameter to mkCompactStringSet.
 
 hashMask :: Int
-hashMask = 0x8FFFF -- 589823
+-- hashMask = 0x8FFFF -- 589,823
+hashMask = 0xFFFFFF -- 16,777,215
 
 hashIt :: String -> Int
 hashIt elem = hash elem .&. hashMask
@@ -47,6 +51,9 @@ delimiter = [delimiterChar]
 
 pack :: String -> String -> String
 pack packedElems elem = packedElems ++ delimiter ++ elem
+
+packAll :: [String] -> String
+packAll strings = List.intercalate delimiter strings
 
 unpack :: String -> [String]
 unpack = Split.splitOn delimiter
@@ -73,6 +80,13 @@ contains CompactStringSet { buckets } elem =
 -- For now unusable for masked words. To be diagnosed.
 insertAll :: CompactStringSet -> [String] -> CompactStringSet
 insertAll = List.foldl' insert
+
+mkFromList :: [String] -> CompactStringSet
+mkFromList values =
+  let mapToList = Util.mapFromValueList hashIt values
+      theMap = packAll <$> mapToList
+  in CompactStringSet theMap
+
 
 
 
