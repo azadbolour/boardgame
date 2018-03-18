@@ -8,6 +8,11 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 
+
+-- Experiment to try and reduce memory overhead of creating sets.
+-- Obsolete. The experiment failed!
+-- If necessary, try using mutable arrays IOArray instead.
+-- But the main overhead was reading a file as String vs as lazy byte string.
 module Bolour.Util.CompactStringSet (
     CompactStringSet(..)
   , mkFromList
