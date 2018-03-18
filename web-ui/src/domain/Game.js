@@ -32,10 +32,10 @@ export const mkEmptyGame = function(gameParams) {
   const valueFactory = PointValue.mkValueFactory(gameParams.dimension);
   const pointValues = valueFactory.mkEmptyValueGrid();
   const score = [0, 0];
-  return mkGame(gameParams, EMPTY_GAME_ID, board, tray, pointValues, score, RUN_STATE.PRE_START);
+  return mkGame(gameParams, EMPTY_GAME_ID, board, tray, pointValues, score, [], RUN_STATE.PRE_START);
 };
 
-export const mkGame = function(gameParams, gameId, board, tray, pointValues, score, runState = RUN_STATE.RUNNING) {
+export const mkGame = function(gameParams, gameId, board, tray, pointValues, score, machineMoves = [], runState = RUN_STATE.RUNNING) {
   let _gameParams = gameParams;
   let _gameId = gameId;
   let _board = board;
@@ -77,7 +77,7 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
     },
 
     kill: function() {
-      let $game = mkGame(_gameParams, _gameId, _board, _tray, _pointValues, _score, RUN_STATE.KILLED);
+      let $game = mkGame(_gameParams, _gameId, _board, _tray, _pointValues, _score, [], RUN_STATE.KILLED);
       return $game;
     },
 
@@ -173,7 +173,7 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
     },
 
     end: function() {
-      let $game = mkGame(_gameParams, _gameId, _board, _tray, _pointValues, _score, RUN_STATE.FINISHED);
+      let $game = mkGame(_gameParams, _gameId, _board, _tray, _pointValues, _score, [], RUN_STATE.FINISHED);
       return $game;
     },
 
