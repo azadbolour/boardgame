@@ -9,10 +9,9 @@
 import GameParams from "../domain/GameParams";
 import {mkPiece} from "../domain/Piece";
 import {mkPoint} from "../domain/Point";
-import {mkMovePlayPiece, mkCommittedPlayPiece} from "../domain/PlayPiece";
+import {mkMovePlayPiece} from "../domain/PlayPiece";
 import * as PlayPiece from "../domain/PlayPiece";
 import GameService from "../service/GameService";
-import TestUtil from "../__tests__/TestHelper";
 import {stringify} from "../util/Logger";
 import * as PointValue from '../domain/PointValue';
 
