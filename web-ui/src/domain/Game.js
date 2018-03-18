@@ -45,6 +45,7 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
   let _trayCapacity = gameParams.trayCapacity;
   let _pointValues = pointValues;
   let _score = score;
+  let _machineMoves = machineMoves;
   let _runState = runState;
 
   let updateScore = function(playerIndex, playScore) {
@@ -66,6 +67,7 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
     get trayCapacity() { return _trayCapacity; },
     get pointValues() { return _pointValues; },
     get score() { return _score.slice(); },
+    get machineMoves() { return _machineMoves.slice(); },
     get runState() {return _runState; },
 
     running: function() {
@@ -149,27 +151,30 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
       return _board.completedPlayPieces(); // Throws.
     },
 
-    commitUserMoves: function(playScore, replacementPieces) {
+    commitUserMoves: function(playScore, replacementPieces, deadPoints) {
       let $tray = _tray.addPieces(replacementPieces);
       let playedPieces = this.getUserMovePlayPieces().map(playPiece => playPiece.piece);
       // let $score = updateScore(USER_INDEX, playedPieces);
       let $score = updateScore(USER_INDEX, playScore);
       let $board = _board.commitUserMoves();
       let $game = mkGame(_gameParams, _gameId, $board, $tray, _pointValues, $score);
+      $game = $game.setDeadPoints(deadPoints);
       return $game;
     },
 
-    commitMachineMoves: function(playScore, moveGridPieces) {
+    commitMachineMoves: function(playScore, moveGridPieces, deadPoints) {
       let $board = _board.commitMachineMoves(moveGridPieces);
       let playedPieces = moveGridPieces.map(move => move.piece);
       // let $score = updateScore(MACHINE_INDEX, playedPieces);
       let $score = updateScore(MACHINE_INDEX, playScore);
-      return mkGame(_gameParams, _gameId, $board, _tray, _pointValues, $score);
+      let $game = mkGame(_gameParams, _gameId, $board, _tray, _pointValues, $score, moveGridPieces);
+      $game = $game.setDeadPoints(deadPoints);
+      return $game;
     },
 
     setDeadPoints: function(points) {
       let $board = _board.setDeadPoints(points);
-      return mkGame(_gameParams, _gameId, $board, _tray, _pointValues, _score);
+      return mkGame(_gameParams, _gameId, $board, _tray, _pointValues, _score, _machineMoves);
     },
 
     end: function() {

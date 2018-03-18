@@ -243,7 +243,7 @@ class GameComponent extends React.Component {
     let board = game.board;
     let trayPieces = game.tray.pieces;
     let squarePixels = this.props.game.squarePixels;
-    let pointsInPlay = board.getUserMovePlayPieces().map(pp => pp.point);
+    let pointsInUserPlay = board.getUserMovePlayPieces().map(pp => pp.point);
     let isLegalMove = game.legalMove.bind(game);
     let status = this.props.status;
     let userName = game.gameParams.appParams.userName;
@@ -252,6 +252,7 @@ class GameComponent extends React.Component {
     let isTrayPiece = game.tray.isTrayPiece.bind(game.tray);
     let isError = (status !== "OK" && status !== "game over"); // TODO. This is a hack! Better indication of error and severity.
     let pointValues = game.pointValues;
+    let machineMovePoints = game.machineMoves.map(gridPiece => gridPiece.point);
 
     /*
      * Note. Do not use &nbsp; for spaces in JSX. It sometimes
@@ -275,7 +276,8 @@ class GameComponent extends React.Component {
 
     let boardComponent = <BoardComponent
       board={board}
-      pointsInPlay={pointsInPlay}
+      pointsInUserPlay={pointsInUserPlay}
+      pointsMovedInMachinePlay={machineMovePoints}
       isLegalMove={isLegalMove}
       canMovePiece={canMovePiece}
       squarePixels={squarePixels}

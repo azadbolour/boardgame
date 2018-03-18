@@ -50,9 +50,14 @@ class BoardComponent extends React.Component {
     board: PropTypes.object.isRequired,
 
     /**
-     * Positions that are currently in play - i.e. occupied by pieces.
+     * Positions that are currently in play by the user - i.e. occupied by pieces.
      */
-    pointsInPlay: PropTypes.array.isRequired,
+    pointsInUserPlay: PropTypes.array.isRequired,
+
+    /**
+     * Points that were just filled by the machine.
+     */
+    pointsMovedInMachinePlay: PropTypes.array.isRequired,
 
     /**
      * Function of position that determines whether the position
@@ -81,7 +86,7 @@ class BoardComponent extends React.Component {
    * Is an row, col position currently occupied?
    */
   positionInPlay(point) {
-    return this.props.pointsInPlay.some(p => Point.eq(p, point));
+    return this.props.pointsInUserPlay.some(p => Point.eq(p, point));
   }
 
   /**
@@ -113,7 +118,8 @@ class BoardComponent extends React.Component {
     let isLegalMove = this.props.isLegalMove;
     let squarePixels = this.props.squarePixels;
     let point = mkPoint(row, col);
-    let inPlay = this.props.pointsInPlay.some(p => Point.eq(p, point));
+    let inPlay = this.props.pointsInUserPlay.some(p => Point.eq(p, point));
+    let justFilledByMachine = this.props.pointsMovedInMachinePlay.some(p => Point.eq(p, point));
     let enabled = this.props.enabled;
     let pointValue = this.props.pointValues.getElement(point);
     let center = Math.floor(dimension/20);
@@ -124,6 +130,7 @@ class BoardComponent extends React.Component {
       <div key={squareKey} style={squareStyle({squarePixels})}>
         <BoardSquareComponent
           inPlay={inPlay}
+          justFilledByMachine={justFilledByMachine}
           point={point}
           piece={squarePiece}
           isLegalMove={isLegalMove}

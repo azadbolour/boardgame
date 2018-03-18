@@ -207,8 +207,8 @@ export const mkGameEventHandler = function(gameService) {
       let processedPromise = promise.then(response => {
         if (response.ok) {
           let {gameMiniState, replacementPieces, deadPoints} = response.json;
-          let $game = _game.commitUserMoves(gameMiniState.lastPlayScore, replacementPieces);
-          _game = $game.setDeadPoints(deadPoints);
+          _game = _game.commitUserMoves(gameMiniState.lastPlayScore, replacementPieces, deadPoints);
+          // _game = $game.setDeadPoints(deadPoints);
           _status = OK;
           _auxGameData.pushWordPlayed(playPiecesWord(committedPlayPieces), "You"); // TODO. Use player name.
           emitChange(systemResponseType(response));
@@ -239,8 +239,8 @@ export const mkGameEventHandler = function(gameService) {
         if (response.ok) {
           let {gameMiniState, playedPieces, deadPoints} = response.json;
           let movedGridPieces = PlayPiece.movedGridPieces(playedPieces);
-          let $game = _game.commitMachineMoves(gameMiniState.lastPlayScore, movedGridPieces);
-          _game = $game.setDeadPoints(deadPoints);
+          _game = _game.commitMachineMoves(gameMiniState.lastPlayScore, movedGridPieces, deadPoints);
+          // _game = $game.setDeadPoints(deadPoints);
           _status = movedGridPieces.length > 0 ? OK : "bot took a pass";
           _auxGameData.pushWordPlayed(playPiecesWord(playedPieces), "Bot"); // TODO. Constant.
           emitChange(systemResponseType(response));

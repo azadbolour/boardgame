@@ -56,6 +56,20 @@ function inPlayStyle() {
   };
 }
 
+function justFilledByMachineStyle() {
+  const pix = '6px';
+  return {
+    position: 'absolute',
+    top: 1,
+    left: 1,
+    height: pix,
+    width: pix,
+    zIndex: 1,
+    color: 'white',
+    backgroundColor: 'YellowGreen'
+  };
+}
+
 function scoreStyle(pointValue, squarePixels) {
   const height = 10;
   const width = Math.floor(squarePixels/2);
@@ -233,6 +247,11 @@ class BoardSquareComponent extends React.Component {
     inPlay: PropTypes.bool.isRequired,
 
     /**
+     * This square was just filled by machine. Used to highlight the machine play.
+     */
+    justFilledByMachine: PropTypes.bool.isRequired,
+
+    /**
      * Is the cursor over the current square?
      */
     isOver: PropTypes.bool.isRequired,
@@ -255,11 +274,12 @@ class BoardSquareComponent extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     let inPlayDiff = nextProps.inPlay !== this.props.inPlay;
+    let justFilledByMachineDiff = nextProps.justFilledByMachine !== this.props.justFilledByMachine;
     let valueDiff = nextProps.pointValue !== this.props.pointValue;
     let overDiff = nextProps.isOver !== this.props.isOver;
     let dropDiff = nextProps.canDrop !== this.props.canDrop;
     let pieceDiff = !Piece.eq(nextProps.piece, this.props.piece);
-    return inPlayDiff || valueDiff || overDiff || dropDiff || pieceDiff;
+    return inPlayDiff || justFilledByMachineDiff || valueDiff || overDiff || dropDiff || pieceDiff;
   };
 
   render() {
@@ -269,6 +289,7 @@ class BoardSquareComponent extends React.Component {
     // let shade = checkerShade(this.props.point);
     let pixels = this.props.squarePixels;
     let inPlay = this.props.inPlay;
+    let justFilledByMachine = this.props.justFilledByMachine;
     let pointValue = this.props.pointValue;
     let dead = pieceIsDead(this.props.piece);
 
@@ -296,6 +317,7 @@ class BoardSquareComponent extends React.Component {
         {isOver && !canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'red')} />}
         {isOver && canDrop && <div style={colorCodedLegalMoveStyle(pixels, 'green')} />}
         {inPlay && <div style={inPlayStyle()} />}
+        {justFilledByMachine && <div style={justFilledByMachineStyle()} />}
         {!dead &&
           <div style={scoreStyle(pointValue, pixels)}>
             {pointValue}
