@@ -162,13 +162,15 @@ class GameComponent extends React.Component {
 
   renderWord(index, key) {
     let words = this.props.auxGameData.wordsPlayed;
-    let l = words.length
+    let l = words.length;
     let word = words[index].word;
     let wordRep = word.length > 0 ? word : '-----';
     let color = index === l - 1 ? 'FireBrick' : 'Chocolate';
+    let backgroundColor = (index % 2) === 0 ? 'LemonChiffon' : 'Gold';
     return <div key={key}
                 style={{
                   color: color,
+                  backgroundColor: backgroundColor,
                   padding: '3px'
                   }}>{wordRep}</div>;
   }
