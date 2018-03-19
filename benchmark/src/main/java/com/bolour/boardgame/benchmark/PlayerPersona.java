@@ -18,6 +18,7 @@ import com.bolour.boardgame.client.message.StartGameRequest;
 import com.bolour.boardgame.client.message.StartGameResponse;
 import com.bolour.util.rest.BasicCredentials;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.random;
@@ -75,9 +76,22 @@ public class PlayerPersona extends AbstractBenchmarkPersona {
         return null;
     }
 
-    private BenchmarkStateTransition doStart(InitialState initialState) {
+    private List<List<Integer>> mkPointValues(int dimension) {
+        List<Integer> row = new ArrayList<>(dimension);
+        for (int i = 0; i < dimension; i++)
+            row.add(2);
 
-        StartGameRequest startRequest = new StartGameRequest(DEFAULT_GAME_PARAMS, EMPTY_LIST, EMPTY_LIST, EMPTY_LIST);
+        List<List<Integer>> pointValues = new ArrayList<>(dimension);
+        for (int i = 0; i < dimension; i++)
+            pointValues.add(row);
+
+        return pointValues;
+    }
+
+    private BenchmarkStateTransition doStart(InitialState initialState) {
+        int dimension = DEFAULT_GAME_PARAMS.dimension;
+        List<List<Integer>> pointValues = mkPointValues(dimension);
+        StartGameRequest startRequest = new StartGameRequest(DEFAULT_GAME_PARAMS, EMPTY_LIST, EMPTY_LIST, EMPTY_LIST, pointValues);
         StartGameResponse startResponse = client.startGame(startRequest);
         BaseState runningState = new RunningState(startResponse.gameId, 0);
         return new BenchmarkStateTransition(initialState, runningState, mkInteraction(START_METHOD));
