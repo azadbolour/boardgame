@@ -4,9 +4,6 @@
 
 ## System Improvements
 
-- Animate the machine's placement of tiles to the board so it is clear what
-  happened in a machine play.
-
 - User registration. Currently there are no registered users. Just a built-in
   one called _You_.
 
@@ -15,16 +12,11 @@
 
 - Provide user preference page. Include user's preferred language.
 
-- Android UI. Current web ui does not work in Android browser.
-  Native Android UI would be preferable.
-
-- iPhone UI. Ditto.
-
 - Disable play and show hourglass while an action is happening.
 
 - Add error boundary for React.
 
-- Improve error repoting in the UI from Scala server.
+- Improve error reporting in the UI from Scala server.
 
 ## Known Issues
 
@@ -98,22 +90,6 @@
   If we time out on a fetch request, the fetch has to be cancelled. 
   Best practices for cancelling fetch?
 
-- When running with production version:
-
-  warning.js:35 Warning: It looks like you're using a minified copy of the
-  development build of React. When deploying React apps to production, make sure
-  to use the production build which skips development warnings and is faster.
-  See https://fb.me/react-minification for more details.
-
-  Have to add this to the prod config of webpack for real production.
-
-  ```
-  new webpack.DefinePlugin({
-    'process.env': {
-      NODE_ENV: JSON.stringify('production')
-    }
-  }),
-  ```
 - Webpack warnings, e.g., for node-fetch - can they be fixed?
 
 - Add population of seed data to the docker file.
@@ -136,8 +112,6 @@
 - Use LoggingT after ReaderT in transformer stack.
 
 - Separate GameState from Game in Haskell server.
-
-- Use NoContent instead of () in Servant API.
 
 - Logging in server. How to restrict logging level in logging-effect?
 
