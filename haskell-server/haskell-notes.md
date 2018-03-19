@@ -1,4 +1,28 @@
 
+- To read large text files, use lazy byte strings, i.e., the functions provided by: 
+  Data.ByteString.Lazy.Char8. 
+  
+  There are two differences from using the base functions for reading Strings
+  that lead to major savings in time and memory footprint for reading. First,
+  there is no need to convert to unicode characters. Second, and perhaps more
+  importantly, lazy byte string reading of a file works in a streaming fashion
+  (basically using an iterator), avoiding the need to instantiate the entire
+  file in memory while it is processed.
+
+  This can save a great deal of memory and time even in cases where the entire 
+  data needs to be saved at the end but is manipulated somehow on the way in. 
+  
+  Just avoid converting to String for as long as possible. It is best to use
+  byte strings in the final data structure for the lines, words, etc., of the
+  file, and just work with byte strings. Functions that take a string argument
+  for searching or otherwise working with the data structure, can convert the 
+  string argument to byte string first.
+
+  In this application, reading the masked words file as strings took an 
+  inordinate amount of time and memory. Converting the reads and the final Set
+  of masked words to byte string reduced memory use by a factor of 4, and 
+  time by a couple of orders of magnitude.
+
 - `sequence_ $ print <$> outputLines`
 
   Just returns: m () - useful in spec tests.

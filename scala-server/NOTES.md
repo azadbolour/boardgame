@@ -478,18 +478,32 @@
   > reload
   > exit
 
-Initial install produced:
+- Creating a new sbt project:
 
-Caveats
+  https://www.scala-sbt.org/1.x/docs/Hello.html
 
-You can use $SBT\_OPTS to pass additional JVM options to SBT:
+  Creates a lower level directory with the name of the project. Need to cd
+  there. Also creates target directory at the top level. Not sure why. Since the
+  project is inside the lower level directory.
+
+  I had an issue trying to import the out-of-thebox project into Intellij:
+  org.jetbrains.sbt.CreateTasks ClassNotFoundException. 
+
+  To resolve the issue, I ended up changing the scala version and sbt version
+  to those of another project that I knew worked in Intellij.
+
+- Initial install produced (FWIW):
+
+  Caveats
+
+  You can use $SBT\_OPTS to pass additional JVM options to SBT:
    SBT\_OPTS="-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M"
 
-This formula uses the standard Lightbend sbt launcher script.
-Project specific options should be placed in .sbtopts in the root of your project.
-Global settings should be placed in /usr/local/etc/sbtopts
-==> Summary
-🍺  /usr/local/Cellar/sbt/1.0.2: 482 files, 61.0MB, built in 45 seconds
+  This formula uses the standard Lightbend sbt launcher script.
+  Project specific options should be placed in .sbtopts in the root of your project.
+  Global settings should be placed in /usr/local/etc/sbtopts
+  ==> Summary
+  🍺  /usr/local/Cellar/sbt/1.0.2: 482 files, 61.0MB, built in 45 seconds
 
 ## Play
 

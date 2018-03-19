@@ -1,4 +1,66 @@
 
+## Setting up the Host Deployment Machine
+
+- Before you can deploy the docker container on a host machine,
+  a couple of preparation steps are needed on that machine.
+  This is a one-time setup that is largely scripted in the script
+  `prod-initial-setup.sh`. You need to run this script on the host 
+  machine, and then edit the externalized Play configuration file
+  that it creates to add in deployment-time configuration parameters.
+  See below for details.
+
+- For security reasons, the Play framework requires the hostname:port
+  information of the hosts that can use the application to be provided 
+  in the application configuration file via the configuration parameter
+  `play.filters.hosts` like this:
+
+    `
+    play.filters.hosts {
+      allowed = ["host1.com:8080", "host2.com:8090]
+    }
+    `
+
+  However, this information is only available at deployment time. Because 
+  the application is deployed in a docker container, the hosts information
+  has to be provided to the docker container externally at deployment time.
+
+  By convention, the deployment scripts expect an external configuration file 
+  to be provided on the host machine where the docker image is being installed
+  at the following location:
+
+      `/opt/data/boardgame/conf/prod.conf`
+
+  This file can refer to the packaged `application.conf` file for all built-in
+  configurations, but provide the deployment configuration options. It would 
+  look something like:
+
+    `
+    include "application"
+
+    play.filters.hosts {
+      allowed = ["thehost:8080"]
+    }
+    `
+
+- For secure encryption, the play application requires a secret key, as the 
+  value of the configuration parameter `play.http.secret.key`. Since the 
+  docker image of the application is public, the secret key also needs to be
+  provided in the externalized configuration file. See:
+
+    http://playframework.com/documentation/latest/ApplicationSecret
+
+- The play application uses a lock file while it is up.
+  After a crash, the lock file stays put and prevents a restart.
+  In order to be able to easily remove the lock file, it too is externalized
+  to the host directory `/var/run/boardgame`. This directory needs to 
+  be created before deployment.
+
+- The script `prod-initial-setup.sh` creates the appropriate directories and
+  a template of the external prod.conf file. To prepare the host machine,
+  run the script and then edit the created prod.conf file to add in your host
+  and port number to the allowed hosts configuration parameter, and your secret 
+  encryption key.
+
 ## To Do
 
 - Use persistent database. Currently using h2.
@@ -45,8 +107,6 @@
 - Parallel execution of tests. 
 
 ## Improvements
-
-- Add play table for Scala.
 
 - Should the controller call on services asynchronously? 
 

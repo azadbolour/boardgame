@@ -1,7 +1,8 @@
 include "application.conf"
 
 play.filters.hosts {
-    # Allow requests to example.com, its subdomains, and localhost:9000.
     allowed = [".example.com", "localhost:9000"]
 }
+
+play.http.secret.key = changeme
 

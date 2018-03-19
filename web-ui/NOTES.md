@@ -1,4 +1,16 @@
 
+- Some useful react-dnd links:
+
+    https://github.com/yahoo/react-dnd-touch-backend
+    https://www.npmjs.com/package/react-dnd-touch-backend
+    https://github.com/yahoo/react-dnd-touch-backend/blob/master/examples/js/DraggableItem.jsx
+
+    https://medium.com/@adamrackis/react-dnd-intro-for-the-redux-developer-d447c2c1577b
+    https://github.com/react-dnd/react-dnd/blob/master/examples/02%20Drag%20Around/Custom%20Drag%20Layer/BoxDragPreview.js
+    https://github.com/react-dnd/react-dnd/blob/312269a244a19ae8f25b6ec9a3847c90c1ae9cdf/docs/00%20Quick%20Start/Tutorial.md
+
+    https://react-dnd.github.io/react-dnd/docs-drag-source-connector.html
+
 - On MAC got the following error after a clean npm install. 
 
   xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory 
@@ -199,3 +211,14 @@
 
   You might try to change to stateless functional components where
   possible however.
+
+- DragPreview is a component - it should basically be a copy of the component 
+  being dragged with some indication that it is being dragged as shown here
+  
+  https://github.com/react-dnd/react-dnd/blob/master/examples/02%20Drag%20Around/Custom%20Drag%20Layer/BoxDragPreview.js
+
+  dragPreview is a function that returns a function that can be used to create
+  the preview component.
+
+  It works like the dragSource function and can be injected in the same manner.
+
