@@ -19,8 +19,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -30,6 +33,18 @@ import static junit.framework.TestCase.assertTrue;
 public class BasicGameClientTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BasicGameClientTest.class);
+
+    private List<List<Integer>> mkPointValues(int dimension) {
+        List<Integer> row = new ArrayList<>(dimension);
+        for (int i = 0; i < dimension; i++)
+            row.add(2);
+
+        List<List<Integer>> pointValues = new ArrayList<>(dimension);
+        for (int i = 0; i < dimension; i++)
+            pointValues.add(row);
+
+        return pointValues;
+    }
 
     @Test
     public void testStartGame() throws Exception {
@@ -49,8 +64,8 @@ public class BasicGameClientTest {
 
         // TODO. PieceProviderType enum.
         GameParams gameParams = new GameParams(dimension, numTrayPieces, "en", name, "Random");
-
-        StartGameRequest startRequest = new StartGameRequest(gameParams, EMPTY_LIST, EMPTY_LIST, EMPTY_LIST);
+        List<List<Integer>> pointValues = mkPointValues(dimension);
+        StartGameRequest startRequest = new StartGameRequest(gameParams, EMPTY_LIST, EMPTY_LIST, EMPTY_LIST, pointValues);
         StartGameResponse startResponse = client.startGame(startRequest);
 
         String gameId = startResponse.gameId;

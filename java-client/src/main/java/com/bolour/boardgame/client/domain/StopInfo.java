@@ -14,23 +14,11 @@ import java.util.List;
 
 class StopInfo {
     int successivePasses;
-    int maxSuccessivePasses;
-    boolean isSackEmpty;
-    boolean isUserTrayEmpty;
-    boolean isMachineTrayEmpty;
 
     @JsonCreator
     public StopInfo(
-      @JsonProperty("successivePasses") int successivePasses,
-      @JsonProperty("maxSuccessivePasses") int maxSuccessivePasses,
-      @JsonProperty("isSackEmpty") boolean isSackEmpty,
-      @JsonProperty("isUserTrayEmpty") boolean isUserTrayEmpty,
-      @JsonProperty("isMachineTrayEmpty") boolean isMachineTrayEmpty
+      @JsonProperty("successivePasses") int successivePasses
     ) {
         this.successivePasses = successivePasses;
-        this.maxSuccessivePasses = maxSuccessivePasses;
-        this.isSackEmpty = isSackEmpty;
-        this.isUserTrayEmpty = isUserTrayEmpty;
-        this.isMachineTrayEmpty = isMachineTrayEmpty;
     }
 }

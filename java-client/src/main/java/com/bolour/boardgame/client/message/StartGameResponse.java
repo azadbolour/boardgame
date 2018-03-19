@@ -7,7 +7,7 @@
 package com.bolour.boardgame.client.message;
 
 import com.bolour.boardgame.client.domain.GameParams;
-import com.bolour.boardgame.client.domain.GridPiece;
+import com.bolour.boardgame.client.domain.PiecePoint;
 import com.bolour.boardgame.client.domain.Piece;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,14 +18,14 @@ public class StartGameResponse {
 
     public final String gameId;
     public final GameParams gameParams;
-    public final List<GridPiece> gridPieces;
+    public final List<PiecePoint> gridPieces;
     public final List<Piece> trayPieces;
 
     @JsonCreator
     public StartGameResponse(
       @JsonProperty("gameId") String gameId,
       @JsonProperty("gameParams") GameParams gameParams,
-      @JsonProperty("gridPieces") List<GridPiece> gridPieces,
+      @JsonProperty("gridPieces") List<PiecePoint> gridPieces,
       @JsonProperty("trayPieces") List<Piece> trayPieces
     ) {
         this.gameId = gameId;

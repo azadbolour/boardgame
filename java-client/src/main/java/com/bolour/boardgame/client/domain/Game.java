@@ -18,7 +18,7 @@ public class Game {
     public final String languageCode;
     public final int height, width;
     public final int trayCapacity;
-    public final List<GridPiece> gridPieces;
+    public final List<PiecePoint> gridPieces;
     public final List<Piece> trayPieces;
     public final String player;
 
@@ -29,7 +29,7 @@ public class Game {
       @JsonProperty("height") int height,
       @JsonProperty("width") int width,
       @JsonProperty("trayCapacity") int trayCapacity,
-      @JsonProperty("gridPieces") List<GridPiece> gridPieces,
+      @JsonProperty("gridPieces") List<PiecePoint> gridPieces,
       @JsonProperty("trayPieces") List<Piece> trayPieces,
       @JsonProperty("player") String player
     ) {

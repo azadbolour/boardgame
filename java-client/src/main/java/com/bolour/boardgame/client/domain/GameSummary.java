@@ -11,18 +11,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GameSummary {
     public final StopInfo stopInfo;
-    public final int[] endOfPlayScores;
-    public final int[] totalScores;
 
     @JsonCreator
     public GameSummary(
-      @JsonProperty("stopInfo") StopInfo stopInfo,
-      @JsonProperty("endOfPlayScores") int[] endOfPlayScores,
-      @JsonProperty("totalScores") int[] totalScores
+      @JsonProperty("stopInfo") StopInfo stopInfo
     ) {
         this.stopInfo = stopInfo;
-        this.endOfPlayScores = endOfPlayScores;
-        this.totalScores = totalScores;
     }
 
 }

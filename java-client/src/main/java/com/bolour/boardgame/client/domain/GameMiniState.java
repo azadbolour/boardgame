@@ -12,22 +12,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class GameMiniState {
     public final int lastPlayScore;
     public final int[] scores;
-    public final int numSackTiles;
-    public final int trayCapacity;
     public final boolean noMorePlays;
 
     @JsonCreator
     public GameMiniState(
       @JsonProperty("lastPlayScore") int lastPlayScore,
       @JsonProperty("scores") int[] scores,
-      @JsonProperty("numSackTiles") int numSackTiles,
-      @JsonProperty("trayCapacity") int trayCapacity,
       @JsonProperty("noMorePlays") boolean noMorePlays
     ) {
         this.lastPlayScore = lastPlayScore;
         this.scores = scores;
-        this.numSackTiles = numSackTiles;
-        this.trayCapacity = trayCapacity;
         this.noMorePlays = noMorePlays;
     }
 
