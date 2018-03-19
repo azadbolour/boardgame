@@ -53,7 +53,6 @@ mkDictionary languageCode words maskedWords maxMaskedLetters =
       wordIndex = mkWordIndex words
       maskedWordSet = Set.fromList maskedWords
   in WordDictionary languageCode wordSet wordIndex maskedWordSet maxMaskedLetters
-  -- WordDictionary languageCode (Set.fromList words) (mkWordIndex words) (mkMaskedWords words maxMaskedLetters) maxMaskedLetters
 
 mkMaskedWords :: [DictWord] -> Int -> Set BS.ByteString
 mkMaskedWords words maxMaskedLetters =

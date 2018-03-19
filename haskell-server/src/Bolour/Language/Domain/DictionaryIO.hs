@@ -32,12 +32,6 @@ import qualified Bolour.Language.Domain.DictionaryCache as DictCache
 dictionaryFileSuffix = "-words.txt"
 maskedWordsFileSuffix = "-masked-words.txt"
 
--- dictionaryFileName :: String -> String
--- dictionaryFileName languageCode = languageCode ++ dictionaryFileSuffix
---
--- maskedWordsFileName :: String -> String
--- maskedWordsFileName languageCode = languageCode ++ maskedWordsFileSuffix
-
 -- TODO. Use specific exceptions for the language module.
 readAllDictionaries :: String -> [String] -> Int -> Int -> IOExceptT String DictionaryCache
 readAllDictionaries dictionaryDir languageCodes maxDictionaries maxMaskedLetters = do
@@ -88,10 +82,8 @@ mkFilePath dictionaryDir languageCode fileSuffix =
 
 readLines :: String -> IOEither String [String]
 readLines path = do
-  -- print $ "reading file: " ++ path
   contents <- readFile path
   return $ Right (lines contents)
-  -- return $ Right (lines $! contents)
 
 readByteStringLines :: String -> IOEither String [BS.ByteString]
 readByteStringLines path = do

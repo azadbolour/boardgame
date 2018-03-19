@@ -136,9 +136,6 @@ addPlayerService player = do
 -- TODO. Move to GameError.
 type GameIOEither a = IO (Either GameError a)
 
--- gameIOEitherLifter :: GameIOEither a -> GameTransformerStack a
--- gameIOEitherLifter ioEither = liftGameExceptToStack $ ExceptT ioEither
-
 stringExceptLifter :: ExceptT String IO a -> GameTransformerStack a
 stringExceptLifter except =
   let errorMapper = InternalError
@@ -158,7 +155,6 @@ startGameService ::
   -> [Piece]
   -> [[Int]]
   -> GameTransformerStack Game
-  -- -> GameTransformerStack (Game, Maybe [PlayPiece])
 
 startGameService gameParams initGridPieces initUserPieces initMachinePieces pointValues = do
   params @ GameParams.GameParams {dimension, languageCode, pieceProviderType} <- Game.validateGameParams gameParams
@@ -170,10 +166,6 @@ startGameService gameParams initGridPieces initUserPieces initMachinePieces poin
   game @ Game{ gameId } <- Game.mkInitialGame params pieceProvider initGridPieces initUserPieces initMachinePieces pointValues playerName
   GameDao.addGame connectionProvider $ gameToRow playerRowId game
   liftGameExceptToStack $ GameCache.insert game gameCache
-  -- playPieces <- machinePlayService gameId
-  -- Machine play has changed the game. Get the latest.
-  -- game' <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
-  -- return (game', Just playPieces) -- TODO. Return Nothing playPieces if user goes first.
   return game
 
 validateCrossWords :: Board -> WordDictionary -> Strip -> String -> GameTransformerStack ()
@@ -185,7 +177,6 @@ validateCrossWords board dictionary strip word = do
 -- | Find points on the board that cannot possibly be played
 --   and update board accordingly.
 updateDeadPoints :: Board -> WordDictionary -> Int -> (Board, [Point])
--- updateDeadPoints board dictionary trayCapacity = (board, []) -- TODO. Implement
 updateDeadPoints = Matcher.setHopelessBlankPointsAsDeadRecursive
 
 -- | Service function to commit a user play - reflecting it on the
@@ -300,16 +291,6 @@ closeGameService gameId = do
 
 -- TODO. A swap is also a play and should increment the playNumber. For both machine and user.
 -- TODO. play number needs to be updated at the right time.
-
--- exchangeMachinePiece (game @ Game.Game {gameId, board, trays, playNumber, ..}) = do
---   piece <- liftIO Piece.mkRandomPiece -- TODO. Must get the piece from the game.
---   let (machineTray @ Tray {pieces}) = trays !! Player.machineIndex
---       (Just (_, index)) = Piece.leastFrequentLetter $ Piece.value <$> pieces
---       swappedPiece = pieces !! index
---       tray' = Tray.replacePiece machineTray index piece
---   -- TODO. Update play number at the right place before using it here.
---   saveSwap gameId playNumber MachinePlayer swappedPiece piece
---   return $ Game.setPlayerTray game MachinePlayer tray'
 
 saveWordPlay :: String -> Int -> PlayerType -> [PlayPiece] -> [Piece]
   -> GameTransformerStack EntityId

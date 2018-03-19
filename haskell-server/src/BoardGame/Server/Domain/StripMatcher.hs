@@ -22,12 +22,9 @@ import qualified Data.Set as Set
 import Data.Map (Map)
 import Data.List (foldl')
 import qualified Data.Map as Map
--- import qualified Data.ByteString.Char8 as BS
--- import Data.ByteString.Char8 (ByteString)
 
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
--- import qualified Bolour.Plane.Domain.GridValue as GridValue
 import qualified Bolour.Plane.Domain.Axis as Axis
 import Bolour.Plane.Domain.Axis (Axis)
 import Bolour.Plane.Domain.Point (Point)
@@ -52,17 +49,6 @@ wordFitsContent stripContent word =
   let fits stripChar wordChar = WordUtil.isBlankChar stripChar || stripChar == wordChar
       fitList = zipWith fits stripContent word
   in foldl' (&&) True fitList
-
--- wordFitsContent :: String -> DictWord -> Bool
--- wordFitsContent stripContent word
---   | null stripContent && null word = True
---   | null stripContent || null word = False -- For good measure!
---   | otherwise =
---      let stripHead = head stripContent
---          stripTail = tail stripContent
---          wordHead = head word
---          wordTail = tail word
---      in (Strip.isBlankChar stripHead || stripHead == wordHead) && wordFitsContent stripTail wordTail
 
 -- | Find a match (if any) for a given strip.
 --   Any match would do since our optimality measure is the total length
@@ -193,11 +179,6 @@ groupedPlayableStrips board trayCapacity valuation =
       blankMapMaker = MiscUtil.mapFromValueList Strip.blanks
     in blankMapMaker <$> mapByValue
 
--- gridStripToStrip :: (Axis.Axis, Coordinate, Coordinate, Int, [Maybe Piece]) -> Strip
--- gridStripToStrip (axis, lineNumber, offset, size, maybeCharList) =
---   Strip.mkStrip axis lineNumber offset (offset + size - 1) content
---     where content = (Piece.value . Piece.fromMaybe) <$> maybeCharList
-
 hopelessBlankPointsForAxis :: Board -> WordDictionary -> Int -> Axis -> Set.Set Point
 hopelessBlankPointsForAxis board dictionary @ WordDictionary {maxMaskedLetters} trayCapacity axis =
   let blanksToStrips = Board.playableEnclosingStripsOfBlankPoints board axis trayCapacity
@@ -209,12 +190,6 @@ hopelessBlankPointsForAxis board dictionary @ WordDictionary {maxMaskedLetters} 
       stripsForHopelessBlanks = Map.filterWithKey (stripsFilter (not . stripMatchExists)) denselyEnclosedBlanks
   in
     Set.fromList $ Map.keys stripsForHopelessBlanks
-
--- TODO. Should change strips to have blanks instead of null chars for empty slots.
--- nullsToBlanks :: String -> String
--- nullsToBlanks s =
---   let nullToBlank ch = if Piece.isEmptyChar ch then ' ' else ch
---   in nullToBlank <$> s
 
 hopelessBlankPoints :: Board -> WordDictionary -> Int -> Set.Set Point
 hopelessBlankPoints board dictionary trayCapacity =

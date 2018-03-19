@@ -34,7 +34,3 @@ writeMaskedWords path maxBlanks word = do
   let maskedWords = (Char.toUpper <$>) <$> WordUtil.maskWithBlanks word maxBlanks
   sequence_ $ writeLine <$> maskedWords
     where writeLine line = appendFile path (line ++ "\n")
-
---  maskedWords = Set.toList $ Dict.mkMaskedWords words maxBlanks
---  printIt s = appendFile outFile (s ++ "\n")
---  sequence_ $ printIt <$> maskedWords
