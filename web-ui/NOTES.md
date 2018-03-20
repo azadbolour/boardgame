@@ -1,4 +1,11 @@
 
+- Useful links for touch vs mouse:
+
+    https://github.com/react-dnd/react-dnd/issues/743 - windows 10 firefox issue
+    https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent
+    https://github.com/react-dnd/react-dnd/issues/298 - discussion
+    https://github.com/jcoreio/react-dnd-multi-backend - has the code for it
+
 - Some useful react-dnd links:
 
     https://github.com/yahoo/react-dnd-touch-backend

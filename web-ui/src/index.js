@@ -17,6 +17,7 @@ import {mkGameEventHandler} from './event/GameEventHandler';
 import {gameDispatcher} from './event/GameDispatcher';
 import {mkEmptyGame} from './domain/Game';
 import {emptyAuxGameData} from './domain/AuxGameData';
+import {initBrowserInfo} from './util/BrowserUtil';
 
 let params = queryParams(window.location);
 
@@ -31,7 +32,8 @@ let settableParameters = {
   'dimension': 'int',
   'tray-capacity': 'int',
   'square-pixels': 'int',
-  'starting-player': 'string'
+  'starting-player': 'string',
+  'preferred-input-device': 'string'
 };
 
 const initialState = (function() {
@@ -67,6 +69,8 @@ const validateParam = function(name, value) {
       return GameParams.validateSquarePixels(value);
     case 'starting-player':
       return GameParams.validateStartingPlayer(value);
+    case 'preferred-input-device':
+      return GameParams.validatePreferredInputDevice(value);
     default:
       break;
   }
@@ -113,7 +117,10 @@ for (let name in settableParameters) {
 
 // Special parameter processing.
 
-// No starting player? Don't use the default, randomly choose one.
+// Detect and record the input device to be used for drag and drop.
+initBrowserInfo(gameParams.preferredInputDevice);
+
+// No starting player? Randomly choose one.
 
 let startingPlayer = params.getParam('starting-player');
 if (startingPlayer === undefined) {
