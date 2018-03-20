@@ -5,7 +5,7 @@
  */
 package com.bolour.language.scala.domain
 
-import java.io.File
+import java.io.{BufferedReader, File, FileReader}
 
 import com.bolour.boardgame.scala.server.util.WordUtil._
 import com.bolour.language.scala.domain.WordDictionary._
@@ -121,6 +121,24 @@ object WordDictionary {
           CompactStringSet(uppers)
         }
         finally {source.close}
+      }
+    } yield set
+  }
+
+  // Using BufferedReader is 20% slower than using source, but uses slightly less memory.
+  def readMaskedWordsCompactAsStream(languageCode: String, dictionaryDir: String): Try[CompactStringSet] = {
+    val name = maskedWordsFileName(languageCode)
+    val path = s"${dictionaryDir}${File.separator}${name}"
+    for {
+      // source <- mkFileSource(path).orElse(mkResourceSource(path, WordDictionary.classLoader))
+      reader: BufferedReader <- Try {new BufferedReader(new FileReader(path))}
+      set <- Try {
+        try {
+          val lines = reader.lines()
+          val uppers: java.util.stream.Stream[String] = lines.map(_.toUpperCase)
+          CompactStringSet(uppers)
+        }
+        finally {reader.close}
       }
     } yield set
   }

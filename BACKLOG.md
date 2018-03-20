@@ -7,6 +7,10 @@
 - User registration. Currently there are no registered users. Just a built-in
   one called _You_.
 
+- Button to end the game at any time.
+
+- If the board is completely full, end the game automatically.
+
 - Add dictionaries for other languages to the system. Allow user to 
   choose the game's language.
 
@@ -51,6 +55,20 @@
   Save preferences in the database.
 
 ## Technical Debt
+
+- Getting stack traces on errors in Haskell requires profiling.
+  Profiling may have something like 30% space overhead and some
+  (unknown) performance overhead. But locating errors occurring 
+  in production is not optional!
+
+  So production code should be compiled with profiling.
+  Just understand the memory and performance differences for this application.
+
+- Representation of game in Haskell currently uses a single data structure for 
+  the game as a whole and the game;s state. Separate these two concerns.
+
+- Validate all API input arguments. In particular, pointValues is currently 
+  not validated in the start game API call.
 
 - For all Haskell data structures decide what fields are public and only export those.
 

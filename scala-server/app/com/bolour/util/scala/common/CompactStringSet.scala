@@ -40,6 +40,7 @@ class CompactStringSet {
   }
 
   def ++(elems: Iterator[String]): Unit = elems.foreach {elem => insert(elem)}
+  def ++(elems: java.util.stream.Stream[String]): Unit = elems.forEach {elem => insert(elem)}
 
   private def hash(string: String): Int = string.hashCode & hashMask
 
@@ -61,6 +62,12 @@ object CompactStringSet {
   def apply(iterator: Iterator[String]): CompactStringSet = {
     val set = new CompactStringSet()
     set ++ iterator
+    set
+  }
+
+  def apply(stream: java.util.stream.Stream[String]): CompactStringSet = {
+    val set = new CompactStringSet()
+    set ++ stream
     set
   }
 
