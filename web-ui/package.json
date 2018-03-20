@@ -40,6 +40,7 @@
     "react-dnd-touch-backend": "^0.3.20",
     "react-dom": "^16.2.0",
     "react-list": "*",
-    "valid-url": "*"
+    "valid-url": "*",
+    "detect-it": "*"
   }
 }
