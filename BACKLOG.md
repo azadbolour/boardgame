@@ -50,11 +50,26 @@
 
   https://github.com/algas/haskell-servant-cookbook/blob/master/doc/Https.md
 
-- Disallow all URL parameters to avoid issues with bad URL.
-  Create a preference page where you can set parameters.
+- Create a preference page where you can set parameters.
   Save preferences in the database.
 
+- Graceful message when server is down. Currently the user gets no message.
+  But the console gets the undecipherable message (bug): "Cannot read property
+  kill of undefined."
+
 ## Technical Debt
+
+- Validate a piece placed on the baord - must be upper case alpha.
+
+- Deploy to the AWS ECS - elastic container service. Use Fargate for 
+  pay-as-you-go. 
+
+- Implement the database layer on Amazon DynamoDB and connect from 
+  the Fargate container. Reasonably-priced pereistent store. Store entire 
+  games in a JSON string. Users. Ownership of games by users by date.
+  Haskell bindings for Amazon services: amazonka.
+
+- Blue-green deployment for the application in docker containers.
 
 - Getting stack traces on errors in Haskell requires profiling.
   Profiling may have something like 30% space overhead and some
@@ -147,7 +162,7 @@
 - Test for cache full.
 
 - Check that all possible javascript exceptions are handled at 
-  the highest level.
+  the highest level - use React top-level handler for components.
 
 - Performance of large databases. Indexing. 
 
