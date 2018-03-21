@@ -17,7 +17,6 @@ import {mkGameEventHandler} from './event/GameEventHandler';
 import {gameDispatcher} from './event/GameDispatcher';
 import {mkEmptyGame} from './domain/Game';
 import {emptyAuxGameData} from './domain/AuxGameData';
-import {initBrowserInfo} from './util/BrowserUtil';
 
 let params = queryParams(window.location);
 
@@ -52,6 +51,9 @@ const initialState = (function() {
 
 // TODO. Move validation to GameParams once it is refactored to use the module pattern,
 // with immutable fields.
+
+// TODO. Game-related constants shoul dbe defined in GameParams.
+// TODO. General application constnsts should be defined in AppParams.
 
 const validateParam = function(name, value) {
   switch (name) {
@@ -116,9 +118,6 @@ for (let name in settableParameters) {
 }
 
 // Special parameter processing.
-
-// Detect and record the input device to be used for drag and drop.
-initBrowserInfo(gameParams.preferredInputDevice);
 
 // No starting player? Randomly choose one.
 

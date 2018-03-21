@@ -5,6 +5,8 @@
  */
 
 /** @module Game */
+
+import detectIt from 'detect-it';
 const DragDropContext = require('react-dnd').DragDropContext;
 import PropTypes from 'prop-types';
 const HTML5Backend = require('react-dnd-html5-backend');
@@ -18,7 +20,7 @@ import SwapBinComponent from './SwapBinComponent';
 import actions from '../event/GameActions';
 import {stringify} from "../util/Logger";
 import * as Style from "../util/StyleUtil";
-import {usingTouch} from "../util/BrowserUtil";
+import * as BrowserUtil from "../util/BrowserUtil";
 
 function buttonStyle(enabled) {
   let color = enabled ? 'Chocolate' : Style.disabledColor;
@@ -57,6 +59,14 @@ const fieldStyle = {
   align: 'left',
   fontSize: 15,
   fontWeight: 'bold',
+  margin: 'auto'
+  // padding: '2px'
+};
+
+const messageStyle = {
+  color: 'Black',
+  align: 'left',
+  fontSize: 20,
   margin: 'auto'
   // padding: '2px'
 };
@@ -105,6 +115,14 @@ const START = "start";
 const COMMIT = "commit";
 const REVERT = "revert";
 
+const isUsingTouch = BrowserUtil.usingTouch();
+
+const getDeviceInfo = function() {
+  let inputDevice = `inputDevice: ${BrowserUtil.inputDevice}, `;
+  let preferredDevice = `preferredDevice: ${BrowserUtil.preferredInputDevice}, `;
+  let detectItInfo = `deviceType: ${detectIt.deviceType}, primaryInput: ${detectIt.primaryInput}, hasMouse: ${detectIt.hasMouse}, hasTouch: ${detectIt.hasTouch}`;
+  return inputDevice + preferredDevice + detectItInfo + `, isUsingTouch: ${isUsingTouch}`;
+};
 
 /**
  * The entire game UI component including the board and game buttons.
@@ -255,6 +273,7 @@ class GameComponent extends React.Component {
     let isError = (status !== "OK" && status !== "game over"); // TODO. This is a hack! Better indication of error and severity.
     let pointValues = game.pointValues;
     let machineMovePoints = game.machineMoves.map(gridPiece => gridPiece.point);
+    let deviceInfo = getDeviceInfo();
 
     /*
      * Note. Do not use &nbsp; for spaces in JSX. It sometimes
@@ -324,12 +343,15 @@ class GameComponent extends React.Component {
         <div style={{padding: '10px'}}>
           <label style={fieldStyle}>{status}</label>
         </div>
+        <div style={{padding: '10px'}}>
+          <label style={messageStyle}>{deviceInfo}</label>
+        </div>
       </div>
     )
   }
 }
 
-const dndBackend = usingTouch() ? TouchBackend : HTML5Backend;
+const dndBackend = BrowserUtil.usingTouch() ? TouchBackend : HTML5Backend;
 
 // const dndBackend = Browser.isTouchDevice ? TouchBackend : HTML5Backend;
 

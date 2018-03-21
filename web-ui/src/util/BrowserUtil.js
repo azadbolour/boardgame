@@ -5,14 +5,10 @@
  */
 
 import detectIt from 'detect-it';
+import {queryParams} from './UrlUtil';
 
 let mouse = 'mouse';
 let touch = 'touch';
-
-export const InputDevice = {
-  mouse: mouse,
-  touch: touch
-};
 
 export const INPUT_DEVICES = [mouse, touch];
 
@@ -21,38 +17,20 @@ export const hasDragAndDrop = function() {
   return ('draggable' in div) || ('ondragstart' in div && 'ondrop' in div);
 };
 
+// Obsolete legacy checks.
 // export const isTouchDevice = ('ontouchstart' in window) || ((Navigator.maxTouchPoints in Navigator) && (Navigator.maxTouchPoints > 0));
-
-let inputDevice = undefined;
+// export const isMobile = /Mobi/.test(navigator.userAgent);
 
 export const usingMouse = function() {
+  let preferred = getPreferredInputDevice();
+  let inputDevice = pointingDevice(preferred);
   return inputDevice === mouse;
 };
 
 export const usingTouch = function() {
+  let preferred = getPreferredInputDevice();
+  let inputDevice = pointingDevice(preferred);
   return inputDevice === touch;
-};
-
-export const isMobile = /Mobi/.test(navigator.userAgent);
-
-
-/**
- * Initialize browser information based in part on user preferences.
- * Must be called before components are created. Not ideal.
- * Top-level React DND components (in our case GameComponent) need a backend
- * (basically an input device driver for mouse vs touch) for drag and drop.
- * But the choice of device may depend on user preferences revealed only
- * at application initiation. I don't yet know of a way of creating these
- * components via functions that take the device type as a parameter.
- * The best I can do so far is to set the device in this module, and then
- * use it in creating the GameComponent.
- */
-export const initBrowserInfo = function(preferredDevice, inputDevices) {
-  inputDevice = pointingDevice(preferredDevice, inputDevices);
-};
-
-export const getInputDevice = function() {
-  return inputDevice;
 };
 
 /**
@@ -65,6 +43,11 @@ export const pointingDevice = function(preferredDevice) {
   if (isDeviceAvailable(preferredDevice))
     return preferredDevice;
   return detectPrimaryDevice();
+};
+
+const getPreferredInputDevice = function() {
+  // TODO. Constant used also in index.js. Should be defined in GameParams.
+  return queryParams(window.location).getParam("preferred-input-device");
 };
 
 function isDeviceAvailable(deviceName) {
@@ -85,7 +68,7 @@ function isDeviceAvailable(deviceName) {
  * If no primary input is detectable then default to mouse if available,
  * otherwise to touch if available.
  */
-function detectPrimaryDevice(inputDevices) {
+function detectPrimaryDevice() {
   let primary = detectIt.primaryInput;
   if (primary === mouse || primary === touch)
     return primary;
