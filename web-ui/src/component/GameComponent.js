@@ -21,6 +21,9 @@ import actions from '../event/GameActions';
 import {stringify} from "../util/Logger";
 import * as Style from "../util/StyleUtil";
 import * as BrowserUtil from "../util/BrowserUtil";
+import {queryParams} from '../util/UrlUtil';
+import AppParams from '../util/AppParams';
+
 
 function buttonStyle(enabled) {
   let color = enabled ? 'Chocolate' : Style.disabledColor;
@@ -63,12 +66,17 @@ const fieldStyle = {
   // padding: '2px'
 };
 
-const messageStyle = {
-  color: 'Black',
-  align: 'left',
-  fontSize: 20,
-  margin: 'auto'
-  // padding: '2px'
+const messageStyle = function(visible) {
+  let display = visible ? 'inline' : 'none';
+  return {
+    color: 'Red',
+    backgroundColor: 'Khaki',
+    align: 'left',
+    fontSize: 20,
+    margin: 'auto',
+    display: display
+    // padding: '2px'
+  }
 };
 
 const tooltipStyle = function(visible) {
@@ -115,14 +123,9 @@ const START = "start";
 const COMMIT = "commit";
 const REVERT = "revert";
 
-const isUsingTouch = BrowserUtil.usingTouch();
-
-const getDeviceInfo = function() {
-  let inputDevice = `inputDevice: ${BrowserUtil.inputDevice}, `;
-  let preferredDevice = `preferredDevice: ${BrowserUtil.preferredInputDevice}, `;
-  let detectItInfo = `deviceType: ${detectIt.deviceType}, primaryInput: ${detectIt.primaryInput}, hasMouse: ${detectIt.hasMouse}, hasTouch: ${detectIt.hasTouch}`;
-  return inputDevice + preferredDevice + detectItInfo + `, isUsingTouch: ${isUsingTouch}`;
-};
+let {device, message: deviceSelectionMessage} = BrowserUtil.inputDeviceInfo();
+let deviceMessage = [`input device: ${device}`, deviceSelectionMessage].filter(s => s).join(', ');
+let displayDeviceMessage = true;
 
 /**
  * The entire game UI component including the board and game buttons.
@@ -175,6 +178,7 @@ class GameComponent extends React.Component {
   }
 
   startGame() {
+    displayDeviceMessage = false;
     actions.start(this.props.game.gameParams);
   }
 
@@ -273,7 +277,6 @@ class GameComponent extends React.Component {
     let isError = (status !== "OK" && status !== "game over"); // TODO. This is a hack! Better indication of error and severity.
     let pointValues = game.pointValues;
     let machineMovePoints = game.machineMoves.map(gridPiece => gridPiece.point);
-    let deviceInfo = getDeviceInfo();
 
     /*
      * Note. Do not use &nbsp; for spaces in JSX. It sometimes
@@ -344,20 +347,12 @@ class GameComponent extends React.Component {
           <label style={fieldStyle}>{status}</label>
         </div>
         <div style={{padding: '10px'}}>
-          <label style={messageStyle}>{deviceInfo}</label>
+          <label style={messageStyle(displayDeviceMessage)}>{deviceMessage}</label>
         </div>
       </div>
     )
   }
 }
 
-const dndBackend = BrowserUtil.usingTouch() ? TouchBackend : HTML5Backend;
-
-// const dndBackend = Browser.isTouchDevice ? TouchBackend : HTML5Backend;
-
+const dndBackend = device === AppParams.TOUCH_INPUT ? TouchBackend : HTML5Backend;
 export default DragDropContext(dndBackend)(GameComponent);
-
-// export default DragDropContext(HTML5Backend)(GameComponent);
-// export {GameComponent as OriginalGameComponent}
-
-

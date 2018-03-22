@@ -10,7 +10,6 @@
 
 const validUrl = require('valid-url');
 import AppParams from '../util/AppParams';
-import {INPUT_DEVICES} from '../util/BrowserUtil';
 import {stringify} from "../util/Logger";
 
 // TODO. Need to export API types.
@@ -126,16 +125,6 @@ class GameParams {
       return {
         valid: false,
         message: `invalid starting player ${startingPlayer} - valid values are ${stringify(GameParams.PLAYER_TYPES)}`
-      };
-    return GameParams.validated;
-  }
-
-  static validatePreferredInputDevice(inputDevice) {
-    let valid = INPUT_DEVICES.includes(inputDevice);
-    if (!valid)
-      return {
-        valid: false,
-        message: `invalid preferred input device ${inputDevice} - valid values are ${stringify(INPUT_DEVICES)}`
       };
     return GameParams.validated;
   }

@@ -6,11 +6,7 @@
 
 import detectIt from 'detect-it';
 import {queryParams} from './UrlUtil';
-
-let mouse = 'mouse';
-let touch = 'touch';
-
-export const INPUT_DEVICES = [mouse, touch];
+import AppParams from './AppParams';
 
 export const hasDragAndDrop = function() {
   let div = window.document.createElement('div');
@@ -21,17 +17,17 @@ export const hasDragAndDrop = function() {
 // export const isTouchDevice = ('ontouchstart' in window) || ((Navigator.maxTouchPoints in Navigator) && (Navigator.maxTouchPoints > 0));
 // export const isMobile = /Mobi/.test(navigator.userAgent);
 
-export const usingMouse = function() {
-  let preferred = getPreferredInputDevice();
-  let inputDevice = pointingDevice(preferred);
-  return inputDevice === mouse;
-};
-
-export const usingTouch = function() {
-  let preferred = getPreferredInputDevice();
-  let inputDevice = pointingDevice(preferred);
-  return inputDevice === touch;
-};
+// export const usingMouse = function() {
+//   let preferred = getPreferredInputDevice();
+//   let inputDevice = pointingDevice(preferred);
+//   return inputDevice === mouse;
+// };
+//
+// export const usingTouch = function() {
+//   let preferred = getPreferredInputDevice();
+//   let inputDevice = pointingDevice(preferred);
+//   return inputDevice === touch;
+// };
 
 /**
  * Get the name of the pointing device to use.
@@ -39,15 +35,37 @@ export const usingTouch = function() {
  *    returned if available in current browser.
  * @returns 'mouse' or 'touch' or undefined.
  */
-export const pointingDevice = function(preferredDevice) {
-  if (isDeviceAvailable(preferredDevice))
-    return preferredDevice;
-  return detectPrimaryDevice();
-};
+export const inputDeviceInfo = function() {
+  let primaryDevice = detectPrimaryDevice();
 
-const getPreferredInputDevice = function() {
-  // TODO. Constant used also in index.js. Should be defined in GameParams.
-  return queryParams(window.location).getParam("preferred-input-device");
+  // TODO. Constant used also in index.js. Should be defined in AppParams.
+  let preferredDevice = queryParams(window.location).getParam("preferred-input-device");
+
+  const unavailableResponse = {
+    device: primaryDevice,
+    message: `preferred device '${preferredDevice}' is unavailable`
+  };
+
+  const availableResponse = function(device) {
+    return {device};
+  };
+
+  // No preference specified.
+  if (preferredDevice === undefined)
+    return availableResponse(primaryDevice);
+
+  let {valid: preferredDeviceIsValid} = AppParams.validatePreferredInputDevice(preferredDevice);
+
+  // Preference is invalid
+  if (!preferredDeviceIsValid)
+    return unavailableResponse;
+
+  // Preference is valid and available.
+  if (isDeviceAvailable(preferredDevice))
+    return availableResponse(preferredDevice);
+
+  // Preference is valid but unavailable.
+  return unavailableResponse;
 };
 
 function isDeviceAvailable(deviceName) {
@@ -55,10 +73,10 @@ function isDeviceAvailable(deviceName) {
     return false;
 
   switch (deviceName) {
-    case mouse:
-      return (detectIt.hasMouse = true) || (detectIt.primaryInput === mouse);
-    case touch:
-      return (detectIt.hasTouch = true) || (detectIt.primaryInput === touch);
+    case AppParams.MOUSE_INPUT:
+      return detectIt.hasMouse || (detectIt.primaryInput === AppParams.MOUSE_INPUT);
+    case AppParams.TOUCH_INPUT:
+      return detectIt.hasTouch || (detectIt.primaryInput === AppParams.TOUCH_INPUT);
     default:
       return false;
   }
@@ -70,11 +88,11 @@ function isDeviceAvailable(deviceName) {
  */
 function detectPrimaryDevice() {
   let primary = detectIt.primaryInput;
-  if (primary === mouse || primary === touch)
+  if (AppParams.INPUT_DEVICES.includes(primary))
     return primary;
   if (detectIt.hasMouse)
-    return 'mouse';
+    return AppParams.MOUSE_INPUT;
   if (detectIt.hasTouch)
-    return 'touch';
-  return undefined;
+    return AppParams.MOUSE_INPUT;
+  return AppParams.MOUSE_INPUT; // For good measure.
 }

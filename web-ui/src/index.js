@@ -52,15 +52,17 @@ const initialState = (function() {
 // TODO. Move validation to GameParams once it is refactored to use the module pattern,
 // with immutable fields.
 
-// TODO. Game-related constants shoul dbe defined in GameParams.
-// TODO. General application constnsts should be defined in AppParams.
+// TODO. Game-related constants should be defined in GameParams.
+// TODO. General application constants should be defined in AppParams.
 
 const validateParam = function(name, value) {
   switch (name) {
-    case 'api-type': // TODO. Constants. Go into GameParams.
-      return GameParams.validateApiType(value);
     case 'env-type':
       return AppParams.validateEnvType(value);
+    case 'preferred-input-device':
+      return AppParams.validatePreferredInputDevice(value);
+    case 'api-type': // TODO. Constants. Go into GameParams.
+      return GameParams.validateApiType(value);
     case 'game-server-url':
       return GameParams.validateGameServerUrl(value);
     case 'dimension':
@@ -71,8 +73,6 @@ const validateParam = function(name, value) {
       return GameParams.validateSquarePixels(value);
     case 'starting-player':
       return GameParams.validateStartingPlayer(value);
-    case 'preferred-input-device':
-      return GameParams.validatePreferredInputDevice(value);
     default:
       break;
   }
@@ -110,7 +110,8 @@ for (let name in settableParameters) {
     continue;
   }
   let property = toCamelCase(name);
-  if (name === 'env-type')
+  // TODO. Do generically by having a list of app params - imported from AppParams.
+  if (name === 'env-type' || name === 'preferred-input-device')
     gameParams.appParams[property] = value;
   else
     gameParams[property] = value;
