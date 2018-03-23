@@ -279,15 +279,9 @@ object StripMatcher {
     * @return List of hopeless blank points.
     */
   def hopelessBlankPointsForAxis(board: Board, dictionary: WordDictionary, trayCapacity: Int, axis: Axis): Set[Point] = {
-    // val blanksToStrips = board.potentialPlayableStripsForBlanks(axis, trayCapacity)
 
-    val blanksToStrips = board.playableEnclosingStripsOfBlankPoints(axis, trayCapacity)
-    val maxStripBlanks = dictionary.maxMaskedLetters
-
-    def allDense(strips: List[Strip]) =
-      strips forall {_.isDense(maxStripBlanks)}
-    val denselyEnclosedBlanks =
-      blanksToStrips filter { case (_, strips) => allDense(strips) }
+    val denselyEnclosedBlanks: Map[Point, List[Strip]] =
+      findDenselyEnclosedBlanks(board, dictionary, trayCapacity, axis)
 
     def stripMatchExists(strips: List[Strip]) =
       strips exists { s => dictionary.hasMaskedWord(s.content)}
@@ -295,6 +289,20 @@ object StripMatcher {
       denselyEnclosedBlanks filter { case (_, strips) => !stripMatchExists(strips)}
 
     stripsForHopelessBlanks.keySet
+  }
+
+  private def findDenselyEnclosedBlanks(board: Board, dictionary: WordDictionary, trayCapacity: Int, axis: Axis) = {
+    val blanksToStrips = board.playableEnclosingStripsOfBlankPoints(axis, trayCapacity)
+    val maxStripBlanks = dictionary.maxMaskedLetters
+
+    def allDense(strips: List[Strip]) =
+      strips forall {
+        _.isDense(maxStripBlanks)
+      }
+
+    val denselyEnclosedBlanks =
+      blanksToStrips filter { case (_, strips) => allDense(strips) }
+    denselyEnclosedBlanks
   }
 
   /**
@@ -312,6 +320,79 @@ object StripMatcher {
     val (anchoredY, freeY) = forY partition { pt => board.hasRealNeighbor(pt, Axis.Y)}
 
     anchoredX ++ anchoredY ++ (freeX intersect freeY)
+  }
+
+  val Caps = 'A' to 'Z'
+
+  /**
+    * Experimental algorithm for hopeless blanks.
+    */
+  def hopelessPoints(board: Board, dictionary: WordDictionary, trayCapacity: Int): Set[Point] = {
+
+    val hEnclosures: Map[Point, List[Strip]] =
+      findDenselyEnclosedBlanks(board, dictionary, trayCapacity, Axis.X)
+
+    val vEnclosures: Map[Point, List[Strip]] =
+      findDenselyEnclosedBlanks(board, dictionary, trayCapacity, Axis.Y)
+
+    val points = hEnclosures.keySet ++ vEnclosures.keySet
+
+    def stripListForPoint(point: Point): List[(Axis, List[Strip])] = {
+      val hStrips: List[Strip] = hEnclosures.getOrElse(point, Nil)
+      val vStrips: List[Strip] = vEnclosures.getOrElse(point, Nil)
+      List((Axis.X, hStrips), (Axis.Y, vStrips))
+    }
+
+    points filter { point =>
+      val stripList = stripListForPoint(point)
+      Caps forall { ch => noMatchInStripsForPoint(board, dictionary, point, ch, stripList)}
+    }
+  }
+
+  type Anchored = Boolean
+  type MaskedStripContentExists = Boolean
+  
+  /**
+    * For a blank point that is covered only by dense strips in some direction (X or Y),
+    * determine if the given letter were played to that point, no word would match it.
+    *
+    * @param board The existing board.
+    * @param dictionary The word dictionary.
+    * @param point The point.
+    * @param letter The desired letter to cover the point.
+    * @param enclosingDenseStrips
+    *        A list of two 2-tuples, one each for the X and Y axis,
+    *        each providing the list of dense strips covering the point.
+    *        If the strip list is empty, some non-dense strip in the given
+    *        direction may cover the point. If the strip list is non-empty,
+    *        we know that only the given strips, all of which are dense,
+    *        cover the strip in that direction.
+    * @return True if we know for sure that no word will can be played that
+    *         covers the given point with the given letter.
+    */
+  def noMatchInStripsForPoint(board: Board, dictionary: WordDictionary,
+    point: Point, letter: Char, enclosingDenseStrips: List[(Axis, List[Strip])]): Boolean = {
+
+    val statuses: List[(Anchored, MaskedStripContentExists)] =
+      enclosingDenseStrips map {
+        case (axis, strips) =>
+          val anchored = board.hasRealNeighbor(point, axis)
+          val filledContents = strips map { _.fillBlankInStrip(point, letter) }
+
+          // If the point has no dense enclosing strips, for all we know some non-dense
+          // strip can cover it. So pretend that it is covered by a match.
+          val filledContentExists = filledContents match {
+            case Nil => true
+            case _ => filledContents exists dictionary.hasMaskedWord
+          }
+
+          (anchored, filledContentExists)
+      }
+
+    val (anchored1, exists1) = statuses(0)
+    val (anchored2, exists2) = statuses(1)
+
+    !exists1 && !exists2 || !exists1 && anchored1 || !exists2 && anchored2
   }
 
 }

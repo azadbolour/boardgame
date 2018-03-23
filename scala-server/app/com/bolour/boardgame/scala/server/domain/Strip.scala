@@ -9,7 +9,7 @@ import com.bolour.boardgame.scala.server.util.WordUtil
 import com.bolour.plane.scala.domain.Axis._
 import com.bolour.plane.scala.domain.Axis.Axis
 import com.bolour.boardgame.scala.server.util.WordUtil._
-import com.bolour.plane.scala.domain.Point
+import com.bolour.plane.scala.domain.{Axis, Point}
 import com.bolour.util.scala.common.BlackWhite
 
 case class Strip(
@@ -62,6 +62,17 @@ case class Strip(
 
   def point(offset: Int) = Point(row(offset), column(offset))
 
+
+  def offset(point: Point): Int = {
+    val indexInLine = axis match {
+      case Axis.X => point.col
+      case Axis.Y => point.row
+    }
+    indexInLine - begin
+  }
+
+  def fillBlankInStrip(point: Point, ch: Char): String = content.updated(offset(point), ch)
+
   import Strip._
 
   // TODO. Use fold.
@@ -76,6 +87,7 @@ case class Strip(
     val blankOffsets = content.indices.toList.filter(offset => WordUtil.isBlankChar(content(offset)))
     blankOffsets map point
   }
+
 }
 
 object Strip {
