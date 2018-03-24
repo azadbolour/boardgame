@@ -242,11 +242,10 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
     inverseMultiValuedMapping((strip: Strip) => strip.blankPoints)(stripsEnclosingBlanks)
   }
 
-  def playableEnclosingStripsOfBlankPoints(axis: Axis, trayCapacity: Int): Map[Point, List[Strip]] = {
+  def playableEnclosingStripsOfBlankPoints(axis: Axis): Map[Point, List[Strip]] = {
     val enclosing = enclosingStripsOfBlankPoints(axis)
     val playable = enclosing mapValues { (strips: List[Strip]) =>
       strips filter { (s: Strip) =>
-        s.numBlanks <= trayCapacity &&
           stripIsDisconnectedInLine(s) &&
           // Can't play to a single blank strip - would have no anchor.
           s.content.length > 1

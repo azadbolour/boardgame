@@ -176,7 +176,7 @@ validateCrossWords board dictionary strip word = do
 
 -- | Find points on the board that cannot possibly be played
 --   and update board accordingly.
-updateDeadPoints :: Board -> WordDictionary -> Int -> (Board, [Point])
+updateDeadPoints :: Board -> WordDictionary -> (Board, [Point])
 updateDeadPoints = Matcher.setHopelessBlankPointsAsDeadRecursive
 
 -- | Service function to commit a user play - reflecting it on the
@@ -204,8 +204,8 @@ commitPlayService gmId playPieces = do
   (game' @ Game {board = newBoard, trays, playNumber}, refills)
     <- Game.reflectPlayOnGame game UserPlayer playPieces
 
-  let userTray @ Tray {capacity} = trays !! Player.userIndex
-      (newBoard', deadPoints) = updateDeadPoints newBoard dictionary capacity
+  let -- userTray @ Tray {capacity} = trays !! Player.userIndex
+      (newBoard', deadPoints) = updateDeadPoints newBoard dictionary
       game'' = Game.setBoard game' newBoard'
 
   saveWordPlay gmId playNumber UserPlayer playPieces refills
@@ -236,8 +236,8 @@ machinePlayService gameId = do
       (playPieces, depletedTray) <- stripMatchAsPlay board machineTray strip word
       (gm @ Game {board = newBoard, trays, playNumber}, refills) <- Game.reflectPlayOnGame game MachinePlayer playPieces
 
-      let machineTray @ Tray {capacity} = trays !! Player.machineIndex
-          (newBoard', deadPoints) = updateDeadPoints newBoard dictionary capacity
+      let -- machineTray @ Tray {capacity} = trays !! Player.machineIndex
+          (newBoard', deadPoints) = updateDeadPoints newBoard dictionary
           gm' = Game.setBoard gm newBoard'
 
       saveWordPlay gameId playNumber MachinePlayer playPieces refills

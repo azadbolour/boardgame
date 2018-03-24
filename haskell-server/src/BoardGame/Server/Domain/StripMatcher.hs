@@ -14,7 +14,6 @@ module BoardGame.Server.Domain.StripMatcher (
   , findOptimalMatch
   , groupedPlayableStrips -- expose for testing
   , hopelessBlankPoints
-  , hopelessBlankPointsForAxis
   , setHopelessBlankPointsAsDeadRecursive
   ) where
 
@@ -179,37 +178,107 @@ groupedPlayableStrips board trayCapacity valuation =
       blankMapMaker = MiscUtil.mapFromValueList Strip.blanks
     in blankMapMaker <$> mapByValue
 
-hopelessBlankPointsForAxis :: Board -> WordDictionary -> Int -> Axis -> Set.Set Point
-hopelessBlankPointsForAxis board dictionary @ WordDictionary {maxMaskedLetters} trayCapacity axis =
-  let blanksToStrips = Board.playableEnclosingStripsOfBlankPoints board axis trayCapacity
+type Anchored = Bool
+type MaskedStripContentExists = Bool
+
+findDenselyEnclosedBlanks :: Board -> Int -> Axis -> Map.Map Point [Strip]
+findDenselyEnclosedBlanks board maxMaskedLetters axis =
+  let blanksToStrips = Board.playableEnclosingStripsOfBlankPoints board axis
       maxBlanks = maxMaskedLetters
       allDense = all (\s -> Strip.isDense s maxBlanks)
       stripsFilter predicate point strips = predicate strips
-      denselyEnclosedBlanks = Map.filterWithKey (stripsFilter allDense) blanksToStrips
-      stripMatchExists = any (\s @ Strip {content} -> WordDictionary.isMaskedWord dictionary content)
-      stripsForHopelessBlanks = Map.filterWithKey (stripsFilter (not . stripMatchExists)) denselyEnclosedBlanks
-  in
-    Set.fromList $ Map.keys stripsForHopelessBlanks
+  in Map.filterWithKey (stripsFilter allDense) blanksToStrips
 
-hopelessBlankPoints :: Board -> WordDictionary -> Int -> Set.Set Point
-hopelessBlankPoints board dictionary trayCapacity =
-  let forX = hopelessBlankPointsForAxis board dictionary trayCapacity Axis.X
-      (anchoredX, freeX) = Set.partition (\pt -> Board.pointHasRealNeighbor board pt Axis.X) forX
-      forY = hopelessBlankPointsForAxis board dictionary trayCapacity Axis.Y
-      (anchoredY, freeY) = Set.partition (\pt -> Board.pointHasRealNeighbor board pt Axis.Y) forY
-  in
-     Set.unions [anchoredX, anchoredY, Set.intersection freeX freeY]
+-- hopelessBlankPointsForAxis :: Board -> WordDictionary -> Axis -> Set.Set Point
+-- hopelessBlankPointsForAxis board dictionary @ WordDictionary {maxMaskedLetters} axis =
+--   let denselyEnclosedBlanks = findDenselyEnclosedBlanks board maxMaskedLetters axis
+--       stripsFilter predicate point strips = predicate strips
+--       stripMatchExists = any (\s @ Strip {content} -> WordDictionary.isMaskedWord dictionary content)
+--       stripsForHopelessBlanks = Map.filterWithKey (stripsFilter (not . stripMatchExists)) denselyEnclosedBlanks
+--   in
+--     Set.fromList $ Map.keys stripsForHopelessBlanks
 
-setHopelessBlankPointsAsDeadRecursive :: Board -> WordDictionary -> Int -> (Board, [Point])
-setHopelessBlankPointsAsDeadRecursive board dictionary trayCapacity =
-  let directDeadPoints = Set.toList $ hopelessBlankPoints board dictionary trayCapacity
+-- hopelessBlankPoints :: Board -> WordDictionary -> Set.Set Point
+-- hopelessBlankPoints board dictionary =
+--   let forX = hopelessBlankPointsForAxis board dictionary Axis.X
+--       (anchoredX, freeX) = Set.partition (\pt -> Board.pointHasRealNeighbor board pt Axis.X) forX
+--       forY = hopelessBlankPointsForAxis board dictionary Axis.Y
+--       (anchoredY, freeY) = Set.partition (\pt -> Board.pointHasRealNeighbor board pt Axis.Y) forY
+--   in
+--      Set.unions [anchoredX, anchoredY, Set.intersection freeX freeY]
+
+setHopelessBlankPointsAsDeadRecursive :: Board -> WordDictionary -> (Board, [Point])
+setHopelessBlankPointsAsDeadRecursive board dictionary =
+  let directDeadPoints = Set.toList $ hopelessBlankPoints board dictionary
       newBoard = Board.setBlackPoints board directDeadPoints
   in if null directDeadPoints then
        (newBoard, directDeadPoints)
      else
-       let (b, moreDeadPoints) = setHopelessBlankPointsAsDeadRecursive newBoard dictionary trayCapacity
+       let (b, moreDeadPoints) = setHopelessBlankPointsAsDeadRecursive newBoard dictionary
            allDeadPoints = directDeadPoints ++ moreDeadPoints
        in (b, allDeadPoints)
 
+-- TODO. Move a util module.
+caps :: String
+caps = ['A' .. 'Z']
 
+hopelessBlankPoints :: Board -> WordDictionary -> Set.Set Point
+hopelessBlankPoints board dictionary @ WordDictionary { maxMaskedLetters } =
+  -- Algorithm. The dictionary contains all masked words with up to maxMaskedWords blanks.
+  -- We find the points that are covered only by dense strips of at most maxMaskedWords + 1 blanks.
+  -- Then we try all letters from A to Z on that point. The resulting strips covering
+  -- that point now have maxMaskedWords blanks, and their content can be looked up
+  -- as masked words in the dictionary.
+  let maxBlanks = maxMaskedLetters + 1
+      hEnclosures = findDenselyEnclosedBlanks board maxBlanks Axis.X
+      vEnclosures = findDenselyEnclosedBlanks board maxBlanks Axis.Y
+      points = Set.fromList $ Map.keys hEnclosures ++ Map.keys vEnclosures
+      stripListForPoint point =
+        let hStrips = Map.findWithDefault [] point hEnclosures
+            vStrips = Map.findWithDefault [] point vEnclosures
+        in [(Axis.X, hStrips), (Axis.Y, vStrips)]
+      pointIsHopeless point =
+        let stripList = stripListForPoint point
+        in all (\ch -> noMatchInStripsForPoint board dictionary point ch stripList) caps
+  in Set.filter pointIsHopeless points
 
+-- | For a blank point that is covered only by dense strips in some direction,
+--   ( X or Y), determine whether covering the point by the given letter is
+--   an impossible option: whether, if the given letter were to be played
+--   to that point, no word would match it.
+--
+--   About the enclosingDenseStrips argument [(Axis, [Strip])]:
+--
+--   It is list of two 2-tuples, one each for the X and Y axis.
+--   Each member of the list provides the list of dense strips covering
+--   then given point argument in the given direction.
+--
+--   If the list of dense strip for a given direction is empty, some non-dense
+--   strip in that direction may cover the point.
+--
+--   If the strip list is non-empty, we know that only the given strips,
+--   all of which are dense, cover the strip in that direction.
+--
+--   Return True if we know for sure that no word can be played that
+--   covers the given point with the given letter.
+--
+noMatchInStripsForPoint ::
+     Board            -- ^ The existing board.
+  -> WordDictionary   -- ^ The word dictionary.
+  -> Point            -- ^ The blank point to be checked for possible coverage.
+  -> Char             -- ^ The letter to cover the blank point.
+  -> [(Axis, [Strip])]-- ^ The dense strips in each direction enclosing the blank point
+  -> Bool
+noMatchInStripsForPoint board dictionary point letter enclosingDenseStrips =
+  let status (axis, strips) =
+        (anchored, filledContentExists)
+        where anchored = Board.pointHasRealNeighbor board point axis
+              filledContentExists =
+                let filledContents = Strip.fillBlankInStrip point letter <$> strips
+                -- If the point has no dense enclosing strips, for all we know some non-dense
+                -- strip can cover it. So pretend that it is covered by a match.
+                in case filledContents of
+                     [] -> True
+                     _ -> any (WordDictionary.isMaskedWord dictionary) filledContents
+      [(anchored1, exists1), (anchored2, exists2)] = status <$> enclosingDenseStrips
+  in (not exists1 && not exists2) || (not exists1 && anchored1) || (not exists2 && anchored2)

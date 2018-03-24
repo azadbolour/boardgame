@@ -61,14 +61,10 @@ spec = do
   dictionary <- runIO getDictionary
   describe "hopeless point detection" $ do
     it "should find hopeless blank points" $ do
-      let hopeless = StripMatcher.hopelessBlankPoints board dictionary trayCapacity
+      let hopeless = StripMatcher.hopelessBlankPoints board dictionary
       print hopeless
-      let hopelessX = StripMatcher.hopelessBlankPointsForAxis board dictionary trayCapacity Axis.X
-      print hopelessX
-      let hopelessY = StripMatcher.hopelessBlankPointsForAxis board dictionary trayCapacity Axis.Y
-      print hopelessY
     it "should find hopeless blank point recursively" $ do
-      let (board', hopelessPoints) = StripMatcher.setHopelessBlankPointsAsDeadRecursive board dictionary trayCapacity
+      let (board', hopelessPoints) = StripMatcher.setHopelessBlankPointsAsDeadRecursive board dictionary
       print hopelessPoints
 
 

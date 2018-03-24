@@ -282,11 +282,11 @@ enclosingStripsOfBlankPoints Board {grid} axis =
       stripsEnclosingBlanks = filter Strip.hasBlanks liveStrips
   in Util.inverseMultiValuedMapping Strip.blankPoints stripsEnclosingBlanks
 
-playableEnclosingStripsOfBlankPoints :: Board -> Axis -> Int -> Map.Map Point [Strip]
-playableEnclosingStripsOfBlankPoints board axis trayCapacity =
+playableEnclosingStripsOfBlankPoints :: Board -> Axis -> Map.Map Point [Strip]
+playableEnclosingStripsOfBlankPoints board axis =
   let enclosing = enclosingStripsOfBlankPoints board axis
       playable strip @ Strip {blanks, content} =
-        blanks <= trayCapacity &&
+        -- blanks <= trayCapacity &&
           stripIsDisconnectedInLine board strip &&
           length content > 1 -- Can't play to a single blank strip - would have no anchor.
   in

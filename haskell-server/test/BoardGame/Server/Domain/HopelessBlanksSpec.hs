@@ -53,12 +53,8 @@ spec :: Spec
 spec = do
   describe "hopeless blanks" $
     it "find hopeless blanks" $ do
-      let hopeless = StripMatcher.hopelessBlankPoints board dictionary trayCapacity
+      let hopeless = StripMatcher.hopelessBlankPoints board dictionary
       print hopeless
-      let hopelessX = StripMatcher.hopelessBlankPointsForAxis board dictionary trayCapacity Axis.X
-      print hopelessX
-      let hopelessY = StripMatcher.hopelessBlankPointsForAxis board dictionary trayCapacity Axis.Y
-      print hopelessY
       -- Dict.isWord dictionary "TEST" `shouldBe` True
   describe "masked words" $
     it "compute masked words" $ do
@@ -66,6 +62,6 @@ spec = do
       Dict.isMaskedWord dictionary "  D" `shouldBe` True
   describe "set hopeless blank points as dead recursive" $
     it "set hopeless blank points as dead recursive" $ do
-      let (finalBoard, deadPoints) = StripMatcher.setHopelessBlankPointsAsDeadRecursive board dictionary trayCapacity
+      let (finalBoard, deadPoints) = StripMatcher.setHopelessBlankPointsAsDeadRecursive board dictionary
       print deadPoints
 

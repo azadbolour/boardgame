@@ -24,6 +24,8 @@ module BoardGame.Server.Domain.Strip (
   , stripsInLine
   , blankPoints
   , isDense
+  , offset
+  , fillBlankInStrip
   ) where
 
 import qualified Data.List as List
@@ -40,6 +42,7 @@ import qualified Bolour.Language.Util.WordUtil as WordUtil
 import qualified Bolour.Util.MiscUtil as MiscUtil
 import Bolour.Plane.Domain.Axis (Axis, Coordinate)
 import Bolour.Plane.Domain.Point (Point, Point(Point))
+import qualified Bolour.Plane.Domain.Point as Point
 import qualified Bolour.Plane.Domain.Axis as Axis
 
 {--
@@ -150,7 +153,7 @@ blankPoints strip @ Strip {content} =
 
 -- TODO. Redundant. See stripPoint.
 pointAtOffset :: Strip -> Int -> Point
-pointAtOffset (Strip {lineNumber, begin, axis}) offset =
+pointAtOffset Strip {lineNumber, begin, axis} offset =
   case axis of
     Axis.X -> Point lineNumber (begin + offset)
     Axis.Y -> Point (begin + offset) lineNumber
@@ -158,4 +161,14 @@ pointAtOffset (Strip {lineNumber, begin, axis}) offset =
 stripLength :: Strip -> Int
 stripLength Strip {begin, end} = end - begin + 1
 
+offset :: Strip -> Point -> Int
+offset Strip {begin, axis} Point {row, col} =
+    let indexInLine = case axis of
+                      Axis.X -> col
+                      Axis.Y -> row
+    in indexInLine - begin
+
+fillBlankInStrip :: Point -> Char -> Strip -> String
+fillBlankInStrip point ch strip @ Strip { content }=
+  MiscUtil.setListElement content (offset strip point) ch
 

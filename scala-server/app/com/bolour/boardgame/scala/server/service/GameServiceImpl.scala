@@ -166,20 +166,20 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       (newState, refills) <- state.addPlay(UserPlayer, playPieces)
       // deadPoints = StripMatcher.hopelessBlankPoints(newState.board, od.get, userTray.capacity).toList
       // finalState = newState.setDeadPoints(deadPoints)
-      (newBoard, deadPoints) = updateDeadPoints(newState.board, od.get, userTray.capacity)
+      (newBoard, deadPoints) = updateDeadPoints(newState.board, od.get)
       finalState = newState.copy(board = newBoard)
       _ <- savePlay(newState, playPieces, refills)
       _ = gameCache.put(gameId, newState)
     } yield (finalState.miniState, refills, deadPoints)
   }
 
-  private def updateDeadPoints(board: Board, dictionary: WordDictionary, trayCapacity: Int): (Board, List[Point]) = {
-    val directDeadPoints = StripMatcher.hopelessBlankPoints(board, dictionary, trayCapacity).toList
+  private def updateDeadPoints(board: Board, dictionary: WordDictionary): (Board, List[Point]) = {
+    val directDeadPoints = StripMatcher.hopelessBlankPoints(board, dictionary).toList
     val newBoard = board.setBlackPoints(directDeadPoints)
     directDeadPoints match {
       case Nil => (newBoard, directDeadPoints)
       case _ =>
-        val (b, moreDeadPoints) = updateDeadPoints(newBoard, dictionary, trayCapacity)
+        val (b, moreDeadPoints) = updateDeadPoints(newBoard, dictionary)
         val allDeadPoints = directDeadPoints ++ moreDeadPoints
         (b, allDeadPoints)
     }
@@ -222,7 +222,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
           (newState, refills) <- state.addPlay(MachinePlayer, playPieces)
           // deadPoints = StripMatcher.hopelessBlankPoints(newState.board, od.get, machineTray.capacity).toList
           // finalState = newState.setDeadPoints(deadPoints)
-          (newBoard, deadPoints) = updateDeadPoints(newState.board, od.get, machineTray.capacity)
+          (newBoard, deadPoints) = updateDeadPoints(newState.board, od.get)
           finalState = newState.copy(board = newBoard)
           // TODO. How to eliminate dummy values entirely in for.
           _ <- savePlay(finalState, playPieces, refills)
