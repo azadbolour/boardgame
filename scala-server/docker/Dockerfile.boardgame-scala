@@ -41,6 +41,16 @@ RUN echo $PATH \
 RUN git pull origin master
 # RUN cd web-ui && ./build-prod.sh
 
+#
+# Update web-ui node js dependencies.
+#
+RUN cd web-ui && npm install
+
+#
+# Bundle up the javascript.
+#
+RUN cd web-ui && ./build-prod.sh
+
 RUN cd scala-server \
   && update-ui-bundle.sh \
   && sbt compile test dist \
