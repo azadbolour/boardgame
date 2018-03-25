@@ -21,7 +21,6 @@ import Test.Hspec
 import qualified BoardGame.Integration.GameClientSpec as Test1
 import qualified BoardGame.Server.Domain.HopelessBlanksSpec2 as Test2
 import qualified Bolour.Language.Domain.WordDictionarySpec as Test3
-import qualified Bolour.Util.CompactStringSetSpec as Test4
 
 main :: IO ()
 main = do

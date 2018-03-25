@@ -62,7 +62,6 @@ library
       Bolour.Util.FileUtil
       Bolour.Util.Empty
       Bolour.Util.BlackWhite
-      Bolour.Util.CompactStringSet
       Bolour.Language.Util.WordUtil
       Bolour.Language.Domain.WordDictionary
       Bolour.Language.Domain.DictionaryIO
@@ -163,7 +162,6 @@ test-suite spec
       Bolour.Plane.Domain.BlackWhiteGridSpec
       Bolour.Util.DataFileSpec
       Bolour.Util.SpecUtil
-      Bolour.Util.CompactStringSetSpec
       BoardGame.Util.TestUtil
       BoardGame.Integration.GameClientSpec
       BoardGame.Integration.JsonSpec

@@ -9,7 +9,6 @@ import java.io.{BufferedReader, File, FileReader}
 
 import com.bolour.boardgame.scala.server.util.WordUtil._
 import com.bolour.language.scala.domain.WordDictionary._
-import com.bolour.util.scala.common.CompactStringSet
 import com.bolour.util.scala.server.BasicServerUtil.{mkFileSource, mkResourceSource}
 
 import scala.util.Try
@@ -36,8 +35,8 @@ import scala.util.Try
   * Similarly, the masked words file is named "${languageCode}${maskedWordsFileSuffix}",
   * where maskedWordsFileSuffix = "-masked-words.txt".
   */
-// case class WordDictionary(languageCode: String, words: List[DictWord], maskedWords: Set[String], maxMaskedLetters: Int) {
-case class WordDictionary(languageCode: String, words: List[DictWord], maskedWords: CompactStringSet, maxMaskedLetters: Int) {
+case class WordDictionary(languageCode: String, words: List[DictWord], maskedWords: Set[String], maxMaskedLetters: Int) {
+// case class WordDictionary(languageCode: String, words: List[DictWord], maskedWords: CompactStringSet, maxMaskedLetters: Int) {
 
   /**
     * Map of letter combinations to words in the dictionary.
@@ -109,7 +108,7 @@ object WordDictionary {
     } yield maskedWords
   }
 
-  def readMaskedWordsCompact(languageCode: String, dictionaryDir: String): Try[CompactStringSet] = {
+  def readMaskedWordsCompact(languageCode: String, dictionaryDir: String): Try[Set[String]] = {
     val name = maskedWordsFileName(languageCode)
     val path = s"${dictionaryDir}${File.separator}${name}"
     for {
@@ -118,27 +117,10 @@ object WordDictionary {
         try {
           val lines = source.getLines()
           val uppers = lines.map(_.toUpperCase)
-          CompactStringSet(uppers)
+          // CompactStringSet(uppers)
+          uppers.toSet
         }
         finally {source.close}
-      }
-    } yield set
-  }
-
-  // Using BufferedReader is 20% slower than using source, but uses slightly less memory.
-  def readMaskedWordsCompactAsStream(languageCode: String, dictionaryDir: String): Try[CompactStringSet] = {
-    val name = maskedWordsFileName(languageCode)
-    val path = s"${dictionaryDir}${File.separator}${name}"
-    for {
-      // source <- mkFileSource(path).orElse(mkResourceSource(path, WordDictionary.classLoader))
-      reader: BufferedReader <- Try {new BufferedReader(new FileReader(path))}
-      set <- Try {
-        try {
-          val lines = reader.lines()
-          val uppers: java.util.stream.Stream[String] = lines.map(_.toUpperCase)
-          CompactStringSet(uppers)
-        }
-        finally {reader.close}
       }
     } yield set
   }
@@ -163,12 +145,12 @@ object WordDictionary {
     list.toSet
   }
 
-  def mkMaskedWordsCompact(words: List[DictWord], maxMaskedLetters: Int): CompactStringSet = {
+  def mkMaskedWordsCompact(words: List[DictWord], maxMaskedLetters: Int): Set[String] = {
     val list = for {
       word <- words
       masked <- maskWithBlanks(word, maxMaskedLetters)
     } yield masked
-    CompactStringSet(list)
+    list.toSet
   }
 }
 
