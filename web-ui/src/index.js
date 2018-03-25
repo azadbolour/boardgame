@@ -174,7 +174,7 @@ gameEventHandler.registerChangeObserver(gameChangeObserver);
 
 console.log(`game params: ${JSON.stringify(gameParams)}`);
 
-let status = initialState.error ? initialState.status : "OK"
+let status = initialState.error ? initialState.status : "OK";
 let emptyGame = mkEmptyGame(gameParams);
 renderGame(emptyGame, status, emptyAuxGameData());
 
