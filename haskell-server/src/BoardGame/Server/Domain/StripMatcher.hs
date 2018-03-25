@@ -181,31 +181,25 @@ groupedPlayableStrips board trayCapacity valuation =
 type Anchored = Bool
 type MaskedStripContentExists = Bool
 
+-- filterOnKey :: (key -> Bool) -> Map.Map key value -> Map.Map key value
+-- filterOnKey keyPredicate map =
+--   let keyValuePredicate k _ = keyPredicate k
+--   in Map.filterWithKey keyValuePredicate map
+
+-- | For each blank point, it it is solely covered by dense playable strips
+--   in the given direction, return its covering strips in that direction.
+--   If a blank point is not a key in the resulting map, then it is covered
+--   by at least one non-dense strip, and we have to assume that it may be
+--   covered by a play in that direction. If a blank point is a key in the
+--   resulting map, then we know for sure that it is only covered by dense
+--   strips, and by considering what words may be played on those dense
+--   strips, we can efficiently determine if the blank point can never be
+--   covered by a play along the given axis.
 findDenselyEnclosedBlanks :: Board -> Int -> Axis -> Map.Map Point [Strip]
-findDenselyEnclosedBlanks board maxMaskedLetters axis =
+findDenselyEnclosedBlanks board maxBlanks axis =
   let blanksToStrips = Board.playableEnclosingStripsOfBlankPoints board axis
-      maxBlanks = maxMaskedLetters
-      allDense = all (\s -> Strip.isDense s maxBlanks)
-      stripsFilter predicate point strips = predicate strips
-  in Map.filterWithKey (stripsFilter allDense) blanksToStrips
-
--- hopelessBlankPointsForAxis :: Board -> WordDictionary -> Axis -> Set.Set Point
--- hopelessBlankPointsForAxis board dictionary @ WordDictionary {maxMaskedLetters} axis =
---   let denselyEnclosedBlanks = findDenselyEnclosedBlanks board maxMaskedLetters axis
---       stripsFilter predicate point strips = predicate strips
---       stripMatchExists = any (\s @ Strip {content} -> WordDictionary.isMaskedWord dictionary content)
---       stripsForHopelessBlanks = Map.filterWithKey (stripsFilter (not . stripMatchExists)) denselyEnclosedBlanks
---   in
---     Set.fromList $ Map.keys stripsForHopelessBlanks
-
--- hopelessBlankPoints :: Board -> WordDictionary -> Set.Set Point
--- hopelessBlankPoints board dictionary =
---   let forX = hopelessBlankPointsForAxis board dictionary Axis.X
---       (anchoredX, freeX) = Set.partition (\pt -> Board.pointHasRealNeighbor board pt Axis.X) forX
---       forY = hopelessBlankPointsForAxis board dictionary Axis.Y
---       (anchoredY, freeY) = Set.partition (\pt -> Board.pointHasRealNeighbor board pt Axis.Y) forY
---   in
---      Set.unions [anchoredX, anchoredY, Set.intersection freeX freeY]
+      allDense = all (`Strip.isDense` maxBlanks)
+  in Map.filter allDense blanksToStrips
 
 setHopelessBlankPointsAsDeadRecursive :: Board -> WordDictionary -> (Board, [Point])
 setHopelessBlankPointsAsDeadRecursive board dictionary =
@@ -222,13 +216,21 @@ setHopelessBlankPointsAsDeadRecursive board dictionary =
 caps :: String
 caps = ['A' .. 'Z']
 
+-- | Find useless blanks - blanks that cannot possibly be filled.caps.
+--
+--   Basic idea of the algorithm. The dictionary contains all masked words
+--   with up to maxMaskedWords blanks. We find the points that are covered
+--   only by dense strips of at most maxMaskedWords + 1 blanks in the X or Y direction.
+--   Then we try all letters from A to Z on each such point. The resulting strips covering
+--   that point now have maxMaskedWords blanks, and their content can be looked up
+--   as masked words in the dictionary. If none of the contents exist, then the given
+--   letter cannot cover that point. If no letter can cover that point, then
+--   no play in the given direction could cover that point. The results for the
+--   two directions are then combined to determine the useful/useless status of the point.
+--   See also the doc comments for teh function noMatchInStripsForPoint which
+--   does much of the legwork of the algorithm.
 hopelessBlankPoints :: Board -> WordDictionary -> Set.Set Point
 hopelessBlankPoints board dictionary @ WordDictionary { maxMaskedLetters } =
-  -- Algorithm. The dictionary contains all masked words with up to maxMaskedWords blanks.
-  -- We find the points that are covered only by dense strips of at most maxMaskedWords + 1 blanks.
-  -- Then we try all letters from A to Z on that point. The resulting strips covering
-  -- that point now have maxMaskedWords blanks, and their content can be looked up
-  -- as masked words in the dictionary.
   let maxBlanks = maxMaskedLetters + 1
       hEnclosures = findDenselyEnclosedBlanks board maxBlanks Axis.X
       vEnclosures = findDenselyEnclosedBlanks board maxBlanks Axis.Y
@@ -251,12 +253,12 @@ hopelessBlankPoints board dictionary @ WordDictionary { maxMaskedLetters } =
 --
 --   It is list of two 2-tuples, one each for the X and Y axis.
 --   Each member of the list provides the list of dense strips covering
---   then given point argument in the given direction.
+--   the given point argument in the given direction.
 --
---   If the list of dense strip for a given direction is empty, some non-dense
+--   If the list of dense strips for a given direction is empty, some non-dense
 --   strip in that direction may cover the point.
 --
---   If the strip list is non-empty, we know that only the given strips,
+--   If the dense strip list is non-empty, we know that only the given strips,
 --   all of which are dense, cover the strip in that direction.
 --
 --   Return True if we know for sure that no word can be played that

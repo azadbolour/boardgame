@@ -247,14 +247,33 @@ trait StripMatcher {
 }
 
 object StripMatcher {
-  /** Values start at 1 - so 0 is the basis of recursion for decreasing values. */
-  type StripValue = Int
-  type StripMatch = Option[(Strip, DictWord)]
-
 
   /**
-    * Attempt to find blank points that cannot possibly be filled.
-    * TODO. Move the description of the algorithm to the newer version.
+    * The integer "value" associated with each strip.
+    * Optimality is based on this value.
+    *
+    * Values start at 1 - and 0 is the basis of recursion
+    * for decreasing values.
+    */
+  type StripValue = Int
+
+  /**
+    * A possible match found on a strip - if exists include
+    * the strip and the matching word.
+    */
+  type StripMatch = Option[(Strip, DictWord)]
+
+  private def findDenselyEnclosedBlanks(board: Board, maxBlanks: Int, axis: Axis) = {
+    def allDense(strips: List[Strip]) = strips forall { _.isDense(maxBlanks) }
+
+    val blanksToStrips = board.playableEnclosingStripsOfBlankPoints(axis)
+    blanksToStrips filter { case (_, strips) => allDense(strips)}
+  }
+
+  val Caps = 'A' to 'Z'
+
+  /**
+    * Find blank point that can never be covered.
     *
     * The algorithm uses a precomputed set of masked words. A masked word
     * is a word some of whose letters have been changed to blanks. If a strip
@@ -263,81 +282,13 @@ object StripMatcher {
     * a word: only those that are "dense", that is, those that only have a few
     * blanks.
     *
-    * The algorithm works by finding those blank points that can only
-    * be covered by making a play on a "dense" strip. A dense strip
-    * is one that only has a few blanks. Once we know
-    * that a blank point is only coverable by dense strip plays, we can
-    * look up the contents of each of its covering dense strips in the
-    * masked word index, and if none of them exists, we know that the blank
-    * is hopeless.
-    *
-    * This algorithm, of course, will miss some hopeless blanks. But detecting
-    * hopeless blanks is most useful when the board is densely populated,
-    * increasing the possibility of finding blanks that are only coverable
-    * by dense strips.
-    *
-    * @param axis Axis along which to check for matching words.
-    * @return List of hopeless blank points.
-    */
-//  def hopelessBlankPointsForAxis(board: Board, dictionary: WordDictionary, trayCapacity: Int, axis: Axis): Set[Point] = {
-//
-//    val denselyEnclosedBlanks: Map[Point, List[Strip]] =
-//      findDenselyEnclosedBlanks(board, dictionary, trayCapacity, axis)
-//
-//    def stripMatchExists(strips: List[Strip]) =
-//      strips exists { s => dictionary.hasMaskedWord(s.content)}
-//    val stripsForHopelessBlanks =
-//      denselyEnclosedBlanks filter { case (_, strips) => !stripMatchExists(strips)}
-//
-//    stripsForHopelessBlanks.keySet
-//  }
-
-  private def findDenselyEnclosedBlanks(board: Board, maxBlanks: Int, axis: Axis) = {
-    val blanksToStrips = board.playableEnclosingStripsOfBlankPoints(axis)
-    // val maxStripBlanks = dictionary.maxMaskedLetter
-
-    def allDense(strips: List[Strip]) =
-      strips forall {
-        _.isDense(maxBlanks)
-      }
-
-    val denselyEnclosedBlanks =
-      blanksToStrips filter { case (_, strips) => allDense(strips) }
-    denselyEnclosedBlanks
-  }
-
-  /**
-    * Get heuristically detected hopeless blank points.
-    * Original algorithm for hopeless blanks.
-    * First get hopeless blank for each axis (independently of the other).
-    * Split each into two sets based on whether the blank point has an adjacent anchor.
-    * Blank points that have an adjacent anchor are definitely out independently of the other axis.
-    * Those that do not must have a match on one axis, hence intersect.
-    */
-//  def hopelessBlankPoints(board: Board, dictionary: WordDictionary, trayCapacity: Int): Set[Point] = {
-//    val forX = hopelessBlankPointsForAxis(board, dictionary, trayCapacity, Axis.X)
-//    val (anchoredX, freeX) = forX partition { pt => board.hasRealNeighbor(pt, Axis.X)}
-//
-//    val forY = hopelessBlankPointsForAxis(board, dictionary, trayCapacity, Axis.Y)
-//    val (anchoredY, freeY) = forY partition { pt => board.hasRealNeighbor(pt, Axis.Y)}
-//
-//    anchoredX ++ anchoredY ++ (freeX intersect freeY)
-//  }
-
-  val Caps = 'A' to 'Z'
-
-  /**
-    * Experimental algorithm for hopeless blanks.
+    * The dictionary contains all masked words with up to maxMaskedWords blanks.
+    * We find the points that are covered only by dense strips of at most maxMaskedWords + 1 blanks.
+    * Then we try all letters from A to Z on each such point. The resulting strips covering
+    * that point now have maxMaskedWords blanks, and their content can be looked up
+    * as masked words in the dictionary.
     */
   def hopelessBlankPoints(board: Board, dictionary: WordDictionary): Set[Point] = {
-
-    /*
-     * Algorithm. The dictionary contains all masked words with up to maxMaskedWords blanks.
-     * We find the points that are covered only by dense strips of at most maxMaskedWords + 1 blanks.
-     * Then we try all letters from A to Z on each such point. The resulting strips covering
-     * that point now have maxMaskedWords blanks, and their content can be looked up
-     * as masked words in the dictionary.
-     */
 
     val maxBlanks = dictionary.maxMaskedLetters + 1
 
