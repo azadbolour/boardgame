@@ -25,6 +25,14 @@ In particular, for the MAC, the first step is install node:
 
 Installs both node and npm.
 
+Certain npm packages are installed globally - see global-installs.sh.
+Note that to avoid merge conflicts for the file package-lock.json which 
+is updated by npm, global-installs.sh also installs npm-merge-driver
+which is supposed to resolve git merge conflicts of the lock file 
+automatically. See 
+
+  https://github.com/npm/npm/blob/latest/doc/files/npm-package-locks.md#resolving-lockfile-conflicts
+
 ## Development Server
 
 For development purposes: Start a webpack development server to serve the
