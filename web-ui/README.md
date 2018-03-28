@@ -12,15 +12,18 @@ and the rest of the React DND documentation for orientation.
 ## Getting Started
 
 The steps required to install all the dependencies of the web-ui sub-project 
-are scripted in the Dockerfiles in _docker_ directory of the parent project.
-You may follows the UI setup steps in those files to get started.
+are scripted in the Dockerfiles in _docker_ directory of the server
+sub-projects. These steps are for Ubuntu Linux. But you can follow 
+the equivalent steps for other platforms. 
 
-### Noteworthy in Setup
+In particular, for the MAC, the first step is install node:
 
-Note for MAC brew users. There have been issues with installing node and npm
-through brew on the MAC. You may wish to install node with brew (without npm -
-see link below for details) and install npm separately by directly downloading.
-See: https://gist.github.com/DanHerbert/9520689. 
+`
+  brew update
+  brew install node
+`
+
+Installs both node and npm.
 
 ## Development Server
 
@@ -84,11 +87,11 @@ Examples:
 
 - Build the production version of the React UI.
 
-    build-prod.sh
+    bundle-prod.sh
 
   The production version will be found under the _dist_ directory.
 
-  Note - build-prod.sh invokes the _build-prod_ script definition defined in
+  Note - bundle-prod.sh invokes the _bundle-prod_ script definition defined in
   the project's package.json. That script definition runs Webpack 
   using a production configuration to package the game application
   together with all its dependencies into a single javascript bundle.

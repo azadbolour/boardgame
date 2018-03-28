@@ -7,67 +7,56 @@
 # Command line arguments.
 #
 
-# The docker tag.
-ARG tag=0.9.1
+# The version of the base idocker image to use.
+ARG version=no_version
 #
 
 #
 # Base it on the same-tagged base.
 #
-FROM azadbolour/boardgame-haskell-packager:${tag}
-
-# TODO. Remove. Done in base packager.
-RUN apt-get install -y zip unzip
+FROM azadbolour/boardgame-haskell-base:${version}
 
 #
 # Set up the base environment.
+#  The project directory is expected to have been creaed in the base image.
 #
 ENV WORKSPACE /home/me/dev/boardgame
 WORKDIR $WORKSPACE
-RUN echo `pwd` && ls
 ENV PATH $PATH:.
-RUN echo $PATH
+RUN echo `pwd` && ls && echo $PATH
 
 # 
-# Get the lastest source.
+# Get the latest source.
 #
 RUN git pull origin master
 
 #
-# Update web-ui node js dependencies.
+# Update web-ui node js dependencies and bundle the ui code.
 #
-RUN cd web-ui && npm install
+RUN cd web-ui \
+  && npm install
+  && ./bundle-prod.sh
 
 #
-# Bundle up the javascript.
+# Unzip the dictionary masked words file to make it available to the server.
 #
-RUN cd web-ui && ./build-prod.sh
+RUN cd dict \
+  && unzip moby-english-masked-words.txt.zip
 
 #
-# Build the Haskell server.
-#
-RUN cd haskell-server && stack build
-
-#
-# Run the test suite using the sqlite database.
+# Build and test the Haskell server.
+# Copy the ui bundle to from the ui sub-project to the server's static directory.
 # Tests migrate the database and recreate the data they need.
 #
-RUN cd haskell-server/test-data && cp sqlite-config.yml test-config.yml
-RUN cd haskell-server && stack test
+RUN cd haskell-server \
+  && stack build \
+  && ./update-ui-bundle.sh \
+  && cp test-data/sqlite-config.yl test-data/test-config.yml \
+  && stack test
 
 #
-# Copy the web-ui bundle to the Haskell server's static files directory.
+# Run the haskell server from the haskell-server directory.
 #
-RUN cd haskell-server && ./update-ui-bundle.sh
+WORKDIR $WORKSPACE/haskell-server
+ENTRYPOINT ["run.sh", "test-data/sqlite-config.yml"]
 
-#
-# Unzip the dictionary masked words file.
-#
-RUN cd dict && unzip moby-english-masked-words.txt.zip
-
-#
-# Expose the http port. Do it in the run command.
-#
-# EXPOSE ${serverPort}
-
-ENTRYPOINT ["/home/me/dev/boardgame/haskell-server/cd-run.sh", "/home/me/dev/boardgame/haskell-server", "test-data/sqlite-config.yml"]

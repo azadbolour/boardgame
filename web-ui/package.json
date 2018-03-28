@@ -7,7 +7,7 @@
     "test": "jest",
     "lint": "eslint src",
     "build": "webpack; cp index.html dist",
-    "build-prod": "webpack --config webpack.prod.config.js; cp index.html dist/"
+    "bundle-prod": "webpack --config webpack.prod.config.js; cp index.html dist/"
   },
   "keywords": [
     "board",

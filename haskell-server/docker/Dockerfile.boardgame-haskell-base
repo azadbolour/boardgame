@@ -1,0 +1,72 @@
+
+#
+# Base of boardgame development.
+#
+
+#
+# Begin with ubuntu version 14.04.
+#
+FROM ubuntu:trusty
+
+#
+# Get basic untilities.
+#
+RUN apt-get update \
+  && apt-get install -y apt-utils wget curl zip unzip git
+
+#
+# Set up the base environment.
+#
+ENV WORKSPACE /home/me/dev/boardgame
+RUN mkdir -p $WORKSPACE
+WORKDIR $WORKSPACE
+ENV PATH $PATH:.
+RUN echo `pwd` && echo $PATH && whoami
+
+#
+# Install postgres.
+#
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt trusty-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+  && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+  &&  apt-get update \
+  && apt-get install -y postgresql-9.6 postgresql-client-9.6 postgresql-contrib-9.6 libpq-dev postgresql-server-dev-9.6 pgadmin3 \
+  && dpkg -L libpq-dev
+  # Makes sure the client-side postgres library needed by Haskell Persistent was installed.
+
+#
+# Install node js.
+#
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - \
+  && apt-get update \
+  && apt-get install -y nodejs
+
+#
+# Install the Haskell tool stack.
+#
+RUN curl -sSL https://get.haskellstack.org/ | sh
+
+#
+# Clone the repository.
+#
+RUN cd .. && git clone https://github.com/azadbolour/boardgame
+
+#
+# Install the web-ui dependencies.
+#
+RUN cd web-ui \
+    && ./global-install.sh \
+    && npm install
+
+#
+# Build and test the Haskell server.
+#
+# This is to trigger the time-consuming process of getting out Haskell 
+# dependencies compiling them once for all in the base docker image.
+#
+RUN cd haskell-server \
+  && stack setup \
+  && stack build \
+  && cp test-data/sqlite-config.yl test-data/test-config.yml \
+  && stack test
+
+
