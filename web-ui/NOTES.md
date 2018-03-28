@@ -18,6 +18,8 @@
 
     https://react-dnd.github.io/react-dnd/docs-drag-source-connector.html
 
+    https://reactjs.org/docs/optimizing-performance.html
+
 - On MAC got the following error after a clean npm install. 
 
   xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory 
