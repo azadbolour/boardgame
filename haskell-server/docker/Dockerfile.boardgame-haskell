@@ -7,14 +7,15 @@
 # Command line arguments.
 #
 
-# The version of the base idocker image to use.
-ARG version=no_version
 #
+# The fully-qualified name of the base image to be used.
+# Example: 
+#
+#   azadbolour/boardgame-haskell-base:0.5
+#
+ARG base
 
-#
-# Base it on the same-tagged base.
-#
-FROM azadbolour/boardgame-haskell-base:${version}
+FROM ${base}
 
 #
 # Set up the base environment.
@@ -31,17 +32,17 @@ RUN echo `pwd` && ls && echo $PATH
 RUN git pull origin master
 
 #
+# Unzip the dictionary masked words file to make it available to the server.
+#
+RUN cd dict \
+  && unzip moby-english-masked-words.txt.zip
+
+#
 # Update web-ui node js dependencies and bundle the ui code.
 #
 RUN cd web-ui \
   && npm install
   && ./bundle-prod.sh
-
-#
-# Unzip the dictionary masked words file to make it available to the server.
-#
-RUN cd dict \
-  && unzip moby-english-masked-words.txt.zip
 
 #
 # Build and test the Haskell server.

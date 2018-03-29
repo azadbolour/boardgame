@@ -5,24 +5,37 @@
 #
 # Assumes the server is deployed to the 'dist' directory (relative to the cwd).
 #
+# Command line options:
+#
+#   --http-port port# - the http port of the play application
+#   --prod-conf path - the specialized application configuration file 
+#               that overrides the built-in conf/applicatin.conf
+#   --pid-file path -  The pid aka lock file of the running production server.
+#
 
-port=$1             # The http port of the server.
-PROD_CONF=$2        # The location of the custom application.conf overriding the bundled one.
-PID_FILE=$3         # The location of the process pid (lock) file for the play application.
+#
+# Get default values of command line parameters:
+# HTTP_PORT, PROD_CONF, PID_FILE, VERSION.
+#
+. defaults.sh
 
-defaultPort=6587
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --http-port) 
+            shift && HTTP_PORT="$1" || die ;;
+        --prod-conf) 
+            shift && PROD_CONF="$1" || die ;;
+        --pid-file) 
+            shift && PID_FILE="$1" || die ;;
+        --version) 
+            shift && VERSION="$1" || die ;;
+        *) 
+            echo "$0: unknown option $1" && die ;;
+    esac
+    shift
+done
 
-if [ -z "$port" ]; then
-  port="${defaultPort}"
-fi
-
-deployDir=dist
-
-# TODO. Get version from build.sbt.
-version=0.9.1
-server=scala-server-${version}
-
-cd ${deployDir}/${server}
+if [ -z "$VERSION" ]; then echo "missing version" && die; fi
 
 #
 # Customize the runtime environment of the application.
@@ -36,11 +49,22 @@ if [ ! -z "$PROD_CONF" ]; then
     JAVA_OPTS="${JAVA_OPTS} -Dconfig.file=${PROD_CONF}"
 fi
 if [ ! -z "$PID_FILE" ]; then
+    mkdir -p `dirname $PID_FILE`
+    # Assume this script is only run on when the application cannot be running.
+    # If there is a leftover pid file from stopping the docker container - remove it.
+    # TODO. Check that no server is running.
+    rm -f $PID_FILE
     JAVA_OPTS="${JAVA_OPTS} -Dpidfile.path=${PID_FILE}"
 fi
 
 export JAVA_OPTS
 echo "JAVA_OPTS: ${JAVA_OPTS}"
+
+server=scala-server-${VERSION}
+deployDir=dist
+cd ${deployDir}/${server}
+./bin/scala-server 
+
 
 # 
 # Profiling with YourKit:
@@ -57,7 +81,3 @@ echo "JAVA_OPTS: ${JAVA_OPTS}"
 # YOURKIT="/Applications/YourKit_Java_Profiler_2014_build_14112.app/Contents/Resources/"
 # YOURKIT_AGENT=${YOURKIT}/bin/mac/libyjpagent.jnilib
 # ./bin/scala-server -J-agentpath:${YOURKIT_AGENT}
-
-# Normal run.
-./bin/scala-server 
-

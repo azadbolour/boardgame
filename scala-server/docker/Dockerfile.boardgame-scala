@@ -7,25 +7,36 @@
 # Command line arguments.
 #
 
-# The docker tag.
-ARG tag=0.9.1
-
-# The temp storage area for boardgame. Use for the play pid (lock) file.
-ARG BOARDGAME_VAR=/var/run/boardgame
+#
+# The fully-qualified name of the base image to be used.
+# Example: 
+#
+#   azadbolour/boardgame-scala-base:0.5
+#
+ARG base
 
 #
-# Base it on the same-tagged base.
-#
-FROM azadbolour/boardgame-scala-packager:${tag}
+# The 'var/run' folder of boardgame - used for the play pid (lock) file.
+# Remove.
+# ARG vardir=/var/run/boardgame
+
+FROM ${base}
 
 # Environment variable for the server port (default 6587).
-ENV HTTP_PORT 6587
+# Remove.
+# ENV HTTP_PORT 6587
+
+#
 # Environment variable for Play's production config file.
-# Defaults to none and reverts to the config file bundled with the app.
+# The default value can be overridden by using a -e option to the docker run command.
+# It is good practice use -e flags to make the environment of a container explicit.
+# Remove.
 # ENV PROD_CONF 
 
-# Make it available after FROM!
-ARG BOARDGAME_VAR 
+# Repeat here to make it available after FROM!
+# ARG BOARDGAME_VAR 
+# Remove.
+# ENV BOARDGAME_VAR /var/run/boardgame
 
 #
 # Set up the base environment.
@@ -33,27 +44,31 @@ ARG BOARDGAME_VAR
 ENV WORKSPACE /home/me/dev/boardgame
 WORKDIR $WORKSPACE
 ENV PATH $PATH:.
-RUN echo $PATH \
-  && echo `pwd` \
-  && ls \
+RUN echo `pwd` && ls && echo $PATH \
   && mkdir -p $BOARDGAME_VAR
 
 RUN git pull origin master
-# RUN cd web-ui && ./build-prod.sh
 
 #
-# Update web-ui node js dependencies.
+# Unzip the dictionary masked words file to make it available to the server.
 #
-RUN cd web-ui && npm install
+RUN cd dict \
+  && unzip moby-english-masked-words.txt.zip
 
 #
-# Bundle up the javascript.
+# Update web-ui node js dependencies and bundle the ui code.
 #
-RUN cd web-ui && ./build-prod.sh
+RUN cd web-ui \
+  && npm install
+  && ./bundle-prod.sh
 
-RUN cd scala-server \
-  && update-ui-bundle.sh \
-  && sbt compile test dist \
+WORKDIR $WORKSPACE/scala-server
+
+#
+# Build, test, and deploy the Scala server copying the ui bundle to the server area 
+# so it can be packed with the application.
+RUN update-ui-bundle.sh \
+  && sbt clean compile test dist \
   && deploy.sh
 
 #
@@ -61,4 +76,4 @@ RUN cd scala-server \
 #
 # EXPOSE ${serverPort}
 
-ENTRYPOINT ["/home/me/dev/boardgame/scala-server/prod-run-deployed.sh", "/home/me/dev/boardgame/scala-server/"]
+ENTRYPOINT ["run-deployed.sh"]

@@ -2,15 +2,15 @@
 
 # 
 # Run a production docker container for the application.
-#
-# The docker container is cognizant of two environment variables:
+# Parameters passed to the entry point of the container.
 #
 #   HTTP_PORT for the port of the server application
 #   PROD_CONF for the Play production configuration file of the application
+#   PID_FILE the location of play's pid lock file
+#   VERSION the version of the application
 #
 # These variables are used to provide information about the production 
-# deployment environment to the Play application. They are transmitted
-# to the container via -e options to the docker run command.
+# deployment environment to the Play application. 
 #
 # The production config file is created on the host machine and must be 
 # mapped into the docker file system. We use the convention that external server
@@ -27,32 +27,35 @@
 # Then can use docker run -d to create a detatched conatiner.
 # And the logs will be on the host file system.
 
-HTTP_PORT=$1
-PROD_CONF=$2
+#
+# Get default values of command line parameters:
+# HTTP_PORT, PROD_CONF, PID_FILE, VERSION.
+#
+. defaults.sh
 
-BOARDGAME_DATA=/opt/data/boardgame
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --http-port) 
+            shift && HTTP_PORT="$1" || die ;;
+        --prod-conf) 
+            shift && PROD_CONF="$1" || die ;;
+        --pid-file) 
+            shift && PID_FILE="$1" || die ;;
+        --version) 
+            shift && VERSION="$1" || die ;;
+        *) 
+            echo "$0: unknown option $1" && die ;;
+    esac
+    shift
+done
 
-DEFAULT_PORT=6597
-DEFAULT_PROD_CONF=$BOARDGAME_DATA/conf/prod.conf
-
-if [ -z "${HTTP_PORT}" ]; then
-  HTTP_PORT=$DEFAULT_PORT
-fi
-
-if [ -z "${PROD_CONF}" ]; then
-  PROD_CONF=$DEFAULT_PROD_CONF
-fi
-
-# if [ -z "${HTTP_PORT}" -o -z "${PROD_CONF}" ]; then
-#   echo "usage: $0 HTTP_PORT PROD_CONF - aborting"
-#   exit 1
-# fi
+if [ -z "$VERSION" ]; then echo "missing version" && die; fi
 
 NAMESPACE=azadbolour
 REPOSITORY=boardgame-scala
-TAG=0.9.1
 
 nohup docker run -p ${HTTP_PORT}:${HTTP_PORT} --restart on-failure:5 --name boardgame-scala \
-    -e HTTP_PORT="${HTTP_PORT}" -e PROD_CONF="${PROD_CONF}" \
-    -v ${BOARDGAME_DATA}:${BOARDGAME_DATA} ${NAMESPACE}/${REPOSITORY}:${TAG} &
+    -v ${BOARDGAME_DATA}:${BOARDGAME_DATA} ${NAMESPACE}/${REPOSITORY}:${VERSION} \
+    --http-port $HTTP_PORT --prod-conf $PROD_CONF --pid-file $PID_FILE --version $VERSION &
 
+#    -e HTTP_PORT="${HTTP_PORT}" -e PROD_CONF="${PROD_CONF}" \

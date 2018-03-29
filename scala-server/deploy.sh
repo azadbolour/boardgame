@@ -32,8 +32,7 @@ fi
 
 cd ${projectDir}
 
-# TODO. Get version from build.sbt.
-version=0.9.1
+version=`./server-version.sh`
 server=scala-server-${version}
 
 echo "deploying board game scala server from ${outDir} to ${deployDir}"
