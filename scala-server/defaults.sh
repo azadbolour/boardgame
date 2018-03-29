@@ -17,7 +17,8 @@ BOARDGAME_RUN=/var/run/boardgame
 #
 # Version of the application as provided in build.sbt.
 #
-VERSION=`grep '^version\s*:=\s*' build.sbt | sed -e 's/version[ ]*:=[ ]*//' -e 's/"//g' -e 's/ //g'`
+# VERSION=`grep '^version\s*:=\s*' build.sbt | sed -e 's/version[ ]*:=[ ]*//' -e 's/"//g' -e 's/ //g'`
+VERSION=`./server-version.sh`
 
 #
 # Default http port - may be changed in command line scripts that use it.
