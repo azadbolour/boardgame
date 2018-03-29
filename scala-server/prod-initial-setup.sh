@@ -1,10 +1,10 @@
 #!/bin/sh -x
 
 # 
-# Initial setup of the production machine: 
+# Initial setup of the production machine where the docker container will be deployed.
 #   
-#       setup the production configuration file
-#       setup the production application pid (lock) file
+# Sets up a template play production configuration file that then needs to be 
+# edited appropriately.
 #
 # Copy the production application.conf file to a well-known
 # file system location accessible by the application. The well-known
@@ -19,12 +19,10 @@
 # to reflect the given deployment.
 #
 
-# Get defaults for locations of various files:
-# BOARDGAME_DATA for conf file, BOARDGAME_VAR for pid file.
+# Get defaults value DEFAULT_BOARDGAME_DATA for conf file.
 . defaults.sh
 
 BOARDGAME_DATA=$DEFAULT_BOARDGAME_DATA
-BOARDGAME_RUN=$DEFAULT_BOARDGAME_RUN
 
 confDir=$WORKSPACE/scala-server/conf
 prodConfDir=$BOARDGAME_DATA/conf
@@ -36,12 +34,4 @@ sudo chown $USER $prodConfDir
 
 cp $confDir/prod.conf.template $prodConfDir/prod.conf
 echo "edit $prodConfDir/prod.conf to reflect the environment of your deployment"
-
-# Set up the temporary file area for board game. 
-# The contents are wiped out on system restart.
-# The play pid lock file will be configured to be in this area.
-# That way the pid lock is automatically removed on restart.
-
-sudo mkdir -p $BOARDGAME_RUN
-sudo chown $USER $BOARDGAME_RUN
 

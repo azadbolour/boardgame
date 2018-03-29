@@ -22,6 +22,14 @@ deployDir=dist
 mkdir -p $deployDir
 test -d $deployDir || (echo "could not create deployDir $deployDir"; exit 1)
 
+#
+# Create the directory for the play pid file.
+#
+pidDir=`dirname $PID_FILE`
+sudo mkdir -p $pidDir
+sudo chown $USER $pidDir
+test -d $pidDir || (echo "unable to create play pid file directory $pidDir"; exit 1)
+
 projectDir=`pwd`
 outDir=${projectDir}/target/universal
 

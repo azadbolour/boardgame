@@ -10,7 +10,10 @@
 DEFAULT_BOARDGAME_DATA=/opt/data/boardgame
 
 #
-# Directory of the board game's play server pid file.
+# Temporary runtime file area for the board game.
+# Make sure it is under /var, so the contents get wiped out on system restart.
+# The play pid lock file must be configured to be in this area.
+# That way the pid lock is automatically removed on restart.
 #
 DEFAULT_BOARDGAME_RUN=/var/run/boardgame
 

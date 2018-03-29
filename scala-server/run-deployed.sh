@@ -45,8 +45,9 @@ if [ -z "$PID_FILE" ]; then PID_FILE=${DEFAULT_PID_FILE}; fi
 if [ -z "$VERSION" ]; then VERSION=${DEFAULT_VERSION}; fi
 
 initMessage="make sure host machine has been initialized"
+deployMessage="make sure server has been deployed"
 test -f "${PROD_CONF}" || (echo "production config file ${PROD_CONF} does not exist - $initMessage" ; exit 1)
-test -d "`dirname $PID_FILE`" || (echo "directory of pid file ${PID_FILE} does not exist - $initMessage" ; exit 1)
+test -d "`dirname $PID_FILE`" || (echo "directory of pid file ${PID_FILE} does not exist - $deployMessage" ; exit 1)
 
 #
 # Customize the runtime environment of the application.
@@ -71,7 +72,7 @@ server=scala-server-${VERSION}
 deployDir=dist
 serverDir=${deployDir}/${server}
 
-test -d $serverDir || (echo "server directory ${serverDir} does not exists - make sure server has been deployed"; exit 1)
+test -d $serverDir || (echo "server directory ${serverDir} does not exists - $deployMessage"; exit 1)
 
 cd $serverDir
 ./bin/scala-server 
