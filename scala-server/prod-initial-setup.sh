@@ -19,7 +19,9 @@
 # to reflect the given deployment.
 #
 
-BOARDGAME_DATA=/opt/data/boardgame
+# Get defaults for locations of various files:
+# BOARDGAME_DATA for conf file, BOARDGAME_VAR for pid file.
+. defaults.sh
 
 confDir=$WORKSPACE/scala-server/conf
 prodConfDir=$BOARDGAME_DATA/conf
@@ -37,7 +39,6 @@ echo "edit $prodConfDir/prod.conf to reflect the environment of your deployment"
 # The play pid lock file will be configured to be in this area.
 # That way the pid lock is automatically removed on restart.
 
-BOARDGAME_VAR=/var/run/boardgame
 sudo mkdir -p $BOARDGAME_VAR
 sudo chown $USER $BOARDGAME_VAR
 
