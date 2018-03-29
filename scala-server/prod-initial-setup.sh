@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 # 
 # Initial setup of the production machine: 
@@ -23,6 +23,9 @@
 # BOARDGAME_DATA for conf file, BOARDGAME_VAR for pid file.
 . defaults.sh
 
+BOARDGAME_DATA=$DEFAULT_BOARDGAME_DATA
+BOARDGAME_RUN=$DEFAULT_BOARDGAME_RUN
+
 confDir=$WORKSPACE/scala-server/conf
 prodConfDir=$BOARDGAME_DATA/conf
 
@@ -39,6 +42,6 @@ echo "edit $prodConfDir/prod.conf to reflect the environment of your deployment"
 # The play pid lock file will be configured to be in this area.
 # That way the pid lock is automatically removed on restart.
 
-sudo mkdir -p $BOARDGAME_VAR
-sudo chown $USER $BOARDGAME_VAR
+sudo mkdir -p $BOARDGAME_RUN
+sudo chown $USER $BOARDGAME_RUN
 

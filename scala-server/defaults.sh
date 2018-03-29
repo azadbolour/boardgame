@@ -7,32 +7,31 @@
 #
 # Running board game's area used for configuration of a deployment, etc.
 #
-BOARDGAME_DATA=/opt/data/boardgame
+DEFAULT_BOARDGAME_DATA=/opt/data/boardgame
 
 #
 # Directory of the board game's play server pid file.
 #
-BOARDGAME_RUN=/var/run/boardgame
+DEFAULT_BOARDGAME_RUN=/var/run/boardgame
 
 #
 # Version of the application as provided in build.sbt.
 #
-# VERSION=`grep '^version\s*:=\s*' build.sbt | sed -e 's/version[ ]*:=[ ]*//' -e 's/"//g' -e 's/ //g'`
-VERSION=`./server-version.sh`
+DEFAULT_VERSION=`./server-version.sh`
 
 #
 # Default http port - may be changed in command line scripts that use it.
 #
-HTTP_PORT=6597
+DEFAULT_HTTP_PORT=6597
 
 #
 # The path to the deployed application's configuration file. 
 # Configuration parameters may be added or overridden here.
 #
-PROD_CONF=$BOARDGAME_DATA/conf/prod.conf
+DEFAULT_PROD_CONF=$DEFAULT_BOARDGAME_DATA/conf/prod.conf
 
 #
 # The pid aka lock for for board game's play server.
 #
-PID_FILE=$BOARDGAME_RUN/play.pid
+DEFAULT_PID_FILE=$DEFAULT_BOARDGAME_RUN/play.pid
 

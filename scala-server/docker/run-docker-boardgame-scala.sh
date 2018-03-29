@@ -29,7 +29,7 @@
 
 #
 # Get default values of command line parameters:
-# HTTP_PORT, PROD_CONF, PID_FILE, VERSION.
+# DEFAULT_HTTP_PORT, DEFAULT_PROD_CONF, DEFAULT_PID_FILE, DEFAULT_VERSION.
 #
 . defaults.sh
 
@@ -49,7 +49,10 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ -z "$VERSION" ]; then echo "missing version" && die; fi
+if [ -z "$HTTP_PORT" ]; then HTTP_PORT=${DEFAULT_HTTP_PORT}; fi
+if [ -z "$PROD_CONF" ]; then PROD_CONF=${DEFAULT_PROD_CONF}; fi
+if [ -z "$PID_FILE" ]; then PID_FILE=${DEFAULT_PID_FILE}; fi
+if [ -z "$VERSION" ]; then VERSION=${DEFAULT_VERSION}; fi
 
 NAMESPACE=azadbolour
 REPOSITORY=boardgame-scala

@@ -3,10 +3,24 @@
 #
 # Package the play application.
 #
-# Prerequisite. The UI bundle should be in public/javascripts folder.
-#
-# The package will be placed in target/universal/scala-server-1.0.zip
+# The package will be placed in target/universal/scala-server-<version>.zip
+# Where 'version' is defined in build.sbt.
 #
 
+#
+# Update web-ui node js dependencies and bundle the ui code.
+#
+(cd ../web-ui \
+  && npm install \
+  && ./bundle-prod.sh)
+
+#
+# Copy over the ui bundle to the so it can be packaged with the play application.
+# 
+./update-ui-bundle.sh 
+
+#
+# Build and package the play application.
+#
 sbt clean compile "test" dist
 

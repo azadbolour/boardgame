@@ -8,8 +8,20 @@
 # The distribution is deployed to dist/scala-server-1.0
 #
 
+#
+# Get default values; we are only interested in DEFAULT_VERSION, and DEFAULT_PID_FILE.
+#
+. defaults.sh
+
+# For now just use defaults for deploy.
+PID_FILE=$DEFAULT_PID_FILE
+VERSION=$DEFAULT_VERSION
+
 # TODO. Input parameter for deployDir.
 deployDir=dist
+mkdir -p $deployDir
+test -d $deployDir || (echo "could not create deployDir $deployDir"; exit 1)
+
 projectDir=`pwd`
 outDir=${projectDir}/target/universal
 
@@ -32,14 +44,13 @@ fi
 
 cd ${projectDir}
 
-version=`./server-version.sh`
-server=scala-server-${version}
+server="scala-server-${VERSION}"
 
 echo "deploying board game scala server from ${outDir} to ${deployDir}"
-mkdir -p $deployDir
 cd $deployDir
 rm -rf ${server}/
 unzip $outDir/${server}.zip
+
 cd ${server}
 
 #

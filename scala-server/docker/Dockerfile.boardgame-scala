@@ -44,36 +44,11 @@ FROM ${base}
 ENV WORKSPACE /home/me/dev/boardgame
 WORKDIR $WORKSPACE
 ENV PATH $PATH:.
-RUN echo `pwd` && ls && echo $PATH \
-  && mkdir -p $BOARDGAME_VAR
+RUN echo `pwd` && ls && echo $PATH 
 
 RUN git pull origin master
 
-#
-# Unzip the dictionary masked words file to make it available to the server.
-#
-RUN cd dict \
-  && unzip moby-english-masked-words.txt.zip
-
-#
-# Update web-ui node js dependencies and bundle the ui code.
-#
-RUN cd web-ui \
-  && npm install
-  && ./bundle-prod.sh
-
 WORKDIR $WORKSPACE/scala-server
-
-#
-# Build, test, and deploy the Scala server copying the ui bundle to the server area 
-# so it can be packed with the application.
-RUN update-ui-bundle.sh \
-  && sbt clean compile test dist \
-  && deploy.sh
-
-#
-# Expose the http port. Do it in the run command.
-#
-# EXPOSE ${serverPort}
+RUN ./package.sh && ./deploy.sh
 
 ENTRYPOINT ["run-deployed.sh"]

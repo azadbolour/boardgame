@@ -15,27 +15,38 @@
 
 #
 # Get default values of command line parameters:
-# HTTP_PORT, PROD_CONF, PID_FILE, VERSION.
+#
+#       DEFAULT_HTTP_PORT
+#       DEFAULT_PROD_CONF
+#       DEFAULT_PID_FILE
+#       DEFAULT_VERSION
 #
 . defaults.sh
 
 while [ $# -gt 0 ]; do
     case "$1" in
         --http-port) 
-            shift && HTTP_PORT="$1" || die ;;
+            shift && HTTP_PORT="$1" || (echo "missing http-port value"; exit 1) ;;
         --prod-conf) 
-            shift && PROD_CONF="$1" || die ;;
+            shift && PROD_CONF="$1" || (echo "missing prod-donf value"; exit 1) ;;
         --pid-file) 
-            shift && PID_FILE="$1" || die ;;
+            shift && PID_FILE="$1" || (echo "missing pid-file value"; exit 1) ;;
         --version) 
-            shift && VERSION="$1" || die ;;
+            shift && VERSION="$1" || (echo "mission version value"; exit 1) ;;
         *) 
-            echo "$0: unknown option $1" && die ;;
+            echo "$0: unknown option $1" && exit 1 ;;
     esac
     shift
 done
 
-if [ -z "$VERSION" ]; then echo "missing version" && die; fi
+if [ -z "$HTTP_PORT" ]; then HTTP_PORT=${DEFAULT_HTTP_PORT}; fi
+if [ -z "$PROD_CONF" ]; then PROD_CONF=${DEFAULT_PROD_CONF}; fi
+if [ -z "$PID_FILE" ]; then PID_FILE=${DEFAULT_PID_FILE}; fi
+if [ -z "$VERSION" ]; then VERSION=${DEFAULT_VERSION}; fi
+
+initMessage="make sure host machine has been initialized"
+test -f "${PROD_CONF}" || (echo "production config file ${PROD_CONF} does not exist - $initMessage" ; exit 1)
+test -d "`dirname $PID_FILE`" || (echo "directory of pid file ${PID_FILE} does not exist - $initMessage" ; exit 1)
 
 #
 # Customize the runtime environment of the application.
@@ -44,25 +55,25 @@ if [ -z "$VERSION" ]; then echo "missing version" && die; fi
 # and config.file (the custom config file overriding the bundled application.conf).
 #
 
-JAVA_OPTS="-Dhttp.port=${port}"
-if [ ! -z "$PROD_CONF" ]; then
-    JAVA_OPTS="${JAVA_OPTS} -Dconfig.file=${PROD_CONF}"
-fi
-if [ ! -z "$PID_FILE" ]; then
-    mkdir -p `dirname $PID_FILE`
-    # Assume this script is only run on when the application cannot be running.
-    # If there is a leftover pid file from stopping the docker container - remove it.
-    # TODO. Check that no server is running.
-    rm -f $PID_FILE
-    JAVA_OPTS="${JAVA_OPTS} -Dpidfile.path=${PID_FILE}"
-fi
+JAVA_OPTS="-Dhttp.port=${HTTP_PORT}"
+JAVA_OPTS="${JAVA_OPTS} -Dconfig.file=${PROD_CONF}"
+JAVA_OPTS="${JAVA_OPTS} -Dpidfile.path=${PID_FILE}"
+
+# Assume this script is only run on when the application cannot be running.
+# If there is a leftover pid file from stopping the docker container - remove it.
+# TODO. Check that no server is running.
+rm -f $PID_FILE
 
 export JAVA_OPTS
 echo "JAVA_OPTS: ${JAVA_OPTS}"
 
 server=scala-server-${VERSION}
 deployDir=dist
-cd ${deployDir}/${server}
+serverDir=${deployDir}/${server}
+
+test -d $serverDir || (echo "server directory ${serverDir} does not exists - make sure server has been deployed"; exit 1)
+
+cd $serverDir
 ./bin/scala-server 
 
 
