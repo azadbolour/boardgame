@@ -1,0 +1,27 @@
+
+
+# ARG X="default X value"
+#
+# Begin with ubuntu version 14.04.
+#
+FROM ubuntu:trusty
+RUN whoami
+RUN apt-get update
+
+# ARG X
+#
+# Set up the base environment.
+#
+ENV WORKSPACE /home/me/dev/boardgame
+RUN mkdir -p $WORKSPACE
+WORKDIR $WORKSPACE
+ENV PATH $PATH:.
+
+COPY test1.sh .
+
+RUN echo `pwd`&& echo $PATH && whoami \
+  && chmod +x test1.sh
+
+ENV X "X value"
+ENTRYPOINT ["./test1.sh"]
+CMD [$X]
