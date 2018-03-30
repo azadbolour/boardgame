@@ -22,21 +22,17 @@ ARG base
 
 FROM ${base}
 
-# Environment variable for the server port (default 6587).
-# Remove.
-# ENV HTTP_PORT 6587
+ENV HTTP_PORT 6587
 
 #
-# Environment variable for Play's production config file.
-# The default value can be overridden by using a -e option to the docker run command.
-# It is good practice use -e flags to make the environment of a container explicit.
-# Remove.
-# ENV PROD_CONF 
+# Play's production config file.
+# 
+ENV PROD_CONF 
 
-# Repeat here to make it available after FROM!
-# ARG BOARDGAME_VAR 
-# Remove.
-# ENV BOARDGAME_VAR /var/run/boardgame
+#
+# The Play server's pid (lock) file.
+#
+ENV PID_FILE
 
 #
 # Set up the base environment.
@@ -49,6 +45,6 @@ RUN echo `pwd` && ls && echo $PATH
 RUN git pull origin master
 
 WORKDIR $WORKSPACE/scala-server
-RUN ./package.sh && ./deploy.sh
+RUN ./package.sh && ./install.sh
 
-ENTRYPOINT ["run-deployed.sh"]
+ENTRYPOINT ["run-installed.sh"]

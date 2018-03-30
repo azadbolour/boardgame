@@ -36,29 +36,40 @@
 while [ $# -gt 0 ]; do
     case "$1" in
         --http-port) 
-            shift && HTTP_PORT="$1" || die ;;
+            shift && HTTP_PORT="$1" || (echo "missing http-port value"; exit 1) ;;
+        --allowed-host) 
+            shift && ALLOWED_HOST="$1" || (echo "missing allowed-host value"; exit 1) ;;
         --prod-conf) 
-            shift && PROD_CONF="$1" || die ;;
+            shift && PROD_CONF="$1" || (echo "missing prod-donf value"; exit 1) ;;
         --pid-file) 
-            shift && PID_FILE="$1" || die ;;
-        --version) 
-            shift && VERSION="$1" || die ;;
+            shift && PID_FILE="$1" || (echo "missing pid-file value"; exit 1) ;;
+        --tag) 
+            shift && TAG="$1" || (echo "missing tag value"; exit 1) ;;
         *) 
             echo "$0: unknown option $1" && die ;;
     esac
     shift
 done
 
+if [ -z "$TAG" ]; then 
+    echo "required parameter 'tag' [of the docker image to run] is missing"
+    exit 1
+fi
+
 if [ -z "$HTTP_PORT" ]; then HTTP_PORT=${DEFAULT_HTTP_PORT}; fi
 if [ -z "$PROD_CONF" ]; then PROD_CONF=${DEFAULT_PROD_CONF}; fi
 if [ -z "$PID_FILE" ]; then PID_FILE=${DEFAULT_PID_FILE}; fi
-if [ -z "$VERSION" ]; then VERSION=${DEFAULT_VERSION}; fi
+if [ -z "$ALLOWED_HOST" ]; then VERSION=${DEFAULT_ALLOWED_HOST}; fi
 
 NAMESPACE=azadbolour
 REPOSITORY=boardgame-scala
 
+#
+# Note. A non-empty value for FORCE_REWRITE causes the production config file to be rewritten
+# on each server start. Useful for changing config parameters dynamically without changing containers:
+# by just restarting containers.
+#
 nohup docker run -p ${HTTP_PORT}:${HTTP_PORT} --restart on-failure:5 --name boardgame-scala \
-    -v ${BOARDGAME_DATA}:${BOARDGAME_DATA} ${NAMESPACE}/${REPOSITORY}:${VERSION} \
-    --http-port $HTTP_PORT --prod-conf $PROD_CONF --pid-file $PID_FILE --version $VERSION &
-
-#    -e HTTP_PORT="${HTTP_PORT}" -e PROD_CONF="${PROD_CONF}" \
+    -e HTTP_PORT="${HTTP_PORT}" -e ALLOWED_HOST="${ALLOWED_HOST}" \
+    -e PID_FILE="${PID_FILE}" -e PROD_CONF="${PROD_CONF}" -e FORCE_REWRITE="Please!" \
+    -v ${BOARDGAME_DATA}:${BOARDGAME_DATA} ${NAMESPACE}/${REPOSITORY}:${TAG} &
