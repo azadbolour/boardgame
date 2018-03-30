@@ -10,63 +10,43 @@ FROM ubuntu:trusty
 RUN whoami
 RUN apt-get update
 
-
-#
-# Get basic untilities.
-#
-RUN apt-get install -y dialog apt-utils wget curl software-properties-common python-software-properties zip unzip build-essential
-
-RUN add-apt-repository ppa:openjdk-r/ppa \
-  && apt-get update \
-  && apt-get install -y openjdk-8-jdk && java -version
-
-
-ENV CA_CERTIFICATES_JAVA_VERSION 20170531+nmu1
-RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
-
-#
-# Install git.
-#
-RUN apt-get install -y git && which git
-
 #
 # Set up the base environment.
 #
 ENV WORKSPACE /home/me/dev/boardgame
 RUN mkdir -p $WORKSPACE
 WORKDIR $WORKSPACE
-RUN echo `pwd`
 ENV PATH $PATH:.
-RUN echo $PATH
+RUN echo `pwd`&& echo $PATH && whoami
 
 #
-# Install node js version 7.
+# Get basic utilities.
 #
-RUN apt-get update
+RUN apt-get install -y dialog apt-utils wget curl software-properties-common python-software-properties zip unzip build-essential git
+
+#
+# Get JDK.
+#
+RUN add-apt-repository ppa:openjdk-r/ppa \
+  && apt-get update \
+  && apt-get install -y openjdk-8-jdk && java -version
+
+ENV CA_CERTIFICATES_JAVA_VERSION 20170531+nmu1
+RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
+
+#
+# Note. On Jan 14 2018 sbt could not be authenticated, though the commented section 
+# is the documented manner of installing sbt 1.x as per:
+#   
+#     http://www.scala-sbt.org/1.x/docs/Installing-sbt-on-Linux.html.
+#
+
+#
+# Install node.
+#
 RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
-# RUN curl -sL https://raw.githubusercontent.com/nodesource/distributions/master/deb/setup_7.x | bash -
-RUN apt-get update
-RUN apt-get install -y apt-utils
-RUN apt-get install -y nodejs
-
-#
-# Clone the repository.
-#
-RUN cd .. && git clone https://github.com/azadbolour/boardgame 
-
-#
-# Install the web-ui dependencies.
-#
-RUN cd web-ui && npm install -g eslint && npm install -g jsdoc
-RUN cd web-ui && npm install
-
-#
-# Bundle up the javascript.
-#
-RUN cd web-ui && ./build-prod.sh
-
-# Note. On Jan 14 2018 sbt could not be authenticated, though the above is the documented manner
-# of installing sbt 1.x as per http://www.scala-sbt.org/1.x/docs/Installing-sbt-on-Linux.html.
+RUN apt-get update \
+  && apt-get install -y nodejs
 
 #
 # Install SBT
@@ -83,12 +63,19 @@ RUN wget --quiet https://dl.bintray.com/sbt/debian/sbt-1.1.0.deb \
     && dpkg -i sbt-1.1.0.deb
 
 #
-# Package the scala server
+# Clone the repository.
 #
-RUN cd scala-server \
-  && update-ui-bundle.sh \
-  && package.sh 
-  
-#  && deploy.sh
+RUN cd .. && git clone https://github.com/azadbolour/boardgame 
 
+#
+# Install the web-ui dependencies.
+#
+RUN cd web-ui \
+   && ./global-install.sh
+
+#
+# When started - pull the latest, package, and export the play application bundle.
+# #
+WORKDIR $WORKSPACE/scala-server
+ENTRYPOINT ["./build-and-export-latest.sh"]
 

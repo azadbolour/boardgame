@@ -1,0 +1,50 @@
+
+#
+# Runs the boardgame executable - built from the latest source.
+#
+
+#
+# Command line arguments.
+#
+
+#
+# The fully-qualified name of the base image to be used.
+# Example: 
+#
+#   azadbolour/boardgame-scala-base:0.5
+#
+ARG base
+
+#
+# The 'var/run' folder of boardgame - used for the play pid (lock) file.
+# Remove.
+# ARG vardir=/var/run/boardgame
+
+FROM ${base}
+
+ENV HTTP_PORT 6587
+
+#
+# Play's production config file.
+# 
+ENV PROD_CONF 
+
+#
+# The Play server's pid (lock) file.
+#
+ENV PID_FILE
+
+#
+# Set up the base environment.
+#
+ENV WORKSPACE /home/me/dev/boardgame
+WORKDIR $WORKSPACE
+ENV PATH $PATH:.
+RUN echo `pwd` && ls && echo $PATH 
+
+RUN git pull origin master
+
+WORKDIR $WORKSPACE/scala-server
+RUN ./package.sh && ./install.sh
+
+ENTRYPOINT ["run-installed.sh"]

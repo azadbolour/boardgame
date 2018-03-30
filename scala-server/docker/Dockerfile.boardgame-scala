@@ -1,33 +1,22 @@
 
 #
-# Runs the boardgame executable - built from the latest source.
+# Install a boardgame executable and set up the environment for it to run..
+#
 #
 
 #
-# Command line arguments.
+# Root of the board game distribution.
 #
+ARG DISTRIBUTION
 
-#
-# The fully-qualified name of the base image to be used.
-# Example: 
-#
-#   azadbolour/boardgame-scala-base:0.5
-#
-ARG base
+FROM ubuntu:trusty
+RUN whoami
+RUN apt-get update
 
-#
-# The 'var/run' folder of boardgame - used for the play pid (lock) file.
-# Remove.
-# ARG vardir=/var/run/boardgame
+ARG DISTRIBUTION
 
-FROM ${base}
-
+ENV DIST $DISTRIBUTION
 ENV HTTP_PORT 6587
-
-#
-# Play's production config file.
-# 
-ENV PROD_CONF 
 
 #
 # The Play server's pid (lock) file.
@@ -37,14 +26,10 @@ ENV PID_FILE
 #
 # Set up the base environment.
 #
-ENV WORKSPACE /home/me/dev/boardgame
-WORKDIR $WORKSPACE
+WORKDIR $DIST/script
 ENV PATH $PATH:.
 RUN echo `pwd` && ls && echo $PATH 
 
-RUN git pull origin master
+RUN ./install.sh
 
-WORKDIR $WORKSPACE/scala-server
-RUN ./package.sh && ./install.sh
-
-ENTRYPOINT ["run-installed.sh"]
+ENTRYPOINT ["run-server.sh"]
