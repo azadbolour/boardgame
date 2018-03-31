@@ -1,6 +1,6 @@
 
 #
-# Install a boardgame executable and set up the environment for it to run..
+# Install a boardgame server and set up the environment for it to run.
 #
 
 #
@@ -31,16 +31,24 @@ ENV HTTP_PORT 6587
 #
 # ENV PID_FILE
 
+#
+# The application's distribution package is copied
+# from the host machine to here.
+#
 ENV CONTAINER_PACKAGE_DIR=/opt/data/boardgame/package
 
 #
-# The package directory is expected to include the app's zipped play package,
-# and some scripts in the script directory. Copy these into the container.
+# The distribution package includes the app's zipped play package,
+# and a few specific startup scripts. Copy these into the container.
 #
 RUN mkdir -p $CONTAINER_PACKAGE_DIR/script 
 
 #
 # Copy the distribution zip file into the image.
+#
+# Note that build script that invokes this dockerfile
+# changes directory to the root of the application's
+# distribution package.
 #
 COPY *.zip $CONTAINER_PACKAGE_DIR
 

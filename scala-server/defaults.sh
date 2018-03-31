@@ -26,13 +26,21 @@ DEFAULT_HTTP_PORT=6597
 # The path to the deployed application's configuration file. 
 # Configuration parameters may be added or overridden here.
 #
-DEFAULT_PROD_CONF=$DEFAULT_BOARDGAME_DATA/conf/prod.conf
+DEFAULT_PROD_CONF=${DEFAULT_BOARDGAME_DATA}/conf/prod.conf
 
 #
 # The pid aka lock for for board game's play server.
 #
-DEFAULT_PID_FILE=$DEFAULT_BOARDGAME_RUN/play.pid
+DEFAULT_PID_FILE=${DEFAULT_BOARDGAME_RUN}/play.pid
 
 BOARDGAME_SERVER=boardgame
-DEFAULT_INSTALL_DIR=/usr/local/$BOARDGAME_SERVER
+
+#
+# Root of the server installation.
+#
+DEFAULT_INSTALL_DIR=/usr/local/${BOARDGAME_SERVER}
+
+#
+# The directory of the application's bundled distribution package.
+DEFAULT_PACKAGE_DIR-${DEFAULT_BOARDGAME_DATA}/package
 

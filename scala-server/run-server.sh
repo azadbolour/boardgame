@@ -4,17 +4,16 @@
 # Run an installed play server.
 #
 # This script may be invoked from the shell to test a locally installed server,
-# or from a docker file ENTRYPOINT. In addition, the docker container needs 
-# be able deployed on container services. Our first targeted container service 
-# is AWS ECS. It turns out that ECS only allows parameters to be passed to a
+# or as a docker container ENTRYPOINT. In addition, the docker container needs
+# be deployable to container services. Our first targeted container service
+# is AWS ECS. And ECS only allows parameters to be passed to a
 # container as environment variables.
 #
 # Because we'd like to run the docker ENTRYPOINT in the preferred 'exec' mode,
 # which does not allow the evaluation of environment variables in command parameters,
 # the parameters to this script have to be passed as environment variables.
 #
-# The following environment variables are needed to provide flexibility in running
-# a container in different environments from the same docker image.
+# The following environment variables are supported:
 #
 #   HTTP_PORT - the http port of the play application
 #   ALLOWED_HOST - host:port
@@ -43,13 +42,13 @@ installMessage="make sure server has been deployed"
 #
 # Make the directory of the pid file if necessary.
 #
-PID_DIR=`dirname $PID_FILE`
-sudo mkdir -p $PID_DIR
-sudo chown $USER $PID_DIR
-test -d "$PID_DIR" || (echo "pid directory ${PID_DIR} could not be created" ; exit 1)
+PID_DIR=`dirname ${PID_FILE}`
+sudo mkdir -p ${PID_DIR}
+sudo chown ${USER} ${PID_DIR}
+test -d "${PID_DIR}" || (echo "pid directory ${PID_DIR} could not be created" ; exit 1)
 
-SERVER=$BOARDGAME_SERVER
-SERVER_ROOT=$DEFAULT_INSTALL_DIR/$SERVER
+SERVER=${BOARDGAME_SERVER}
+SERVER_ROOT=${DEFAULT_INSTALL_DIR}/${SERVER}
 
 test ! -d ${SERVER_ROOT} || (echo "server root ${SERVER_ROOT} not a directory - $installMessage"; exit 1)
 
@@ -70,12 +69,12 @@ JAVA_OPTS="${JAVA_OPTS} -Dplay.http.secret.key=${PLAY_SECRET}"
 # If there is a leftover pid file from stopping the docker container - remove it.
 # TODO. Check that no server is running.
 #
-rm -f $PID_FILE
+rm -f ${PID_FILE}
 
 export JAVA_OPTS
 echo "JAVA_OPTS: ${JAVA_OPTS}"
 
-cd $SERVER_ROOT
+cd ${SERVER_ROOT}
 pwd
 ls -lt
 

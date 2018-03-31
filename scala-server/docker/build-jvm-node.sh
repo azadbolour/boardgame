@@ -1,14 +1,10 @@
 #!/bin/sh -x
 
-#
-# Build the packager image for the board game.
-#
-
 namespace=$1
 tag=$2
 
 if [ -z "${namespace}" -o -z "${tag}" ]; then
-  echo "usage: $0 docker-namespace repository-tag [base-image]"
+  echo "usage: $0 docker-namespace repository-tag"
   exit 1
 fi
 

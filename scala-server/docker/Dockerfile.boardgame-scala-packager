@@ -1,6 +1,6 @@
 
 #
-# Base of boardgame development.
+# Base image of the packager.
 #
 ARG BASE=azadbolour/jvm-node:1.0
 
@@ -40,7 +40,7 @@ RUN cd web-ui \
 # When started - pull the latest, package, and export the play application bundle.
 # 
 # In docker run command use --workdir="" to change working dir to the container's working directory. 
-# The default working drectory of the container is /!
+# The default working directory of the container is /!
 #
 WORKDIR $WORKSPACE/scala-server
 # RUN pwd && ls

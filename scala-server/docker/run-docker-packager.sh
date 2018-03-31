@@ -1,20 +1,10 @@
 #!/bin/sh -x
 
 # 
-# Run a production docker container for the application.
-# Parameters passed to the entry point of the container.
+# Run the docker packager to build and package the application.
 #
-#   HTTP_PORT for the port of the server application
-#   PROD_CONF for the Play production configuration file of the application
-#   PID_FILE the location of play's pid lock file
-#   VERSION the version of the application
-#
-# These variables are used to provide information about the production 
-# deployment environment to the Play application. 
-#
-# The production config file is created on the host machine and must be 
-# mapped into the docker file system. We use the convention that external server
-# data for the application is rooted on the host system at the well-known folder:
+# We use the convention that external server data for the
+# application is rooted on the host system at the well-known folder:
 #
 #       /opt/data/boardgame
 #
@@ -24,18 +14,15 @@
 #
 
 # TODO. Try to redirect output of the container to a mounted volume in the container.
-# Then can use docker run -d to create a detatched conatiner.
+# Then can use docker run -d to create a detached container.
 # And the logs will be on the host file system.
 
 #
-# import DEFAULT_HTTP_PORT
-# import DEFAULT_PROD_CONF
-# import DEFAULT_PID_FILE
 # import DEFAULT_BOARDGAME_DATA
 #
 . ../defaults.sh
 
-BOARDGAME_DATA=$DEFAULT_BOARDGAME_DATA
+BOARDGAME_DATA=${DEFAULT_BOARDGAME_DATA}
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -47,7 +34,7 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ -z "$TAG" ]; then 
+if [ -z "${TAG}" ]; then
     echo "required parameter 'tag' [of the docker image to run] is missing"
     exit 1
 fi
@@ -56,8 +43,8 @@ fi
 # Create the mapped volume directory on the host.
 # TODO. Permissions for mapped volume directories?
 #
-sudo mkdir -p $BOARDGAME_DATA
-sudo chmod 777 $BOARDGAME_DATA
+sudo mkdir -p ${BOARDGAME_DATA}
+sudo chmod 777 ${BOARDGAME_DATA}
 
 NAMESPACE=azadbolour
 REPOSITORY=boardgame-scala-packager

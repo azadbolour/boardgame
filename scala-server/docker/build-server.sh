@@ -1,12 +1,12 @@
 #!/bin/sh -x
 
 #
-# Build the packager image for the board game.
+# Build the server image for the board game.
 #
 # 
 # The application packager puts the play application bundle
 # and scripts needed to run the application in a package directory.
-# See defaults.sh for its default value. The paramater PACKAGE_DIR
+# See defaults.sh for its default value. The parameter PACKAGE_DIR
 # should point to the package area produced by the packager.
 #
 
@@ -15,17 +15,17 @@ TAG=$2
 PACKAGE_DIR=$3
 BASE_IMAGE=$4
 
-if [ -z "${NAMESPACE}" -o -z "${TAG}" -o -z "$PACKAGE_DIR" ]; then
+if [ -z "${NAMESPACE}" -o -z "${TAG}" -o -z "${PACKAGE_DIR}" ]; then
   echo "usage: $0 docker-namespace docker-tag package-dir [base-image]"
   exit 1
 fi
 
-if [ -z "$BASE_IMAGE" ]; then 
+if [ -z "${BASE_IMAGE}" ]; then
   BASE_IMAGE="azadbolour/jvm-node:1.0"
 fi
 
-if [ ! -d "$PACKAGE_DIR" ]; then
-    echo "expected applicaiton distribution package directory $PACKAGE_DIR does not exist"
+if [ ! -d "${PACKAGE_DIR}" ]; then
+    echo "expected application distribution package directory ${PACKAGE_DIR} does not exist"
     exit 1
 fi
 
@@ -33,8 +33,8 @@ fi
 # Large hierarchy is a a sign of an error in package directory parameter.
 #
 LIMIT=1000000 # k
-size=`du -s -k $PACKAGE_DIR`
-if [ $size -gt $LIMIT ]; then
+size=`du -s -k ${PACKAGE_DIR}`
+if [ ${size} -gt ${LIMIT} ]; then
     echo "package hierarchy too large - likely an error in package-dir path $PACKAGE_DIR"
     exit 1
 fi
@@ -47,8 +47,8 @@ DOCKERFILE=Dockerfile.${REPOSITORY}
 # So to be able to use the packaged distribution, we need to cd to the package directory.
 # But then the dockerfile needs to be copied there as well.
 #
-cp $DOCKERFILE $PACKAGE_DIR
-cd $PACKAGE_DIR
+cp ${DOCKERFILE} ${PACKAGE_DIR}
+cd ${PACKAGE_DIR}
 
 #
 # Use --no-cache so that the latest source will be pulled.

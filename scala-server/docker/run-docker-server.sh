@@ -7,7 +7,6 @@
 #   HTTP_PORT for the port of the server application
 #   PROD_CONF for the Play production configuration file of the application
 #   PID_FILE the location of play's pid lock file
-#   VERSION the version of the application
 #
 # These variables are used to provide information about the production 
 # deployment environment to the Play application. 
