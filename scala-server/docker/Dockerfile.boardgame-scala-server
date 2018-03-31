@@ -30,7 +30,9 @@ ENV PID_FILE
 #
 WORKDIR $DIST/script
 ENV PATH $PATH:.
+# TODO. Remove.
+RUN pwd && ls
 
 RUN ./install.sh $INSTALL_DIR
 
-ENTRYPOINT ["run-server.sh"]
+ENTRYPOINT ["./run-server.sh"]

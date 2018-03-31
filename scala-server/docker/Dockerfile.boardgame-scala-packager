@@ -43,8 +43,7 @@ RUN cd web-ui \
 # The default working drectory of the container is /!
 #
 WORKDIR $WORKSPACE/scala-server
-# TODO. Remove.
-RUN pwd && ls
+# RUN pwd && ls
 
 ENTRYPOINT ["./build-and-export-latest.sh"]
 
