@@ -8,31 +8,46 @@
 #
 ARG BASE=azadbolour/jvm-node:1.0
 
-#
-# Root of the board game distribution.
-#
-ARG INSTALL_ROOT
-
 FROM $BASE
 
-ARG INSTALL_ROOT
+# 
+# Did want find a way to parameterize the docker build with the 
+# location of the app's package. But the app needs to be installed 
+# installed and ready to go within the server container.
+# So for now the simple workaround is to just hard-code the location 
+# of the package is going to be hard-coded.
+#
+# For simplicity use the same location for the host and for the 
+# container.
+#
+ENV PACKAGE_DIR /opt/data/boardgame/package
 
-ENV INSTALL_DIR $INSTALL_ROOT
 ENV HTTP_PORT 6587
 
 #
 # The Play server's pid (lock) file.
 #
-ENV PID_FILE
+# ENV PID_FILE
+
+#
+# The package directory is expected to include the app's zipped play package,
+# and some scripts in the script directory. Copy these into the container.
+#
+RUN mkdir -p $PACKAGE_DIR/script 
+COPY $PACKAGE_DIR/* $PACKAGE_DIR
+COPY $PACKAGE_DIR/script/* $PACKAGE_DIR/script
 
 #
 # Set up the base environment.
 #
-WORKDIR $DIST/script
+# Make sure to docker run with --workdir="" flag to start in the WORKDIR
+# specified here.
+#
+WORKDIR $PACKAGE_DIR/script
 ENV PATH $PATH:.
 # TODO. Remove.
 RUN pwd && ls
 
-RUN ./install.sh $INSTALL_DIR
+RUN ./install.sh $PACKAGE_DIR
 
 ENTRYPOINT ["./run-server.sh"]

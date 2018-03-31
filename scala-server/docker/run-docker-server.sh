@@ -32,15 +32,8 @@
 # import DEFAULT_HTTP_PORT
 # import DEFAULT_PROD_CONF
 # import DEFAULT_PID_FILE
-# import DEFAULT_INSTALL_DIR
 #
 . ../defaults.sh
-
-#
-# BOARDGAME_DATA is a mapped volume, and INSTALL_ROOT is expected to be under it.
-#
-INSTALL_ROOT=$DEFAULT_INSTALL_DIR
-BOARDGAME_DATA=$DEFAULT_BOARDGAME_DATA
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -71,6 +64,6 @@ NAMESPACE=azadbolour
 REPOSITORY=boardgame-scala-server
 
 nohup docker run -p ${HTTP_PORT}:${HTTP_PORT} --restart on-failure:5 --name boardgame-scala-server \
-    --workdir="" --build-arg INSTALL_ROOT="$INSTALL_ROOT" \
+    --workdir="" \
     -e HTTP_PORT="${HTTP_PORT}" -e ALLOWED_HOST="${ALLOWED_HOST}" -e PID_FILE="${PID_FILE}" \
     -v ${BOARDGAME_DATA}:${BOARDGAME_DATA} ${NAMESPACE}/${REPOSITORY}:${TAG} &
