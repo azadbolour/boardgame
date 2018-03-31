@@ -33,16 +33,18 @@ BOARDGAME_DATA=$DEFAULT_BOARDGAME_DATA
 #
 # Copy the bundle to well-known location mapped to host machine.
 #
-mkdir -p $BOARDGAME_DATA/package
-cp -a target/universal/*.zip $BOARDGAME_DATA/package/
+PACKAGE_EXPORT_DIR=$BOARDGAME_DATA/package
+sudo mkdir -p $PACKAGE_EXPORT_DIR
+sudo chown $USER $PACKAGE_EXPORT_DIR
+cp -a target/universal/*.zip $PACKAGE_EXPORT_DIR
 
 # 
 # Copy startup scripts similarly.
 #
 # TODO. Only copy needed scripts.
 #
-TARGET_SCRIPT_DIR=$BOARDGAME_DATA/package/script
-mkdir -p $TARGET_SCRIPT_DIR
-cp -a *.sh $TARGET_SCRIPT_DIR
+SCRIPT_EXPORT_DIR=$BOARDGAME_DATA/package/script
+mkdir -p $SCRIPT_EXPORT_DIR
+cp -a *.sh $SCRIPT_EXPORT_DIR
 
 

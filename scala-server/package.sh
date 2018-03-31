@@ -20,6 +20,11 @@
 ./update-ui-bundle.sh 
 
 #
+# Make sure resources are available in their required forms.
+#
+./pre-build.sh
+
+#
 # Build and package the play application.
 #
 sbt clean compile "test" dist

@@ -16,12 +16,18 @@
 # The following environment variables are needed to provide flexibility in running
 # a container in different environments from the same docker image.
 #
+#   INSTALL_DIR - the distribution directory of the installed application
 #   HTTP_PORT - the http port of the play application
 #   ALLOWED_HOST - host:port
 #   PID_FILE  - the pid aka lock file of the running server
 #
 # These parameters have default values provided in the defaults.sh
 # script.
+
+if [ -z "$INSTALL_DIR" ]; then
+  echo "required environment varable INSTALL_DIR not specified"
+  exit 1
+fi
 
 #
 # import BOARDGAME_SERVER
@@ -49,7 +55,7 @@ sudo chown $USER $PID_DIR
 test -d "$PID_DIR" || (echo "pid directory ${PID_DIR} could not be created" ; exit 1)
 
 SERVER=$BOARDGAME_SERVER
-INSTALL_DIR=$DEFAULT_INSTALL_DIR
+# INSTALL_DIR=$DEFAULT_INSTALL_DIR
 SERVER_ROOT=${INSTALL_DIR}/${SERVER}
 
 test ! -d ${SERVER_ROOT} || (echo "server root ${SERVER_ROOT} not a directory - $installMessage"; exit 1)

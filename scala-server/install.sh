@@ -6,8 +6,9 @@
 #
 
 #
-# Root of the distribution is given in an environment variable DIST.
+# Root of the distribution.
 #
+DIST=$1
 test -d "$DIST" || (echo "no distribution found under: ${DIST}"; exit 1)
 
 #

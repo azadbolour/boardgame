@@ -11,13 +11,13 @@ ARG BASE=azadbolour/jvm-node:1.0
 #
 # Root of the board game distribution.
 #
-ARG DISTRIBUTION
+ARG INSTALL_ROOT
 
 FROM $BASE
 
-ARG DISTRIBUTION
+ARG INSTALL_ROOT
 
-ENV DIST $DISTRIBUTION
+ENV INSTALL_DIR $INSTALL_ROOT
 ENV HTTP_PORT 6587
 
 #
@@ -31,6 +31,6 @@ ENV PID_FILE
 WORKDIR $DIST/script
 ENV PATH $PATH:.
 
-RUN ./install.sh
+RUN ./install.sh $INSTALL_DIR
 
 ENTRYPOINT ["run-server.sh"]

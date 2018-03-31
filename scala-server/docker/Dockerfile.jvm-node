@@ -1,0 +1,33 @@
+
+#
+# OS + jdk + node.
+#
+
+#
+# Begin with ubuntu version 14.04.
+#
+FROM ubuntu:trusty
+RUN apt-get update
+
+#
+# Get basic utilities.
+#
+RUN apt-get install -y dialog apt-utils wget curl software-properties-common python-software-properties zip unzip build-essential git
+
+#
+# Install JDK.
+#
+RUN add-apt-repository ppa:openjdk-r/ppa \
+  && apt-get update \
+  && apt-get install -y openjdk-8-jdk && java -version
+
+ENV CA_CERTIFICATES_JAVA_VERSION 20170531+nmu1
+RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
+
+#
+# Install node.
+#
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
+RUN apt-get update \
+  && apt-get install -y nodejs
+
