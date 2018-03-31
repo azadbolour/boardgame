@@ -15,14 +15,16 @@ test -d "$DIST" || (echo "no distribution found under: ${DIST}"; exit 1)
 # import BOARDGAME_SERVER
 # import DEFAULT_INSTALL_DIR
 #
+
+cd $DIST/script
+ls -lt
+. ./defaults.sh
+
 SERVER=$BOARDGAME_SERVER
 INSTALL=$DEFAULT_INSTALL_DIR
 
-cd $DIST/script
-. defaults.sh
-
 cd $DIST
-VERSIONED_SERVER=`ls \*.zip | sed -e "s/\.zip$//"`     # Assumes jus one zippped package.
+VERSIONED_SERVER=`ls *.zip | sed -e "s/\.zip$//"`     # Assumes jus one zippped package.
 
 sudo mkdir -p $INSTALL
 chown $USER $INSTALL

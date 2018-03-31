@@ -18,11 +18,6 @@ DEFAULT_BOARDGAME_DATA=/opt/data/boardgame
 DEFAULT_BOARDGAME_RUN=/var/run/boardgame
 
 #
-# Version of the application as provided in build.sbt.
-#
-DEFAULT_VERSION=`./server-version.sh`
-
-#
 # Default http port - may be changed in command line scripts that use it.
 #
 DEFAULT_HTTP_PORT=6597

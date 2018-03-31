@@ -44,7 +44,7 @@ cp -a target/universal/*.zip $PACKAGE_EXPORT_DIR
 #
 SCRIPT_EXPORT_DIR=$BOARDGAME_EXPORT_DIR/script
 mkdir -p $SCRIPT_EXPORT_DIR
-cp -a *.sh $SCRIPT_EXPORT_DIR
+cp -a install.sh run-server.sh get-dynamic-params.sh defaults.sh $SCRIPT_EXPORT_DIR
 
 chmod -R 777 $PACKAGE_EXPORT_DIR
 

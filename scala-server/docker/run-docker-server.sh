@@ -35,6 +35,8 @@
 #
 . ../defaults.sh
 
+BOARDGAME_DATA=$DEFAULT_BOARDGAME_DATA
+
 while [ $# -gt 0 ]; do
     case "$1" in
         --http-port) 

@@ -3,10 +3,10 @@
 namespace=azadbolour
 tag=1.0
 
-here=`pwd`
+CONTEXT_ROOT=$HOME/junk
+dockerfile=Dockerfile.test1
+cp $dockerfile $CONTEXT_ROOT
 
-dockerfile=$here/Dockerfile.test1
-
-cd $HOME
+cd $CONTEXT_ROOT
 
 docker build --no-cache --force-rm=true -f ${dockerfile} -t ${namespace}/test1:${tag} .

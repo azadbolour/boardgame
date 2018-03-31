@@ -11,16 +11,18 @@ ARG BASE=azadbolour/jvm-node:1.0
 FROM $BASE
 
 # 
-# Did want find a way to parameterize the docker build with the 
-# location of the app's package. But the app needs to be installed 
-# installed and ready to go within the server container.
-# So for now the simple workaround is to just hard-code the location 
-# of the package is going to be hard-coded.
+# This dockerfile will be placed by the corresponding build script 
+# at the distribution package directory of the application. 
 #
-# For simplicity use the same location for the host and for the 
-# container.
+# The only files that can be used in a docker build are those that appear 
+# below the current working directory of the build.
 #
-ENV PACKAGE_DIR /opt/data/boardgame/package
+# That includes the dockerfile itself and any files to be copied into the image.
+#
+# Placing the dockerfile at the root of the distribution package allows the working 
+# directory of docker build to be changed to the package root, so that the
+# distribution can be copied into the image and installed there.
+#
 
 ENV HTTP_PORT 6587
 
@@ -29,13 +31,23 @@ ENV HTTP_PORT 6587
 #
 # ENV PID_FILE
 
+ENV CONTAINER_PACKAGE_DIR=/opt/data/boardgame/package
+
 #
 # The package directory is expected to include the app's zipped play package,
 # and some scripts in the script directory. Copy these into the container.
 #
-RUN mkdir -p $PACKAGE_DIR/script 
-COPY $PACKAGE_DIR/* $PACKAGE_DIR
-COPY $PACKAGE_DIR/script/* $PACKAGE_DIR/script
+RUN mkdir -p $CONTAINER_PACKAGE_DIR/script 
+
+#
+# Copy the distribution zip file into the image.
+#
+COPY *.zip $CONTAINER_PACKAGE_DIR
+
+#
+# Copy the scripts used to run the application into the image.
+#
+COPY script/* $CONTAINER_PACKAGE_DIR/script/
 
 #
 # Set up the base environment.
@@ -43,11 +55,11 @@ COPY $PACKAGE_DIR/script/* $PACKAGE_DIR/script
 # Make sure to docker run with --workdir="" flag to start in the WORKDIR
 # specified here.
 #
-WORKDIR $PACKAGE_DIR/script
+WORKDIR $CONTAINER_PACKAGE_DIR/script
 ENV PATH $PATH:.
 # TODO. Remove.
 RUN pwd && ls
 
-RUN ./install.sh $PACKAGE_DIR
+RUN ./install.sh $CONTAINER_PACKAGE_DIR
 
 ENTRYPOINT ["./run-server.sh"]
