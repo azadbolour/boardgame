@@ -1,0 +1,12 @@
+
+FROM alpine:3.7
+
+ENV WORKSPACE /home/me/dev/boardgame
+RUN mkdir -p $WORKSPACE
+WORKDIR $WORKSPACE
+ENV PATH $PATH:.
+
+COPY homejunk.txt .
+
+RUN echo `pwd` && ls
+
