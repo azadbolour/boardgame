@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 #
 # Build the packager image for the board game.
@@ -25,5 +25,5 @@ dockerfile=Dockerfile.${repository}
 # Otherwise docker just compares the pull request with a previously-built and cached layer's 
 # command and since they are the same it will use the old cached layer.
 #
-docker build --no-cache --force-rm=true -f ${dockerfile} -t --build-arg BASE=${baseImage} ${namespace}/${repository}:${tag} .
+docker build --no-cache --force-rm=true -f ${dockerfile} --build-arg BASE=${baseImage} -t ${namespace}/${repository}:${tag} .
 

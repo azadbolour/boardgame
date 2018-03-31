@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 #
 # Package a play application from the latest source and export to a 
@@ -35,7 +35,6 @@ BOARDGAME_DATA=$DEFAULT_BOARDGAME_DATA
 #
 PACKAGE_EXPORT_DIR=$BOARDGAME_DATA/package
 sudo mkdir -p $PACKAGE_EXPORT_DIR
-sudo chown $USER $PACKAGE_EXPORT_DIR
 cp -a target/universal/*.zip $PACKAGE_EXPORT_DIR
 
 # 
@@ -43,8 +42,9 @@ cp -a target/universal/*.zip $PACKAGE_EXPORT_DIR
 #
 # TODO. Only copy needed scripts.
 #
-SCRIPT_EXPORT_DIR=$BOARDGAME_DATA/package/script
+SCRIPT_EXPORT_DIR=$BOARDGAME_EXPORT_DIR/script
 mkdir -p $SCRIPT_EXPORT_DIR
 cp -a *.sh $SCRIPT_EXPORT_DIR
 
+chmod -R 777 $PACKAGE_EXPORT_DIR
 

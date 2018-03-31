@@ -31,9 +31,11 @@
 # import DEFAULT_HTTP_PORT
 # import DEFAULT_PROD_CONF
 # import DEFAULT_PID_FILE
-# import BOARDGAME_DATA
+# import DEFAULT_BOARDGAME_DATA
 #
-. defaults.sh
+. ../defaults.sh
+
+BOARDGAME_DATA=$DEFAULT_BOARDGAME_DATA
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -50,9 +52,17 @@ if [ -z "$TAG" ]; then
     exit 1
 fi
 
+#
+# Create the mapped volume directory on the host.
+# TODO. Permissions for mapped volume directories?
+#
+sudo mkdir -p $BOARDGAME_DATA
+sudo chmod 777 $BOARDGAME_DATA
+
 NAMESPACE=azadbolour
 REPOSITORY=boardgame-scala-packager
 
-nohup docker run -p ${HTTP_PORT}:${HTTP_PORT} --restart on-failure:5 --name boardgame-scala-packager \
-    -e HTTP_PORT="${HTTP_PORT}" -e ALLOWED_HOST="${ALLOWED_HOST}" -e PID_FILE="${PID_FILE}" \
-    -v ${BOARDGAME_DATA}:${BOARDGAME_DATA} ${NAMESPACE}/${REPOSITORY}:${TAG} &
+nohup docker run --restart on-failure:5 --name boardgame-scala-packager \
+    --workdir="" \
+    -v ${BOARDGAME_DATA}:${BOARDGAME_DATA} \
+    ${NAMESPACE}/${REPOSITORY}:${TAG} &

@@ -4,7 +4,7 @@
 #
 ARG BASE=azadbolour/jvm-node:1.0
 
-FROM BASE
+FROM $BASE
 
 #
 # Set up the base environment.
@@ -13,9 +13,9 @@ ENV WORKSPACE /home/me/dev/boardgame
 RUN mkdir -p $WORKSPACE \
   && echo `pwd`&& echo $PATH && whoami
 
-WORKDIR $WORKSPACE
-
 ENV PATH $PATH:.
+
+WORKDIR /tmp
 
 #
 # Install sbt from the official DEB package.
@@ -23,20 +23,28 @@ ENV PATH $PATH:.
 RUN wget --quiet https://dl.bintray.com/sbt/debian/sbt-1.1.0.deb \
     && dpkg -i sbt-1.1.0.deb
 
+WORKDIR $WORKSPACE
+
 #
 # Clone the repository.
 #
-RUN cd .. && git clone https://github.com/azadbolour/boardgame 
+RUN cd .. && git clone https://github.com/azadbolour/boardgame && cd boardgame && git checkout dev
 
 #
 # Install the web-ui dependencies.
 #
 RUN cd web-ui \
-   && ./global-install.sh
+   && ./global-installs.sh
 
 #
 # When started - pull the latest, package, and export the play application bundle.
-# #
+# 
+# In docker run command use --workdir="" to change working dir to the container's working directory. 
+# The default working drectory of the container is /!
+#
 WORKDIR $WORKSPACE/scala-server
+# TODO. Remove.
+RUN pwd && ls
+
 ENTRYPOINT ["./build-and-export-latest.sh"]
 

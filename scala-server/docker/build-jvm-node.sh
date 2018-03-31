@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 #
 # Build the packager image for the board game.
@@ -15,5 +15,5 @@ fi
 repository=jvm-node
 dockerfile=Dockerfile.${repository}
 
-docker build --no-cache --force-rm=true -f ${dockerfile} -t --build-arg BASE=${baseImage} ${namespace}/${repository}:${tag} .
+docker build --no-cache --force-rm=true -f ${dockerfile} --build-arg BASE=${baseImage} -t ${namespace}/${repository}:${tag} .
 
