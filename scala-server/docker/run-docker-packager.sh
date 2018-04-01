@@ -19,10 +19,12 @@
 
 #
 # import DEFAULT_BOARDGAME_DATA
+# import DEFAULT_PACKAGE_DIR
 #
 . ../defaults.sh
 
 BOARDGAME_DATA=${DEFAULT_BOARDGAME_DATA}
+PACKAGE_DIR=$DEFAULT_PACKAGE_DIR
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -36,6 +38,14 @@ done
 
 if [ -z "${TAG}" ]; then
     echo "required parameter 'tag' [of the docker image to run] is missing"
+    exit 1
+fi
+
+#
+# For now be overly defensive.
+#
+if [ -e "$PACKAGE_DIR" -a ! -z "`ls -1 $PACKAGE_DIR`" ]; then
+    echo "package directory $PACKAGE_DIR non-empty - will not be clobbered"
     exit 1
 fi
 
