@@ -1,0 +1,14 @@
+
+alias mk-packager="build-packager.sh azadbolour 0.9.1"
+alias run-packager="run-docker-packager.sh --tag 0.9.1"
+alias ps-packager="docker ps -f ancestor=azadbolour/boardgame-scala-packager:0.9.1 -aq"
+alias rm-packager="(did=$(ps-packager); if [ ! -z "$did" ]; then docker rm -f $did; fi)"
+alias sh-packager="(did=$(ps-packager); if [ ! -z "$did" ]; then docker exec -it $did bash; fi)"
+
+alias mk-server="build-server.sh azadbolour 0.9.1 /opt/data/boardgame/package"
+alias run-server="./run-here.sh"
+alias ps-server="docker ps -f ancestor=azadbolour/boardgame-scala-server:0.9.1 -aq"
+# Did rm-server did not work??
+alias rm-server="(did=$(ps-server); if [ ! -z "$did" ]; then docker rm -f $did; fi)"
+alias sh-server="(did=$(ps-server); if [ ! -z "$did" ]; then docker exec -it $did bash; fi)"
+
