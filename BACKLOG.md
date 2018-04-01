@@ -181,3 +181,9 @@
   https://github.com/ChrisPenner/haskell-stack-travis-ci
   https://docs.haskellstack.org/en/stable/travis_ci/
 
+- Attempt to use the play docker plugin to generate the docker 
+  image for play. Need to work out how to provide allowed hosts and
+  the play secret in a secure manner to the server created by the plugin.
+
+   https://medium.com/jeroen-rosenberg/lightweight-docker-containers-for-scala-apps-11b99cf1a666
+
