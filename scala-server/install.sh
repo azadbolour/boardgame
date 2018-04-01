@@ -8,29 +8,28 @@
 #
 # Root of the distribution.
 #
-DIST=$1
-test -d "$DIST" || (echo "no distribution found under: ${DIST}"; exit 1)
+PACKAGE_DIR=$1
+test -d "$PACKAGE_DIR" || (echo "no distribution found at: ${PACKAGE_DIR}"; exit 1)
 
 #
 # import BOARDGAME_SERVER
 # import DEFAULT_INSTALL_DIR
 #
 
-cd $DIST/script
+cd $PACKAGE_DIR/script
 ls -lt
 . ./defaults.sh
 
 SERVER=$BOARDGAME_SERVER
 INSTALL=$DEFAULT_INSTALL_DIR
 
-cd $DIST
+cd $PACKAGE_DIR
 VERSIONED_SERVER=`ls *.zip | sed -e "s/\.zip$//"`     # Assumes jus one zippped package.
 
 sudo mkdir -p $INSTALL
-chown $USER $INSTALL
 test -d "$INSTALL" || (echo "unable to create installation directory: ${INSTALL}"; exit 1)
 
-ZIPPED_BUNDLE=$DIST/${VERSIONED_SERVER}.zip
+ZIPPED_BUNDLE=$PACKAGE_DIR/${VERSIONED_SERVER}.zip
 
 cd $INSTALL
 rm -rf ${VERSIONED_SERVER}/
