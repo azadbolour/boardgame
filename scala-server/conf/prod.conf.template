@@ -1,5 +1,13 @@
 include "application.conf"
 
+#
+# If needed copy and edit this file and use as a production configuration file.
+# The location of the production config file can be provided via the system
+# property -Dconfig.file.
+#
+# For now we use sepecific -D parameters for the configurations we need.
+# 
+
 play.filters.hosts {
     allowed = ["_ALLOWED_HOSTS_"]
 #    allowed = [".example.com", "localhost:9000"]

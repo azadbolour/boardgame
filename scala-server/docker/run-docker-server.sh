@@ -61,10 +61,21 @@ if [ -z "$HTTP_PORT" ]; then HTTP_PORT=${DEFAULT_HTTP_PORT}; fi
 if [ -z "$PID_FILE" ]; then PID_FILE=${DEFAULT_PID_FILE}; fi
 if [ -z "$ALLOWED_HOST" ]; then VERSION=${DEFAULT_ALLOWED_HOST}; fi
 
+#
+# To make it easy to remove a stray pid [lock] file, we map its 
+# directory to an externl directory on the host system.
+# Create the directory if it does not exist, and map it in the
+# docker run below.
+#
+PID_DIR=`dirname ${PID_FILE}`
+mkdir -p ${PID_DIR}
+
 NAMESPACE=azadbolour
 REPOSITORY=boardgame-scala-server
 
 nohup docker run -p ${HTTP_PORT}:${HTTP_PORT} --restart on-failure:5 --name boardgame-scala-server \
     --workdir="" \
     -e HTTP_PORT="${HTTP_PORT}" -e ALLOWED_HOST="${ALLOWED_HOST}" -e PID_FILE="${PID_FILE}" \
-    -v ${BOARDGAME_DATA}:${BOARDGAME_DATA} ${NAMESPACE}/${REPOSITORY}:${TAG} &
+    -v ${BOARDGAME_DATA}:${BOARDGAME_DATA} \
+    -v ${PID_DIR}:${PID_DIR} \
+    ${NAMESPACE}/${REPOSITORY}:${TAG} &

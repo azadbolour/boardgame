@@ -12,3 +12,5 @@ alias ps-server="docker ps -f ancestor=azadbolour/boardgame-scala-server:0.9.1 -
 alias rm-server="(did=$(ps-server); if [ ! -z "$did" ]; then docker rm -f $did; fi)"
 alias sh-server="(did=$(ps-server); if [ ! -z "$did" ]; then docker exec -it $did bash; fi)"
 
+alias rmi-dangling=docker rmi $(docker images -f "dangling=true" -q)
+
