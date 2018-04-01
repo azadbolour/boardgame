@@ -1,0 +1,53 @@
+
+Dockerization of the Scala Server
+
+There are two docker images: the packager and the server. 
+
+The packager is used to build and package the application from source.
+Its output is a Play distribution package in zip form (scala-server-<version>),
+and a few bash scripts needed to start the application.
+
+The server uses the output of the packager to install the application (when
+the docker image is built) and to run the application (when the docker image is run).
+
+The packager and the server are independent of each other as docker images.
+So the packager uses a mapped volume to to output the package to the host
+machine, and the server has to copy the package and install it in its build
+phase.
+
+By convention the host directory /opt/data/boardgame/package (known as the
+PACKAGE_DIR) is used as the output of the packager and the input of the
+server build process.
+
+In a docker build, the only files that may be copied into an image are files
+that are below the current working directory of the build in the host system.
+Therefore, in order to be able to copy from PACKAGE_DIR, the builder script 
+for the server changes directory to the PACKAGE_DIR. And since the dockerfile
+must also be accessible below the current working directory, that file 
+is copied to PACKAGE_DIR. In this way, the output of the packager can be used
+as the input of the server build process.
+
+The directory strucure under PACKAGE_DIR looks like:
+
+/opt/data/boardgame/package 
+  scala-server-<version>.zip
+  script/
+    install.sh
+    run-server.sh
+    ...
+
+The installation of the package by the builder of the server image causes 
+the following directory structure within the server docker image:
+
+/usr/local/boardgame/
+  scala-server-<version>/ unzipped package
+  boardgame/ (symbolic link to scala-server-<version>
+    bin/
+    lib/
+    etc/
+    ...
+  script
+    install.sh
+    run-server.sh
+    ...
+
