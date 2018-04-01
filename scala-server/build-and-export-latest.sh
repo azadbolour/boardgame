@@ -7,8 +7,7 @@
 #
 
 #
-# import DEFAULT_BOARDGAME_DATA
-# import BOARDGAME_SERVER
+# import DEFAULT_PACKAGE_DIR
 #
 . defaults.sh
 
@@ -19,32 +18,27 @@ git pull origin master
 
 ./package.sh
 
-#
-# Check that it was packaged and can be installed.
-#
-./install.sh
+# TODO. Check return from package.sh.
 
 #
 # Make the bundle available outside the container.
 #
 
-BOARDGAME_DATA=$DEFAULT_BOARDGAME_DATA
-
 #
 # Copy the bundle to well-known location mapped to host machine.
 #
-PACKAGE_EXPORT_DIR=$BOARDGAME_DATA/package
-sudo mkdir -p $PACKAGE_EXPORT_DIR
-cp -a target/universal/*.zip $PACKAGE_EXPORT_DIR
+PACKAGE_DIR=$DEFAULT_PACKAGE_DIR
+sudo mkdir -p $PACKAGE_DIR
+cp -a target/universal/*.zip $PACKAGE_DIR
 
 # 
 # Copy startup scripts similarly.
 #
 # TODO. Only copy needed scripts.
 #
-SCRIPT_EXPORT_DIR=$BOARDGAME_EXPORT_DIR/script
-mkdir -p $SCRIPT_EXPORT_DIR
-cp -a install.sh run-server.sh get-dynamic-params.sh defaults.sh $SCRIPT_EXPORT_DIR
+SCRIPT_DIR=$PACKAGE_DIR/script
+mkdir -p $SCRIPT_DIR
+cp -a install.sh run-server.sh get-dynamic-params.sh defaults.sh $SCRIPT_DIR
 
-chmod -R 777 $PACKAGE_EXPORT_DIR
+chmod -R 777 $PACKAGE_DIR
 

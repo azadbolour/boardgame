@@ -42,5 +42,6 @@ DEFAULT_INSTALL_DIR=/usr/local/${BOARDGAME_SERVER}
 
 #
 # The directory of the application's bundled distribution package.
-DEFAULT_PACKAGE_DIR-${DEFAULT_BOARDGAME_DATA}/package
+#
+DEFAULT_PACKAGE_DIR=${DEFAULT_BOARDGAME_DATA}/package
 
