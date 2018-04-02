@@ -31,6 +31,27 @@
   Possibly provide a way for the user to see which two-letter words are allowed.
   Maybe a button or a hover action.
 
+- Start game should tell user who is going first.
+
+  starting the game ..., bot gets to start and is gearing up ...,
+  you get to start ...
+
+  Disable after first play.
+
+- After a game ends, start game should be enabled again.
+
+- Additional information on the game page: Server name on the UI. 
+  Powered by Haskell, or Scala. Copyright. Build number. 
+
+## User Suggestions
+
+- Provide a 'vowels' option: if checked the tray is guaranteed to have at least 
+  one vowel.
+
+- Towards the end of the game, based on the values remaining open slots on the board
+  it becomes decidable whether the losing side can possibly catch up. If the 
+  user is on the losing side, an option may be provided to resign.
+
 ## Known Issues
 
 - Security. CORS. Generally cross origin requests are disallowed. 
@@ -199,13 +220,6 @@
   
   https://medium.com/@tomaskoutsky/hey-webpack-can-you-bust-my-cache-21350f95122t
   
-  For now punting on this, hoping that default cache control mechanisms will
-  just work. If stale caches become a problem in production, revisit. 
-  
-  As an ugly hack to work around the issue if it crops up and needs immediate
-  attention, just change the bundle name by hand and reflect that in the index.html 
-  file. 
-
   See the following for using a standalone index.html file in play:
 
   https://stackoverflow.com/questions/11126678/how-can-i-render-a-simple-html-page-using-play-framework
