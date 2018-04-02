@@ -22,6 +22,15 @@
 
 - Improve error reporting in the UI from Scala server.
 
+- Some two-letter words in the dictionary don't mean anything to me.
+  Clean up two-letter words, and perhaps add in common abbreviations.
+
+  Get list of 2-letter words. Show it in a table for easy access.
+  `egrep '^..$' moby-english.txt`
+
+  Possibly provide a way for the user to see which two-letter words are allowed.
+  Maybe a button or a hover action.
+
 ## Known Issues
 
 - Security. CORS. Generally cross origin requests are disallowed. 
@@ -69,7 +78,12 @@
   games in a JSON string. Users. Ownership of games by users by date.
   Haskell bindings for Amazon services: amazonka.
 
-- Blue-green deployment for the application in docker containers.
+- Use docker compose to seamlessly upgrade the application.
+  
+  https://docs.docker.com/compose/gettingstarted/#step-4-build-and-run-your-app-with-compose
+  https://docs.docker.com/compose/compose-file/#environment
+
+- Blue-green deployment for the application.
 
 - Getting stack traces on errors in Haskell requires profiling.
   Profiling may have something like 30% space overhead and some
@@ -145,6 +159,8 @@
 - Use LoggingT after ReaderT in transformer stack.
 
 - Logging in server. How to restrict logging level in logging-effect?
+
+- Logging - debug versus info in all projects.
 
 - Add start time of game to database.
 
