@@ -80,7 +80,7 @@
   Just understand the memory and performance differences for this application.
 
 - Representation of game in Haskell currently uses a single data structure for 
-  the game as a whole and the game;s state. Separate these two concerns.
+  the game as a whole and the game's state. Separate these two concerns.
 
 - Validate all API input arguments. In particular, pointValues is currently 
   not validated in the start game API call.
@@ -144,8 +144,6 @@
 
 - Use LoggingT after ReaderT in transformer stack.
 
-- Separate GameState from Game in Haskell server.
-
 - Logging in server. How to restrict logging level in logging-effect?
 
 - Add start time of game to database.
@@ -173,17 +171,44 @@
 
 - Add top-level script to build all dependent projects.
 
-- Check that you can debug minimized UI code with source maps in chrome.
-
 - Integrate with TravisCI on github. Free for open source.
 
   http://chrispenner.ca/posts/homebrew-haskell
   https://github.com/ChrisPenner/haskell-stack-travis-ci
-  https://docs.haskellstack.org/en/stable/travis_ci/
+  `https://docs.haskellstack.org/en/stable/travis_ci/`
 
-- Attempt to use the play docker plugin to generate the docker 
+- Javascript bundle cache busting. A good blog on how to use webpack plugins 
+  to uniquely name javascript bundles by using hashes, and generate the index.html 
+  page to use the unique name by using a template for that page.
+  
+  https://medium.com/@tomaskoutsky/hey-webpack-can-you-bust-my-cache-21350f95122t
+  
+  For now punting on this, hoping that default cache control mechanisms will
+  just work. If stale caches become a problem in production, revisit. 
+  
+  As an ugly hack to work around the issue if it crops up and needs immediate
+  attention, just change the bundle name by hand and reflect that in the index.html 
+  file. 
+
+  See the following for using a standalone index.html file in play:
+
+  https://stackoverflow.com/questions/11126678/how-can-i-render-a-simple-html-page-using-play-framework
+
+  Will have to set up a route like this:
+  
+  GET / controllers.Assets.at(path="/public/html", file="index.html")
+ 
+## Development Nice-to-Haves
+
+- Use NIX to build the Haskell server. Better solution than using docker.
+  Can still copy the executable and any special libraries to a docker image
+  for deployment to ECS.
+
+- Try to use the play docker plugin to generate the docker 
   image for play. Need to work out how to provide allowed hosts and
   the play secret in a secure manner to the server created by the plugin.
 
    https://medium.com/jeroen-rosenberg/lightweight-docker-containers-for-scala-apps-11b99cf1a666
+
+- Check that you can debug minimized UI code with source maps in chrome.
 
