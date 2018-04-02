@@ -27,7 +27,7 @@ For a simple representation of the API, see the Haskell module
 BoardGame.Common.GameApi in teh haskell-server hierarchy.
 
 The first implementation is being developed on the MAC OS/X 10.9+, deployed on
-Linux Amazon EC2 instance, and accessed through modern browsers.
+a Linux Amazon EC2 instance, and accessed through modern browsers.
 
 ## Sub-Projects
 
@@ -90,7 +90,8 @@ The benchmark is based Java 8.
 
 ### Performance
 
-Following are benchmark results for the two servers:
+Following are some benchmark results for a version of the game circa 
+late 2017. Latest performance benchmarks TBD.
 
 ```
 machine: MAC-Book Pro i7 2.8GHz 4-core

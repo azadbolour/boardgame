@@ -7,6 +7,7 @@ requests used in playing the board game.
 ## Game API
 
 The api is defined [here](http://www.bolour.com/boardgame/hdocs/BoardGame-Common-GameApi.html).
+TODO. Not current. Update.
 
 A user error, e.g., the user trying to commit a non-existent word is always 
 indicated in the HTTP response by status code 422. The body of the response

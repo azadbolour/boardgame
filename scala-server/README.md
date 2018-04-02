@@ -49,25 +49,19 @@
 
 - API versioning - just include in URL.
 
-- Document seeding and migration.
+- Streamline and document seeding and migration. Use Liquibase-type migration.
 
-- PlaySpec has WsClient - how do you use it?
-
-- Production config file has secret and must be read-only to 
-  one trusted user.
+- Store and retrieve the play _secret_ securely in the production deployment.
 
 - Re-enable and configure CSRF filter. See the application.conf for configuration.
   It is disabled there: play.filters.disabled+=play.filters.csrf.CSRFFilter
 
 - Uniqueness of player name. Need an index for the database.
 
-- Need to standardize errors. Including validation of request. Version 2.
+- Standardize errors in the API itself - so that different server implementations
+  would look the same to the client in case of errors. Include validation of requests.
 
-- Database migration. 
-
-- Use Liquibase-type migration.
-
-- Document basic slick model of actions.
+- Document basic Slick model of actions.
 
 - Parallel execution of tests. 
 
