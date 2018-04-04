@@ -5,8 +5,8 @@
  */
 package controllers
 
-import com.bolour.boardgame.scala.common.domain.{GameParams, GameMiniState, PlayPiece}
-import com.bolour.boardgame.scala.common.domain.PlayerType.{UserPlayer, playerIndex}
+import com.bolour.boardgame.scala.common.domain.{GameParams, UserPlayer}
+import com.bolour.boardgame.scala.common.domain.PlayerType._
 import com.bolour.boardgame.scala.common.message._
 import com.bolour.boardgame.scala.server.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions._

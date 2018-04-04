@@ -1,7 +1,7 @@
 package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain.{Piece, PlayPiece, PlayerType}
-import com.bolour.boardgame.scala.common.domain.PlayerType.PlayerType
+import com.bolour.boardgame.scala.common.domain.PlayerType._
 import com.bolour.plane.scala.domain.Point
 import spray.json._
 

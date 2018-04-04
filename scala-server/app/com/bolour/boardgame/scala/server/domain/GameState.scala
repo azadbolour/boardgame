@@ -6,11 +6,10 @@
 package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.boardgame.scala.common.domain._
-import com.bolour.boardgame.scala.common.domain.PlayerType.{playerIndex, _}
+import com.bolour.boardgame.scala.common.domain.PlayerType._
 import com.bolour.boardgame.scala.server.domain.GameExceptions.{InvalidCrosswordsException, MalformedPlayException}
 import com.bolour.language.scala.domain.WordDictionary
-import com.bolour.plane.scala.domain.{BlackWhitePoint, Point}
-import com.bolour.util.scala.common.White
+import com.bolour.plane.scala.domain.Point
 import org.slf4j.LoggerFactory
 
 import scala.util.{Success, Try}
@@ -48,7 +47,7 @@ case class GameState(
 
   def addPlay(playerType: PlayerType, playPieces: List[PlayPiece]): Try[(GameState, List[Piece])] = {
     for {
-      _ <- if (playerType == PlayerType.UserPlayer) validatePlay(playerType, playPieces) else Success(())
+      _ <- if (playerType == UserPlayer) validatePlay(playerType, playPieces) else Success(())
       movedGridPieces = playPieces filter { _.moved } map { _.gridPiece }
       score = computePlayScore(playPieces)
       added <- addGoodPlay(playerType, movedGridPieces, score)
@@ -204,8 +203,8 @@ case class GameState(
 
   def sanityCheck: Try[Unit] = Try {
     val boardPieces = board.gridPieces.map { _.piece }
-    val userTrayPieces = trays(playerIndex(PlayerType.UserPlayer)).pieces
-    val machineTrayPieces = trays(playerIndex(PlayerType.MachinePlayer)).pieces
+    val userTrayPieces = trays(playerIndex(UserPlayer)).pieces
+    val machineTrayPieces = trays(playerIndex(MachinePlayer)).pieces
 
     val boardPieceIds = boardPieces.map { _.id }
     val userPieceIds = userTrayPieces.map { _.id }

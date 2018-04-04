@@ -5,19 +5,37 @@
  */
 package com.bolour.boardgame.scala.common.domain
 
-object PlayerType extends Enumeration {
-  type PlayerType = Value
+sealed abstract class PlayerType
 
-  val UserPlayer = Value(0)
-  val MachinePlayer = Value(1)
+object UserPlayer extends PlayerType
+object MachinePlayer extends PlayerType
 
-  def playerIndex(playerType: PlayerType): Int = playerType.id
+object PlayerType {
+  def playerIndex(playerType: PlayerType): Int = playerType match {
+    case UserPlayer => 0
+    case MachinePlayer => 1
+  }
 
   def nextPlayerType(playerType: PlayerType): PlayerType =
     playerType match {
       case UserPlayer => MachinePlayer
       case MachinePlayer => UserPlayer
     }
-
 }
 
+//object PlayerType extends Enumeration {
+//  type PlayerType = Value
+//
+//  val UserPlayer = Value(0)
+//  val MachinePlayer = Value(1)
+//
+//  def playerIndex(playerType: PlayerType): Int = playerType.id
+//
+//  def nextPlayerType(playerType: PlayerType): PlayerType =
+//    playerType match {
+//      case UserPlayer => MachinePlayer
+//      case MachinePlayer => UserPlayer
+//    }
+//
+//}
+//
