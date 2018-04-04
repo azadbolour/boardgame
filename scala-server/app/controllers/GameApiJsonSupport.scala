@@ -15,7 +15,7 @@ import play.api.libs.json._
 /**
   * Implicit JSON readers and writers for game dto objects.
   */
-object GameJsonSupport {
+object GameApiJsonSupport {
   implicit val charReads: Reads[Char] = new Reads[Char] {
     def reads(json: JsValue) = Json.fromJson[String](json) map { _.head }
   }

@@ -4,10 +4,6 @@ This Feature
 Save the entire game in the database as a single JSON object (Scala).
 Port to Haskell in a later feature.
 
-- Change PlayerType from enum to sealed abstract.
-
-- Change name GameJsonSupport to GameApiJsonSupport.
-
 - Add new file JsonConverters in the service layer for now.
   Move all the spray stuff there.
 

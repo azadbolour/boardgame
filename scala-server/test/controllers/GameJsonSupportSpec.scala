@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsString, JsSuccess, Json}
 import com.bolour.boardgame.scala.common.domain.PieceProviderType
 import com.bolour.boardgame.scala.common.domain.PieceProviderType.PieceProviderType
-import controllers.GameJsonSupport._
+import controllers.GameApiJsonSupport._
 
 class GameJsonSupportSpec extends FlatSpec with Matchers {
 

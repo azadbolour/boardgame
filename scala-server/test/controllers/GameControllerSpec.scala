@@ -19,7 +19,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import com.bolour.boardgame.scala.server.service.GameServiceImpl
 import com.bolour.plane.scala.domain.Point
-import controllers.GameJsonSupport._
+import controllers.GameApiJsonSupport._
 import org.slf4j.LoggerFactory
 
 class GameControllerSpec extends PlaySpec with Results {
