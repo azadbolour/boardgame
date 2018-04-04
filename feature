@@ -4,29 +4,6 @@ This Feature
 Save the entire game in the database as a single JSON object (Scala).
 Port to Haskell in a later feature.
 
-- Add new file JsonConverters in the service layer for now.
-  Move all the spray stuff there.
-
-- Test encoding and decoding of plays into JSON. spray-json looks simple
-  enough for case classes. Keep this layer independent of Play.
-
-  https://github.com/spray/spray-json
-
-  Understand encoding of an abstract class with multiple cases to JSON.
-
-  The simplest solution so far seems to be to just add a tag field to
-  the base class that represents the case.
-
-  https://stackoverflow.com/questions/20946701/how-to-serialize-case-classes-with-traits-with-jsonspray
-
-  Not sure how a simple enumerated data type (with sealed abstract class and
-  case classes) is serialized and deserialized.
-
-  Create a test for serialization.
-
-  Remommend against suing scala enumeratrion infavor of sealed abstract class
-  with type classes for the different cases.
-
 - There is probably no good reason to separate game and game reason any more.
   Check it out and if so, combine, since the persistence layer deals
   with entire games.

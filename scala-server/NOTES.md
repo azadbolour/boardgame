@@ -99,6 +99,9 @@
 
 ## Scala
 
+- Recommended to use sealed abstract class withe case objects
+  for enumerations, rather than Scala enumerarions.
+
 - Within a Try for block if a function throws an exception, that 
   exception is caught and converted to a Failure. This includes
   match failures in tests.

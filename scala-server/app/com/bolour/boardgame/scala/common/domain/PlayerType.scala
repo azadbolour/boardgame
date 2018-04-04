@@ -5,12 +5,12 @@
  */
 package com.bolour.boardgame.scala.common.domain
 
-sealed abstract class PlayerType
-
-object UserPlayer extends PlayerType
-object MachinePlayer extends PlayerType
-
 object PlayerType {
+  sealed abstract class PlayerType
+
+  object UserPlayer extends PlayerType
+  object MachinePlayer extends PlayerType
+
   def playerIndex(playerType: PlayerType): Int = playerType match {
     case UserPlayer => 0
     case MachinePlayer => 1
