@@ -165,8 +165,6 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     for {
       _ <- state.checkCrossWords(playPieces, dictionary)
       (newState, refills) <- state.addPlay(UserPlayer, playPieces)
-      // deadPoints = StripMatcher.hopelessBlankPoints(newState.board, od.get, userTray.capacity).toList
-      // finalState = newState.setDeadPoints(deadPoints)
       (newBoard, deadPoints) = updateDeadPoints(newState.board, od.get)
       finalState = newState.copy(board = newBoard)
       _ <- savePlay(newState, playPieces, refills)
