@@ -14,7 +14,7 @@ import slick.jdbc.JdbcBackend.Database
 import com.typesafe.config.Config
 import com.bolour.util.scala.common.CommonUtil.ID
 import com.bolour.boardgame.scala.common.domain.{PieceProviderType, PlayPiece}
-import com.bolour.boardgame.scala.server.domain.{GameInitialState, GameState, Player, PieceProvider}
+import com.bolour.boardgame.scala.server.domain.{GameInitialState, Game, Player, PieceProvider}
 import com.bolour.util.scala.server.SlickUtil.{CustomColumnTypes, configuredDbAndProfile, tableNames}
 import org.slf4j.LoggerFactory
 
@@ -126,7 +126,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     ()
   }
 
-  override def addGameState(gameState: GameState): Try[Unit] = ???
+  override def addGameState(gameState: Game): Try[Unit] = ???
 
   override def addPlay(gameId: String, playPieces: List[PlayPiece]): Try[Unit] = ???
 

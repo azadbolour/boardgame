@@ -7,7 +7,7 @@ package com.bolour.boardgame.scala.server.service
 
 import com.bolour.util.scala.common.CommonUtil.ID
 import com.bolour.boardgame.scala.common.domain.PlayPiece
-import com.bolour.boardgame.scala.server.domain.{GameInitialState, GameState, PieceProvider, Player}
+import com.bolour.boardgame.scala.server.domain.{GameInitialState, Game, PieceProvider, Player}
 
 import scala.util.Try
 
@@ -28,7 +28,7 @@ trait GameDao {
   def addPlayer(player: Player): Try[Unit]
   def addGame(game: GameInitialState): Try[Unit]
   def endGame(id: String): Try[Unit]
-  def addGameState(gameState: GameState): Try[Unit]
+  def addGameState(gameState: Game): Try[Unit]
   def addPlay(gameId: ID, playPieces: List[PlayPiece]): Try[Unit]
 
   def findPlayerByName(name: String): Try[Option[Player]]

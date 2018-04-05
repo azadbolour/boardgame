@@ -114,14 +114,14 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     initUserPieces: List[Piece],      // For testing only.
     initMachinePieces: List[Piece],    // For testing only.
     pointValues: List[List[Int]]
-  ): Try[GameState] = {
+  ): Try[Game] = {
     if (gameCache.size >= maxActiveGames)
       return Failure(SystemOverloadedException())
 
     for {
       player <- getPlayerByName(gameParams.playerName)
       game = GameInitialState(gameParams, pointValues, player.id)
-      gameState <- GameState.mkGameState(game, gridPieces, initUserPieces, initMachinePieces)
+      gameState <- Game.mkGameState(game, gridPieces, initUserPieces, initMachinePieces)
       _ <- gameDao.addGame(game)
       _ = gameCache.put(game.id, gameState)
     } yield gameState
@@ -187,7 +187,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   }
 
   // TODO. Persist play.
-  private def savePlay(gameState: GameState, playPieces: PlayPieces, replacements: Pieces): Try[Unit] = {
+  private def savePlay(gameState: Game, playPieces: PlayPieces, replacements: Pieces): Try[Unit] = {
     Success(())
   }
 
@@ -232,7 +232,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     }
   }
 
-  private def exchangeMachinePiece(state: GameState): Try[GameState] = {
+  private def exchangeMachinePiece(state: Game): Try[Game] = {
     val tray = state.tray(MachinePlayer)
     val letter = Piece.leastFrequentLetter(tray.letters).get
     val swappedPiece = tray.findPieceByLetter(letter).get
@@ -297,10 +297,10 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 }
 
 object GameServiceImpl {
-  val gameCache: ConcurrentHashMap[String, GameState] = new ConcurrentHashMap()
+  val gameCache: ConcurrentHashMap[String, Game] = new ConcurrentHashMap()
   val dictionaryCache: MutableMap[String, WordDictionary] = MutableMap()
 
-  def cacheGameState(gameId: String, gameState: GameState): Try[Unit] = Try {
+  def cacheGameState(gameId: String, gameState: Game): Try[Unit] = Try {
     gameCache.put(gameId, gameState)
   }
 }

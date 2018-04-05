@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory
 
 import scala.util.{Success, Try}
 
-case class GameState(
+case class Game(
   game: GameInitialState,
   board: Board,
   trays: List[Tray],
@@ -25,7 +25,7 @@ case class GameState(
   numSuccessivePasses: Int,
   scores: List[Int]
 ) {
-  import GameState.MaxSuccessivePasses
+  import Game.MaxSuccessivePasses
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -38,14 +38,14 @@ case class GameState(
 
   // TODO. May fail. So return a Try for consistency.
   // For now nothing to do.
-  def stop(): GameState = {
+  def stop(): Game = {
     this
   }
 
   def summary(): GameSummary =
     GameSummary(stopInfo)
 
-  def addPlay(playerType: PlayerType, playPieces: List[PlayPiece]): Try[(GameState, List[Piece])] = {
+  def addPlay(playerType: PlayerType, playPieces: List[PlayPiece]): Try[(Game, List[Piece])] = {
     for {
       _ <- if (playerType == UserPlayer) validatePlay(playerType, playPieces) else Success(())
       movedGridPieces = playPieces filter { _.moved } map { _.gridPiece }
@@ -54,7 +54,7 @@ case class GameState(
     } yield added
   }
 
-  def setDeadPoints(deadPoints: List[Point]): GameState = {
+  def setDeadPoints(deadPoints: List[Point]): Game = {
     val newBoard = board.setBlackPoints(deadPoints)
     this.copy(board = newBoard)
   }
@@ -65,7 +65,7 @@ case class GameState(
     game.scorer.scorePlay(playPieces)
   }
 
-  private def addGoodPlay(playerType: PlayerType, gridPieces: List[PiecePoint], score: Int): Try[(GameState, List[Piece])] = {
+  private def addGoodPlay(playerType: PlayerType, gridPieces: List[PiecePoint], score: Int): Try[(Game, List[Piece])] = {
     val newBoard = board.setPiecePoints(gridPieces)
     val usedPieces = gridPieces map { _.value }
     val succPasses = if (score > 0) 0 else numSuccessivePasses + 1
@@ -75,11 +75,11 @@ case class GameState(
       newTrays = trays.updated(ind, trays(ind).replacePieces(usedPieces, newPieces))
       newScores = scores.updated(ind, scores(ind) + score)
       nextType = nextPlayerType(playerType)
-      newState = GameState(game, newBoard, newTrays, nextProvider, playNumber + 1, nextType, score, succPasses, newScores)
+      newState = Game(game, newBoard, newTrays, nextProvider, playNumber + 1, nextType, score, succPasses, newScores)
     } yield ((newState, newPieces))
   }
 
-  def swapPiece(piece: Piece, playerType: PlayerType): Try[(GameState, Piece)] = {
+  def swapPiece(piece: Piece, playerType: PlayerType): Try[(Game, Piece)] = {
     val succPasses = numSuccessivePasses + 1
     // Cannot swap if no more pieces in the piece provider, so for now just return the same piece.
     // This is our way of doing a pass for now.
@@ -220,12 +220,12 @@ case class GameState(
   }
 }
 
-object GameState {
+object Game {
 
   def MaxSuccessivePasses = 10
 
   def mkGameState(game: GameInitialState, gridPieces: List[PiecePoint],
-    initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[GameState] = {
+    initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[Game] = {
 
     val board = Board(game.dimension, gridPieces)
 
@@ -240,7 +240,7 @@ object GameState {
       (userTray, pieceGen1) <- mkTray(game.trayCapacity, initUserPieces, pieceGenerator)
       (machineTray, pieceGen2) <- mkTray(game.trayCapacity, initMachinePieces, pieceGen1)
     }
-      yield GameState(game, board, List(userTray, machineTray), pieceGen2, 0, UserPlayer, lastPlayScore, 0, List(0, 0))
+      yield Game(game, board, List(userTray, machineTray), pieceGen2, 0, UserPlayer, lastPlayScore, 0, List(0, 0))
   }
 
   def mkTray(capacity: Int, initPieces: List[Piece], pieceGen: PieceProvider): Try[(Tray, PieceProvider)] = {

@@ -13,7 +13,7 @@ import com.bolour.boardgame.scala.server.domain.GameExceptions._
 
 object GameDtoConverters {
 
-  def mkStartGameResponse(params: GameParams, state: GameState): StartGameResponse = {
+  def mkStartGameResponse(params: GameParams, state: Game): StartGameResponse = {
     val gridPieces = state.board.gridPieces
     val userTray = state.trays(playerIndex(UserPlayer))
     StartGameResponse(state.game.id, params, gridPieces, userTray.pieces.toList)
