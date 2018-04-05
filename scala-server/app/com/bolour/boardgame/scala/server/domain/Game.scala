@@ -54,9 +54,8 @@ case class Game(
       (newState, refills) <- addGoodWordPlay(playerType, movedGridPieces, score)
       (newBoard, deadPoints) = deadPointFinder(newState.board)
       finalState = newState.copy(board = newBoard)
-      wordPlay = Play.mkWordPlay(finalState.playNumber, playerType, finalState.scores, playPieces, refills)
+      wordPlay = Play.mkWordPlay(finalState.playNumber, playerType, finalState.scores, playPieces, refills, deadPoints)
       // TODO. Add to list of play effects.
-      playEffect = PlayEffect(wordPlay, deadPoints)
     } yield (finalState, refills, deadPoints)
   }
 

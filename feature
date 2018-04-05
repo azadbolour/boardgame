@@ -19,8 +19,6 @@ Port to Haskell in a later feature.
 
 - Add initial state variable to GameInitialState.
 
-- Just get rid of play effects.
-
 - Add a list of plays to Game and if the play is validated,
   augment the list. Make it a vector. Ordered im time, play goes
   to the end.

@@ -24,7 +24,9 @@ class PlayJsonSpec extends FlatSpec with Matchers {
   val replacementPieces = List(
     Piece('K', "3"), Piece('A', "4")
   )
-  val wordPlay: Play = Play.mkWordPlay(1, MachinePlayer, List(0, 5), playPieces, replacementPieces)
+
+  val deadPoints = List (Point(14, 14))
+  val wordPlay: Play = Play.mkWordPlay(1, MachinePlayer, List(0, 5), playPieces, replacementPieces, deadPoints)
 
   "play type" should "be json convertible" in {
     val json = PlayTypeFormat.write(WordPlayType)
@@ -80,18 +82,18 @@ class PlayJsonSpec extends FlatSpec with Matchers {
     sPlay shouldEqual swapPlay
   }
 
-  "play effect" should "be json convertible" in {
-    val deadPoints = List(Point(4, 5), Point(5, 6))
-    val playEffect = PlayEffect(wordPlay, deadPoints)
-    val json = playEffect.toJson
-
-    val string = json.prettyPrint
-    logger.info(s"${string}")
-
-    val jsonAst = string.parseJson
-    val decodedPlayEffect: PlayEffect = jsonAst.convertTo[PlayEffect]
-
-    decodedPlayEffect shouldEqual playEffect
-  }
+//  "play effect" should "be json convertible" in {
+//    val deadPoints = List(Point(4, 5), Point(5, 6))
+//    val playEffect = PlayEffect(wordPlay, deadPoints)
+//    val json = playEffect.toJson
+//
+//    val string = json.prettyPrint
+//    logger.info(s"${string}")
+//
+//    val jsonAst = string.parseJson
+//    val decodedPlayEffect: PlayEffect = jsonAst.convertTo[PlayEffect]
+//
+//    decodedPlayEffect shouldEqual playEffect
+//  }
 
 }
