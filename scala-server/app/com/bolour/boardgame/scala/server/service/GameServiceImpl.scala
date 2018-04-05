@@ -164,7 +164,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       _ <- state.checkCrossWords(playPieces, dictionary)
-      (newState, refills, deadPoints) <- state.addPlay(UserPlayer, playPieces, updateDeadPoints(od.get))
+      (newState, refills, deadPoints) <- state.addWordPlay(UserPlayer, playPieces, updateDeadPoints(od.get))
 //      (newBoard, deadPoints) = updateDeadPoints(od.get)(newState.board)
 //      finalState = newState.copy(board = newBoard)
       _ <- savePlay(newState, playPieces, refills)
@@ -206,7 +206,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
         } yield (newState.miniState, Nil, Nil)
       case playPieces =>
         for {
-          (newState, refills, deadPoints) <- state.addPlay(MachinePlayer, playPieces, updateDeadPoints(od.get))
+          (newState, refills, deadPoints) <- state.addWordPlay(MachinePlayer, playPieces, updateDeadPoints(od.get))
 //          (newBoard, deadPoints) = updateDeadPoints(od.get)(newState.board)
 //          finalState = newState.copy(board = newBoard)
           // TODO. How to eliminate dummy values entirely in for.
@@ -221,7 +221,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     val letter = Piece.leastFrequentLetter(tray.letters).get
     val swappedPiece = tray.findPieceByLetter(letter).get
     for {
-      (newState, newPiece) <- state.swapPiece(swappedPiece, MachinePlayer)
+      (newState, newPiece) <- state.addSwapPlay(swappedPiece, MachinePlayer)
       _ = saveSwap(state.game.id, state.playNumber, MachinePlayer, swappedPiece, newPiece)
     } yield newState
   }
@@ -235,7 +235,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       case None => Failure(MissingGameException(gameId))
       case Some(state) =>
         for {
-          (newState, newPiece) <- state.swapPiece(piece, UserPlayer)
+          (newState, newPiece) <- state.addSwapPlay(piece, UserPlayer)
           _ = gameCache.put(gameId, newState)
           _ = saveSwap(state.game.id, state.playNumber, UserPlayer, piece, newPiece)
         } yield (newState.miniState, newPiece)

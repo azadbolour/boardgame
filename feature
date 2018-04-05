@@ -13,38 +13,13 @@ Port to Haskell in a later feature.
 
 - Done. Rename GameState to Game.
   
-  addPlay does the following
-
-          (newState, refills) <- state.addPlay(MachinePlayer, playPieces, updateDeadPoints(od.get))
-          (newBoard, deadPoints) = updateDeadPoints(od.get)(newState.board)
-          finalState = newState.copy(board = newBoard)
-
-- state.swapPice - should become addSwapPlay
-  It should also add to the playeffect
-
-  addPlay should become addWordPlay
-
-- Change Game addPlay to just use Play.
-  Compute play in GameServiceImpl and pass.
-
-- The change in the board includes making the play, and possibly 
-  certain other changes. 
-
-  state.addPlayEffect(board, playEffect)- will add it to the list
-
-
 - Change all names from state to game in GameServiceImpl.
-
 
 - Add implementation version to json.
 
 - Add initial state variable to GameInitialState.
 
-- Make addPlay just take a Play. 
-
-  Add a parameter deadPointDetector a function that returns dead points.
-  Then you can just do all the changes in addPlay and add the play effect to 
-  the list as well.
+- Just get rid of play effects.
 
 - Add a list of plays to Game and if the play is validated,
   augment the list. Make it a vector. Ordered im time, play goes

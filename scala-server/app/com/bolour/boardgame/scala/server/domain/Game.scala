@@ -45,15 +45,18 @@ case class Game(
   def summary(): GameSummary =
     GameSummary(stopInfo)
 
-  def addPlay(playerType: PlayerType, playPieces: List[PlayPiece],
+  def addWordPlay(playerType: PlayerType, playPieces: List[PlayPiece],
     deadPointFinder: Board => (Board, List[Point]) = Game.noDeads): Try[(Game, List[Piece], List[Point])] = {
     for {
       _ <- if (playerType == UserPlayer) validatePlay(playerType, playPieces) else Success(())
       movedGridPieces = playPieces filter { _.moved } map { _.gridPiece }
       score = computePlayScore(playPieces)
-      (newState, refills) <- addGoodPlay(playerType, movedGridPieces, score)
+      (newState, refills) <- addGoodWordPlay(playerType, movedGridPieces, score)
       (newBoard, deadPoints) = deadPointFinder(newState.board)
       finalState = newState.copy(board = newBoard)
+      wordPlay = Play.mkWordPlay(finalState.playNumber, playerType, finalState.scores, playPieces, refills)
+      // TODO. Add to list of play effects.
+      playEffect = PlayEffect(wordPlay, deadPoints)
     } yield (finalState, refills, deadPoints)
   }
 
@@ -68,7 +71,7 @@ case class Game(
     game.scorer.scorePlay(playPieces)
   }
 
-  private def addGoodPlay(playerType: PlayerType, gridPieces: List[PiecePoint], score: Int): Try[(Game, List[Piece])] = {
+  private def addGoodWordPlay(playerType: PlayerType, gridPieces: List[PiecePoint], score: Int): Try[(Game, List[Piece])] = {
     val newBoard = board.setPiecePoints(gridPieces)
     val usedPieces = gridPieces map { _.value }
     val succPasses = if (score > 0) 0 else numSuccessivePasses + 1
@@ -82,10 +85,11 @@ case class Game(
     } yield ((newState, newPieces))
   }
 
-  def swapPiece(piece: Piece, playerType: PlayerType): Try[(Game, Piece)] = {
+  def addSwapPlay(piece: Piece, playerType: PlayerType): Try[(Game, Piece)] = {
     val succPasses = numSuccessivePasses + 1
     // Cannot swap if no more pieces in the piece provider, so for now just return the same piece.
     // This is our way of doing a pass for now.
+    // TODO. Obsolete. Remove.
     if (pieceProvider.isEmpty) {
       val newState = this.copy(numSuccessivePasses = succPasses, lastPlayScore = 0)
       return Success((newState, piece))
@@ -99,6 +103,8 @@ case class Game(
       tray2 <- tray1.addPiece(newPiece)
       trays2 = trays.updated(playerIndex(playerType), tray2)
       newState = this.copy(trays = trays2, pieceProvider = pieceProvide1, numSuccessivePasses = succPasses, lastPlayScore = 0)
+      swapPlay = Play.mkSwapPlay(newState.playNumber, playerType, newState.scores, piece, newPiece)
+      // TODO. Add to list of play effects.
     } yield (newState, newPiece)
   }
 
