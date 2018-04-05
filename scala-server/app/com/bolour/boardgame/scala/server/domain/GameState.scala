@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 import scala.util.{Success, Try}
 
 case class GameState(
-  game: Game,
+  game: GameInitialState,
   board: Board,
   trays: List[Tray],
   pieceProvider: PieceProvider,
@@ -224,7 +224,7 @@ object GameState {
 
   def MaxSuccessivePasses = 10
 
-  def mkGameState(game: Game, gridPieces: List[PiecePoint],
+  def mkGameState(game: GameInitialState, gridPieces: List[PiecePoint],
     initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[GameState] = {
 
     val board = Board(game.dimension, gridPieces)

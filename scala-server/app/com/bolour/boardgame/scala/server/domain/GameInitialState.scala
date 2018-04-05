@@ -13,7 +13,7 @@ import com.bolour.util.scala.server.BasicServerUtil.{stringId}
 import com.bolour.boardgame.scala.common.domain.{GameParams, Piece}
 import com.bolour.boardgame.scala.server.util.WordUtil.english
 
-case class Game(
+case class GameInitialState(
   id: ID,
   dimension: Int,
   trayCapacity: Int,
@@ -29,14 +29,14 @@ case class Game(
   val scorer = Scorer(dimension, trayCapacity, pointValues)
 }
 
-object Game {
+object GameInitialState {
 
-  def apply(p: GameParams, pointValues: List[List[Int]], playerId: ID): Game = {
+  def apply(p: GameParams, pointValues: List[List[Int]], playerId: ID): GameInitialState = {
     val now = Instant.now()
     val lang = p.languageCode
     val languageCode = if (!lang.isEmpty) lang else english
     val genType = p.pieceProviderType
-    Game(stringId, p.dimension, p.trayCapacity, languageCode, genType, pointValues, playerId, now, None)
+    GameInitialState(stringId, p.dimension, p.trayCapacity, languageCode, genType, pointValues, playerId, now, None)
   }
 
 }

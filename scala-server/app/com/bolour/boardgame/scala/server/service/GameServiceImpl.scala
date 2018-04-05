@@ -120,7 +120,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       player <- getPlayerByName(gameParams.playerName)
-      game = Game(gameParams, pointValues, player.id)
+      game = GameInitialState(gameParams, pointValues, player.id)
       gameState <- GameState.mkGameState(game, gridPieces, initUserPieces, initMachinePieces)
       _ <- gameDao.addGame(game)
       _ = gameCache.put(game.id, gameState)
@@ -273,7 +273,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
   // TODO. Check the cache first for the game.
   // TODO. Get the correct piece generator for the game. For now using cyclic.
-  override def findGameById(gameId: ID): Try[Option[Game]] =
+  override def findGameById(gameId: ID): Try[Option[GameInitialState]] =
     gameDao.findGameById(gameId)
 
   def timeoutLongRunningGames(): Try[Unit] = Try {

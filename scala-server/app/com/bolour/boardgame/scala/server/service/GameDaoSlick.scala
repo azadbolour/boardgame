@@ -14,7 +14,7 @@ import slick.jdbc.JdbcBackend.Database
 import com.typesafe.config.Config
 import com.bolour.util.scala.common.CommonUtil.ID
 import com.bolour.boardgame.scala.common.domain.{PieceProviderType, PlayPiece}
-import com.bolour.boardgame.scala.server.domain.{Game, GameState, Player, PieceProvider}
+import com.bolour.boardgame.scala.server.domain.{GameInitialState, GameState, Player, PieceProvider}
 import com.bolour.util.scala.server.SlickUtil.{CustomColumnTypes, configuredDbAndProfile, tableNames}
 import org.slf4j.LoggerFactory
 
@@ -68,11 +68,11 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   }
   def gameRows = TableQuery[GameTable]
 
-  def toGameRow(game: Game): GameRow = {
+  def toGameRow(game: GameInitialState): GameRow = {
     GameRow(game.id, game.dimension, game.trayCapacity, game.languageCode, game.pieceProviderType.toString, game.playerId, game.startTime, game.endTime)
   }
-  def fromGameRow(row: GameRow): Game =
-    Game(row.id, row.dimension, row.trayCapacity, row.languageCode,
+  def fromGameRow(row: GameRow): GameInitialState =
+    GameInitialState(row.id, row.dimension, row.trayCapacity, row.languageCode,
       PieceProviderType.withName(row.pieceProviderType), hackPointValues(row.dimension), row.playerId, row.startTime, row.endTime)
 
   // TODO. Add game and play tables.
@@ -109,7 +109,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     logger.debug(s"added ${numRows} player(s)")
   }
 
-  override def addGame(game: Game): Try[Unit] = Try {
+  override def addGame(game: GameInitialState): Try[Unit] = Try {
     val gameRow = toGameRow(game)
     val insert = gameRows += gameRow
     val future = db.run(insert)
@@ -137,7 +137,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     rows.headOption map fromPlayerRow
   }
 
-  override def findGameById(id: String): Try[Option[Game]] = Try {
+  override def findGameById(id: String): Try[Option[GameInitialState]] = Try {
     val query = gameRows.filter {_.id === id }
     val future = db.run(query.result)
     val rows = Await.result(future, timeout)

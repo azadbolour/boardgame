@@ -8,7 +8,7 @@ package com.bolour.boardgame.scala.server.service
 import com.bolour.util.scala.common.CommonUtil.ID
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.Scorer.Score
-import com.bolour.boardgame.scala.server.domain.{Game, GameState, Player}
+import com.bolour.boardgame.scala.server.domain.{GameInitialState, GameState, Player}
 import com.bolour.plane.scala.domain.Point
 
 import scala.util.Try
@@ -40,7 +40,7 @@ trait GameService {
 
   def endGame(gameId: ID): Try[GameSummary]
 
-  def findGameById(gameId: ID): Try[Option[Game]]
+  def findGameById(gameId: ID): Try[Option[GameInitialState]]
 
   def timeoutLongRunningGames(): Try[Unit]
 
