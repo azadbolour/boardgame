@@ -45,13 +45,16 @@ case class Game(
   def summary(): GameSummary =
     GameSummary(stopInfo)
 
-  def addPlay(playerType: PlayerType, playPieces: List[PlayPiece]): Try[(Game, List[Piece])] = {
+  def addPlay(playerType: PlayerType, playPieces: List[PlayPiece],
+    deadPointFinder: Board => (Board, List[Point]) = Game.noDeads): Try[(Game, List[Piece], List[Point])] = {
     for {
       _ <- if (playerType == UserPlayer) validatePlay(playerType, playPieces) else Success(())
       movedGridPieces = playPieces filter { _.moved } map { _.gridPiece }
       score = computePlayScore(playPieces)
-      added <- addGoodPlay(playerType, movedGridPieces, score)
-    } yield added
+      (newState, refills) <- addGoodPlay(playerType, movedGridPieces, score)
+      (newBoard, deadPoints) = deadPointFinder(newState.board)
+      finalState = newState.copy(board = newBoard)
+    } yield (finalState, refills, deadPoints)
   }
 
   def setDeadPoints(deadPoints: List[Point]): Game = {
@@ -252,4 +255,6 @@ object Game {
       pieces = initPieces ++ restPieces
     } yield (Tray(capacity, pieces.toVector), nextGen)
   }
+
+  def noDeads(board: Board): (Board, List[Point]) = (board, Nil)
 }

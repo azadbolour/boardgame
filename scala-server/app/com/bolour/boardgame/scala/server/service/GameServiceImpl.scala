@@ -164,24 +164,12 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       _ <- state.checkCrossWords(playPieces, dictionary)
-      (newState, refills) <- state.addPlay(UserPlayer, playPieces)
-      (newBoard, deadPoints) = updateDeadPoints(newState.board, od.get)
-      finalState = newState.copy(board = newBoard)
+      (newState, refills, deadPoints) <- state.addPlay(UserPlayer, playPieces, updateDeadPoints(od.get))
+//      (newBoard, deadPoints) = updateDeadPoints(od.get)(newState.board)
+//      finalState = newState.copy(board = newBoard)
       _ <- savePlay(newState, playPieces, refills)
       _ = gameCache.put(gameId, newState)
-    } yield (finalState.miniState, refills, deadPoints)
-  }
-
-  private def updateDeadPoints(board: Board, dictionary: WordDictionary): (Board, List[Point]) = {
-    val directDeadPoints = StripMatcher.hopelessBlankPoints(board, dictionary).toList
-    val newBoard = board.setBlackPoints(directDeadPoints)
-    directDeadPoints match {
-      case Nil => (newBoard, directDeadPoints)
-      case _ =>
-        val (b, moreDeadPoints) = updateDeadPoints(newBoard, dictionary)
-        val allDeadPoints = directDeadPoints ++ moreDeadPoints
-        (b, allDeadPoints)
-    }
+    } yield (newState.miniState, refills, deadPoints)
   }
 
   // TODO. Persist play.
@@ -218,15 +206,13 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
         } yield (newState.miniState, Nil, Nil)
       case playPieces =>
         for {
-          (newState, refills) <- state.addPlay(MachinePlayer, playPieces)
-          // deadPoints = StripMatcher.hopelessBlankPoints(newState.board, od.get, machineTray.capacity).toList
-          // finalState = newState.setDeadPoints(deadPoints)
-          (newBoard, deadPoints) = updateDeadPoints(newState.board, od.get)
-          finalState = newState.copy(board = newBoard)
+          (newState, refills, deadPoints) <- state.addPlay(MachinePlayer, playPieces, updateDeadPoints(od.get))
+//          (newBoard, deadPoints) = updateDeadPoints(od.get)(newState.board)
+//          finalState = newState.copy(board = newBoard)
           // TODO. How to eliminate dummy values entirely in for.
-          _ <- savePlay(finalState, playPieces, refills)
+          _ <- savePlay(newState, playPieces, refills)
           _ = gameCache.put(gameId, newState)
-        } yield (finalState.miniState, playPieces, deadPoints)
+        } yield (newState.miniState, playPieces, deadPoints)
     }
   }
 
@@ -301,4 +287,17 @@ object GameServiceImpl {
   def cacheGameState(gameId: String, gameState: Game): Try[Unit] = Try {
     gameCache.put(gameId, gameState)
   }
+
+  private def updateDeadPoints(dictionary: WordDictionary)(board: Board): (Board, List[Point]) = {
+    val directDeadPoints = StripMatcher.hopelessBlankPoints(board, dictionary).toList
+    val newBoard = board.setBlackPoints(directDeadPoints)
+    directDeadPoints match {
+      case Nil => (newBoard, directDeadPoints)
+      case _ =>
+        val (b, moreDeadPoints) = updateDeadPoints(dictionary)(newBoard)
+        val allDeadPoints = directDeadPoints ++ moreDeadPoints
+        (b, allDeadPoints)
+    }
+  }
+
 }

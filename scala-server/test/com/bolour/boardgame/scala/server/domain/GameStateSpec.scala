@@ -130,27 +130,27 @@ class GameStateSpec extends FlatSpec with Matchers {
     val result = for {
       gameState <- Game.mkGameState(game, List(), List(), List())
 
-      (gameState1, _) <- gameState.addPlay(MachinePlayer, machinePlay1)
+      (gameState1, _, _) <- gameState.addPlay(MachinePlayer, machinePlay1)
       machineScore1 = gameState1.miniState.lastPlayScore
       _ = machineScore1 shouldBe machinePlay1.count(_.moved)
 
-      (gameState2, _) <- gameState1.addPlay(UserPlayer, userPlay1)
+      (gameState2, _, _) <- gameState1.addPlay(UserPlayer, userPlay1)
       userScore1 = gameState2.miniState.lastPlayScore
       _ = userScore1 shouldBe userPlay1.count(_.moved)
 
-      (gameState3, _) <- gameState2.addPlay(MachinePlayer, machinePlay2)
+      (gameState3, _, _) <- gameState2.addPlay(MachinePlayer, machinePlay2)
       machineScore2 = gameState3.miniState.lastPlayScore
       _ = machineScore2 shouldBe machinePlay2.count(_.moved)
 
-      (gameState4, _) <- gameState3.addPlay(UserPlayer, userPlay2)
+      (gameState4, _, _) <- gameState3.addPlay(UserPlayer, userPlay2)
       userScore2 = gameState4.miniState.lastPlayScore
       _ = userScore2 shouldBe userPlay2.count(_.moved)
 
-      (gameState5, _) <- gameState4.addPlay(MachinePlayer, machinePlay3)
+      (gameState5, _, _) <- gameState4.addPlay(MachinePlayer, machinePlay3)
       machineScore3 = gameState5.miniState.lastPlayScore
       _ = machineScore3 shouldBe machinePlay2.count(_.moved)
 
-      (gameState6, _) <- gameState5.addPlay(UserPlayer, userPlay3)
+      (gameState6, _, _) <- gameState5.addPlay(UserPlayer, userPlay3)
       userScore3 = gameState6.miniState.lastPlayScore
       _ = userScore3 shouldBe userPlay3.count(_.moved)
     } yield ()

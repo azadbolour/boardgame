@@ -8,12 +8,43 @@ Port to Haskell in a later feature.
   Check it out and if so, combine, since the persistence layer deals
   with entire games.
 
-- Rename Game to GameInitialState.
+- Done. Rename Game to GameInitialState.
   Add initial board and trays it.
 
-- Rename GameState to Game.
+- Done. Rename GameState to Game.
+  
+  addPlay does the following
+
+          (newState, refills) <- state.addPlay(MachinePlayer, playPieces, updateDeadPoints(od.get))
+          (newBoard, deadPoints) = updateDeadPoints(od.get)(newState.board)
+          finalState = newState.copy(board = newBoard)
+
+- state.swapPice - should become addSwapPlay
+  It should also add to the playeffect
+
+  addPlay should become addWordPlay
+
+- Change Game addPlay to just use Play.
+  Compute play in GameServiceImpl and pass.
+
+- The change in the board includes making the play, and possibly 
+  certain other changes. 
+
+  state.addPlayEffect(board, playEffect)- will add it to the list
+
+
+- Change all names from state to game in GameServiceImpl.
+
+
+- Add implementation version to json.
+
+- Add initial state variable to GameInitialState.
 
 - Make addPlay just take a Play. 
+
+  Add a parameter deadPointDetector a function that returns dead points.
+  Then you can just do all the changes in addPlay and add the play effect to 
+  the list as well.
 
 - Add a list of plays to Game and if the play is validated,
   augment the list. Make it a vector. Ordered im time, play goes
@@ -43,6 +74,11 @@ Port to Haskell in a later feature.
     getGame
     updateGame
     closeGame
+
+- How about giving the game the dictionary?
+
+- Computing blank points recursively should go to strip matcher.
+  Or the other way around.
 
 - Create a low-level persistence interface for boardgame. It works
   with entire games as JSON.
