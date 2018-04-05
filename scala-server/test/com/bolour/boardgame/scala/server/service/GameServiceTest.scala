@@ -49,7 +49,7 @@ class GameServiceTest extends FlatSpec with Matchers {
     val pointValues = List.fill(dimension, dimension)(1)
     for {
       state <- service.startGame(gameParams, gridPieces, initUserPieces, List(), pointValues)
-      (score, replacementPieces, deadPoints) <- service.commitPlay(state.game.id, playPieces)
+      (score, replacementPieces, deadPoints) <- service.commitPlay(state.initialState.id, playPieces)
     } yield (state, score, replacementPieces)
   }
 

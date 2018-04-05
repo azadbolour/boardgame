@@ -120,8 +120,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       player <- getPlayerByName(gameParams.playerName)
-      game = GameInitialState(gameParams, pointValues, player.id)
-      gameState <- Game.mkGameState(game, gridPieces, initUserPieces, initMachinePieces)
+      game = GameInitialState(gameParams, pointValues, player.id, gridPieces, initUserPieces, initMachinePieces)
+      gameState <- Game.mkGame(game, gridPieces, initUserPieces, initMachinePieces)
       _ <- gameDao.addGame(game)
       _ = gameCache.put(game.id, gameState)
     } yield gameState
@@ -147,7 +147,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     val state = os.get
     val word = PlayPieceObj.playPiecesToWord(playPieces)
-    val languageCode = state.game.languageCode
+    val languageCode = state.initialState.languageCode
 
     val od = dictionaryCache.get(languageCode)
     if (od.isEmpty)
@@ -183,7 +183,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       return Failure(MissingGameException(gameId))
 
     val state = os.get
-    val languageCode = state.game.languageCode
+    val languageCode = state.initialState.languageCode
 
     val od = dictionaryCache.get(languageCode)
     if (od.isEmpty)
@@ -222,7 +222,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     val swappedPiece = tray.findPieceByLetter(letter).get
     for {
       (newState, newPiece) <- state.addSwapPlay(swappedPiece, MachinePlayer)
-      _ = saveSwap(state.game.id, state.playNumber, MachinePlayer, swappedPiece, newPiece)
+      _ = saveSwap(state.initialState.id, state.playNumber, MachinePlayer, swappedPiece, newPiece)
     } yield newState
   }
 
@@ -237,7 +237,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
         for {
           (newState, newPiece) <- state.addSwapPlay(piece, UserPlayer)
           _ = gameCache.put(gameId, newState)
-          _ = saveSwap(state.game.id, state.playNumber, UserPlayer, piece, newPiece)
+          _ = saveSwap(state.initialState.id, state.playNumber, UserPlayer, piece, newPiece)
         } yield (newState.miniState, newPiece)
     }
   }
@@ -267,7 +267,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       maybeState match {
         case None => false
         case Some(state) =>
-          val startTime = state.game.startTime
+          val startTime = state.initialState.startTime
           val now = Instant.now()
           val seconds = now.getEpochSecond - startTime.getEpochSecond
           seconds > (maxGameMinutes * 60)

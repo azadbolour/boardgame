@@ -4,27 +4,6 @@ This Feature
 Save the entire game in the database as a single JSON object (Scala).
 Port to Haskell in a later feature.
 
-- There is probably no good reason to separate game and game state any more.
-  Check it out and if so, combine, since the persistence layer deals
-  with entire games.
-
-- Done. Rename Game to GameInitialState.
-  Add initial board and trays it.
-
-- Done. Rename GameState to Game.
-  
-- Change all names from state to game in GameServiceImpl.
-
-- Add implementation version to json.
-
-- Add initial state variable to GameInitialState.
-
-- Add a list of plays to Game and if the play is validated,
-  augment the list. Make it a vector. Ordered im time, play goes
-  to the end.
-
-- Remove endTime and lastPlayScore.
-
 - Implement game recovery from initial state and plays.
 
   def recoverGame(InitialGameState, List[Play]): Game 
@@ -33,6 +12,13 @@ Port to Haskell in a later feature.
   Test that game is recovered correctly.
 
 - Add json encoding and decoding for game. Test.
+
+- Add endGame to Game. It was removed from GameInitialState.
+  The only way we know that a game has ended.
+
+- Add implementation version to json.
+
+- Remove lastPlayScore.
 
 - Create a storage layer for boardgame. Refactor the game cache to 
   the implementation of this interface. The implementation calls the 

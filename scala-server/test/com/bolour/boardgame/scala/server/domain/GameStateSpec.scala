@@ -45,7 +45,7 @@ class GameStateSpec extends FlatSpec with Matchers {
     val pointValues = List.fill(dimension, dimension)(1)
     val game = GameInitialState(gameParams, pointValues, "123")
     val result = for {
-      gameState <- Game.mkGameState(game, List(), List(), List())
+      gameState <- Game.mkGame(game, List(), List(), List())
       _ <- gameState.sanityCheck
     } yield ()
 
@@ -128,7 +128,7 @@ class GameStateSpec extends FlatSpec with Matchers {
     )
 
     val result = for {
-      gameState <- Game.mkGameState(game, List(), List(), List())
+      gameState <- Game.mkGame(game, List(), List(), List())
 
       (gameState1, _, _) <- gameState.addWordPlay(MachinePlayer, machinePlay1)
       machineScore1 = gameState1.miniState.lastPlayScore

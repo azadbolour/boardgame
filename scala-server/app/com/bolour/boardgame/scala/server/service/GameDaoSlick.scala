@@ -49,7 +49,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   def toPlayerRow(player: Player): PlayerRow = PlayerRow(player.id, player.name)
   def fromPlayerRow(row: PlayerRow): Player = Player(row.id, row.name)
 
-  case class GameRow(id: ID, dimension: Int, trayCapacity: Int, languageCode: String, pieceProviderType: String, playerId: ID, startTime: Instant, endTime: Option[Instant])
+  case class GameRow(id: ID, dimension: Int, trayCapacity: Int, languageCode: String, pieceProviderType: String, playerId: ID, startTime: Instant)
   class GameTable(tag: Tag) extends Table[GameRow](tag, gameTableName) {
     def id = column[ID]("id", O.PrimaryKey)
     def dimension = column[Int]("dimension")
@@ -58,22 +58,21 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     def pieceProviderType = column[String]("piece-provider-type")
     def playerId = column[ID]("player-id")
     def startTime = column[Instant]("start-time")
-    def endTime = column[Option[Instant]]("end-time")
 
     def player = foreignKey("player_fk", playerId, playerRows)(
       _.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Restrict
     )
 
-    def * = (id, dimension, trayCapacity, languageCode, pieceProviderType, playerId, startTime, endTime).mapTo[GameRow]
+    def * = (id, dimension, trayCapacity, languageCode, pieceProviderType, playerId, startTime).mapTo[GameRow]
   }
   def gameRows = TableQuery[GameTable]
 
   def toGameRow(game: GameInitialState): GameRow = {
-    GameRow(game.id, game.dimension, game.trayCapacity, game.languageCode, game.pieceProviderType.toString, game.playerId, game.startTime, game.endTime)
+    GameRow(game.id, game.dimension, game.trayCapacity, game.languageCode, game.pieceProviderType.toString, game.playerId, game.startTime)
   }
   def fromGameRow(row: GameRow): GameInitialState =
     GameInitialState(row.id, row.dimension, row.trayCapacity, row.languageCode,
-      PieceProviderType.withName(row.pieceProviderType), hackPointValues(row.dimension), row.playerId, row.startTime, row.endTime)
+      PieceProviderType.withName(row.pieceProviderType), hackPointValues(row.dimension), row.playerId, row.startTime, Nil, Nil, Nil)
 
   // TODO. Add game and play tables.
 
@@ -118,11 +117,11 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   }
 
   override def endGame(id: String): Try[Unit] = Try {
-    val query = (gameRows.filter {_.id === id }) map {_.endTime}
-    val now = Instant.now()
-    val action = query.update(Some(now))
-    val future = db.run(action)
-    val rows = Await.result(future, timeout)
+//    val query = (gameRows.filter {_.id === id }) map {_.endTime}
+//    val now = Instant.now()
+//    val action = query.update(Some(now))
+//    val future = db.run(action)
+//    val rows = Await.result(future, timeout)
     ()
   }
 
