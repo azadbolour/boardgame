@@ -74,7 +74,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   }
 
   val defaultDb = config.getString(defaultDbPath)
-  val gameDao = GameDaoSlick(defaultDb, config)
+  // val gameDao: GameDao = GameDaoSlick(defaultDb, config)
+  val gameDao: GameDao = new GameDaoMock
 
   val seedPlayerName = "You"
   val seedPlayer = Player(seedPlayerName)
