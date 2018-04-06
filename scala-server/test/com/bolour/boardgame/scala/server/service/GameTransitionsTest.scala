@@ -6,15 +6,18 @@
 
 package com.bolour.boardgame.scala.server.service
 
-import com.bolour.util.scala.server.BasicServerUtil.stringId
+import spray.json._
+import com.bolour.boardgame.scala.common.domain.PlayerType.UserPlayer
 import com.bolour.boardgame.scala.common.domain._
-import com.bolour.boardgame.scala.server.domain.Player
+import com.bolour.boardgame.scala.server.domain.{GameTransitions, Player}
 import com.bolour.plane.scala.domain.Point
+import com.bolour.util.scala.server.BasicServerUtil.stringId
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
+import com.bolour.boardgame.scala.server.domain.json.CaseClassFormats._
 
-class GameServiceTest extends FlatSpec with Matchers {
+class GameTransitionsTest extends FlatSpec with Matchers {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -48,35 +51,38 @@ class GameServiceTest extends FlatSpec with Matchers {
   def startGameAndCommitPlay(initUserPieces: List[Piece], playPieces: List[PlayPiece]) = {
     val pointValues = List.fill(dimension, dimension)(1)
     for {
-      state <- service.startGame(gameParams, gridPieces, initUserPieces, List(), pointValues)
-      (score, replacementPieces, deadPoints) <- service.commitPlay(state.initialState.id, playPieces)
-    } yield (state, score, replacementPieces)
+      game <- service.startGame(gameParams, gridPieces, initUserPieces, List(), pointValues)
+      // (score, replacementPieces, deadPoints) <- service.commitPlay(game.initialState.id, playPieces)
+      (playedGame, _, _) <- game.addWordPlay(UserPlayer, playPieces)
+    } yield playedGame
   }
 
-  "game service" should "accept valid crosswords" in {
+  "game transitions" should "should be convertible to json" in {
     // Allow only O to be used.
     val uPieces = List(Piece('O', stringId()), Piece('O', stringId()))
     val playPieces = List(
       PlayPiece(bottom.piece, bottom.point, false),
-      // Add O to the bottom right getting word TO and crossword TO (which is valid).
       PlayPiece(uPieces(0), Point(center + 1, center + 1), true)
     )
-    for {
-      (state, _, replacementPieces) <- startGameAndCommitPlay(uPieces, playPieces)
-      _ = replacementPieces.length shouldBe 1
-    } yield state
+    val triedGame = for {
+      game <- startGameAndCommitPlay(uPieces, playPieces)
+    } yield game
+
+    val game = triedGame.get
+    game.plays.size shouldEqual 1
+
+    val gameTransitions = GameTransitions(game.initialState, game.plays)
+
+    val json = gameTransitions.toJson
+    val string = json.prettyPrint
+
+    logger.info(s"${string}")
+
+    val jsonAst = string.parseJson
+    val decodedTransitions: GameTransitions = jsonAst.convertTo[GameTransitions]
+
+    decodedTransitions shouldEqual gameTransitions
   }
 
-  "game service" should "reject invalid crosswords" in {
-    // Allow only Q to be used.
-    val uPieces = List(Piece('O', stringId()), Piece('O', stringId()))
-    val playPieces = List(
-      PlayPiece(top.piece, top.point, false),
-      // Add O to the top right getting word SO and crossword OT (which is invalid).
-      PlayPiece(uPieces(0), Point(center - 1, center + 1), true)
-    )
-    val tried = startGameAndCommitPlay(uPieces, playPieces)
-    tried.isFailure shouldBe true
-  }
 
 }

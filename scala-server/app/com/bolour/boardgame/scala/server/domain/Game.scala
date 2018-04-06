@@ -29,6 +29,7 @@ case class Game(
   import Game.MaxSuccessivePasses
 
   val logger = LoggerFactory.getLogger(this.getClass)
+  val scorer = initialState.scorer
 
   def passesMaxedOut: Boolean = numSuccessivePasses == MaxSuccessivePasses
 
@@ -68,7 +69,7 @@ case class Game(
   def tray(playerType: PlayerType): Tray = trays(playerIndex(playerType))
 
   def computePlayScore(playPieces: List[PlayPiece]): Int = {
-    initialState.scorer.scorePlay(playPieces)
+    scorer.scorePlay(playPieces)
   }
 
   private def addGoodWordPlay(playerType: PlayerType, gridPieces: List[PiecePoint], score: Int): Try[(Game, List[Piece])] = {

@@ -24,9 +24,9 @@ case class GameInitialState(
   startTime: Instant,
   gridPieces: List[PiecePoint],
   initMachinePieces: List[Piece],
-  initUserPieces: List[Piece],
+  initUserPieces: List[Piece]
 ) {
-  val scorer = Scorer(dimension, trayCapacity, pointValues)
+  def scorer = Scorer(dimension, trayCapacity, pointValues)
 }
 
 object GameInitialState {

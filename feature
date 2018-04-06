@@ -4,16 +4,12 @@ This Feature
 Save the entire game in the database as a single JSON object (Scala).
 Port to Haskell in a later feature.
 
-- PieceProviderType needs special json.
+- Done. Can serialize and deserialize GameTransitions.
 
-- Add json encoding and decoding for game. Test.
+- Game.toGameTransitions trivial.
 
-- Implement game recovery from initial state and plays.
-
-  def recoverGame(InitialGameState, List[Play]): Game 
-    computes the running game state fields and constructs game.
-
-  Test that game is recovered correctly.
+- In tests and in server impl change state to game, and game
+  to gameInitialState.
 
 - Add endGame to Game. It was removed from GameInitialState.
   The only way we know that a game has ended.
@@ -21,6 +17,8 @@ Port to Haskell in a later feature.
 - Add implementation version to json.
 
 - Remove lastPlayScore.
+
+- Clean up the code so far - ready for new storage layer.
 
 - Create a storage layer for boardgame. Refactor the game cache to 
   the implementation of this interface. The implementation calls the 

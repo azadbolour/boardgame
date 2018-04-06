@@ -43,10 +43,10 @@ class GameStateSpec extends FlatSpec with Matchers {
     val trayCapacity = 15
     val gameParams = GameParams(dimension, trayCapacity, "en", name, genType)
     val pointValues = List.fill(dimension, dimension)(1)
-    val game = GameInitialState(gameParams, pointValues, "123")
+    val initialState = GameInitialState(gameParams, pointValues, "123")
     val result = for {
-      gameState <- Game.mkGame(game, List(), List(), List())
-      _ <- gameState.sanityCheck
+      game <- Game.mkGame(initialState, List(), List(), List())
+      _ <- game.sanityCheck
     } yield ()
 
     result match {
@@ -61,7 +61,7 @@ class GameStateSpec extends FlatSpec with Matchers {
 
     val gameParams = GameParams(dimension, trayCapacity, "en", name, PieceProviderType.Cyclic)
     val pointValues = List.fill(dimension, dimension)(1)
-    val game = GameInitialState(gameParams, pointValues, "123")
+    val initialState = GameInitialState(gameParams, pointValues, "123")
 
     def pc(ch: Char): Piece = Piece(ch, stringId())
 
@@ -128,30 +128,30 @@ class GameStateSpec extends FlatSpec with Matchers {
     )
 
     val result = for {
-      gameState <- Game.mkGame(game, List(), List(), List())
+      game <- Game.mkGame(initialState, List(), List(), List())
 
-      (gameState1, _, _) <- gameState.addWordPlay(MachinePlayer, machinePlay1)
-      machineScore1 = gameState1.miniState.lastPlayScore
+      (game1, _, _) <- game.addWordPlay(MachinePlayer, machinePlay1)
+      machineScore1 = game1.miniState.lastPlayScore
       _ = machineScore1 shouldBe machinePlay1.count(_.moved)
 
-      (gameState2, _, _) <- gameState1.addWordPlay(UserPlayer, userPlay1)
-      userScore1 = gameState2.miniState.lastPlayScore
+      (game2, _, _) <- game1.addWordPlay(UserPlayer, userPlay1)
+      userScore1 = game2.miniState.lastPlayScore
       _ = userScore1 shouldBe userPlay1.count(_.moved)
 
-      (gameState3, _, _) <- gameState2.addWordPlay(MachinePlayer, machinePlay2)
-      machineScore2 = gameState3.miniState.lastPlayScore
+      (game3, _, _) <- game2.addWordPlay(MachinePlayer, machinePlay2)
+      machineScore2 = game3.miniState.lastPlayScore
       _ = machineScore2 shouldBe machinePlay2.count(_.moved)
 
-      (gameState4, _, _) <- gameState3.addWordPlay(UserPlayer, userPlay2)
-      userScore2 = gameState4.miniState.lastPlayScore
+      (game4, _, _) <- game3.addWordPlay(UserPlayer, userPlay2)
+      userScore2 = game4.miniState.lastPlayScore
       _ = userScore2 shouldBe userPlay2.count(_.moved)
 
-      (gameState5, _, _) <- gameState4.addWordPlay(MachinePlayer, machinePlay3)
-      machineScore3 = gameState5.miniState.lastPlayScore
+      (game5, _, _) <- game4.addWordPlay(MachinePlayer, machinePlay3)
+      machineScore3 = game5.miniState.lastPlayScore
       _ = machineScore3 shouldBe machinePlay2.count(_.moved)
 
-      (gameState6, _, _) <- gameState5.addWordPlay(UserPlayer, userPlay3)
-      userScore3 = gameState6.miniState.lastPlayScore
+      (game6, _, _) <- game5.addWordPlay(UserPlayer, userPlay3)
+      userScore3 = game6.miniState.lastPlayScore
       _ = userScore3 shouldBe userPlay3.count(_.moved)
     } yield ()
 
