@@ -4,12 +4,9 @@ This Feature
 Save the entire game in the database as a single JSON object (Scala).
 Port to Haskell in a later feature.
 
-- Done. Can serialize and deserialize GameTransitions.
-
 - Game.toGameTransitions trivial.
 
-- In tests and in server impl change state to game, and game
-  to gameInitialState.
+- Why not have dictionary as part of the current state of the game?
 
 - Add endGame to Game. It was removed from GameInitialState.
   The only way we know that a game has ended.

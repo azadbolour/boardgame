@@ -14,7 +14,7 @@ import slick.jdbc.JdbcBackend.Database
 import com.typesafe.config.Config
 import com.bolour.util.scala.common.CommonUtil.ID
 import com.bolour.boardgame.scala.common.domain.{PieceProviderType, PlayPiece}
-import com.bolour.boardgame.scala.server.domain.{GameInitialState, Game, Player, PieceProvider}
+import com.bolour.boardgame.scala.server.domain.{GameBase, Game, Player, PieceProvider}
 import com.bolour.util.scala.server.SlickUtil.{CustomColumnTypes, configuredDbAndProfile, tableNames}
 import org.slf4j.LoggerFactory
 
@@ -49,7 +49,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   def toPlayerRow(player: Player): PlayerRow = PlayerRow(player.id, player.name)
   def fromPlayerRow(row: PlayerRow): Player = Player(row.id, row.name)
 
-  case class GameRow(id: ID, dimension: Int, trayCapacity: Int, languageCode: String, pieceProviderType: String, playerId: ID, startTime: Instant)
+  case class GameRow(id: ID, dimension: Int, trayCapacity: Int, languageCode: String, pieceProviderType: String, playerId: ID, startTime: Instant, endTime: Option[Instant])
   class GameTable(tag: Tag) extends Table[GameRow](tag, gameTableName) {
     def id = column[ID]("id", O.PrimaryKey)
     def dimension = column[Int]("dimension")
@@ -58,21 +58,22 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     def pieceProviderType = column[String]("piece-provider-type")
     def playerId = column[ID]("player-id")
     def startTime = column[Instant]("start-time")
+    def endTime = column[Option[Instant]]("end-time")
 
     def player = foreignKey("player_fk", playerId, playerRows)(
       _.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Restrict
     )
 
-    def * = (id, dimension, trayCapacity, languageCode, pieceProviderType, playerId, startTime).mapTo[GameRow]
+    def * = (id, dimension, trayCapacity, languageCode, pieceProviderType, playerId, startTime, endTime).mapTo[GameRow]
   }
   def gameRows = TableQuery[GameTable]
 
-  def toGameRow(game: GameInitialState): GameRow = {
-    GameRow(game.id, game.dimension, game.trayCapacity, game.languageCode, game.pieceProviderType.toString, game.playerId, game.startTime)
+  def toGameRow(game: GameBase): GameRow = {
+    GameRow(game.id, game.dimension, game.trayCapacity, game.languageCode, game.pieceProviderType.toString, game.playerId, game.startTime, game.endTime)
   }
-  def fromGameRow(row: GameRow): GameInitialState =
-    GameInitialState(row.id, row.dimension, row.trayCapacity, row.languageCode,
-      PieceProviderType.fromString(row.pieceProviderType), hackPointValues(row.dimension), row.playerId, row.startTime, Nil, Nil, Nil)
+  def fromGameRow(row: GameRow): GameBase =
+    GameBase(row.id, row.dimension, row.trayCapacity, row.languageCode,
+      PieceProviderType.fromString(row.pieceProviderType), hackPointValues(row.dimension), row.playerId, row.startTime, row.endTime, Nil, Nil, Nil)
 
   // TODO. Add game and play tables.
 
@@ -108,8 +109,8 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     logger.debug(s"added ${numRows} player(s)")
   }
 
-  override def addGame(game: GameInitialState): Try[Unit] = Try {
-    val gameRow = toGameRow(game)
+  override def addGame(gameBase: GameBase): Try[Unit] = Try {
+    val gameRow = toGameRow(gameBase)
     val insert = gameRows += gameRow
     val future = db.run(insert)
     val numRows = Await.result(future, timeout)
@@ -117,11 +118,11 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   }
 
   override def endGame(id: String): Try[Unit] = Try {
-//    val query = (gameRows.filter {_.id === id }) map {_.endTime}
-//    val now = Instant.now()
-//    val action = query.update(Some(now))
-//    val future = db.run(action)
-//    val rows = Await.result(future, timeout)
+    val query = (gameRows.filter {_.id === id }) map {_.endTime}
+    val now = Instant.now()
+    val action = query.update(Some(now))
+    val future = db.run(action)
+    val rows = Await.result(future, timeout)
     ()
   }
 
@@ -136,7 +137,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
     rows.headOption map fromPlayerRow
   }
 
-  override def findGameById(id: String): Try[Option[GameInitialState]] = Try {
+  override def findGameById(id: String): Try[Option[GameBase]] = Try {
     val query = gameRows.filter {_.id === id }
     val future = db.run(query.result)
     val rows = Await.result(future, timeout)

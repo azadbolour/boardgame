@@ -16,7 +16,7 @@ object GameDtoConverters {
   def mkStartGameResponse(params: GameParams, state: Game): StartGameResponse = {
     val gridPieces = state.board.gridPieces
     val userTray = state.trays(playerIndex(UserPlayer))
-    StartGameResponse(state.initialState.id, params, gridPieces, userTray.pieces.toList)
+    StartGameResponse(state.gameBase.id, params, gridPieces, userTray.pieces.toList)
   }
 
   def fromPlayerDto(dto: PlayerDto): Player = Player(dto.name)

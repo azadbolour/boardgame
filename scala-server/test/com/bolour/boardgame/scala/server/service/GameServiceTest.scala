@@ -30,17 +30,17 @@ class GameServiceTest extends FlatSpec with Matchers {
   service.migrate()
   service.addPlayer(Player(name))
 
-  def gp(letter: Char, row: Int, col: Int) = PiecePoint(Piece(letter, stringId()), Point(row, col))
+  def piecePoint(letter: Char, row: Int, col: Int) = PiecePoint(Piece(letter, stringId()), Point(row, col))
 
-  val top = gp('S', center - 1, center)
-  val bottom = gp('T', center + 1, center)
+  val top = piecePoint('S', center - 1, center)
+  val bottom = piecePoint('T', center + 1, center)
   // _ S _
   // B E T
   // _ T _
   val gridPieces = List(
-    gp('B', center, center - 1),
-    gp('E', center, center),
-    gp('T', center, center + 1),
+    piecePoint('B', center, center - 1),
+    piecePoint('E', center, center),
+    piecePoint('T', center, center + 1),
     top,
     bottom,
   )
@@ -48,9 +48,9 @@ class GameServiceTest extends FlatSpec with Matchers {
   def startGameAndCommitPlay(initUserPieces: List[Piece], playPieces: List[PlayPiece]) = {
     val pointValues = List.fill(dimension, dimension)(1)
     for {
-      state <- service.startGame(gameParams, gridPieces, initUserPieces, List(), pointValues)
-      (score, replacementPieces, deadPoints) <- service.commitPlay(state.initialState.id, playPieces)
-    } yield (state, score, replacementPieces)
+      game <- service.startGame(gameParams, gridPieces, initUserPieces, List(), pointValues)
+      (score, replacementPieces, deadPoints) <- service.commitPlay(game.gameBase.id, playPieces)
+    } yield (game, score, replacementPieces)
   }
 
   "game service" should "accept valid crosswords" in {
@@ -62,13 +62,13 @@ class GameServiceTest extends FlatSpec with Matchers {
       PlayPiece(uPieces(0), Point(center + 1, center + 1), true)
     )
     for {
-      (state, _, replacementPieces) <- startGameAndCommitPlay(uPieces, playPieces)
+      (game, _, replacementPieces) <- startGameAndCommitPlay(uPieces, playPieces)
       _ = replacementPieces.length shouldBe 1
-    } yield state
+    } yield game
   }
 
   "game service" should "reject invalid crosswords" in {
-    // Allow only Q to be used.
+    // Allow only O to be used.
     val uPieces = List(Piece('O', stringId()), Piece('O', stringId()))
     val playPieces = List(
       PlayPiece(top.piece, top.point, false),

@@ -1,3 +1,3 @@
 package com.bolour.boardgame.scala.server.domain
 
-case class GameTransitions(initialState: GameInitialState, plays: Vector[Play])
+case class GameTransitions(base: GameBase, plays: Vector[Play])

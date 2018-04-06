@@ -120,10 +120,10 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       player <- getPlayerByName(gameParams.playerName)
-      initState = GameInitialState(gameParams, pointValues, player.id, gridPieces, initUserPieces, initMachinePieces)
-      game <- Game.mkGame(initState, gridPieces, initUserPieces, initMachinePieces)
-      _ <- gameDao.addGame(initState)
-      _ = gameCache.put(initState.id, game)
+      gameBase = GameBase(gameParams, pointValues, player.id, gridPieces, initUserPieces, initMachinePieces)
+      game <- Game.mkGame(gameBase, gridPieces, initUserPieces, initMachinePieces)
+      _ <- gameDao.addGame(gameBase)
+      _ = gameCache.put(gameBase.id, game)
     } yield game
     // } yield (gameState, Some(machinePlayPieces))
   }
@@ -147,7 +147,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     val game = ogame.get
     val word = PlayPieceObj.playPiecesToWord(playPieces)
-    val languageCode = game.initialState.languageCode
+    val languageCode = game.gameBase.languageCode
 
     val odict = dictionaryCache.get(languageCode)
     if (odict.isEmpty)
@@ -179,7 +179,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       return Failure(MissingGameException(gameId))
 
     val game = ogame.get
-    val languageCode = game.initialState.languageCode
+    val languageCode = game.gameBase.languageCode
 
     val odict = dictionaryCache.get(languageCode)
     if (odict.isEmpty)
@@ -216,7 +216,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     val swappedPiece = tray.findPieceByLetter(letter).get
     for {
       (newState, newPiece) <- game.addSwapPlay(swappedPiece, MachinePlayer)
-      _ = saveSwap(game.initialState.id, game.playNumber, MachinePlayer, swappedPiece, newPiece)
+      _ = saveSwap(game.gameBase.id, game.playNumber, MachinePlayer, swappedPiece, newPiece)
     } yield newState
   }
 
@@ -231,7 +231,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
         for {
           (newGame, newPiece) <- game.addSwapPlay(piece, UserPlayer)
           _ = gameCache.put(gameId, newGame)
-          _ = saveSwap(game.initialState.id, game.playNumber, UserPlayer, piece, newPiece)
+          _ = saveSwap(game.gameBase.id, game.playNumber, UserPlayer, piece, newPiece)
         } yield (newGame.miniState, newPiece)
     }
   }
@@ -251,7 +251,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
   // TODO. Check the cache first for the game.
   // TODO. Get the correct piece generator for the game. For now using cyclic.
-  override def findGameById(gameId: ID): Try[Option[GameInitialState]] =
+  override def findGameById(gameId: ID): Try[Option[GameBase]] =
     gameDao.findGameById(gameId)
 
   def timeoutLongRunningGames(): Try[Unit] = Try {
@@ -261,7 +261,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       ogame match {
         case None => false
         case Some(game) =>
-          val startTime = game.initialState.startTime
+          val startTime = game.gameBase.startTime
           val now = Instant.now()
           val seconds = now.getEpochSecond - startTime.getEpochSecond
           seconds > (maxGameMinutes * 60)

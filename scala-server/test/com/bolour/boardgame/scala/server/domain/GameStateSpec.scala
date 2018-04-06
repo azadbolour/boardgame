@@ -43,9 +43,9 @@ class GameStateSpec extends FlatSpec with Matchers {
     val trayCapacity = 15
     val gameParams = GameParams(dimension, trayCapacity, "en", name, genType)
     val pointValues = List.fill(dimension, dimension)(1)
-    val initialState = GameInitialState(gameParams, pointValues, "123")
+    val gameBase = GameBase(gameParams, pointValues, "123")
     val result = for {
-      game <- Game.mkGame(initialState, List(), List(), List())
+      game <- Game.mkGame(gameBase, List(), List(), List())
       _ <- game.sanityCheck
     } yield ()
 
@@ -61,7 +61,7 @@ class GameStateSpec extends FlatSpec with Matchers {
 
     val gameParams = GameParams(dimension, trayCapacity, "en", name, PieceProviderType.Cyclic)
     val pointValues = List.fill(dimension, dimension)(1)
-    val initialState = GameInitialState(gameParams, pointValues, "123")
+    val gameBase = GameBase(gameParams, pointValues, "123")
 
     def pc(ch: Char): Piece = Piece(ch, stringId())
 
@@ -128,7 +128,7 @@ class GameStateSpec extends FlatSpec with Matchers {
     )
 
     val result = for {
-      game <- Game.mkGame(initialState, List(), List(), List())
+      game <- Game.mkGame(gameBase, List(), List(), List())
 
       (game1, _, _) <- game.addWordPlay(MachinePlayer, machinePlay1)
       machineScore1 = game1.miniState.lastPlayScore

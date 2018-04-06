@@ -13,7 +13,7 @@ import com.bolour.util.scala.server.BasicServerUtil.stringId
 import com.bolour.boardgame.scala.common.domain.{GameParams, Piece, PiecePoint}
 import com.bolour.boardgame.scala.server.util.WordUtil.english
 
-case class GameInitialState(
+case class GameBase(
   id: ID,
   dimension: Int,
   trayCapacity: Int,
@@ -22,6 +22,7 @@ case class GameInitialState(
   pointValues: List[List[Int]],
   playerId: ID,
   startTime: Instant,
+  endTime: Option[Instant],
   gridPieces: List[PiecePoint],
   initMachinePieces: List[Piece],
   initUserPieces: List[Piece]
@@ -29,7 +30,7 @@ case class GameInitialState(
   def scorer = Scorer(dimension, trayCapacity, pointValues)
 }
 
-object GameInitialState {
+object GameBase {
 
   def apply(
     p: GameParams,
@@ -38,13 +39,13 @@ object GameInitialState {
     gridPieces: List[PiecePoint] = Nil,
     initUserPieces: List[Piece] = Nil,
     initMachinePieces: List[Piece] = Nil,
-  ): GameInitialState = {
+  ): GameBase = {
     val now = Instant.now()
     val lang = p.languageCode
     val languageCode = if (!lang.isEmpty) lang else english
     val genType = p.pieceProviderType
-    GameInitialState(stringId, p.dimension, p.trayCapacity, languageCode, genType, pointValues, playerId,
-      now, gridPieces, initUserPieces, initMachinePieces)
+    GameBase(stringId, p.dimension, p.trayCapacity, languageCode, genType, pointValues, playerId,
+      now, None, gridPieces, initUserPieces, initMachinePieces)
   }
 
 }

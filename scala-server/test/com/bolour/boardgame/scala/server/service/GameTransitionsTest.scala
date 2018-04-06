@@ -52,7 +52,6 @@ class GameTransitionsTest extends FlatSpec with Matchers {
     val pointValues = List.fill(dimension, dimension)(1)
     for {
       game <- service.startGame(gameParams, gridPieces, initUserPieces, List(), pointValues)
-      // (score, replacementPieces, deadPoints) <- service.commitPlay(game.initialState.id, playPieces)
       (playedGame, _, _) <- game.addWordPlay(UserPlayer, playPieces)
     } yield playedGame
   }
@@ -71,7 +70,7 @@ class GameTransitionsTest extends FlatSpec with Matchers {
     val game = triedGame.get
     game.plays.size shouldEqual 1
 
-    val gameTransitions = GameTransitions(game.initialState, game.plays)
+    val gameTransitions = game.transitions
 
     val json = gameTransitions.toJson
     val string = json.prettyPrint

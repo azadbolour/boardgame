@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 import scala.util.{Success, Try}
 
 case class Game(
-  initialState: GameInitialState,
+  gameBase: GameBase,
   board: Board,
   trays: List[Tray],
   pieceProvider: PieceProvider,
@@ -29,7 +29,7 @@ case class Game(
   import Game.MaxSuccessivePasses
 
   val logger = LoggerFactory.getLogger(this.getClass)
-  val scorer = initialState.scorer
+  val scorer = gameBase.scorer
 
   def passesMaxedOut: Boolean = numSuccessivePasses == MaxSuccessivePasses
 
@@ -44,8 +44,9 @@ case class Game(
     this
   }
 
-  def summary(): GameSummary =
-    GameSummary(stopInfo)
+  def summary(): GameSummary = GameSummary(stopInfo)
+
+  def transitions: GameTransitions = GameTransitions(gameBase,plays)
 
   def addWordPlay(playerType: PlayerType, playPieces: List[PlayPiece],
     deadPointFinder: Board => (Board, List[Point]) = Game.noDeads): Try[(Game, List[Piece], List[Point])] = {
@@ -82,7 +83,7 @@ case class Game(
       newTrays = trays.updated(ind, trays(ind).replacePieces(usedPieces, newPieces))
       newScores = scores.updated(ind, scores(ind) + score)
       nextType = nextPlayerType(playerType)
-      newGame = Game(initialState, newBoard, newTrays, nextProvider, playNumber + 1, nextType, score, succPasses, newScores, plays)
+      newGame = Game(gameBase, newBoard, newTrays, nextProvider, playNumber + 1, nextType, score, succPasses, newScores, plays)
     } yield ((newGame, newPieces))
   }
 
@@ -128,7 +129,7 @@ case class Game(
       val crosswords = stripMatcher.crossings(playStrip, word)
       val invalidCrosswords = crosswords.filter { w => !(theDictionary hasWord w) }
       if (!invalidCrosswords.isEmpty)
-        throw new InvalidCrosswordsException(initialState.languageCode, invalidCrosswords)
+        throw new InvalidCrosswordsException(gameBase.languageCode, invalidCrosswords)
     }
   }
 
@@ -153,7 +154,7 @@ case class Game(
   // need to be implemented.
 
   def inBounds(coordinate: Int): Boolean =
-    coordinate >= 0 && coordinate < initialState.dimension
+    coordinate >= 0 && coordinate < gameBase.dimension
 
   def inBounds(point: Point): Boolean = {
     inBounds(point.row) && inBounds(point.col)
@@ -236,12 +237,12 @@ object Game {
 
   def MaxSuccessivePasses = 10
 
-  def mkGame(initialState: GameInitialState, gridPieces: List[PiecePoint],
+  def mkGame(gameBase: GameBase, gridPieces: List[PiecePoint],
     initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[Game] = {
 
-    val board = Board(initialState.dimension, gridPieces)
+    val board = Board(gameBase.dimension, gridPieces)
 
-    val pieceGenerator = initialState.pieceProviderType match {
+    val pieceGenerator = gameBase.pieceProviderType match {
       case PieceProviderType.Random => RandomPieceProvider()
       case PieceProviderType.Cyclic => CyclicPieceProvider()
     }
@@ -249,10 +250,10 @@ object Game {
     val lastPlayScore = 0
 
     for {
-      (userTray, pieceGen1) <- mkTray(initialState.trayCapacity, initUserPieces, pieceGenerator)
-      (machineTray, pieceGen2) <- mkTray(initialState.trayCapacity, initMachinePieces, pieceGen1)
+      (userTray, pieceGen1) <- mkTray(gameBase.trayCapacity, initUserPieces, pieceGenerator)
+      (machineTray, pieceGen2) <- mkTray(gameBase.trayCapacity, initMachinePieces, pieceGen1)
     }
-      yield Game(initialState, board, List(userTray, machineTray), pieceGen2, 0, UserPlayer, lastPlayScore, 0, List(0, 0), Vector.empty)
+      yield Game(gameBase, board, List(userTray, machineTray), pieceGen2, 0, UserPlayer, lastPlayScore, 0, List(0, 0), Vector.empty)
   }
 
   def mkTray(capacity: Int, initPieces: List[Piece], pieceGen: PieceProvider): Try[(Tray, PieceProvider)] = {
