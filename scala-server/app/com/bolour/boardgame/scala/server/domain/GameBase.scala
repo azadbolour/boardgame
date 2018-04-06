@@ -28,6 +28,11 @@ case class GameBase(
   initUserPieces: List[Piece]
 ) {
   def scorer = Scorer(dimension, trayCapacity, pointValues)
+
+  def end: GameBase = {
+    val now = Instant.now()
+    this.copy(endTime = Some(now))
+  }
 }
 
 object GameBase {

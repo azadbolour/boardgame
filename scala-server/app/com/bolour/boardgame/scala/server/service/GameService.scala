@@ -40,7 +40,7 @@ trait GameService {
 
   def endGame(gameId: ID): Try[GameSummary]
 
-  def findGameById(gameId: ID): Try[Option[GameBase]]
+  def findGameById(gameId: ID): Try[Option[Game]]
 
   def timeoutLongRunningGames(): Try[Unit]
 

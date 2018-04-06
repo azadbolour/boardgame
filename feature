@@ -4,18 +4,18 @@ This Feature
 Save the entire game in the database as a single JSON object (Scala).
 Port to Haskell in a later feature.
 
-- Game.toGameTransitions trivial.
+- Implement mock json persister.
 
+- Remove the DAO and replace with persister layer.
 - Why not have dictionary as part of the current state of the game?
 
-- Add endGame to Game. It was removed from GameInitialState.
-  The only way we know that a game has ended.
+- Just have an LRU cache under the persistence layer for game.
+  That is independent of liveness.
+  But you need a list of live game ids for harvesting.
 
-- Add implementation version to json.
+    https://twitter.github.io/util/docs/com/twitter/util/LruMap.html
 
-- Remove lastPlayScore.
-
-- Clean up the code so far - ready for new storage layer.
+    Just put that on the backlog for now.
 
 - Create a storage layer for boardgame. Refactor the game cache to 
   the implementation of this interface. The implementation calls the 
@@ -23,15 +23,6 @@ Port to Haskell in a later feature.
 
 - Create a high-level persistence layer for the boardgame. It works with 
   entire games as Scala data structures.
-
-    addPlayer
-    getPlayer
-    addGame
-    getGame
-    updateGame
-    closeGame
-
-- How about giving the game the dictionary?
 
 - Computing blank points recursively should go to strip matcher.
   Or the other way around.

@@ -46,6 +46,8 @@ case class Game(
 
   def summary(): GameSummary = GameSummary(stopInfo)
 
+  def end(): Game = this.copy(gameBase = gameBase.end)
+
   def transitions: GameTransitions = GameTransitions(gameBase,plays)
 
   def addWordPlay(playerType: PlayerType, playPieces: List[PlayPiece],
@@ -267,4 +269,7 @@ object Game {
   }
 
   def noDeads(board: Board): (Board, List[Point]) = (board, Nil)
+
+  // TODO. Implement Game.fromTransitions - recover the current state of the game from its history.ß´
+  def fromTransitions(transitions: GameTransitions): Try[Game] = ???
 }

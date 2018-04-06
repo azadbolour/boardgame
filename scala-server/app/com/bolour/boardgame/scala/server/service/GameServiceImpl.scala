@@ -77,7 +77,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
   val defaultDb = config.getString(defaultDbPath)
   // val gameDao: GameDao = GameDaoSlick(defaultDb, config)
-  val gameDao: GameDao = new GameDaoMock
+  val persister: GamePersister = new GamePersisterJsonImpl(new GameJsonPersisterMemoryImpl(), Version.version)
 
   val seedPlayerName = "You"
   val seedPlayer = Player(stringId, seedPlayerName)
@@ -89,10 +89,10 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     // Version the server - and create an upgrade function for each new version.
     // Keep last upgraded version in the database.
     for /* try */ {
-      _ <- gameDao.createNonExistentTables()
-      maybeSeedPlayer <- gameDao.findPlayerByName(seedPlayerName)
+      _ <- persister.migrate()
+      maybeSeedPlayer <- persister.findPlayerByName(seedPlayerName)
       _ <- maybeSeedPlayer match {
-        case None => gameDao.addPlayer(seedPlayer)
+        case None => persister.savePlayer(seedPlayer)
         case _ => Success(())
       }
     } yield ()
@@ -100,10 +100,10 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   }
 
   override def reset() = {
-    gameDao.cleanupDb()
+    persister.clearAllData()
   }
 
-  override def addPlayer(player: Player): Try[Unit] = gameDao.addPlayer(player)
+  override def addPlayer(player: Player): Try[Unit] = persister.savePlayer(player)
 
   // TODO. Check params.
   // Dimension >= 5 <= 30.
@@ -124,14 +124,14 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       player <- getPlayerByName(gameParams.playerName)
       gameBase = GameBase(gameParams, pointValues, player.id, gridPieces, initUserPieces, initMachinePieces)
       game <- Game.mkGame(gameBase, gridPieces, initUserPieces, initMachinePieces)
-      _ <- gameDao.addGame(gameBase)
+      _ <- persister.saveGame(game)
       _ = gameCache.put(gameBase.id, game)
     } yield game
     // } yield (gameState, Some(machinePlayPieces))
   }
 
   private def getPlayerByName(playerName: String): Try[Player] = {
-    val tried = gameDao.findPlayerByName(playerName)
+    val tried = persister.findPlayerByName(playerName)
     tried match {
       case Failure(err) => Failure(err)
       case Success(maybePlayer) =>
@@ -243,8 +243,9 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     ogame match {
       case None => Failure(MissingGameException(gameId))
       case Some(game) => {
+        val endedGame = game.end()
         gameCache.remove(gameId)
-        gameDao.endGame(gameId)
+        persister.saveGame(endedGame)
         val finalState = game.stop()
         Success(finalState.summary())
       }
@@ -253,8 +254,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
   // TODO. Check the cache first for the game.
   // TODO. Get the correct piece generator for the game. For now using cyclic.
-  override def findGameById(gameId: ID): Try[Option[GameBase]] =
-    gameDao.findGameById(gameId)
+  override def findGameById(gameId: ID): Try[Option[Game]] =
+    persister.findGameById(gameId)
 
   def timeoutLongRunningGames(): Try[Unit] = Try {
     import scala.collection.JavaConverters._
