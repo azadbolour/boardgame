@@ -120,11 +120,11 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       player <- getPlayerByName(gameParams.playerName)
-      game = GameInitialState(gameParams, pointValues, player.id, gridPieces, initUserPieces, initMachinePieces)
-      gameState <- Game.mkGame(game, gridPieces, initUserPieces, initMachinePieces)
-      _ <- gameDao.addGame(game)
-      _ = gameCache.put(game.id, gameState)
-    } yield gameState
+      initState = GameInitialState(gameParams, pointValues, player.id, gridPieces, initUserPieces, initMachinePieces)
+      game <- Game.mkGame(initState, gridPieces, initUserPieces, initMachinePieces)
+      _ <- gameDao.addGame(initState)
+      _ = gameCache.put(initState.id, game)
+    } yield game
     // } yield (gameState, Some(machinePlayPieces))
   }
 
@@ -141,32 +141,28 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   }
 
   override def commitPlay(gameId: String, playPieces: List[PlayPiece]): Try[(GameMiniState, List[Piece], List[Point])] = {
-    val os = Option(gameCache.get(gameId))
-    if (os.isEmpty)
+    val ogame = Option(gameCache.get(gameId))
+    if (ogame.isEmpty)
       return Failure(MissingGameException(gameId))
 
-    val state = os.get
+    val game = ogame.get
     val word = PlayPieceObj.playPiecesToWord(playPieces)
-    val languageCode = state.initialState.languageCode
+    val languageCode = game.initialState.languageCode
 
-    val od = dictionaryCache.get(languageCode)
-    if (od.isEmpty)
+    val odict = dictionaryCache.get(languageCode)
+    if (odict.isEmpty)
       return Failure(UnsupportedLanguageException(languageCode))
 
-    val dictionary = od.get
+    val dict = odict.get
 
-    val userTray = state.trays(playerIndex(UserPlayer))
+    // TODO. Move all business logic validations to game.
 
-    // TODO. Should validate the play here.
-
-    if (!dictionary.hasWord(word))
+    if (!dict.hasWord(word))
       return Failure(InvalidWordException(languageCode, word))
 
     for {
-      _ <- state.checkCrossWords(playPieces, dictionary)
-      (newState, refills, deadPoints) <- state.addWordPlay(UserPlayer, playPieces, updateDeadPoints(od.get))
-//      (newBoard, deadPoints) = updateDeadPoints(od.get)(newState.board)
-//      finalState = newState.copy(board = newBoard)
+      _ <- game.checkCrossWords(playPieces, dict)
+      (newState, refills, deadPoints) <- game.addWordPlay(UserPlayer, playPieces, updateDeadPoints(odict.get))
       _ <- savePlay(newState, playPieces, refills)
       _ = gameCache.put(gameId, newState)
     } yield (newState.miniState, refills, deadPoints)
@@ -178,51 +174,49 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   }
 
   override def machinePlay(gameId: String): Try[(GameMiniState, List[PlayPiece], List[Point])] = {
-    val os = Option(gameCache.get(gameId))
-    if (os.isEmpty)
+    val ogame = Option(gameCache.get(gameId))
+    if (ogame.isEmpty)
       return Failure(MissingGameException(gameId))
 
-    val state = os.get
-    val languageCode = state.initialState.languageCode
+    val game = ogame.get
+    val languageCode = game.initialState.languageCode
 
-    val od = dictionaryCache.get(languageCode)
-    if (od.isEmpty)
+    val odict = dictionaryCache.get(languageCode)
+    if (odict.isEmpty)
       return Failure(UnsupportedLanguageException(languageCode))
 
-    val machineTray = state.trays(playerIndex(MachinePlayer))
-    // logger.info(s"machine play - tray has: ${machineTray.letters}")
+    val dict = odict.get
+    val machineTray = game.trays(playerIndex(MachinePlayer))
 
     val stripMatcher = new StripMatcher {
-      override def dictionary: WordDictionary = od.get
-      override def board = state.board
+      override def dictionary: WordDictionary = dict
+      override def board: Board = game.board
       override def tray: Tray = machineTray
     }
 
     stripMatcher.bestMatch() match {
       case Nil =>
         for {
-          newState <- exchangeMachinePiece(state)
-          _ = gameCache.put(gameId, newState)
-        } yield (newState.miniState, Nil, Nil)
+          game <- swapMachinePiece(game)
+          _ = gameCache.put(gameId, game)
+        } yield (game.miniState, Nil, Nil)
       case playPieces =>
         for {
-          (newState, refills, deadPoints) <- state.addWordPlay(MachinePlayer, playPieces, updateDeadPoints(od.get))
-//          (newBoard, deadPoints) = updateDeadPoints(od.get)(newState.board)
-//          finalState = newState.copy(board = newBoard)
+          (game, refills, deadPoints) <- game.addWordPlay(MachinePlayer, playPieces, updateDeadPoints(dict))
           // TODO. How to eliminate dummy values entirely in for.
-          _ <- savePlay(newState, playPieces, refills)
-          _ = gameCache.put(gameId, newState)
-        } yield (newState.miniState, playPieces, deadPoints)
+          _ <- savePlay(game, playPieces, refills)
+          _ = gameCache.put(gameId, game)
+        } yield (game.miniState, playPieces, deadPoints)
     }
   }
 
-  private def exchangeMachinePiece(state: Game): Try[Game] = {
-    val tray = state.tray(MachinePlayer)
+  private def swapMachinePiece(game: Game): Try[Game] = {
+    val tray = game.tray(MachinePlayer)
     val letter = Piece.leastFrequentLetter(tray.letters).get
     val swappedPiece = tray.findPieceByLetter(letter).get
     for {
-      (newState, newPiece) <- state.addSwapPlay(swappedPiece, MachinePlayer)
-      _ = saveSwap(state.initialState.id, state.playNumber, MachinePlayer, swappedPiece, newPiece)
+      (newState, newPiece) <- game.addSwapPlay(swappedPiece, MachinePlayer)
+      _ = saveSwap(game.initialState.id, game.playNumber, MachinePlayer, swappedPiece, newPiece)
     } yield newState
   }
 
@@ -230,26 +224,26 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     Success(()) // TODO. Implement saveSwap.
 
   override def swapPiece(gameId: String, piece: Piece): Try[(GameMiniState, Piece)] = {
-    val os = Option(gameCache.get(gameId))
-    os match {
+    val ogame = Option(gameCache.get(gameId))
+    ogame match {
       case None => Failure(MissingGameException(gameId))
-      case Some(state) =>
+      case Some(game) =>
         for {
-          (newState, newPiece) <- state.addSwapPlay(piece, UserPlayer)
-          _ = gameCache.put(gameId, newState)
-          _ = saveSwap(state.initialState.id, state.playNumber, UserPlayer, piece, newPiece)
-        } yield (newState.miniState, newPiece)
+          (newGame, newPiece) <- game.addSwapPlay(piece, UserPlayer)
+          _ = gameCache.put(gameId, newGame)
+          _ = saveSwap(game.initialState.id, game.playNumber, UserPlayer, piece, newPiece)
+        } yield (newGame.miniState, newPiece)
     }
   }
 
   override def endGame(gameId: String): Try[GameSummary] = {
-    val maybeState = Option(gameCache.get(gameId))
-    maybeState match {
+    val ogame = Option(gameCache.get(gameId))
+    ogame match {
       case None => Failure(MissingGameException(gameId))
-      case Some(state) => {
+      case Some(game) => {
         gameCache.remove(gameId)
         gameDao.endGame(gameId)
-        val finalState = state.stop()
+        val finalState = game.stop()
         Success(finalState.summary())
       }
     }
@@ -263,11 +257,11 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   def timeoutLongRunningGames(): Try[Unit] = Try {
     import scala.collection.JavaConverters._
     def aged(gameId: String): Boolean = {
-      val maybeState = Option(gameCache.get(gameId))
-      maybeState match {
+      val ogame = Option(gameCache.get(gameId))
+      ogame match {
         case None => false
-        case Some(state) =>
-          val startTime = state.initialState.startTime
+        case Some(game) =>
+          val startTime = game.initialState.startTime
           val now = Instant.now()
           val seconds = now.getEpochSecond - startTime.getEpochSecond
           seconds > (maxGameMinutes * 60)
