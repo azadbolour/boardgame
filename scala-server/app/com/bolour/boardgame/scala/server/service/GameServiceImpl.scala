@@ -12,6 +12,8 @@ import javax.inject.Inject
 
 import scala.collection.mutable.{Map => MutableMap}
 import com.typesafe.config.Config
+
+import com.bolour.util.scala.server.BasicServerUtil.{stringId}
 import com.bolour.util.scala.common.CommonUtil.ID
 import com.bolour.util.scala.server.BasicServerUtil.readConfigStringList
 import com.bolour.boardgame.scala.common.domain._
@@ -78,7 +80,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   val gameDao: GameDao = new GameDaoMock
 
   val seedPlayerName = "You"
-  val seedPlayer = Player(seedPlayerName)
+  val seedPlayer = Player(stringId, seedPlayerName)
 
   migrate()
 

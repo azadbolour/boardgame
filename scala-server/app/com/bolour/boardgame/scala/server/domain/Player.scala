@@ -10,6 +10,6 @@ import com.bolour.util.scala.server.BasicServerUtil.{stringId}
 
 case class Player(id: ID, name: String)
 
-object Player {
-  def apply(name: String): Player = Player(stringId, name)
-}
+//object Player {
+//  def mkPlayer(name: String): Player = Player(stringId, name)
+//}

@@ -28,7 +28,7 @@ class GameServiceTest extends FlatSpec with Matchers {
 
   val service = new GameServiceImpl(ConfigFactory.load())
   service.migrate()
-  service.addPlayer(Player(name))
+  service.addPlayer(Player(stringId, name))
 
   def piecePoint(letter: Char, row: Int, col: Int) = PiecePoint(Piece(letter, stringId()), Point(row, col))
 

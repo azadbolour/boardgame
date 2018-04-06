@@ -31,7 +31,7 @@ class GameTransitionsTest extends FlatSpec with Matchers {
 
   val service = new GameServiceImpl(ConfigFactory.load())
   service.migrate()
-  service.addPlayer(Player(name))
+  service.addPlayer(Player(stringId, name))
 
   def gp(letter: Char, row: Int, col: Int) = PiecePoint(Piece(letter, stringId()), Point(row, col))
 

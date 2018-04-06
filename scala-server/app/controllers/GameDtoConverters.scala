@@ -5,6 +5,8 @@
  */
 package controllers
 
+import com.bolour.util.scala.server.BasicServerUtil.{stringId}
+
 import com.bolour.boardgame.scala.common.domain.{GameParams}
 import com.bolour.boardgame.scala.common.domain.PlayerType._
 import com.bolour.boardgame.scala.common.message._
@@ -19,7 +21,7 @@ object GameDtoConverters {
     StartGameResponse(state.gameBase.id, params, gridPieces, userTray.pieces.toList)
   }
 
-  def fromPlayerDto(dto: PlayerDto): Player = Player(dto.name)
+  def fromPlayerDto(dto: PlayerDto): Player = Player(stringId, dto.name)
 
   def toMissingPieceErrorDto(ex: MissingPieceException) =
     MissingPieceErrorDto("MissingPieceError", ex.getMessage, ex.pieceId)
