@@ -72,7 +72,7 @@ class GameDaoSlick(val profile: JdbcProfile, db: Database) extends GameDao {
   }
   def fromGameRow(row: GameRow): GameInitialState =
     GameInitialState(row.id, row.dimension, row.trayCapacity, row.languageCode,
-      PieceProviderType.withName(row.pieceProviderType), hackPointValues(row.dimension), row.playerId, row.startTime, Nil, Nil, Nil)
+      PieceProviderType.fromString(row.pieceProviderType), hackPointValues(row.dimension), row.playerId, row.startTime, Nil, Nil, Nil)
 
   // TODO. Add game and play tables.
 

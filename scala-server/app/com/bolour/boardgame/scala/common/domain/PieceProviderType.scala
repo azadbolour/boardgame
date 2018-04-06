@@ -5,7 +5,29 @@
  */
 package com.bolour.boardgame.scala.common.domain
 
-object PieceProviderType extends Enumeration {
-  type PieceProviderType = Value
-  val Random, Cyclic = Value
+object PieceProviderType {
+
+  val RandomAsString = "Random"
+  val CyclicAsString = "Cyclic"
+
+  sealed abstract class PieceProviderType
+  object Random extends PieceProviderType {
+    override def toString = RandomAsString
+  }
+  object Cyclic extends PieceProviderType {
+    override def toString = CyclicAsString
+  }
+
+  def fromString(asString: String): PieceProviderType = {
+    asString match {
+      case RandomAsString => PieceProviderType.Random
+      case CyclicAsString => PieceProviderType.Cyclic
+      case _ => throw new RuntimeException(s"unrecognized piece provider type: ${asString}")
+    }
+  }
 }
+
+//object PieceProviderType extends Enumeration {
+//  type PieceProviderType = Value
+//  val Random, Cyclic = Value
+//}

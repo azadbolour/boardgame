@@ -19,9 +19,12 @@ object GameApiJsonSupport {
   implicit val charReads: Reads[Char] = new Reads[Char] {
     def reads(json: JsValue) = Json.fromJson[String](json) map { _.head }
   }
-  implicit val pieceGeneratorTypeReads: Reads[PieceProviderType] = new Reads[PieceProviderType] {
-    def reads(json: JsValue) = Json.fromJson[String](json) map { PieceProviderType.withName(_) }
-    // TODO. Throws NoSuchElementException. Is it consistent with Play validation exceptions.
+
+  implicit val pieceProviderTypeReads: Reads[PieceProviderType] = new Reads[PieceProviderType] {
+    def reads(json: JsValue) = {
+      val string = Json.fromJson[String](json)
+      string map PieceProviderType.fromString
+    }
   }
 
   /**
@@ -62,7 +65,7 @@ object GameApiJsonSupport {
     def writes(o: Char) = Json.toJson[String](o.toString)
   }
 
-  implicit val pieceGeneratorTypeWrites: Writes[PieceProviderType] = new Writes[PieceProviderType] {
+  implicit val pieceProviderTypeWrites: Writes[PieceProviderType] = new Writes[PieceProviderType] {
     def writes(o: PieceProviderType) = Json.toJson[String](o.toString)
   }
 

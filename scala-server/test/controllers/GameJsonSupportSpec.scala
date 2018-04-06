@@ -17,8 +17,7 @@ class GameJsonSupportSpec extends FlatSpec with Matchers {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
-  "piece generator type info" should "get values" in {
-    logger.info(s"${PieceProviderType.values}")
+  "piece provider type info" should "get values" in {
     val jsonString = "Cyclic"
     val jsValue = JsString(jsonString)
     val result = Json.fromJson[PieceProviderType](jsValue)

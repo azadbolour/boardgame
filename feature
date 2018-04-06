@@ -4,14 +4,16 @@ This Feature
 Save the entire game in the database as a single JSON object (Scala).
 Port to Haskell in a later feature.
 
+- PieceProviderType needs special json.
+
+- Add json encoding and decoding for game. Test.
+
 - Implement game recovery from initial state and plays.
 
   def recoverGame(InitialGameState, List[Play]): Game 
     computes the running game state fields and constructs game.
 
   Test that game is recovered correctly.
-
-- Add json encoding and decoding for game. Test.
 
 - Add endGame to Game. It was removed from GameInitialState.
   The only way we know that a game has ended.
