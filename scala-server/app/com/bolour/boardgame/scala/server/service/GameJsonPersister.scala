@@ -28,5 +28,6 @@ trait GameJsonPersister {
 
   def saveJsonVersionedGameTransitions(gameId: ID, playerId: ID, json: String): Try[Unit]
   def findJsonVersionedGameTransitionsById(gameId: ID): Try[Option[String]]
+  def deleteVersionedGameTransitions(gameId: ID): Try[Unit]
 
 }

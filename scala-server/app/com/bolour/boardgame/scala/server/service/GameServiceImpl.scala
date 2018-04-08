@@ -247,6 +247,15 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
         val endedGame = game.end()
         gameCache.remove(gameId)
         persister.saveGame(endedGame)
+
+        /*
+         * Purging ended games to minimize DB space needs in containers.
+         * TODO. Do not purge games immediately.
+         * Future. Use a database external to the container.
+         * Or map the database files to an external host system volume.
+         */
+        persister.deleteGame(gameId)
+
         val finalState = game.stop()
         Success(finalState.summary())
       }
@@ -274,7 +283,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     val gameIdList = gameCache.keys().asScala.toList
     val longRunningGameIdList = gameIdList filter { aged }
     // logger.info(s"games running more than ${maxGameMinutes}: ${longRunningGameIdList}")
-    longRunningGameIdList.foreach(gameCache.remove(_))
+    longRunningGameIdList.foreach(endGame)
   }
 }
 

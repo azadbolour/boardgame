@@ -32,4 +32,8 @@ class GameJsonPersisterMemoryImpl extends GameJsonPersister {
   override def findJsonVersionedGameTransitionsById(gameId: ID) = Try {
     gamesById.get(gameId)
   }
+
+  override def deleteVersionedGameTransitions(gameId: ID) = Try {
+    gamesById.remove(gameId)
+  }
 }

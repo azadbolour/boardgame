@@ -4,10 +4,6 @@ This Feature
 Save the entire game in the database as a single JSON object (Scala).
 Port to Haskell in a later feature.
 
-- Add playerId to game table. Game needs to et player id.
-
-- For now just delete games when they are completed or harvested.
-
 - Just have an LRU cache under the persistence layer for game.
   That is independent of liveness.
   But you need a list of live game ids for harvesting.
@@ -19,10 +15,6 @@ Port to Haskell in a later feature.
 - Computing blank points recursively should go to strip matcher.
   Or the other way around.
 
-- Remove GameDaoMock and GameDao and GameDaoSlick.
-
-- Hook up the service layer to the new storage implementation.
-  Check hookup in master.
-
-- Make sure adequate tests exist and pass.
+- Make sure adequate tests exist and pass for the service layer with 
+  slick json persistence.
 

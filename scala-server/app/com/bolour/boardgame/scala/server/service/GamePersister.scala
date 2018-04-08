@@ -29,5 +29,6 @@ trait GamePersister {
 
   def saveGame(game: Game): Try[Unit]
   def findGameById(gameId: ID): Try[Option[Game]]
+  def deleteGame(gameId: ID): Try[Unit]
 
 }

@@ -96,10 +96,16 @@ class GameJsonPersisterSlickImpl(val profile: JdbcProfile, db: Database) extends
   }
 
   override def findJsonVersionedGameTransitionsById(gameId: ID) = Try {
-    val query = playerRows.filter {_.id === gameId }
+    val query = gameRows.filter {_.id === gameId }
     val future = db.run(query.result)
     val rows = Await.result(future, timeout)
     rows.headOption map { _.json }
+  }
+
+  override def deleteVersionedGameTransitions(gameId: ID) = Try {
+    val query = gameRows.filter {_.id === gameId }
+    val future = db.run(query.delete)
+    Await.result(future, timeout)
   }
 }
 

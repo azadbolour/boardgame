@@ -60,4 +60,7 @@ class GamePersisterJsonImpl(jsonPersister: GameJsonPersister, version: Int) exte
       }
     } yield ogame
   }
+
+  override def deleteGame(gameId: ID) = jsonPersister.deleteVersionedGameTransitions(gameId)
+
 }
