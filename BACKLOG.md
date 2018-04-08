@@ -89,6 +89,16 @@
 
 ## Technical Debt
 
+- The game cache should go under the persistence layer.
+  An LRU cache would be simplest. The current cache is used as a list
+  of live games. Just keep a list of live game ids only so abandoned games
+  can be detected and harvested.
+
+    https://twitter.github.io/util/docs/com/twitter/util/LruMap.html
+
+- Make sure adequate tests exist and pass for the service layer with 
+  slick json persistence.
+
 - Validate a piece placed on the baord - must be upper case alpha.
 
 - Deploy to the AWS ECS - elastic container service. Use Fargate for 
