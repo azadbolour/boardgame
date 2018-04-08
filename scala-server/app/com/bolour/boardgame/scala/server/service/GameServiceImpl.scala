@@ -34,6 +34,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
   import GameService._
   import GameServiceImpl._
+  import StripMatcher.findAndSetBoardBlackPoints
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -165,7 +166,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       _ <- game.checkCrossWords(playPieces, dict)
-      (newState, refills, deadPoints) <- game.addWordPlay(UserPlayer, playPieces, updateDeadPoints(odict.get))
+      (newState, refills, deadPoints)
+        <- game.addWordPlay(UserPlayer, playPieces, findAndSetBoardBlackPoints(odict.get))
       _ <- savePlay(newState, playPieces, refills)
       _ = gameCache.put(gameId, newState)
     } yield (newState.miniState, refills, deadPoints)
@@ -205,7 +207,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
         } yield (game.miniState, Nil, Nil)
       case playPieces =>
         for {
-          (game, refills, deadPoints) <- game.addWordPlay(MachinePlayer, playPieces, updateDeadPoints(dict))
+          (game, refills, deadPoints)
+            <- game.addWordPlay(MachinePlayer, playPieces, findAndSetBoardBlackPoints(dict))
           // TODO. How to eliminate dummy values entirely in for.
           _ <- savePlay(game, playPieces, refills)
           _ = gameCache.put(gameId, game)
@@ -295,16 +298,16 @@ object GameServiceImpl {
     gameCache.put(gameId, gameState)
   }
 
-  private def updateDeadPoints(dictionary: WordDictionary)(board: Board): (Board, List[Point]) = {
-    val directDeadPoints = StripMatcher.hopelessBlankPoints(board, dictionary).toList
-    val newBoard = board.setBlackPoints(directDeadPoints)
-    directDeadPoints match {
-      case Nil => (newBoard, directDeadPoints)
-      case _ =>
-        val (b, moreDeadPoints) = updateDeadPoints(dictionary)(newBoard)
-        val allDeadPoints = directDeadPoints ++ moreDeadPoints
-        (b, allDeadPoints)
-    }
-  }
+//  private def updateDeadPoints(dictionary: WordDictionary)(board: Board): (Board, List[Point]) = {
+//    val directDeadPoints = StripMatcher.findBlackPoints(board, dictionary).toList
+//    val newBoard = board.setBlackPoints(directDeadPoints)
+//    directDeadPoints match {
+//      case Nil => (newBoard, directDeadPoints)
+//      case _ =>
+//        val (b, moreDeadPoints) = updateDeadPoints(dictionary)(newBoard)
+//        val allDeadPoints = directDeadPoints ++ moreDeadPoints
+//        (b, allDeadPoints)
+//    }
+//  }
 
 }

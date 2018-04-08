@@ -6,6 +6,8 @@
 package com.bolour.boardgame.scala.server.domain
 
 import org.slf4j.LoggerFactory
+
+import scala.collection.immutable.Nil
 import scala.collection.mutable
 // import com.bolour.boardgame.scala.common.domain.Piece.isBlank
 import com.bolour.boardgame.scala.common.domain._
@@ -270,6 +272,19 @@ object StripMatcher {
     blanksToStrips filter { case (_, strips) => allDense(strips)}
   }
 
+  def findAndSetBoardBlackPoints(dictionary: WordDictionary)(board: Board): (Board, List[Point]) = {
+    val directDeadPoints = StripMatcher.findBlackPoints(board, dictionary).toList
+    val newBoard = board.setBlackPoints(directDeadPoints)
+    directDeadPoints match {
+      case Nil => (newBoard, directDeadPoints)
+      case _ =>
+        val (b, moreDeadPoints) = findAndSetBoardBlackPoints(dictionary)(newBoard)
+        val allDeadPoints = directDeadPoints ++ moreDeadPoints
+        (b, allDeadPoints)
+    }
+  }
+
+
   val Caps = 'A' to 'Z'
 
   /**
@@ -288,7 +303,7 @@ object StripMatcher {
     * that point now have maxMaskedWords blanks, and their content can be looked up
     * as masked words in the dictionary.
     */
-  def hopelessBlankPoints(board: Board, dictionary: WordDictionary): Set[Point] = {
+  def findBlackPoints(board: Board, dictionary: WordDictionary): Set[Point] = {
 
     val maxBlanks = dictionary.maxMaskedLetters + 1
 

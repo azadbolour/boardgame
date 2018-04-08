@@ -37,7 +37,7 @@ class HopelessBlanksSpec extends FlatSpec with Matchers { self =>
   val board = emptyBoard.setPiecePoints(gridPieces)
 
   "strip matcher" should "find hopeless blanks" in {
-    val hopelessBlankPoints = StripMatcher.hopelessBlankPoints(board, dictionary)
+    val hopelessBlankPoints = StripMatcher.findBlackPoints(board, dictionary)
     println(hopelessBlankPoints)
     hopelessBlankPoints.size should be > 0
   }

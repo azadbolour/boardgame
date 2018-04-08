@@ -12,9 +12,6 @@ Port to Haskell in a later feature.
 
     Just put that on the backlog for now.
 
-- Computing blank points recursively should go to strip matcher.
-  Or the other way around.
-
 - Make sure adequate tests exist and pass for the service layer with 
   slick json persistence.
 
