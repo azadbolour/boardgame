@@ -35,9 +35,11 @@ class GamePersisterJsonImpl(jsonPersister: GameJsonPersister, version: Int) exte
 
   override def saveGame(game: Game) = {
     val versionedGameTransitions = VersionStamped[GameTransitions](version, game.transitions)
+    val gameId = game.gameBase.id
+    val playerId = game.gameBase.playerId
     val json = versionedGameTransitions.toJson.prettyPrint
     // TODO. Game should expose id itself.
-    jsonPersister.saveJsonVersionedGameTransitions(game.gameBase.id, json)
+    jsonPersister.saveJsonVersionedGameTransitions(gameId, playerId, json)
   }
 
   override def findGameById(gameId: ID) = {

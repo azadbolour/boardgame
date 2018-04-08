@@ -24,8 +24,9 @@ class GameJsonPersisterMemoryImpl extends GameJsonPersister {
     playersByName.get(name)
   }
 
-  override def saveJsonVersionedGameTransitions(gameId: ID, json: String) = Try {
+  override def saveJsonVersionedGameTransitions(gameId: ID, playerId: ID, json: String) = Try {
     gamesById += ((gameId, json))
+    // TODO. save playerId to make possible retrieval of games of player.
   }
 
   override def findJsonVersionedGameTransitionsById(gameId: ID) = Try {

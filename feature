@@ -4,6 +4,8 @@ This Feature
 Save the entire game in the database as a single JSON object (Scala).
 Port to Haskell in a later feature.
 
+- Add playerId to game table. Game needs to et player id.
+
 - For now just delete games when they are completed or harvested.
 
 - Just have an LRU cache under the persistence layer for game.

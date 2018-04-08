@@ -20,7 +20,6 @@ import scala.util.Try
 class GameJsonPersisterSlickImpl(val profile: JdbcProfile, db: Database) extends GameJsonPersister {
 
   import profile.api._
-  import GameJsonPersisterSlickImpl._
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -44,20 +43,18 @@ class GameJsonPersisterSlickImpl(val profile: JdbcProfile, db: Database) extends
   }
 
   def playerRows = TableQuery[PlayerTable]
-  // def fromPlayerRow(row: PlayerRow): Player = Player(row.id, row.name)
 
-  case class GameRow(id: ID, json: String)
+  case class GameRow(id: ID, playerId: ID, json: String)
 
   class GameTable(tag: Tag) extends Table[GameRow](tag, gameTableName) {
     def id = column[ID]("id", O.PrimaryKey)
+    def playerId = column[ID]("player-id")
     def json = column[String]("json")
 
-    def * = (id, json).mapTo[GameRow]
+    def * = (id, playerId, json).mapTo[GameRow]
   }
 
   def gameRows = TableQuery[GameTable]
-  // def toGameRow(id: ID, json: String): GameRow = GameRow(id, json)
-  // def fromGameRow(row: GameRow): (ID, String) = (row.id, row.json)
 
   override def migrate() = Try {
     val existingTableNames = tableNames(db)
@@ -90,8 +87,8 @@ class GameJsonPersisterSlickImpl(val profile: JdbcProfile, db: Database) extends
     rows.headOption map { _.json }
   }
 
-  override def saveJsonVersionedGameTransitions(gameId: ID, json: String) = Try {
-    val gameRow = GameRow(gameId, json)
+  override def saveJsonVersionedGameTransitions(gameId: ID, playerId: ID, json: String) = Try {
+    val gameRow = GameRow(gameId, playerId, json)
     val save = gameRows.insertOrUpdate(gameRow)
     val future = db.run(save)
     val numRows = Await.result(future, timeout)
