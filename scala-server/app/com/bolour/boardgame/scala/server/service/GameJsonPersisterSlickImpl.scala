@@ -20,6 +20,7 @@ import scala.util.Try
 class GameJsonPersisterSlickImpl(val profile: JdbcProfile, db: Database) extends GameJsonPersister {
 
   import profile.api._
+  import GameJsonPersisterSlickImpl._
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
