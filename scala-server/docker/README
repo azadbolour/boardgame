@@ -51,3 +51,8 @@ the following directory structure within the server docker image:
     run-server.sh
     ...
 
+Play security requires an allowed hosts parameter to be provided when starting 
+up the server. This is a list of host:port combinations which may be used by 
+web clients to access the play server. The run script of the boardgame container
+includes a --allowed-host parameter that just takes one host:port combination 
+and provides it to the server. See the script run-here.sh.

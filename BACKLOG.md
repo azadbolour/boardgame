@@ -18,18 +18,17 @@
 
 - Disable play and show hourglass while an action is happening.
 
-- Add error boundary for React.
-
 - Improve error reporting in the UI from Scala server.
 
 - Some two-letter words in the dictionary don't mean anything to me.
   Clean up two-letter words, and perhaps add in common abbreviations.
 
-  Get list of 2-letter words. Show it in a table for easy access.
-  `egrep '^..$' moby-english.txt`
+  Get list of 2-letter words.  `egrep '^..$' moby-english.txt`
 
-  Possibly provide a way for the user to see which two-letter words are allowed.
+  Provide a way for the user to see which two-letter words are allowed.
   Maybe a button or a hover action.
+
+- Show all cross words found in the UI so user can ascertain their meanings.
 
 - Start game should tell user who is going first.
 
@@ -48,9 +47,9 @@
 - Provide a 'vowels' option: if checked the tray is guaranteed to have at least 
   one vowel.
 
-- Towards the end of the game, based on the values remaining open slots on the board
-  it becomes decidable whether the losing side can possibly catch up. If the 
-  user is on the losing side, an option may be provided to resign.
+- Towards the end of the game, based on the values remaining in open slots on 
+  the board it becomes decidable whether the losing side can possibly catch up. 
+  If the user is on the losing side, an option may be provided to resign.
 
 ## Known Issues
 
@@ -80,14 +79,13 @@
 
   https://github.com/algas/haskell-servant-cookbook/blob/master/doc/Https.md
 
-- Create a preference page where you can set parameters.
-  Save preferences in the database.
-
 - Graceful message when server is down. Currently the user gets no message.
   But the console gets the undecipherable message (bug): "Cannot read property
   kill of undefined."
 
 ## Technical Debt
+
+- Add error boundary for React.
 
 - The game cache should go under the persistence layer.
   An LRU cache would be simplest. The current cache is used as a list
@@ -105,8 +103,8 @@
   pay-as-you-go. 
 
 - Implement the database layer on Amazon DynamoDB and connect from 
-  the Fargate container. Reasonably-priced pereistent store. Store entire 
-  games in a JSON string. Users. Ownership of games by users by date.
+  the Fargate container. Reasonably-priced peristent store. Store entire 
+  games in a JSON string. Users. Ownership of games by users.
   Haskell bindings for Amazon services: amazonka.
 
 - Use docker compose to seamlessly upgrade the application.
@@ -123,9 +121,6 @@
 
   So production code should be compiled with profiling.
   Just understand the memory and performance differences for this application.
-
-- Representation of game in Haskell currently uses a single data structure for 
-  the game as a whole and the game's state. Separate these two concerns.
 
 - Validate all API input arguments. In particular, pointValues is currently 
   not validated in the start game API call.
@@ -160,9 +155,7 @@
   Also consider using async/await.
 
   http://stackoverflow.com/questions/37120240/timeout-in-async-await
-
   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
-
   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await
 
   If we time out on a fetch request, the fetch has to be cancelled. 
@@ -218,7 +211,7 @@
 
 - Add top-level script to build all dependent projects.
 
-- Integrate with TravisCI on github. Free for open source.
+- CICD. Integrate with TravisCI on github. Free for open source.
 
   http://chrispenner.ca/posts/homebrew-haskell
   https://github.com/ChrisPenner/haskell-stack-travis-ci
@@ -244,7 +237,7 @@
   Can still copy the executable and any special libraries to a docker image
   for deployment to ECS.
 
-- Try to use the play docker plugin to generate the docker 
+- Try to use the Play docker plugin to generate the docker 
   image for play. Need to work out how to provide allowed hosts and
   the play secret in a secure manner to the server created by the plugin.
 
