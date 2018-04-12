@@ -9,7 +9,13 @@
 # Root of the distribution.
 #
 PACKAGE_DIR=$1
-test -d "$PACKAGE_DIR" || (echo "no distribution found at: ${PACKAGE_DIR}"; exit 1)
+
+errorout () {
+  echo $1
+  exit 1
+}
+
+test -d "$PACKAGE_DIR" || errorout "no distribution found at: ${PACKAGE_DIR}"
 
 #
 # import BOARDGAME_SERVER
@@ -28,7 +34,7 @@ VERSIONED_SERVER=`ls *.zip | sed -e "s/\.zip$//"`     # Assumes jus one zippped 
 
 # sudo mkdir -p $INSTALL
 mkdir -p $INSTALL
-test -d "$INSTALL" || (echo "unable to create installation directory: ${INSTALL}"; exit 1)
+test -d "$INSTALL" || errorout "unable to create installation directory: ${INSTALL}"
 
 ZIPPED_BUNDLE=$PACKAGE_DIR/${VERSIONED_SERVER}.zip
 

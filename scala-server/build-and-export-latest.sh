@@ -9,7 +9,7 @@
 #
 # import DEFAULT_PACKAGE_DIR
 #
-. defaults.sh
+. ./defaults.sh
 
 #
 # Get the latest source.

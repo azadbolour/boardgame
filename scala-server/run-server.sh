@@ -36,6 +36,11 @@ if [ -z "$PID_FILE" ]; then PID_FILE=${DEFAULT_PID_FILE}; fi
 
 installMessage="make sure server has been deployed"
 
+errorout () {
+  echo $1
+  exit 1
+}
+
 # import PLAY_SECRET
 . ./get-dynamic-params.sh
 
@@ -45,12 +50,12 @@ installMessage="make sure server has been deployed"
 PID_DIR=`dirname ${PID_FILE}`
 mkdir -p ${PID_DIR}
 # chown ${USER} ${PID_DIR}
-test -d "${PID_DIR}" || (echo "pid directory ${PID_DIR} could not be created" ; exit 1)
+test -d "${PID_DIR}" || errorout "pid directory ${PID_DIR} could not be created"
 
 SERVER=${BOARDGAME_SERVER}
 SERVER_ROOT=${DEFAULT_INSTALL_DIR}/${SERVER}
 
-test ! -d ${SERVER_ROOT} || (echo "server root ${SERVER_ROOT} not a directory - $installMessage"; exit 1)
+test -d "${SERVER_ROOT}" || errorout "server root ${SERVER_ROOT} not a directory - $installMessage"
 
 #
 # Customize the runtime environment of the application.
