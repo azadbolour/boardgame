@@ -37,14 +37,14 @@ if [ -z "$PID_FILE" ]; then PID_FILE=${DEFAULT_PID_FILE}; fi
 installMessage="make sure server has been deployed"
 
 # import PLAY_SECRET
-. get-dynamic-params.sh
+. ./get-dynamic-params.sh
 
 #
 # Make the directory of the pid file if necessary.
 #
 PID_DIR=`dirname ${PID_FILE}`
-sudo mkdir -p ${PID_DIR}
-sudo chown ${USER} ${PID_DIR}
+mkdir -p ${PID_DIR}
+# chown ${USER} ${PID_DIR}
 test -d "${PID_DIR}" || (echo "pid directory ${PID_DIR} could not be created" ; exit 1)
 
 SERVER=${BOARDGAME_SERVER}
