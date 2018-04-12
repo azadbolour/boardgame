@@ -26,7 +26,8 @@ INSTALL=$DEFAULT_INSTALL_DIR
 cd $PACKAGE_DIR
 VERSIONED_SERVER=`ls *.zip | sed -e "s/\.zip$//"`     # Assumes jus one zippped package.
 
-sudo mkdir -p $INSTALL
+# sudo mkdir -p $INSTALL
+mkdir -p $INSTALL
 test -d "$INSTALL" || (echo "unable to create installation directory: ${INSTALL}"; exit 1)
 
 ZIPPED_BUNDLE=$PACKAGE_DIR/${VERSIONED_SERVER}.zip
