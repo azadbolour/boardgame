@@ -217,6 +217,9 @@
   https://github.com/ChrisPenner/haskell-stack-travis-ci
   `https://docs.haskellstack.org/en/stable/travis_ci/`
 
+- CICD - Build statically linked haskell server to reduce the size of the 
+  docker container. Build with Nix if possible for a better experience.
+
 - Javascript bundle cache busting. A good blog on how to use webpack plugins 
   to uniquely name javascript bundles by using hashes, and generate the index.html 
   page to use the unique name by using a template for that page.
