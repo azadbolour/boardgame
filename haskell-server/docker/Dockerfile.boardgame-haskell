@@ -52,7 +52,7 @@ RUN cd web-ui \
 RUN cd haskell-server \
   && stack build \
   && ./update-ui-bundle.sh \
-  && cp test-data/sqlite-config.yl test-data/test-config.yml \
+  && cp test-data/sqlite-config.yml test-data/test-config.yml \
   && stack test
 
 #

@@ -1,0 +1,36 @@
+
+#
+# Copy the haskell boardgame distribution to the container and set its entry point to 
+# the haskell boardgame executable.
+#
+# Assumes that the distribution has been created (e.g. by build-deploy.sh) and
+# we are running at the root of the distribution package.
+#
+
+FROM ubuntu:trusty
+
+RUN apt-get update \
+  && apt-get install -y apt-utils wget curl zip unzip
+
+ENV WORKSPACE /home/me/dev/boardgame
+RUN mkdir -p $WORKSPACE && mkdir $WORKSPACE/static && mkdir $WORKSPACE/dict
+WORKDIR $WORKSPACE
+ENV PATH $PATH:.
+
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt trusty-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+RUN apt-get update
+RUN apt-get install -y postgresql-9.6 postgresql-client-9.6 postgresql-contrib-9.6 libpq-dev postgresql-server-dev-9.6 pgadmin3
+
+#
+# Make sure the client-side postgres library needed by Haskell Persistent was installed.
+#
+RUN dpkg -L libpq-dev
+
+
+COPY * $WORKSPACE/
+COPY static/* $WORKSPACE/static/
+COPY dict/* $WORKSPACE/dict/
+
+ENTRYPOINT ["./boardgame-server"]
+
