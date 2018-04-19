@@ -32,6 +32,7 @@ module BoardGame.Server.Service.GameDao (
   , findGameRowIdById
   , findExistingGameRowIdByGameId
   , addPlayer
+  , addPlayerIfNotExists
   , findPlayerRowIdByName
   , findExistingPlayerRowIdByName
   , addPlay
@@ -145,6 +146,17 @@ addPlayer provider player =
 
 addPlayerReader :: PlayerRow -> SqlPersistM EntityId
 addPlayerReader player = fromSqlKey <$> insert player
+
+addPlayerIfNotExists :: (MonadError GameError m, MonadIO m) =>
+     ConnectionProvider
+  -> PlayerRow
+  -> m EntityId
+addPlayerIfNotExists provider playerRow = do
+  let PlayerRow name = playerRow
+  maybePlayerRowId <- findPlayerRowIdByName provider name
+  case maybePlayerRowId of
+    Nothing -> addPlayer provider playerRow
+    Just playerRowId -> return $ fromSqlKey playerRowId
 
 addGame :: (MonadError GameError m, MonadIO m) =>
      ConnectionProvider

@@ -105,8 +105,7 @@ prepareDb = do
   ServerConfig {dbConfig} <- asks GameEnv.serverConfig
   connectionProvider <- asks GameEnv.connectionProvider
   liftIO $ GameDao.migrateDb connectionProvider
-  -- use this when you get in-memory sqlite working
-  -- when (DbConfig.isInMemory dbConfig) $ addPlayerService $ Player unknownPlayerName
+  addPlayerIfNotExistsService $ Player unknownPlayerName
 
 timeoutLongRunningGames :: GameTransformerStack ()
 timeoutLongRunningGames = do
@@ -131,6 +130,16 @@ addPlayerService player = do
     throwError $ InvalidPlayerNameError name
   else do
     GameDao.addPlayer connectionProvider (playerToRow player)
+    return ()
+
+addPlayerIfNotExistsService :: Player.Player -> GameTransformerStack ()
+addPlayerIfNotExistsService player = do
+  connectionProvider <- asks GameEnv.connectionProvider
+  let Player { name } = player
+  if not (isAlphaNumString name) then
+    throwError $ InvalidPlayerNameError name
+  else do
+    GameDao.addPlayerIfNotExists connectionProvider (playerToRow player)
     return ()
 
 -- TODO. Move to GameError.
