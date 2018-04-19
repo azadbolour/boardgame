@@ -1,0 +1,24 @@
+
+- https://ocharles.org.uk/blog/posts/2014-02-04-how-i-develop-with-nixos.html
+
+  Nix is a package manager. NixOS also has configuration management.
+
+- https://nixos.wiki/wiki/Install_NixOS_on_Amazon_EC2
+
+- https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/virtualisation/ec2-amis.nix
+  
+  AWS AMI for NixOS.
+
+- https://nixos.org/~eelco/pubs/nixos-jfp-final.pdf
+  
+  NixOS A Purely Functional Linux Distribution
+
+- https://nixos.org/nixpkgs/manual/#users-guide-to-the-haskell-infrastructure
+
+- Problems with postgresql and worarounds: https://github.com/NixOS/nixpkgs/issues/23454
+
+- Gabriel Garcia talk: https://www.youtube.com/watch?v=NQJVNvxgDqg&feature=youtu.be
+
+- nix-shell --packages ghc
+
+
