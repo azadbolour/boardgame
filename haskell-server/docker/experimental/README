@@ -1,6 +1,8 @@
 
 The Process
 
+- git pull origin master
+
 - rm -rf /opt/data/boardgame/haskell/package/ 
 
   Clean up earlier build output.
@@ -9,11 +11,9 @@ The Process
 
   Build and put the executable and needed files to /opt/data/boardgame/haskell/package/
 
-  TODO. Uncomment the actual build!
-
 - build-boardgame-haskell-server.sh azadbolour 0.9.1 /opt/data/boardgame/haskell/package/
 
-- docker ps -a 
+- docker ps -a | grep boardgame-haskell-server:0.9.1 | awk '{print $1}'
 
 - docker stop ...
 
@@ -59,4 +59,8 @@ Getting the Initial Install to Work
 
   Done. 
 
+- OK. 
 
+- Can bring up in Fargate. But health check failed with 404.
+
+  The log shows that there are GETs which get 404's.

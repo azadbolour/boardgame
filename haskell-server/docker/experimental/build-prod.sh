@@ -10,11 +10,17 @@ if [ -z "${PACKAGE_DIR}" ]; then
   PACKAGE_DIR=/opt/data/boardgame/haskell/package
 fi
 
+if [ -z "${WORKSPACE}" ]; then
+  echo "WORKSPACE is not set; aborting"
+  exit 1
+fi
+
 # git pull origin master
 
-# cd web-ui && npm install && ./build-prod.sh
-# cd haskell-server && stack build
-# cd haskell-server && ./update-ui-bundle.sh
+cd $WORKSPACE/web-ui && npm install && ./build-prod.sh
+cd $WORKSPACE/haskell-server
+stack build
+./update-ui-bundle.sh
 
 PROG=.stack-work/install/x86_64-linux/lts-6.35/7.10.3/bin/boardgame-server
 
