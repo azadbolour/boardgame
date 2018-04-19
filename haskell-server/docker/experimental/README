@@ -1,0 +1,62 @@
+
+The Process
+
+- rm -rf /opt/data/boardgame/haskell/package/ 
+
+  Clean up earlier build output.
+
+- build-prod.sh
+
+  Build and put the executable and needed files to /opt/data/boardgame/haskell/package/
+
+  TODO. Uncomment the actual build!
+
+- build-boardgame-haskell-server.sh azadbolour 0.9.1 /opt/data/boardgame/haskell/package/
+
+- docker ps -a 
+
+- docker stop ...
+
+  Stop the previous container if running.
+
+- docker rm ...
+
+  Remove the previous container.
+
+- rm nohup.out
+
+  Clear out the output file.
+
+- run-docker-server.sh 0.9.1
+
+- tail -f nohup.out
+
+
+Getting the Initial Install to Work
+
+- Running the docker container errors out:
+
+    ./boardgame-server: error while loading shared libraries: libgmp.so.10: 
+    cannot open shared object file: No such file or directory
+
+- Try installing libgmp10.
+
+- That worked. 
+
+- Now we have:
+
+    unable to initialize the application environment for server config ServerConfig 
+    {deployEnv = Dev, serverPort = 6587, maxActiveGames = 100, maxGameMinutes = 30, dictionaryDir = "", languageCodes = ["en"], 
+    dbConfig = DbConfig {dbmsType = Postgres, dbHost = "localhost", dbPort = 5432, dbName = "postgres", dbUser = "postgres", dbPassword = "postgres"}}
+
+- Should be using sqlite.
+
+- Had to explicitly create the database directory.
+
+-  MissingPlayerError {playerName = "You"}
+
+- PrepareDb needs to check if You does not exist and add it in.
+
+  Done. 
+
+
