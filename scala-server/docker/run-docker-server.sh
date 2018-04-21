@@ -11,16 +11,6 @@
 # These variables are used to provide information about the production 
 # deployment environment to the Play application. 
 #
-# The production config file is created on the host machine and must be 
-# mapped into the docker file system. We use the convention that external server
-# data for the application is rooted on the host system at the well-known folder:
-#
-#       /opt/data/boardgame
-#
-# And that this folder is mapped to a folder of the same absolute name in the 
-# container file system. The mapping is done by using the -v option of the
-# docker run command.
-#
 
 # TODO. Try to redirect output of the container to a mounted volume in the container.
 # Then can use docker run -d to create a detatched conatiner.
@@ -76,6 +66,4 @@ REPOSITORY=boardgame-scala-server
 nohup docker run -p ${HTTP_PORT}:${HTTP_PORT} --restart on-failure:5 --name boardgame-scala-server \
     --workdir="" \
     -e HTTP_PORT="${HTTP_PORT}" -e ALLOWED_HOST="${ALLOWED_HOST}" -e PID_FILE="${PID_FILE}" \
-    -v ${BOARDGAME_DATA}:${BOARDGAME_DATA} \
-    -v ${PID_DIR}:${PID_DIR} \
     ${NAMESPACE}/${REPOSITORY}:${TAG} &
