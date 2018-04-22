@@ -139,10 +139,10 @@ gameTransformerStackHandler env stack = exceptTAdapter $ TransformerStack.runDef
 --
 
 serverType :: String
-serverType = "Haskell/Servant"
+serverType = "Haskell"
 
 apiVersion :: String
-apiVersion = "not implemented"
+apiVersion = "1.0"
 
 handShakeResponse :: HandShakeResponse
 handShakeResponse = HandShakeResponse serverType apiVersion

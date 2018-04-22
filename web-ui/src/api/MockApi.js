@@ -45,8 +45,8 @@ class MockApi {
 
   handShake() {
     let json = {
-      serverType: "mock",
-      apiVersion: "none"
+      serverType: "Mock",
+      apiVersion: "1.0"
     };
     return promise(json);
   }

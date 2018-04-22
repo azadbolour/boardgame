@@ -154,8 +154,11 @@ if (gameParams.appParams.envType === 'prod')
 
 const rootEl = document.getElementById('root');
 
+const UNKNOWN_SERVER_TYPE = "unknown";
+let serverType = UNKNOWN_SERVER_TYPE;
+
 const renderGame = function(game, status, auxGameData, changeStage) {
-  let gameSpec = <GameComponent game={game} status={status} auxGameData={auxGameData}/>;
+  let gameSpec = <GameComponent game={game} status={status} auxGameData={auxGameData} serverType={serverType}/>;
   ReactDOM.render(
     gameSpec,
     rootEl
@@ -174,9 +177,32 @@ gameEventHandler.registerChangeObserver(gameChangeObserver);
 
 console.log(`game params: ${JSON.stringify(gameParams)}`);
 
-let status = initialState.error ? initialState.status : "OK";
-let emptyGame = mkEmptyGame(gameParams);
-renderGame(emptyGame, status, emptyAuxGameData());
+const doHandShake = function(service, handler) {
+  service.handShake().then(response => {
+    if (response.ok) {
+      serverType = response.json.serverType;
+      handler("OK");
+    }
+    else {
+      serverType = UNKNOWN_SERVER_TYPE;
+      handler(JSON.stringify(response.json));
+    }
+  }).catch(reason => {
+      serverType = UNKNOWN_SERVER_TYPE;
+      handler(reason);
+    }
+  )
+};
+
+const renderEmptyGame = function(status) {
+  let emptyGame = mkEmptyGame(gameParams);
+  renderGame(emptyGame, status, emptyAuxGameData());
+};
+
+if (initialState.error)
+  renderEmptyGame(initialState.status);
+else
+  doHandShake(gameService, renderEmptyGame);
 
 
 

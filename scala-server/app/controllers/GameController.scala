@@ -33,8 +33,8 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
   /** Shorthand for validation errors type defined in JsError. */
   type ValidationErrors = Seq[(JsPath, Seq[JsonValidationError])]
 
-  val serverType = "Scala/Play"
-  val apiVersion = "not implemented"
+  val serverType = "Scala"
+  val apiVersion = "1.0"
   val handShakeResponse = HandShakeResponse(serverType, apiVersion)
 
   def handShake = Action {

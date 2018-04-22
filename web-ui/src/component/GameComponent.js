@@ -79,6 +79,18 @@ const messageStyle = function(visible) {
   }
 };
 
+const lightMessageStyle = function(visible) {
+  let display = visible ? 'inline' : 'none';
+  return {
+    color: 'Maroon',
+    align: 'left',
+    fontFamily: 'Arial',
+    fontSize: 15,
+    letterSpacing: '0.5px',
+    display: display
+  }
+};
+
 const tooltipStyle = function(visible) {
   let visibility = visible ? 'visible' : 'hidden';
   let display = visible ? 'inline' : 'none';
@@ -149,7 +161,8 @@ class GameComponent extends React.Component {
      */
     game: PropTypes.object.isRequired,
     status: PropTypes.string,
-    auxGameData: PropTypes.object.isRequired
+    auxGameData: PropTypes.object.isRequired,
+    serverType: PropTypes.string.isRequired
   };
 
 
@@ -270,6 +283,7 @@ class GameComponent extends React.Component {
     let pointsInUserPlay = board.getUserMovePlayPieces().map(pp => pp.point);
     let isLegalMove = game.legalMove.bind(game);
     let status = this.props.status;
+    let serverType = this.props.serverType;
     let userName = game.gameParams.appParams.userName;
     let userScore = game.score[Game.USER_INDEX];
     let machineScore = game.score[Game.MACHINE_INDEX];
@@ -277,6 +291,7 @@ class GameComponent extends React.Component {
     let isError = (status !== "OK" && status !== "game over"); // TODO. This is a hack! Better indication of error and severity.
     let pointValues = game.pointValues;
     let machineMovePoints = game.machineMoves.map(gridPiece => gridPiece.point);
+    let productInfo = `Powered by ${serverType} server, React client.`;
 
     /*
      * Note. Do not use &nbsp; for spaces in JSX. It sometimes
@@ -310,7 +325,10 @@ class GameComponent extends React.Component {
     />;
 
     return (
-      <div style={{display: 'flex', flexDirection: 'column'}}>
+      <div style={{display: 'flex', flexDirection: 'column', display: 'inline-block'}}>
+
+        <div style={{border: '1px solid GoldenRod', padding: '10px', display: 'inline-block'}}>
+
         <div style={{display: 'flex', flexDirection: 'row'}}>
           <div style={navbarStyle}>
             {startButton} <pre></pre>
@@ -346,8 +364,15 @@ class GameComponent extends React.Component {
         <div style={{padding: '10px'}}>
           <label style={fieldStyle}>{status}</label>
         </div>
+
         <div style={{padding: '10px'}}>
-          <label style={messageStyle(displayDeviceMessage)}>{deviceMessage}</label>
+          <label style={lightMessageStyle(displayDeviceMessage)}>{deviceMessage}</label>
+        </div>
+
+        </div>
+
+        <div style={{padding: '10px'}}>
+          <label style={lightMessageStyle(true)}>Copyright 2017-2018 Azad Bolour. {productInfo}</label>
         </div>
       </div>
     )
