@@ -33,12 +33,14 @@ import Bolour.Plane.Domain.GridValue (GridValue)
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.Player (Player)
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest)
+import BoardGame.Common.Message.HandShakeResponse (HandShakeResponse)
 import BoardGame.Common.Message.StartGameResponse (StartGameResponse)
 import BoardGame.Common.Message.SwapPieceResponse (SwapPieceResponse)
 import BoardGame.Common.Message.CommitPlayResponse
 import BoardGame.Common.Message.MachinePlayResponse
 import BoardGame.Common.Domain.GameSummary (GameSummary)
 
+handShake :: Manager -> BaseUrl -> ClientM HandShakeResponse
 addPlayer :: Player -> Manager -> BaseUrl -> ClientM ()
 startGame :: StartGameRequest -> Manager -> BaseUrl -> ClientM StartGameResponse
 commitPlay :: String -> [PlayPiece] -> Manager -> BaseUrl -> ClientM CommitPlayResponse
@@ -46,7 +48,8 @@ machinePlay :: String -> Manager -> BaseUrl -> ClientM MachinePlayResponse
 swapPiece :: String -> Piece -> Manager -> BaseUrl -> ClientM SwapPieceResponse
 closeGame :: String -> Manager -> BaseUrl -> ClientM GameSummary
 
-addPlayer
+handShake
+  :<|> addPlayer
   :<|> startGame
   :<|> commitPlay
   :<|> machinePlay

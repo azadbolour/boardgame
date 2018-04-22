@@ -19,6 +19,12 @@ class ClientApi {
     this.password = password;
   }
 
+  handShake() {
+    let request = restManager.mkGetRequest();
+    let promise = restManager.send(request, this.gameServerUrl, '/game/hand-shake');
+    return promise;
+  }
+
   startGame(gameParams, initGridPieces, initUserTray, initMachineTray, pointValues) {
     // let body = JSON.stringify([gameParams, initGridPieces, initUserTray, initMachineTray]);
     let startGameRequest = StartGameRequestConverter.toJson(gameParams, initGridPieces, initUserTray, initMachineTray, pointValues);

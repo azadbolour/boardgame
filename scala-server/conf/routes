@@ -6,6 +6,7 @@ GET     /boardgame                  controllers.IndexController.index
 # TODO. Fix depecated versioned.
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
+GET     /game/hand-shake            controllers.GameController.handShake
 POST    /game/player                controllers.GameController.addPlayer
 POST    /game/game                  controllers.GameController.startGame
 POST    /game/commit-play/:gameId   controllers.GameController.commitPlay(gameId: String)

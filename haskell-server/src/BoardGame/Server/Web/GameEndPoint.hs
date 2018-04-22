@@ -64,6 +64,7 @@ import BoardGame.Common.Domain.Player (Player)
 import BoardGame.Common.Domain.GameSummary (GameSummary)
 import BoardGame.Common.Domain.GameParams (GameParams(..))
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
+import BoardGame.Common.Message.HandShakeResponse (HandShakeResponse, HandShakeResponse(HandShakeResponse))
 import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse, tupleToCommitPlayResponse)
 import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse, tupleToMachinePlayResponse)
 import BoardGame.Common.Message.SwapPieceResponse (SwapPieceResponse, tupleToSwapPieceResponse)
@@ -85,7 +86,8 @@ mkGameApp env = return $ Servant.serve gameApi' $ mkServer' env
 -- | The application server factory for the game api - based on the game environment.
 mkServer :: GameEnv -> Servant.Server GameApi
 mkServer env =
-       addPlayerHandler env
+       handShakeHandler env
+  :<|> addPlayerHandler env
   :<|> startGameHandler env
   :<|> commitPlayHandler env
   :<|> machinePlayHandler env
@@ -135,6 +137,20 @@ gameTransformerStackHandler env stack = exceptTAdapter $ TransformerStack.runDef
 --
 -- Servant handlers for api functions.
 --
+
+serverType :: String
+serverType = "Haskell/Servant"
+
+apiVersion :: String
+apiVersion = "not implemented"
+
+handShakeResponse :: HandShakeResponse
+handShakeResponse = HandShakeResponse serverType apiVersion
+
+-- | API handler for initial handshake.
+handShakeHandler :: GameEnv -> ExceptServant HandShakeResponse
+handShakeHandler env =
+  gameTransformerStackHandler env $ return handShakeResponse
 
 -- | API handler to register a new player.
 addPlayerHandler :: GameEnv -> Player -> ExceptServant ()

@@ -26,6 +26,7 @@ import Servant
 import Bolour.Plane.Domain.GridValue (GridValue)
 import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
+import BoardGame.Common.Message.HandShakeResponse (HandShakeResponse)
 import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse)
 import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse)
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest)
@@ -37,7 +38,8 @@ import BoardGame.Common.Domain.Piece (Piece)
 
 -- | The api interface for the game as a type. All paths have a "game" prefix.
 type GameApi =
-       "game" :> "player" :> ReqBody '[JSON] Player :> Post '[JSON] ()
+       "game" :> "hand-shake" :> Get '[JSON] HandShakeResponse
+  :<|> "game" :> "player" :> ReqBody '[JSON] Player :> Post '[JSON] ()
   :<|> "game" :> "game" :> ReqBody '[JSON] StartGameRequest :> Post '[JSON] StartGameResponse
   :<|> "game" :> "commit-play" :> Capture "gameId" String :> ReqBody '[JSON] [PlayPiece] :> Post '[JSON] CommitPlayResponse
   :<|> "game" :> "machine-play" :> Capture "gameId" String :> Post '[JSON] MachinePlayResponse

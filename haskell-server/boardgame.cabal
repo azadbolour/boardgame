@@ -80,6 +80,7 @@ library
       BoardGame.Common.Domain.GridPiece
       BoardGame.Common.Domain.PieceProviderType
       BoardGame.Common.Domain.GameParams
+      BoardGame.Common.Message.HandShakeResponse
       BoardGame.Common.Message.StartGameRequest
       BoardGame.Common.Message.StartGameResponse
       BoardGame.Common.Message.CommitPlayResponse

@@ -43,6 +43,14 @@ class MockApi {
 
   // Begin API.
 
+  handShake() {
+    let json = {
+      serverType: "mock",
+      apiVersion: "none"
+    };
+    return promise(json);
+  }
+
   startGame(gameParams, initGridPieces, initUserTray, initMachineTray, pointValues) {
     this.nextGameId += 1;
     let gameId = this.nextGameId;

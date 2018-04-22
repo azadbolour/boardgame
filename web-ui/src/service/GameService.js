@@ -32,6 +32,10 @@ class GameService {
     this.api = apiSelector(gameParams);
   }
 
+  handShake() {
+    return this.api.handShake();
+  }
+
   // TODO. The initialization arguments should be converted to dtos.
   start(initGridPieces, initUserTray, initMachineTray, pointValues) {
     let promise = this.api.startGame(this.paramsDto, initGridPieces, initUserTray, initMachineTray, pointValues.rows());
