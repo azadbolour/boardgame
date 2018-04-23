@@ -74,6 +74,10 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
       return _gameId === EMPTY_GAME_ID;
     },
 
+    isFilled: function() {
+      return _board.isFull();
+    },
+
     running: function() {
       return _runState === RUN_STATE.RUNNING;
     },

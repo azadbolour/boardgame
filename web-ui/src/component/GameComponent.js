@@ -308,7 +308,8 @@ class GameComponent extends React.Component {
     let userScore = game.score[Game.USER_INDEX];
     let machineScore = game.score[Game.MACHINE_INDEX];
     let isTrayPiece = game.tray.isTrayPiece.bind(game.tray);
-    let isError = (status !== "OK" && status !== "game over"); // TODO. This is a hack! Better indication of error and severity.
+    // let isError = (status !== "OK" && status !== "game over"); // TODO. This is a hack! Better indication of error and severity.
+    // TODO. Fatal error should end the session. Indicate fatal errors.
     let pointValues = game.pointValues;
     let machineMovePoints = game.machineMoves.map(gridPiece => gridPiece.point);
     let productInfo = `Powered by ${serverType} server, React client.`;
@@ -323,7 +324,7 @@ class GameComponent extends React.Component {
      * Use <pre> </pre> for spaces instead.
     */
 
-    let startButton = this.renderButton(this.startAttrs, !running && !isError);
+    let startButton = this.renderButton(this.startAttrs, !running);
     let commitButton = this.renderButton(this.commitAttrs, running && hasUncommittedPieces);
     let revertButton = this.renderButton(this.revertAttrs, running && hasUncommittedPieces);
 

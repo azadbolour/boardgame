@@ -19,18 +19,18 @@ export const incompleteWordError = {
   message: "moves do not result in a single word"
 };
 
-export const offCenterError = {
-  name: "off-center first play",
-  message: "first word of game does not cover the center square"
-};
+// export const offCenterError = {
+//   name: "off-center first play",
+//   message: "first word of game does not cover the center square"
+// };
 
 export const disconnectedWordError = {
   name: "disconnected word",
-  message: "played word is not connected to existing tiles"
+  message: "played word does not include an existing tile"
 };
 
-export const noAdjacentWordError = {
-  name: "no adjacent word",
-  message: "no unique adjacent word for word composed entirely of new tiles"
-};
+// export const noAdjacentWordError = {
+//   name: "no adjacent word",
+//   message: "no unique adjacent word for word composed entirely of new tiles"
+// };
 

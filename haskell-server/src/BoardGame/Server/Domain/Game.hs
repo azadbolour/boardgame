@@ -197,7 +197,6 @@ validatePlayAgainstGame game playPieces =
       checkContiguousPlay playPieces
   >>= checkPlayLineInBounds game
   >>= checkMoveDestinationsEmpty game
-  >>= checkMoveDestinationsFreeCrossWise game
   >>= checkMoveTrayPieces game
   >>= checkPlayPositionsOccupied game
   >>= checkPlayBoardPieces game
@@ -229,8 +228,8 @@ checkMoveDestinationsEmpty Game {board} playPieces =
      Just taken -> throwError $ OccupiedMoveDestinationError taken
 
 -- TODO. Check cross words. Rename.
-checkMoveDestinationsFreeCrossWise :: MonadError GameError m => Game -> [PlayPiece] -> m [PlayPiece]
-checkMoveDestinationsFreeCrossWise game = return
+-- checkMoveDestinationsFreeCrossWise :: MonadError GameError m => Game -> [PlayPiece] -> m [PlayPiece]
+-- checkMoveDestinationsFreeCrossWise game = return
 
 -- TODO. Implement validation.
 checkMoveTrayPieces :: MonadError GameError m => Game -> [PlayPiece] -> m [PlayPiece]
