@@ -32,7 +32,8 @@ let settableParameters = {
   'tray-capacity': 'int',
   'square-pixels': 'int',
   'starting-player': 'string',
-  'preferred-input-device': 'string'
+  'preferred-input-device': 'string',
+  'starting-player': 'string'
 };
 
 const initialState = (function() {
@@ -122,12 +123,13 @@ for (let name in settableParameters) {
 
 // No starting player? Randomly choose one.
 
-let startingPlayer = params.getParam('starting-player');
-if (startingPlayer === undefined) {
-  let playerType = GameParams.PlayerType;
-  startingPlayer = Math.random() < 0.5 ? playerType.userPlayer : playerType.machinePlayer;
-  gameParams.startingPlayer = startingPlayer;
-}
+// let startingPlayer = params.getParam('starting-player');
+
+// if (startingPlayer === undefined) {
+//   let playerType = GameParams.PlayerType;
+//   startingPlayer = Math.random() < 0.5 ? playerType.userPlayer : playerType.machinePlayer;
+//   gameParams.startingPlayer = startingPlayer;
+// }
 
 // TODO. Add language-code to the query parameters and GameParams - default is en.
 // TODO. If not specified get the user's preferred language like this:

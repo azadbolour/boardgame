@@ -7,17 +7,7 @@
 
 import {stringify} from "../util/Logger";
 
-// export const miscUtil = {
-//   sleep: function(millis) {
-//     function nowMillis() {
-//       let now = new Date();
-//       return now.getTime();
-//     };
-//     let toMillis = nowMillis() + millis;
-//     while (nowMillis() < toMillis);
-//   }
-//
-// };
+export const coinToss = (x, y) => Math.random() < 0.5 ? x : y;
 
 export const checkArray = function(array, message) {
   if (!Array.isArray(array))

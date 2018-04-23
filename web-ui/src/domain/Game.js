@@ -70,6 +70,10 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
     get machineMoves() { return _machineMoves.slice(); },
     get runState() {return _runState; },
 
+    isEmpty: function() {
+      return _gameId === EMPTY_GAME_ID;
+    },
+
     running: function() {
       return _runState === RUN_STATE.RUNNING;
     },

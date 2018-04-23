@@ -11,6 +11,7 @@
 const validUrl = require('valid-url');
 import AppParams from '../util/AppParams';
 import {stringify} from "../util/Logger";
+import {coinToss} from "../util/MiscUtil";
 
 // TODO. Need to export API types.
 // TODO. env type, api type, user, password need to go to Util package -
@@ -24,7 +25,7 @@ function getEnv(varName, defaultValue) {
 }
 
 class GameParams {
-  constructor(appParams, dimension, squarePixels, trayCapacity, apiType, gameServerUrl, pieceProviderType, startingPlayer = GameParams.PlayerType.userPlayer) {
+  constructor(appParams, dimension, squarePixels, trayCapacity, apiType, gameServerUrl, pieceProviderType, startingPlayer) {
     this.appParams = appParams;
     this.dimension = dimension;
     this.squarePixels = squarePixels;
@@ -33,6 +34,11 @@ class GameParams {
     this.gameServerUrl = gameServerUrl;
     this.pieceProviderType = pieceProviderType;
     this.startingPlayer = startingPlayer; // PlayerType
+  }
+
+  static randomStartingPlayer() {
+    const {userPlayer, machinePlayer} = GameParams.PlayerType;
+    return coinToss(userPlayer, machinePlayer);
   }
 
   static PieceGeneratorType = {
@@ -141,6 +147,8 @@ class GameParams {
     return GameParams.validated;
   }
 
+  static UNDEFINED_STARTING_PLAYER = undefined;
+
   static defaultParams() {
     let get = getEnv;
     return new GameParams(
@@ -150,7 +158,8 @@ class GameParams {
       GameParams.DEFAULT_TRAY_SIZE,
       get(GameParams.ENV_API_TYPE, GameParams.DEFAULT_API_TYPE),
       get(GameParams.ENV_GAME_SERVER_URL, GameParams.DEFAULT_GAME_SERVER_URL),
-      GameParams.DEFAULT_PIECE_GENERATOR_TYPE
+      GameParams.DEFAULT_PIECE_GENERATOR_TYPE,
+      GameParams.UNDEFINED_STARTING_PLAYER
     );
   };
 

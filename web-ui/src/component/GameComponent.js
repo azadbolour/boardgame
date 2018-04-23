@@ -21,8 +21,8 @@ import actions from '../event/GameActions';
 import {stringify} from "../util/Logger";
 import * as Style from "../util/StyleUtil";
 import * as BrowserUtil from "../util/BrowserUtil";
-import {queryParams} from '../util/UrlUtil';
 import AppParams from '../util/AppParams';
+import GameParams from '../domain/GameParams';
 
 
 function buttonStyle(enabled) {
@@ -49,7 +49,7 @@ const paddingStyle = {
 const labelStyle = {
   color: 'Brown',
   align: 'left',
-  fontSize: 15,
+  fontSize: 18,
   fontFamily: 'Arial',
   fontWeight: 'bold',
   margin: 'auto',
@@ -58,26 +58,29 @@ const labelStyle = {
 
 const fieldStyle = {
   color: 'Red',
-  backgroundColor: 'Khaki',
+  backgroundColor: 'LightYellow',
   align: 'left',
-  fontSize: 15,
+  fontSize: 18,
   fontWeight: 'bold',
-  margin: 'auto'
+  letterSpacing: '1px',
+  margin: 'auto',
+  padding: '1px'
   // padding: '2px'
 };
 
-const messageStyle = function(visible) {
-  let display = visible ? 'inline' : 'none';
-  return {
-    color: 'Red',
-    backgroundColor: 'Khaki',
-    align: 'left',
-    fontSize: 20,
-    margin: 'auto',
-    display: display
-    // padding: '2px'
-  }
-};
+// const messageStyle = function(visible) {
+//   let display = visible ? 'inline' : 'none';
+//   return {
+//     color: 'Red',
+//     backgroundColor: 'Khaki',
+//     align: 'left',
+//     fontSize: 20,
+//     letterSpacing: '0.5px',
+//     margin: 'auto',
+//     display: display
+//     // padding: '2px'
+//   }
+// };
 
 const lightMessageStyle = function(visible) {
   let display = visible ? 'inline' : 'none';
@@ -190,9 +193,26 @@ class GameComponent extends React.Component {
     actions.revertPlay();
   }
 
+  /**
+   * Eventually game params should be provided in the user interface
+   * for starting a new game. For now, it remains the same
+   * except for the starting player.
+   */
+  getNewGameParams(game) {
+    let gameParams = game.gameParams;
+    // Special-case the very first game for testing.
+    if (game.isEmpty() && gameParams.startingPlayer !== undefined)
+      return gameParams;
+    // Otherwise choose a random starting player.
+    let newParams = Object.assign(Object.create(gameParams), gameParams);
+    newParams.startingPlayer = GameParams.randomStartingPlayer();
+    return newParams;
+  }
+
   startGame() {
     displayDeviceMessage = false;
-    actions.start(this.props.game.gameParams);
+    let newGameParams = this.getNewGameParams(this.props.game);
+    actions.start(newGameParams);
   }
 
   renderWord(index, key) {
@@ -371,8 +391,11 @@ class GameComponent extends React.Component {
 
         </div>
 
-        <div style={{padding: '10px'}}>
-          <label style={lightMessageStyle(true)}>Copyright 2017-2018 Azad Bolour. {productInfo}</label>
+        <div style={{paddingTop: '10px'}}>
+          <label style={lightMessageStyle(true)}>Copyright 2017-2018 Azad Bolour.</label>
+        </div>
+        <div style={{paddingTop: '2px'}}>
+          <label style={lightMessageStyle(true)}>{productInfo}</label>
         </div>
       </div>
     )

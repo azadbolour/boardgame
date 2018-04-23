@@ -52,6 +52,9 @@ export const mkGameEventHandler = function(gameService) {
   let _changeObservers = [];
 
   const OK = "OK";
+  const USER_START_STATUS = "your play ...";
+  const MACHINE_START_STATUS = "bot's play - thinking ...";
+
   const unrecoverableErrorMessage = "we are sorry - the system encountered an unrecoverable error - and had to stop the game - ";
 
   const registerChangeObserver = function(observer) {
@@ -119,6 +122,8 @@ export const mkGameEventHandler = function(gameService) {
 
   const logNoGame = () => console.log('warning: game event handler called with no game in effect');
 
+  const machineStarts = (gameParams) => gameParams.startingPlayer === GameParams.PlayerType.machinePlayer;
+
   let handler = {
     get game() { return _game; },
 
@@ -128,7 +133,7 @@ export const mkGameEventHandler = function(gameService) {
       handler.handleStartInternal(gameParams).then(response => {
         if (!response.ok)
           return response;
-        if (gameParams.startingPlayer === GameParams.PlayerType.machinePlayer)
+        if (machineStarts(gameParams))
           return handler.handleMachinePlayInternal();
       }).catch(reason => {
         killGame(reason);
@@ -144,7 +149,7 @@ export const mkGameEventHandler = function(gameService) {
       let processedPromise = promise.then(response => {
         if (response.ok) {
           _game = response.json;
-          _status = OK;
+          _status = machineStarts(gameParams) ? MACHINE_START_STATUS : USER_START_STATUS;
           _auxGameData = emptyAuxGameData();
         }
         else {
