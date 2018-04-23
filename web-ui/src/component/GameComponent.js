@@ -56,31 +56,29 @@ const labelStyle = {
   padding: '2px'
 };
 
-const fieldStyle = {
+const statusStyle = {
   color: 'Red',
   backgroundColor: 'LightYellow',
   align: 'left',
-  fontSize: 18,
+  fontSize: 16,
+  fontWeight: 'bold',
+  letterSpacing: '1px',
+  margin: '10px',
+  padding: '5px',
+  minWidth: '500px',
+  maxWidth: '500px'
+};
+
+const scoreStyle = {
+  color: 'Red',
+  backgroundColor: 'LightYellow',
+  align: 'left',
+  fontSize: 16,
   fontWeight: 'bold',
   letterSpacing: '1px',
   margin: 'auto',
   padding: '1px'
-  // padding: '2px'
 };
-
-// const messageStyle = function(visible) {
-//   let display = visible ? 'inline' : 'none';
-//   return {
-//     color: 'Red',
-//     backgroundColor: 'Khaki',
-//     align: 'left',
-//     fontSize: 20,
-//     letterSpacing: '0.5px',
-//     margin: 'auto',
-//     display: display
-//     // padding: '2px'
-//   }
-// };
 
 const lightMessageStyle = function(visible) {
   let display = visible ? 'inline' : 'none';
@@ -286,7 +284,7 @@ class GameComponent extends React.Component {
     return (
       <div>
         <label style={labelStyle}>{player}: </label>
-        <label style={fieldStyle}>{score}</label>
+        <label style={scoreStyle}>{score}</label>
       </div>
 
     );
@@ -382,8 +380,8 @@ class GameComponent extends React.Component {
             </div>
           </div>
         </div>
-        <div style={{padding: '10px'}}>
-          <label style={fieldStyle}>{status}</label>
+        <div style={statusStyle}>
+          {status}
         </div>
 
         <div style={{padding: '10px'}}>
