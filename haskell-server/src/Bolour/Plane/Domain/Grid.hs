@@ -16,6 +16,8 @@ Definition of the game grid and its dependencies.
 module Bolour.Plane.Domain.Grid (
     Grid(..)
   , mkGrid
+  , flatten
+  , Bolour.Plane.Domain.Grid.all
   , get
   , cell
   , set
@@ -31,6 +33,7 @@ module Bolour.Plane.Domain.Grid (
 ) where
 
 import Data.List (foldl', transpose)
+import qualified Data.List as List
 import Data.Maybe (fromJust)
 
 import qualified Bolour.Util.MiscUtil as Util
@@ -69,6 +72,12 @@ mkRow cellMaker width = cellMaker <$> [0 .. width - 1]
 -- mkPointedGrid cellMaker =
 --   let pointedCellMaker row col = GridValue (cellMaker row col) (Point row col)
 --   in mkGrid pointedCellMaker
+
+flatten :: Grid val -> [val]
+flatten Grid {rows} = concat rows
+
+all :: (val -> Bool) -> Grid val -> Bool
+all f grid = List.all f $ flatten grid
 
 -- | Get a cell on the grid - None is out of bounds.
 get :: Grid val -> Point -> Maybe val

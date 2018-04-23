@@ -17,7 +17,7 @@ module BoardGame.Server.Domain.Board (
   , next, prev, adjacent
   , get, getPiece, getGridPieces
   , setN, setBlackPoints, setPiecePoints
-  , isEmpty, inBounds
+  , isEmpty, isFilled, inBounds
   , stripOfPlay, stripOfBoard
   , pointIsEmpty, pointIsNonEmpty
   , pointHasValue, pointHasRealNeighbor
@@ -99,6 +99,9 @@ rows Board {grid} = Gr.rows grid
 
 cols :: Board -> [[BlackWhitePoint Piece]]
 cols Board {grid} = Gr.cols grid
+
+isFilled :: Board -> Bool
+isFilled Board {grid} = Gr.isFilled grid
 
 boardLine :: Board -> Axis -> Int -> [BlackWhitePoint Piece]
 boardLine board Axis.X lineNumber = rows board !! lineNumber

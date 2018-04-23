@@ -36,6 +36,8 @@ case class Grid[T](cells: List[List[T]]) {
     // Grid(height, width, filteredCells)
   }
 
+  def forall(predicate: T => Boolean): Boolean = flatten.forall(predicate)
+
   def setN(pointedValues: List[(T, Point)]): Grid[T] = {
     def newValue(point: Point): Option[T] = pointedValues.find(pv => pv._2 == point).map(_._1)
     def cellMaker(r: Int)(c: Int): T =

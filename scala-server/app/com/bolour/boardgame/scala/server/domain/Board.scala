@@ -23,6 +23,8 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
     */
   def isEmpty: Boolean = grid.isEmpty
 
+  def isFilled: Boolean = grid.isFilled
+
   /**
     * If there is a piece at the given point return it in Some, otherwise
     * return None.

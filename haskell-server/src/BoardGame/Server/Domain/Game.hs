@@ -38,14 +38,13 @@ import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Common.Domain.GameParams as GameParams -- allows both qualified and unqualified names
 import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.Piece (Piece)
-import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.Player (PlayerType(..))
 import qualified BoardGame.Common.Domain.Player as PlayerType
 import qualified BoardGame.Common.Domain.Player as Player
 import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import qualified Bolour.Plane.Domain.GridValue as GridValue
-import BoardGame.Common.Domain.PlayPiece (PlayPiece(PlayPiece))
+import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameMiniState (GameMiniState, GameMiniState(GameMiniState))
 import BoardGame.Common.Domain.GameSummary (GameSummary, GameSummary(GameSummary))
@@ -58,7 +57,6 @@ import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.GameError
 import BoardGame.Server.Domain.PieceProvider
 import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
-import BoardGame.Server.Domain.Scorer (Scorer)
 import qualified BoardGame.Server.Domain.Scorer as Scorer
 
 -- TODO. Separate out Game from GameState. See Scala version.
@@ -98,7 +96,8 @@ setBoard :: Game -> Board -> Game
 setBoard game b = game {board = b}
 
 stopInfo :: Game -> StopInfo
-stopInfo game @ Game { numSuccessivePasses } = StopInfo numSuccessivePasses
+stopInfo game @ Game { board, numSuccessivePasses } =
+  StopInfo numSuccessivePasses (Board.isFilled board)
 
 initTray :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> [Piece] -> m Game
 initTray (game @ Game { trays }) playerType initPieces = do
@@ -166,9 +165,9 @@ mkInitialGame gameParams pieceProvider initGridPieces initUserPieces initMachine
   initTray game' Player.MachinePlayer initMachinePieces
 
 toMiniState :: Game -> GameMiniState
-toMiniState game @ Game {pieceProvider, lastPlayScore, scores} =
+toMiniState game @ Game {board, pieceProvider, lastPlayScore, scores} =
   let
-      gameEnded = passesMaxedOut game
+      gameEnded = passesMaxedOut game || Board.isFilled board
   in GameMiniState lastPlayScore scores gameEnded
 
 gameAgeSeconds :: UTCTime -> Game -> Int

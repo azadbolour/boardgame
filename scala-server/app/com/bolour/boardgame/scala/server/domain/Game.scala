@@ -34,9 +34,9 @@ case class Game(
   def passesMaxedOut: Boolean = numSuccessivePasses == MaxSuccessivePasses
 
   def miniState: GameMiniState =
-    GameMiniState(lastPlayScore, scores, passesMaxedOut)
+    GameMiniState(lastPlayScore, scores, passesMaxedOut || board.isFilled)
 
-  def stopInfo: StopInfo = StopInfo(numSuccessivePasses)
+  def stopInfo: StopInfo = StopInfo(numSuccessivePasses, board.isFilled)
 
   // TODO. May fail. So return a Try for consistency.
   // For now nothing to do.

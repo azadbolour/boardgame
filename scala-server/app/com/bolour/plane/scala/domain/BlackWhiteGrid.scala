@@ -89,7 +89,9 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
 
   def getValues: List[(T, Point)] = fromJustWhites(grid.flatten)
 
-  def isEmpty: Boolean = grid.flatten.forall { _.value.isEmpty }
+  def isEmpty: Boolean = grid.forall { _.value.isEmpty }
+
+  def isFilled: Boolean = grid.forall {!_.value.isEmpty}
 
   private def adjHasValue(point: Point, axis: Axis, direction: Int): Boolean = {
     val opt = for {

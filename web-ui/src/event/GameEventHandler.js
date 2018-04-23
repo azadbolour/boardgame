@@ -327,9 +327,9 @@ export const mkGameEventHandler = function(gameService) {
     },
 
     gameSummaryStatus: function(stopInfo) {
-      let {successivePasses} = stopInfo;
+      let {successivePasses, filledBoard} = stopInfo;
       let status = "game over - ";
-      status += `${successivePasses} successive passes - maxed out`;
+      status += filledBoard ? `full board` : `${successivePasses} successive passes - maxed out`;
       return status;
     },
 

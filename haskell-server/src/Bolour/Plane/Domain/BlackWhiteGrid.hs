@@ -21,7 +21,7 @@ module Bolour.Plane.Domain.BlackWhiteGrid (
   , get, getValues, set, setN
   , next, prev, adjacent
   , isBlack, isWhite, isEmpty, hasValue
-  , inBounds
+  , isFilled, inBounds
   , farthestNeighbor, lineNeighbors
   , segmentsInLine, segmentsAlongAxis, allSegments
   )
@@ -77,6 +77,9 @@ rows grid = Grid.rows $ innerGrid grid
 
 cols :: BlackWhiteGrid val -> [[BlackWhitePoint val]]
 cols grid = Grid.cols $ innerGrid grid
+
+isFilled :: BlackWhiteGrid val -> Bool
+isFilled BlackWhiteGrid {innerGrid} = Grid.all (not . Empty.isEmpty) innerGrid
 
 -- | Get the cell value of a point - if the point is out of bounds get Black.
 get :: BlackWhiteGrid val -> Point -> BlackWhite val
