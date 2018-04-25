@@ -6,7 +6,7 @@
 package com.bolour.boardgame.scala.common.domain
 
 /**
-  * The state of the game needed by clients.
+  * The minimal generic state of the game needed by clients.
   *
   * @param lastPlayScore The score of the last play.
   * @param scores The total scores so far.

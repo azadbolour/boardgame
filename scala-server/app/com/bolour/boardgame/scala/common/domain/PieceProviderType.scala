@@ -10,10 +10,23 @@ object PieceProviderType {
   val RandomAsString = "Random"
   val CyclicAsString = "Cyclic"
 
+  /**
+    * Type of factory used to generate new pieces for use
+    * in the game.
+    */
   sealed abstract class PieceProviderType
+
+  /**
+    * Factory type to generate random pieces. The default.
+    */
   object Random extends PieceProviderType {
     override def toString = RandomAsString
   }
+
+  /**
+    * Factory type to generate pieces by cycling through the alphabet.
+    * Used for deterministic testing.
+    */
   object Cyclic extends PieceProviderType {
     override def toString = CyclicAsString
   }
@@ -27,7 +40,3 @@ object PieceProviderType {
   }
 }
 
-//object PieceProviderType extends Enumeration {
-//  type PieceProviderType = Value
-//  val Random, Cyclic = Value
-//}

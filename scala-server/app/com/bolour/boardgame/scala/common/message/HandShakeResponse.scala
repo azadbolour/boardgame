@@ -5,7 +5,13 @@
  */
 package com.bolour.boardgame.scala.common.message
 
+/**
+  * API response for the initial handshake.
+  *
+  * @param serverType - Scala, ...
+  * @param apiVersion
+  */
 case class HandShakeResponse(
   serverType: String,
-  apiVersion: String // Not used yet.
+  apiVersion: String
 )

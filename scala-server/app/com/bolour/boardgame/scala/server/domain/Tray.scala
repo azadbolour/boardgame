@@ -26,8 +26,6 @@ case class Tray(capacity: Int, pieces: Vector[Piece]) {
 
   def isFull: Boolean = pieces.length == capacity
 
-  def sumLetterWorths: Int = (pieces map { _.worth }).sum
-
   def addPiece(piece: Piece): Try[Tray] = {
     val found = pieces.find( _ == piece)
     if (found.nonEmpty)

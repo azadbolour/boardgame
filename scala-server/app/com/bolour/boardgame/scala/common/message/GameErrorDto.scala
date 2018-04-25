@@ -5,6 +5,10 @@
  */
 package com.bolour.boardgame.scala.common.message
 
+/**
+  * Data transfer objects for errors. Disentangle API errors from internal
+  * implementation errors.
+  */
 sealed abstract class GameErrorDto
 
 case class MissingPieceErrorDto(tag: String, message: String, pieceId: String) extends GameErrorDto

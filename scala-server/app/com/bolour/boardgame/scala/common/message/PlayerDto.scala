@@ -5,4 +5,7 @@
  */
 package com.bolour.boardgame.scala.common.message
 
+/**
+  * Data transfer object for a user.
+  */
 case class PlayerDto(name: String)

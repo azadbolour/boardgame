@@ -5,19 +5,21 @@
  */
 package com.bolour.boardgame.scala.common.domain
 
-import com.bolour.util.scala.common.{Black, BlackWhite, White}
-
-case class Piece(value: Char, id: String) {
-  import Piece._
-
-  def worth: Int = worths(value)
-}
+/**
+  * A piece (tile) used in the game.
+  *
+  * @param value An upper-case alphabetic character.
+  * @param id The unique identifier of the piece within a game.
+  */
+case class Piece(value: Char, id: String)
 
 object Piece {
   type Pieces = List[Piece]
 
-  /** normalize the letter frequencies to obtain a given rough total
-    * return the normalized frequencies and the actual total */
+  /**
+    * Normalize the letter frequencies to obtain a given rough total
+    * return the normalized frequencies and the actual total.
+    */
   def normalizedFrequencies(roughTotal: Int): (Map[Char, Int], Int) = {
     val factor: Float = roughTotal.toFloat / maxDistribution.toFloat
     def normalizer(frequency: Int) = Math.round(frequency * factor).max(1)
@@ -56,40 +58,11 @@ object Piece {
     ('Z', 1)
   )
 
-  val worths = Map(
-    'A' -> 1,
-    'B' -> 1,
-    'C' -> 1,
-    'D' -> 1,
-    'E' -> 1,
-    'F' -> 1,
-    'G' -> 1,
-    'H' -> 1,
-    'I' -> 1,
-    'J' -> 1,
-    'K' -> 1,
-    'L' -> 1,
-    'M' -> 1,
-    'N' -> 1,
-    'O' -> 1,
-    'P' -> 1,
-    'Q' -> 1,
-    'R' -> 1,
-    'S' -> 1,
-    'T' -> 1,
-    'U' -> 1,
-    'V' -> 1,
-    'W' -> 1,
-    'X' -> 1,
-    'Y' -> 1,
-    'Z' -> 1
-  )
-
-  // TODO. Add blanks. Frequency 2.
-
   val frequencyMap = Map(frequencies:_*)
 
-  /** cumulative distribution function of letters */
+  /**
+    * Cumulative distribution function of letters.
+    */
   val distribution = frequencies.tail.scanLeft(frequencies.head) (
     (cumulative, element) => (cumulative, element) match {
       case ((letter, cumWeight), (nextLetter, weight)) =>
