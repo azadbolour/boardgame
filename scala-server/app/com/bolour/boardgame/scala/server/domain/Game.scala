@@ -260,20 +260,15 @@ object Game {
 
   def MaxSuccessivePasses = 10
 
-  def mkGame(gameBase: GameBase, gridPieces: List[PiecePoint],
+  def mkGame(gameBase: GameBase, pieceProvider: PieceProvider, gridPieces: List[PiecePoint],
     initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[Game] = {
 
     val board = Board(gameBase.dimension, gridPieces)
 
-    val pieceGenerator = gameBase.pieceProviderType match {
-      case PieceProviderType.Random => RandomPieceProvider(Piece.randomLetter _)
-      case PieceProviderType.Cyclic => CyclicPieceProvider()
-    }
-
     val lastPlayScore = 0
 
     for {
-      (userTray, pieceGen1) <- mkTray(gameBase.trayCapacity, initUserPieces, pieceGenerator)
+      (userTray, pieceGen1) <- mkTray(gameBase.trayCapacity, initUserPieces, pieceProvider)
       (machineTray, pieceGen2) <- mkTray(gameBase.trayCapacity, initMachinePieces, pieceGen1)
     }
       yield Game(gameBase, board, List(userTray, machineTray), pieceGen2, 0, UserPlayer, lastPlayScore, 0, List(0, 0), Vector.empty)

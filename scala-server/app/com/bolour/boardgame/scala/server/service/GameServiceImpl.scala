@@ -10,20 +10,21 @@ import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
+import com.bolour.boardgame.scala.common.domain.PieceProviderType.PieceProviderType
+
 import scala.collection.mutable.{Map => MutableMap}
 import com.typesafe.config.Config
-
-import com.bolour.util.scala.server.BasicServerUtil.{stringId}
+import com.bolour.util.scala.server.BasicServerUtil.stringId
 import com.bolour.util.scala.common.CommonUtil.ID
 import com.bolour.util.scala.server.BasicServerUtil.readConfigStringList
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType._
-import com.bolour.boardgame.scala.common.domain.Piece.Pieces
 import com.bolour.boardgame.scala.common.domain.PlayPieceObj.PlayPieces
 import com.bolour.boardgame.scala.server.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
 import com.bolour.language.scala.domain.WordDictionary
 import com.bolour.plane.scala.domain.Point
+import com.bolour.util.scala.common.FrequencyDistribution
 import org.slf4j.LoggerFactory
 
 import scala.collection.immutable.Nil
@@ -127,10 +128,12 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     if (gameCache.size >= maxActiveGames)
       return Failure(SystemOverloadedException())
 
+    val pieceProvider: PieceProvider = mkPieceProvider(gameParams.pieceProviderType)
+
     for {
       player <- getPlayerByName(gameParams.playerName)
       gameBase = GameBase(gameParams, pointValues, player.id, gridPieces, initUserPieces, initMachinePieces)
-      game <- Game.mkGame(gameBase, gridPieces, initUserPieces, initMachinePieces)
+      game <- Game.mkGame(gameBase, pieceProvider, gridPieces, initUserPieces, initMachinePieces)
       _ <- persister.saveGame(game)
       _ = gameCache.put(gameBase.id, game)
     } yield game
@@ -179,7 +182,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   }
 
   // TODO. Persist play.
-  private def savePlay(gameState: Game, playPieces: PlayPieces, replacements: Pieces): Try[Unit] = {
+  private def savePlay(gameState: Game, playPieces: PlayPieces, replacements: List[Piece]): Try[Unit] = {
     Success(())
   }
 
@@ -223,7 +226,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
   private def swapMachinePiece(game: Game): Try[Game] = {
     val tray = game.tray(MachinePlayer)
-    val letter = Piece.leastFrequentLetter(tray.letters).get
+    val letter = letterDistribution.leastFrequentValue(tray.letters.toList).get
     val swappedPiece = tray.findPieceByLetter(letter).get
     for {
       (newState, newPiece) <- game.addSwapPlay(swappedPiece, MachinePlayer)
@@ -301,6 +304,45 @@ object GameServiceImpl {
 
   def cacheGameState(gameId: String, gameState: Game): Try[Unit] = Try {
     gameCache.put(gameId, gameState)
+  }
+
+  val letterFrequencies = List(
+    ('A', 81),
+    ('B', 15),
+    ('C', 28),
+    ('D', 42),
+    ('E', 127),
+    ('F', 22),
+    ('G', 20),
+    ('H', 61),
+    ('I', 70),
+    ('J', 2),
+    ('K', 8),
+    ('L', 40),
+    ('M', 24),
+    ('N', 67),
+    ('O', 80),
+    ('P', 19),
+    ('Q', 1),
+    ('R', 60),
+    ('S', 63),
+    ('T', 91),
+    ('U', 28),
+    ('V', 10),
+    ('W', 23),
+    ('X', 2),
+    ('Y', 20),
+    ('Z', 1)
+  )
+
+  val letterDistribution = FrequencyDistribution(letterFrequencies)
+
+  def mkPieceProvider(pieceProviderType: PieceProviderType): PieceProvider = {
+    pieceProviderType match {
+      case PieceProviderType.Random => RandomPieceProvider(letterDistribution.randomValue _)
+      case PieceProviderType.Cyclic => CyclicPieceProvider()
+    }
+
   }
 
 }

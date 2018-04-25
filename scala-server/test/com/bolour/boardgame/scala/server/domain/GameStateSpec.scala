@@ -21,8 +21,10 @@ import scala.util.{Failure, Success}
 class GameStateSpec extends FlatSpec with Matchers {
 
   val logger = LoggerFactory.getLogger(this.getClass)
-  val genType = PieceProviderType.Random
+  val genType = PieceProviderType.Cyclic
   val name = "John"
+
+  val pieceProvider: PieceProvider = CyclicPieceProvider()
 
   def mkPlayPieces(startingPoint: Point, axis: Axis, length: Int, pieces: Vector[Piece]): List[PlayPiece] = {
     val row = startingPoint.row
@@ -42,10 +44,11 @@ class GameStateSpec extends FlatSpec with Matchers {
     val dimension = 15
     val trayCapacity = 15
     val gameParams = GameParams(dimension, trayCapacity, "en", name, genType)
+
     val pointValues = List.fill(dimension, dimension)(1)
     val gameBase = GameBase(gameParams, pointValues, "123")
     val result = for {
-      game <- Game.mkGame(gameBase, List(), List(), List())
+      game <- Game.mkGame(gameBase, pieceProvider, List(), List(), List())
       _ <- game.sanityCheck
     } yield ()
 
@@ -128,7 +131,7 @@ class GameStateSpec extends FlatSpec with Matchers {
     )
 
     val result = for {
-      game <- Game.mkGame(gameBase, List(), List(), List())
+      game <- Game.mkGame(gameBase, pieceProvider, List(), List(), List())
 
       (game1, _, _) <- game.addWordPlay(MachinePlayer, machinePlay1)
       machineScore1 = game1.miniState.lastPlayScore
