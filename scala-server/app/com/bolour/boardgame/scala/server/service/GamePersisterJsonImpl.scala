@@ -8,6 +8,14 @@ import com.bolour.util.scala.common.VersionStamped
 
 import scala.util.{Failure, Success}
 
+/**
+  * Implementation of the hig-level game persister interface using a JSON persister.
+  * Converts objects to their JSON representations and calls lower-level JSON
+  * persister to persist them.
+  *
+  * @param jsonPersister The specific lower-level JSON persister to use.
+  * @param version The server version - in case JSON representations change over time.
+  */
 class GamePersisterJsonImpl(jsonPersister: GameJsonPersister, version: Int) extends GamePersister {
 
   override def migrate() = jsonPersister.migrate()

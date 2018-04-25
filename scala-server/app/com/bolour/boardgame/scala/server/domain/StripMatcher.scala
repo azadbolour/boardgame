@@ -23,7 +23,7 @@ import com.bolour.boardgame.scala.server.util.WordUtil.{DictWord, LetterCombo, N
   * A match is the tuple (word, strip) where the word exists in the
   * dictionary and can legally be played onto the strip: that is,
   * the blanks of the strip can be filled by letters in the tray,
-  * and all crosswords formed by the playing the word exist in
+  * and all crosswords formed by playing the word exist in
   * the dictionary.
   *
   * The algorithm first groups the strips of the board by the "value"
@@ -67,7 +67,9 @@ trait StripMatcher {
   protected[this] val maxStripValue = if (allValues.isEmpty) 0 else allValues.max
   protected[this] val crossWordFinder = new CrossWordFinder(board)
 
-  /** Main entry point - find the best match if any (empty list means none found). */
+  /**
+    * Main entry point - find the best match if any (empty list means none found).
+    */
   def bestMatch(): List[PlayPiece] = {
     bestMatchUpToValue(maxStripValue) match {
       case None => Nil

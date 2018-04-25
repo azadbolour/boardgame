@@ -17,6 +17,9 @@ import com.bolour.util.scala.server.SlickUtil.{configuredDbAndProfile, tableName
 
 import scala.util.Try
 
+/**
+  * Implementation of JSON persister using Slick.
+  */
 class GameJsonPersisterSlickImpl(val profile: JdbcProfile, db: Database) extends GameJsonPersister {
 
   import profile.api._

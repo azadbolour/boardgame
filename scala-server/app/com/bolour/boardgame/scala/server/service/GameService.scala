@@ -13,6 +13,9 @@ import com.bolour.plane.scala.domain.Point
 
 import scala.util.Try
 
+/**
+  * Trait representing the service layer of the application.
+  */
 trait GameService {
 
   // TODO. Add parameter validation is common to all implementations.

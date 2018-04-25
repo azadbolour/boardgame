@@ -9,6 +9,9 @@ import com.bolour.util.scala.common.CommonUtil.ID
 
 import scala.util.Try
 
+/**
+  * Persister of games and players using JSON representations.
+  */
 trait GameJsonPersister {
 
   def migrate(): Try[Unit]

@@ -12,23 +12,34 @@ import com.bolour.boardgame.scala.server.util.WordUtil._
 import com.bolour.plane.scala.domain.{Axis, Point}
 import com.bolour.util.scala.common.BlackWhite
 
+/**
+  * A strip of the board - a horizontal or vertical line segment.
+  *
+  * @param axis X or Y for horizontal or vertical.
+  * @param lineNumber The index of the line on the board - for example 0 for the first row.
+  * @param begin The offset within the given line where the strip begins.
+  * @param end The offset within the given line where the strip ends (inclusive).
+  * @param content The content of the strip - sequence of letters and blanks.
+  */
 case class Strip(
-  axis: Axis,               // direction
-  lineNumber: Int,          // index (row, col) of enclosing line
-  begin: Int,               // start index of strip
-  end: Int,                 // end index (inclusive) of strip
-  content: String          // sequence of letters and blanks
+  axis: Axis,
+  lineNumber: Int,
+  begin: Int,
+  end: Int,
+  content: String
 ) {
 
-  import Strip._
+  /**
+    * Combination of letters on strip (sorted - with dups).
+    */
+  val letters: LetterCombo = stringToLetterCombo(content.filter(_ != blankChar))
 
-  /** combination of letters on strip (sorted - with dups) */
-  val letters: LetterCombo = nonBlankLetterCombo(content)
-  /** number of blank slots on strip */
+  /**
+    * Number of blank slots on strip.
+    */
   val numBlanks: Int = content.length - letters.length
-  val len = end - begin + 1
 
-  def nonBlankLetterCombo(s: String): String = stringToLetterCombo(s.filter(_ != blankChar ))
+  val len: Int = end - begin + 1
 
   /**
     * Word can potentially be played to this strip.
@@ -62,7 +73,6 @@ case class Strip(
 
   def point(offset: Int) = Point(row(offset), column(offset))
 
-
   def offset(point: Point): Int = {
     val indexInLine = axis match {
       case Axis.X => point.col
@@ -73,25 +83,23 @@ case class Strip(
 
   def fillBlankInStrip(point: Point, ch: Char): String = content.updated(offset(point), ch)
 
-  import Strip._
-
   // TODO. Use fold.
-  /** it has already been established that the rest of the word has the same length
-    * as the rest of the strip content - so just compare their corresponding letters */
+  /**
+    * It has already been established that the rest of the word has the same length
+    * as the rest of the strip content - so just compare their corresponding letters
+    */
   private def fits(restContent: String, restWord: String): Boolean =
     if (restWord.isEmpty) true
-    else fitsSlot(restContent.head, restWord.head) &&
+    else Strip.fitsSlot(restContent.head, restWord.head) &&
            fits(restContent.tail, restWord.tail)
 
   def blankPoints: List[Point] = {
     val blankOffsets = content.indices.toList.filter(offset => WordUtil.isBlankChar(content(offset)))
     blankOffsets map point
   }
-
 }
 
 object Strip {
-  type GroupedStrips = Map[Length, Map[NumBlanks, List[Strip]]]
 
   def lineStrip(axis: Axis, lineNumber: Int, line: String, begin: Int, end: Int): Strip = {
     val content = line.slice(begin, end + 1)
@@ -121,7 +129,5 @@ object Strip {
 
   def blackWhiteToChar(blackWhiteChar: BlackWhite[Char]): Char =
     blackWhiteChar.toValueWithDefaults(blackChar, blankChar)
-
-
 }
 

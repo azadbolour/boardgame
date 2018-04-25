@@ -14,9 +14,14 @@ import org.slf4j.LoggerFactory
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
+/**
+  * Periodically harvests long-running games considering them as abandoned.
+  *
+  * @param actorSystem Needed for scheduling harvesting actor.
+  * @param service The game service.
+  * @param executionContext Context in which to run the harvester.
+  */
 class GameHarvester @Inject() (actorSystem: ActorSystem, service: GameService)(implicit executionContext: ExecutionContext) {
-
-  val logger = LoggerFactory.getLogger(this.getClass)
 
   actorSystem.scheduler.schedule(initialDelay = 10.minutes, interval = 10.minutes) {
     service.timeoutLongRunningGames()

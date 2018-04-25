@@ -8,8 +8,8 @@ package com.bolour.boardgame.scala.server.domain
 import com.bolour.util.scala.common.CommonUtil.{ID}
 import com.bolour.util.scala.server.BasicServerUtil.{stringId}
 
+/**
+  * Player.
+  */
 case class Player(id: ID, name: String)
 
-//object Player {
-//  def mkPlayer(name: String): Player = Player(stringId, name)
-//}

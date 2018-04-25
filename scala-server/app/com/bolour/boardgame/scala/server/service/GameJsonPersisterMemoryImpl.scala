@@ -5,6 +5,10 @@ import com.bolour.util.scala.common.CommonUtil.ID
 
 import scala.collection.mutable
 
+/**
+  * In-memory persister for the game application using JSON representations
+  * objects to be persisted.
+  */
 class GameJsonPersisterMemoryImpl extends GameJsonPersister {
 
   var playersByName: mutable.Map[String, String] = mutable.Map[String, String]()

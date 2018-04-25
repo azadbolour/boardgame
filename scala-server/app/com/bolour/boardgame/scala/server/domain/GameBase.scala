@@ -13,6 +13,22 @@ import com.bolour.util.scala.server.BasicServerUtil.stringId
 import com.bolour.boardgame.scala.common.domain.{GameParams, Piece, PiecePoint}
 import com.bolour.boardgame.scala.server.util.WordUtil.english
 
+/**
+  * Properties of a game that are conceptually immutable once set.
+  *
+  * @param id Unique identifier.
+  * @param dimension Of te board.
+  * @param trayCapacity Number of pieces in a tray.
+  * @param languageCode Locale of game's language (determines dictionary to use).
+  * @param pieceProviderType Type of generator of new pieces for play.
+  * @param pointValues Values attached to each board square for scoring.
+  * @param playerId Unique id of player.
+  * @param startTime Time game began.
+  * @param endTime Time game ended.
+  * @param gridPieces Initial pieces on the grid (used for testing).
+  * @param initUserPieces Initial pieces to use for user player.
+  * @param initMachinePieces Initial pieces to use for machine player.
+  */
 case class GameBase(
   id: ID,
   dimension: Int,
@@ -24,8 +40,8 @@ case class GameBase(
   startTime: Instant,
   endTime: Option[Instant],
   gridPieces: List[PiecePoint],
-  initMachinePieces: List[Piece],
-  initUserPieces: List[Piece]
+  initUserPieces: List[Piece],
+  initMachinePieces: List[Piece]
 ) {
   def scorer = Scorer(dimension, trayCapacity, pointValues)
 
@@ -38,7 +54,7 @@ case class GameBase(
 object GameBase {
 
   def apply(
-    p: GameParams,
+    params: GameParams,
     pointValues: List[List[Int]],
     playerId: ID,
     gridPieces: List[PiecePoint] = Nil,
@@ -46,11 +62,11 @@ object GameBase {
     initMachinePieces: List[Piece] = Nil,
   ): GameBase = {
     val now = Instant.now()
-    val lang = p.languageCode
+    val lang = params.languageCode
     val languageCode = if (!lang.isEmpty) lang else english
-    val genType = p.pieceProviderType
-    GameBase(stringId, p.dimension, p.trayCapacity, languageCode, genType, pointValues, playerId,
-      now, None, gridPieces, initUserPieces, initMachinePieces)
+    val genType = params.pieceProviderType
+    GameBase(stringId(), params.dimension, params.trayCapacity, languageCode, genType,
+      pointValues, playerId, now, None, gridPieces, initUserPieces, initMachinePieces)
   }
 
 }

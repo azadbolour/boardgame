@@ -30,6 +30,11 @@ import scala.collection.immutable.Nil
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
+/**
+  * Implementation of the service layer.
+  *
+  * @param config The configuration of the game service.
+  */
 class GameServiceImpl @Inject() (config: Config) extends GameService {
 
   import GameService._
@@ -297,17 +302,5 @@ object GameServiceImpl {
   def cacheGameState(gameId: String, gameState: Game): Try[Unit] = Try {
     gameCache.put(gameId, gameState)
   }
-
-//  private def updateDeadPoints(dictionary: WordDictionary)(board: Board): (Board, List[Point]) = {
-//    val directDeadPoints = StripMatcher.findBlackPoints(board, dictionary).toList
-//    val newBoard = board.setBlackPoints(directDeadPoints)
-//    directDeadPoints match {
-//      case Nil => (newBoard, directDeadPoints)
-//      case _ =>
-//        val (b, moreDeadPoints) = updateDeadPoints(dictionary)(newBoard)
-//        val allDeadPoints = directDeadPoints ++ moreDeadPoints
-//        (b, allDeadPoints)
-//    }
-//  }
 
 }

@@ -10,6 +10,9 @@ import com.bolour.util.scala.common.CommonUtil.ID
 
 import scala.util.Try
 
+/**
+  * High-level persister interface for game application objects.
+  */
 trait GamePersister {
 
   def migrate(): Try[Unit]

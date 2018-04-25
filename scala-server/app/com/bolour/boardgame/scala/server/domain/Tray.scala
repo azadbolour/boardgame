@@ -10,19 +10,24 @@ import com.bolour.boardgame.scala.server.domain.GameExceptions._
 
 import scala.util.{Failure, Success, Try}
 
-// TODO. State whether tray should always be full to capacity.
-
-
+/**
+  * Tray including the pieces available for play to a given player.
+  * In our game, a tray is always full to its capacity (except in test situations).
+  *
+  * @param capacity The number of slots in the tray.
+  * @param pieces The pieces in the tray.
+  */
 case class Tray(capacity: Int, pieces: Vector[Piece]) {
 
-  /** Assume for now that caller is using correct parameters. */
+  /**
+    * Replace a set of tray pieces.
+    * TODO. Validate the parameters.
+    */
   def replacePieces(removals: List[Piece], additions: List[Piece]): Tray = {
     val remainingPieces = pieces diff removals
     val updatedPieces = remainingPieces ++ additions
     Tray(capacity, updatedPieces)
   }
-
-  def isEmpty: Boolean = pieces.isEmpty
 
   def isFull: Boolean = pieces.length == capacity
 
