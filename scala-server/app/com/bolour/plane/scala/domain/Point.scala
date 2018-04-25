@@ -7,6 +7,9 @@ package com.bolour.plane.scala.domain
 
 import com.bolour.plane.scala.domain.Axis.Axis
 
+/**
+  * A point on the plane.
+  */
 case class Point(row: Int, col: Int) {
   def colinearPoint(axis: Axis, direction: Int)(steps: Int): Point = {
     val offset = direction * steps

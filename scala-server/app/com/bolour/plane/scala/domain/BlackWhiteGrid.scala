@@ -13,7 +13,7 @@ import com.bolour.util.scala.common.{Black, BlackWhite, White}
 /**
   * A grid that has black slots meaning disabled/inactive, and white slots
   * that may either contain a value of be empty.
-  * A dead slot cannot be used at all. An empty slot may be filled at a later time.
+  * A black slot cannot be used at all. An empty slot may be filled at a later time.
   *
   * The slots are represented by a BlackWhite data structure having a Black case,
   * and a White case containing an Option that represents the value (or lack of a value).
@@ -173,8 +173,6 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
     } yield LineSegment(axis, lineNumber, begin, end, segment)
     segments
   }
-
-
 }
 
 object BlackWhiteGrid {

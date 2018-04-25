@@ -12,6 +12,9 @@ import com.bolour.plane.scala.domain._
 import com.bolour.util.scala.common.CommonUtil.inverseMultiValuedMapping
 import com.bolour.util.scala.common.{Black, BlackWhite, White}
 
+/**
+  * The game board.
+  */
 case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
 
   import Board._

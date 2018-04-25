@@ -11,6 +11,7 @@ import com.bolour.plane.scala.domain.Axis.{Axis, X, Y}
 /**
   * An active line segment of a grid - a line segment does not contain
   * inactive (black) points.
+  *
   * @param axis The direction of the line segment (X, Y).
   * @param lineNumber The index of the enclosing grid line (row for X, col for Y).
   * @param begin The starting position of the segment in its line.

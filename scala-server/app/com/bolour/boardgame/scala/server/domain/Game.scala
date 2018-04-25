@@ -14,6 +14,20 @@ import org.slf4j.LoggerFactory
 
 import scala.util.{Success, Try}
 
+/**
+  * The game.
+  *
+  * @param gameBase Data about the game that is conceptually immutable.
+  * @param board The game's board.
+  * @param trays The user and machine trays of pieces.
+  * @param pieceProvider The factory for generating new pieces.
+  * @param playNumber The ordinal number of the current play.
+  * @param playTurn Whose play is it? User or machine.
+  * @param lastPlayScore Score of the last play.
+  * @param numSuccessivePasses Number of successive passes (if maxed out game ends).
+  * @param scores The total scores of each player.
+  * @param plays List of plays in the game so far.
+  */
 case class Game(
   gameBase: GameBase,
   board: Board,
@@ -141,7 +155,6 @@ case class Game(
 
     for {
       _ <- checkPlayLineInBounds(playPieces)
-      // _ <- checkFirstPlayCentered(playPieces)
       _ <- checkPlayAnchored(playPieces)
       _ <- checkContiguousPlay(playPieces)
       _ <- checkMoveDestinationsEmpty(playPieces)

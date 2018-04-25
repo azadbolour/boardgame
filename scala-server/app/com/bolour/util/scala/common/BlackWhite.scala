@@ -6,6 +6,11 @@
 
 package com.bolour.util.scala.common
 
+/**
+  * Abstraction for representing a value that may be disabled/inactive (black),
+  * or enabled/active (white) but may be empty. Makes a clear distinction
+  * between inactive and empty. Empty may be filled. Inactive may not.
+  */
 sealed abstract class BlackWhite[T] {
   def isWhite: Boolean
   def isBlack: Boolean
@@ -16,6 +21,9 @@ sealed abstract class BlackWhite[T] {
   def toValueWithDefaults(blackDefault: Char, whiteDefault: Char): Char
 }
 
+/**
+  * An inactive/disabled object, e.g. a black square in a crossword puzzle.
+  */
 case class Black[T]() extends BlackWhite[T] {
   override def isWhite = false
   override def isBlack = true
@@ -26,6 +34,10 @@ case class Black[T]() extends BlackWhite[T] {
   def toValueWithDefaults(blackDefault: Char, whiteDefault: Char) = blackDefault
 }
 
+/**
+  * An enabled/active object that may nevertheless not have any value,
+  * e.g., a white square in a crossword puzzle.
+  */
 case class White[T](value: Option[T]) extends BlackWhite[T] {
   override def isWhite = true
   override def isBlack = false
