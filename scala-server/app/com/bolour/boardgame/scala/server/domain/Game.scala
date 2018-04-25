@@ -62,8 +62,21 @@ case class Game(
 
   def end(): Game = this.copy(gameBase = gameBase.end)
 
-  def transitions: GameTransitions = GameTransitions(gameBase,plays)
+  def transitions: GameTransitions = GameTransitions(gameBase, plays)
 
+  /**
+    * Add the next play to the game, updating the board and returning
+    * pieces to replace those used in the play.
+    *
+    * @param playerType User or machine.
+    * @param playPieces Ordered list of pieces used in the play and their locations.
+    *                   Includes all pieces that form the played word, and for each
+    *                   an indication of whether they were moved in this play.
+    * @param deadPointFinder Function to look for dead points after this play -
+    *                        points that cannot possibly  be filled.
+    * @return The updated game, a list of replacement pieces,
+    *         and a list of dead points detected after the play is made.
+    */
   def addWordPlay(playerType: PlayerType, playPieces: List[PlayPiece],
     deadPointFinder: Board => (Board, List[Point]) = Game.noDeads): Try[(Game, List[Piece], List[Point])] = {
     for {
@@ -89,13 +102,16 @@ case class Game(
     scorer.scorePlay(playPieces)
   }
 
+  /**
+    * Add a validated play to the game and return replacements for the played pieces.
+    */
   private def addGoodWordPlay(playerType: PlayerType, gridPieces: List[PiecePoint], score: Int): Try[(Game, List[Piece])] = {
     val newBoard = board.setPiecePoints(gridPieces)
     val usedPieces = gridPieces map { _.value }
     val succPasses = if (score > 0) 0 else numSuccessivePasses + 1
     val ind = playerIndex(playerType)
     for {
-      (nextProvider, newPieces) <- pieceProvider.takeAvailableTiles(usedPieces.length)
+      (nextProvider, newPieces) <- pieceProvider.takePieces(usedPieces.length)
       newTrays = trays.updated(ind, trays(ind).replacePieces(usedPieces, newPieces))
       newScores = scores.updated(ind, scores(ind) + score)
       nextType = nextPlayerType(playerType)
@@ -105,14 +121,6 @@ case class Game(
 
   def addSwapPlay(piece: Piece, playerType: PlayerType): Try[(Game, Piece)] = {
     val succPasses = numSuccessivePasses + 1
-    // Cannot swap if no more pieces in the piece provider, so for now just return the same piece.
-    // This is our way of doing a pass for now.
-    // TODO. Obsolete. Remove.
-    if (pieceProvider.isEmpty) {
-      val newState = this.copy(numSuccessivePasses = succPasses, lastPlayScore = 0)
-      return Success((newState, piece))
-    }
-
     val trayIndex = PlayerType.playerIndex(playerType)
     val tray = trays(trayIndex)
     for {
@@ -258,7 +266,7 @@ object Game {
     val board = Board(gameBase.dimension, gridPieces)
 
     val pieceGenerator = gameBase.pieceProviderType match {
-      case PieceProviderType.Random => RandomPieceProvider()
+      case PieceProviderType.Random => RandomPieceProvider(Piece.randomLetter _)
       case PieceProviderType.Cyclic => CyclicPieceProvider()
     }
 
@@ -276,7 +284,7 @@ object Game {
       return Success((Tray(capacity, initPieces.take(capacity).toVector), pieceGen))
 
     for {
-      (nextGen, restPieces) <- pieceGen.takeAvailableTiles(capacity - initPieces.length)
+      (nextGen, restPieces) <- pieceGen.takePieces(capacity - initPieces.length)
       pieces = initPieces ++ restPieces
     } yield (Tray(capacity, pieces.toVector), nextGen)
   }
