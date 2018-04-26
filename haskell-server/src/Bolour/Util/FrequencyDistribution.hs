@@ -8,7 +8,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Bolour.Util.FrequencyDistribution (
-    FrequencyDistribution
+    FrequencyDistribution(..)
   , mkFrequencyDistribution
   , mkDistribution
   , randomValue

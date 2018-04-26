@@ -162,6 +162,7 @@ test-suite spec
       Bolour.Language.Domain.WordDictionarySpec
       Bolour.Plane.Domain.BlackWhiteGridSpec
       Bolour.Util.DataFileSpec
+      Bolour.Util.FrequencyDistributionSpec
       Bolour.Util.SpecUtil
       BoardGame.Util.TestUtil
       BoardGame.Integration.GameClientSpec
@@ -206,6 +207,7 @@ test-suite infocus
     , bytestring
     , time
   other-modules:
+      BoardGame.Server.Domain.StripMatcherSpec3
       Bolour.Language.Domain.WordDictionarySpec
       Bolour.Util.SpecUtil
       BoardGame.Util.TestUtil
