@@ -49,7 +49,7 @@ case class Board(dimension: Int, grid: BlackWhiteGrid[Piece]) {
   /**
     * Get the board pieces and their locations as grid pieces.
     */
-  def gridPieces: List[PiecePoint] = {
+  def piecePoints: List[PiecePoint] = {
     val piecesAndPoints = grid.getValues
     piecesAndPoints map { case (piece, point) => PiecePoint(piece, point)}
   }
@@ -275,10 +275,10 @@ object Board {
   /**
     * Create a board with the given pieces at the given positions in the grid pieces.
     */
-  def apply(dimension: Int, gridPieces: List[PiecePoint]): Board = {
-    def maybeGridPiece(r: Int, c: Int) = gridPieces.find(_.point == Point(r, c))
+  def apply(dimension: Int, piecePoints: List[PiecePoint]): Board = {
+    def maybePiecePoint(r: Int, c: Int) = piecePoints.find(_.point == Point(r, c))
     def cellMaker(row: Int)(col: Int): BlackWhite[Piece] = {
-      maybeGridPiece(row, col) match {
+      maybePiecePoint(row, col) match {
         case Some(PiecePoint(piece, point)) => White(Some(piece))
         case None => White(None)
       }

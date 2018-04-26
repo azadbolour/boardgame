@@ -32,9 +32,9 @@ class StripMatcherSpec extends FlatSpec with Matchers { self =>
   val tray = Tray(7, pieces)
   val center: Int = dimension/2
 
-  val gridPieces = List(PiecePoint(Piece('A', "idA"), Point(center, center)))
+  val piecePoints = List(PiecePoint(Piece('A', "idA"), Point(center, center)))
 
-  val board = emptyBoard.setPiecePoints(gridPieces)
+  val board = emptyBoard.setPiecePoints(piecePoints)
 
   val emptyStripMatcher = new StripMatcher {
     override def tray = self.tray

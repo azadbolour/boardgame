@@ -81,9 +81,9 @@ case class Game(
     deadPointFinder: Board => (Board, List[Point]) = Game.noDeads): Try[(Game, List[Piece], List[Point])] = {
     for {
       _ <- if (playerType == UserPlayer) validatePlay(playerType, playPieces) else Success(())
-      movedGridPieces = playPieces filter { _.moved } map { _.gridPiece }
+      movedPiecePoints = playPieces filter { _.moved } map { _.piecePoint }
       score = computePlayScore(playPieces)
-      (playedGame, refills) <- addGoodWordPlay(playerType, movedGridPieces, score)
+      (playedGame, refills) <- addGoodWordPlay(playerType, movedPiecePoints, score)
       (newBoard, deadPoints) = deadPointFinder(playedGame.board)
       wordPlay = Play.mkWordPlay(playedGame.playNumber, playerType, playedGame.scores, playPieces, refills, deadPoints)
       playsPlus = plays :+ wordPlay
@@ -105,9 +105,9 @@ case class Game(
   /**
     * Add a validated play to the game and return replacements for the played pieces.
     */
-  private def addGoodWordPlay(playerType: PlayerType, gridPieces: List[PiecePoint], score: Int): Try[(Game, List[Piece])] = {
-    val newBoard = board.setPiecePoints(gridPieces)
-    val usedPieces = gridPieces map { _.value }
+  private def addGoodWordPlay(playerType: PlayerType, piecePoints: List[PiecePoint], score: Int): Try[(Game, List[Piece])] = {
+    val newBoard = board.setPiecePoints(piecePoints)
+    val usedPieces = piecePoints map { _.value }
     val succPasses = if (score > 0) 0 else numSuccessivePasses + 1
     val ind = playerIndex(playerType)
     for {
@@ -238,7 +238,7 @@ case class Game(
   private def checkMoveTrayPieces(playPieces: List[PlayPiece]): Try[Unit] = Success(())
 
   def sanityCheck: Try[Unit] = Try {
-    val boardPieces = board.gridPieces.map { _.piece }
+    val boardPieces = board.piecePoints.map { _.piece }
     val userTrayPieces = trays(playerIndex(UserPlayer)).pieces
     val machineTrayPieces = trays(playerIndex(MachinePlayer)).pieces
 
@@ -260,10 +260,10 @@ object Game {
 
   def MaxSuccessivePasses = 10
 
-  def mkGame(gameBase: GameBase, pieceProvider: PieceProvider, gridPieces: List[PiecePoint],
+  def mkGame(gameBase: GameBase, pieceProvider: PieceProvider, piecePoints: List[PiecePoint],
     initUserPieces: List[Piece], initMachinePieces: List[Piece]): Try[Game] = {
 
-    val board = Board(gameBase.dimension, gridPieces)
+    val board = Board(gameBase.dimension, piecePoints)
 
     val lastPlayScore = 0
 

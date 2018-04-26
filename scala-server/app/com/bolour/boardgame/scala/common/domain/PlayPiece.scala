@@ -8,7 +8,7 @@ package com.bolour.boardgame.scala.common.domain
 import com.bolour.plane.scala.domain.Point
 
 case class PlayPiece(piece: Piece, point: Point, moved: Boolean) {
-  def gridPiece = PiecePoint(piece, point)
+  def piecePoint = PiecePoint(piece, point)
 }
 
 // Companion object renamed to avoid akka http json format issue.

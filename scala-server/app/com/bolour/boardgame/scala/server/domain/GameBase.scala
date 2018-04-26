@@ -25,7 +25,7 @@ import com.bolour.boardgame.scala.server.util.WordUtil.english
   * @param playerId Unique id of player.
   * @param startTime Time game began.
   * @param endTime Time game ended.
-  * @param gridPieces Initial pieces on the grid (used for testing).
+  * @param piecePoints Initial pieces on the grid (used for testing).
   * @param initUserPieces Initial pieces to use for user player.
   * @param initMachinePieces Initial pieces to use for machine player.
   */
@@ -39,7 +39,7 @@ case class GameBase(
   playerId: ID,
   startTime: Instant,
   endTime: Option[Instant],
-  gridPieces: List[PiecePoint],
+  piecePoints: List[PiecePoint],
   initUserPieces: List[Piece],
   initMachinePieces: List[Piece]
 ) {
@@ -57,7 +57,7 @@ object GameBase {
     params: GameParams,
     pointValues: List[List[Int]],
     playerId: ID,
-    gridPieces: List[PiecePoint] = Nil,
+    piecePoints: List[PiecePoint] = Nil,
     initUserPieces: List[Piece] = Nil,
     initMachinePieces: List[Piece] = Nil,
   ): GameBase = {
@@ -66,7 +66,7 @@ object GameBase {
     val languageCode = if (!lang.isEmpty) lang else english
     val genType = params.pieceProviderType
     GameBase(stringId(), params.dimension, params.trayCapacity, languageCode, genType,
-      pointValues, playerId, now, None, gridPieces, initUserPieces, initMachinePieces)
+      pointValues, playerId, now, None, piecePoints, initUserPieces, initMachinePieces)
   }
 
 }

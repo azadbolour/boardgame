@@ -120,9 +120,9 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   // player name not empty - alphanumeric.
   override def startGame(
     gameParams: GameParams,
-    gridPieces: List[PiecePoint],      // For testing only.
-    initUserPieces: List[Piece],      // For testing only.
-    initMachinePieces: List[Piece],    // For testing only.
+    piecePoints: List[PiecePoint],
+    initUserPieces: List[Piece],
+    initMachinePieces: List[Piece],
     pointValues: List[List[Int]]
   ): Try[Game] = {
     if (gameCache.size >= maxActiveGames)
@@ -132,8 +132,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       player <- getPlayerByName(gameParams.playerName)
-      gameBase = GameBase(gameParams, pointValues, player.id, gridPieces, initUserPieces, initMachinePieces)
-      game <- Game.mkGame(gameBase, pieceProvider, gridPieces, initUserPieces, initMachinePieces)
+      gameBase = GameBase(gameParams, pointValues, player.id, piecePoints, initUserPieces, initMachinePieces)
+      game <- Game.mkGame(gameBase, pieceProvider, piecePoints, initUserPieces, initMachinePieces)
       _ <- persister.saveGame(game)
       _ = gameCache.put(gameBase.id, game)
     } yield game

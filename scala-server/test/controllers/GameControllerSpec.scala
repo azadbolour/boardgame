@@ -80,9 +80,9 @@ class GameControllerSpec extends PlaySpec with Results {
       val startGameResponse = decodeJsonContent[StartGameResponse](result)
       logger.info(s"startGame dto result: ${startGameResponse}")
       startGameResponse match {
-        case StartGameResponse(gameId, responseGameParams, gridPieces, userTrayPieces) =>
+        case StartGameResponse(gameId, responseGameParams, piecePoints, userTrayPieces) =>
           responseGameParams mustEqual gameParams
-          gridPieces.size mustEqual 0
+          piecePoints.size mustEqual 0
           userTrayPieces.size mustEqual gameParams.trayCapacity
           theGameId = gameId
           theUserTrayPieces = userTrayPieces

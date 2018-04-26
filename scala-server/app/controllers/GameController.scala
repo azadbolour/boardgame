@@ -84,8 +84,8 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
   def startGameValidated(startGameRequest: StartGameRequest) = {
     logger.info(s"startGame startGameRequest: ${startGameRequest}")
     startGameRequest match {
-      case StartGameRequest(gameParams, gridPieces, initUserPieces, initMachinePieces, pointValues) => {
-        val triedStart = service.startGame(gameParams, gridPieces, initUserPieces, initMachinePieces, pointValues)
+      case StartGameRequest(gameParams, piecePoints, initUserPieces, initMachinePieces, pointValues) => {
+        val triedStart = service.startGame(gameParams, piecePoints, initUserPieces, initMachinePieces, pointValues)
         triedStart match {
           case Failure(ex) =>
             logger.error("startGame failure", ex)

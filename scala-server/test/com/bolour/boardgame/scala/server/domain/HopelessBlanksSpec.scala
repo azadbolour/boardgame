@@ -26,7 +26,7 @@ class HopelessBlanksSpec extends FlatSpec with Matchers { self =>
   val emptyBoard = Board(dimension)
   val tray = Tray(trayCapacity, Vector()) // Don't need the tray contents, just capacity.
 
-  val gridPieces = List(
+  val piecePoints = List(
     PiecePoint(Piece('A', "0"), Point(2, 0)),
     PiecePoint(Piece('N', "1"), Point(2, 1)),
     PiecePoint(Piece('D', "2"), Point(2, 2)),
@@ -34,7 +34,7 @@ class HopelessBlanksSpec extends FlatSpec with Matchers { self =>
     PiecePoint(Piece('A', "4"), Point(1, 1))
   )
 
-  val board = emptyBoard.setPiecePoints(gridPieces)
+  val board = emptyBoard.setPiecePoints(piecePoints)
 
   "strip matcher" should "find hopeless blanks" in {
     val hopelessBlankPoints = StripMatcher.findBlackPoints(board, dictionary)

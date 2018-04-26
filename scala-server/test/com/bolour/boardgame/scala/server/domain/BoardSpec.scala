@@ -15,15 +15,15 @@ class BoardSpec extends FlatSpec with Matchers {
 
   "board" should "start empty" in {
     val board1 = Board(15)
-    board1.gridPieces.size shouldEqual 0
+    board1.piecePoints.size shouldEqual 0
 
-    val noGridPieces: List[PiecePoint] = Nil
-    val board2: Board = Board(2, noGridPieces)
-    board2.gridPieces.size shouldBe 0
+    val noPiecePoints: List[PiecePoint] = Nil
+    val board2: Board = Board(2, noPiecePoints)
+    board2.piecePoints.size shouldBe 0
 
-    val gridPieces = List(PiecePoint(Piece('A', "idA"), Point(0, 0)))
-    val board3 = Board(1, gridPieces)
+    val piecePoints = List(PiecePoint(Piece('A', "idA"), Point(0, 0)))
+    val board3 = Board(1, piecePoints)
     logger.info(s"${board3}")
-    board3.gridPieces.size shouldEqual 1
+    board3.piecePoints.size shouldEqual 1
   }
 }

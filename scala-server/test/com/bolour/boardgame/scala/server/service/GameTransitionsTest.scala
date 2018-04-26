@@ -40,7 +40,7 @@ class GameTransitionsTest extends FlatSpec with Matchers {
   // _ S _
   // B E T
   // _ T _
-  val gridPieces = List(
+  val piecePoints = List(
     gp('B', center, center - 1),
     gp('E', center, center),
     gp('T', center, center + 1),
@@ -51,7 +51,7 @@ class GameTransitionsTest extends FlatSpec with Matchers {
   def startGameAndCommitPlay(initUserPieces: List[Piece], playPieces: List[PlayPiece]) = {
     val pointValues = List.fill(dimension, dimension)(1)
     for {
-      game <- service.startGame(gameParams, gridPieces, initUserPieces, List(), pointValues)
+      game <- service.startGame(gameParams, piecePoints, initUserPieces, List(), pointValues)
       (playedGame, _, _) <- game.addWordPlay(UserPlayer, playPieces)
     } yield playedGame
   }

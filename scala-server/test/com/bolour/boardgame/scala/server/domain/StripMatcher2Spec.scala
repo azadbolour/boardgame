@@ -36,8 +36,8 @@ class StripMatcher2Spec extends FlatSpec with Matchers { self =>
     val l = word.length
     val pieces = mkPieces(word)
     val center = dimension / 2
-    val gridPieces = (center until (center + l)).map { col => PiecePoint(pieces(col - center), Point(center, col))}
-    Board(dimension, gridPieces.toList)
+    val piecePoints = (center until (center + l)).map { col => PiecePoint(pieces(col - center), Point(center, col))}
+    Board(dimension, piecePoints.toList)
   }
 
   def mkPieces(chars: String) = {

@@ -37,7 +37,7 @@ class GameServiceTest extends FlatSpec with Matchers {
   // _ S _
   // B E T
   // _ T _
-  val gridPieces = List(
+  val piecePoints = List(
     piecePoint('B', center, center - 1),
     piecePoint('E', center, center),
     piecePoint('T', center, center + 1),
@@ -48,7 +48,7 @@ class GameServiceTest extends FlatSpec with Matchers {
   def startGameAndCommitPlay(initUserPieces: List[Piece], playPieces: List[PlayPiece]) = {
     val pointValues = List.fill(dimension, dimension)(1)
     for {
-      game <- service.startGame(gameParams, gridPieces, initUserPieces, List(), pointValues)
+      game <- service.startGame(gameParams, piecePoints, initUserPieces, List(), pointValues)
       (score, replacementPieces, deadPoints) <- service.commitPlay(game.gameBase.id, playPieces)
     } yield (game, score, replacementPieces)
   }

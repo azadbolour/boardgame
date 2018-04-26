@@ -35,8 +35,8 @@ class StripMatcher3Spec extends FlatSpec with Matchers { self =>
   def mkInitialBoard(word: String): Board = {
     val l = word.length
     val pieces = mkPieces(word)
-    val gridPieces = (center until (center + l)).map { col => PiecePoint(pieces(col - center), Point(center, col))}
-    Board(dimension, gridPieces.toList)
+    val piecePoints = (center until (center + l)).map { col => PiecePoint(pieces(col - center), Point(center, col))}
+    Board(dimension, piecePoints.toList)
   }
 
   def mkPieces(chars: String) = {
@@ -45,13 +45,13 @@ class StripMatcher3Spec extends FlatSpec with Matchers { self =>
   }
 
   "stripMatcher" should "find cross words" in {
-    val crossGridPiece = PiecePoint(Piece('T', UUID.randomUUID().toString), Point(center - 1, center + 1))
+    val crossPiecePoints = PiecePoint(Piece('T', UUID.randomUUID().toString), Point(center - 1, center + 1))
     val stripMatcher = new StripMatcher {
       override def tray = mkTray("ORGANIC");
       val words = List("ORGANIC")
       val maskedWords = WordDictionary.mkMaskedWordsCompact(words, MaxMaskedLetters)
       override def dictionary = WordDictionary(WordUtil.english, words, maskedWords, MaxMaskedLetters)
-      override def board = mkInitialBoard("CODER").setPiecePoints(List(crossGridPiece))
+      override def board = mkInitialBoard("CODER").setPiecePoints(List(crossPiecePoints))
     }
 
     // trying for
