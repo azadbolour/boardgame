@@ -18,24 +18,18 @@
 module BoardGame.Common.Domain.Piece (
     Piece(..)
   , mkPiece
-  , eqValue
   , mkRandomPiece
   , mkRandomPieces
   , mkRandomPieceForId
   , leastFrequentLetter
   , randomLetter
-  , mkRandomPieceForId
   , frequencies
-  , normalizedFrequencies
-  , worth
-  , letterWorth
-  , piecesToString
 ) where
 
 import System.Random
 import Data.Char
 import Data.List
-import qualified Data.Maybe as Maybe
+-- import qualified Data.Maybe as Maybe
 import qualified Data.Map as Map
 import GHC.Generics (Generic)
 import Control.DeepSeq (NFData)
@@ -87,8 +81,8 @@ mkRandomPieceInternal _ = do
   let value = chr asciiValue
   return $ Piece value id
 
-eqValue :: Piece -> Piece -> Bool
-eqValue p1 p2 = (value p1) == (value p2)
+-- eqValue :: Piece -> Piece -> Bool
+-- eqValue p1 p2 = (value p1) == (value p2)
 
 -- | Tile frequencies for 15x15 board.
 frequencies = [
@@ -123,35 +117,35 @@ frequencies = [
 frequencyMap :: Map.Map Char Int
 frequencyMap = Map.fromList frequencies
 
-worths :: Map.Map Char Int
-worths = Map.fromList [
-    ('A', 1),
-    ('B', 1),
-    ('C', 1),
-    ('D', 1),
-    ('E', 1),
-    ('F', 1),
-    ('G', 1),
-    ('H', 1),
-    ('I', 1),
-    ('J', 1),
-    ('K', 1),
-    ('L', 1),
-    ('M', 1),
-    ('N', 1),
-    ('O', 1),
-    ('P', 1),
-    ('Q', 1),
-    ('R', 1),
-    ('S', 1),
-    ('T', 1),
-    ('U', 1),
-    ('V', 1),
-    ('W', 1),
-    ('X', 1),
-    ('Y', 1),
-    ('Z', 1)
-  ]
+-- worths :: Map.Map Char Int
+-- worths = Map.fromList [
+--     ('A', 1),
+--     ('B', 1),
+--     ('C', 1),
+--     ('D', 1),
+--     ('E', 1),
+--     ('F', 1),
+--     ('G', 1),
+--     ('H', 1),
+--     ('I', 1),
+--     ('J', 1),
+--     ('K', 1),
+--     ('L', 1),
+--     ('M', 1),
+--     ('N', 1),
+--     ('O', 1),
+--     ('P', 1),
+--     ('Q', 1),
+--     ('R', 1),
+--     ('S', 1),
+--     ('T', 1),
+--     ('U', 1),
+--     ('V', 1),
+--     ('W', 1),
+--     ('X', 1),
+--     ('Y', 1),
+--     ('Z', 1)
+--   ]
 
 -- | The distribution function of the letters.
 distribution :: [(Char, Int)]
@@ -159,11 +153,11 @@ distribution = tail $ scanl' (\(l1, f1) (l2, f2) -> (l2, f1 + f2)) ('a', 0) freq
 
 maxDistribution = snd $ last distribution
 
-worth :: Piece -> Int
-worth Piece { value } = letterWorth value
+-- worth :: Piece -> Int
+-- worth Piece { value } = letterWorth value
 
-letterWorth :: Char -> Int
-letterWorth ch = Maybe.fromJust $ Map.lookup ch worths
+-- letterWorth :: Char -> Int
+-- letterWorth ch = Maybe.fromJust $ Map.lookup ch worths
 
 -- | Get a random letter according to the letter frequencies.
 randomLetter :: IO Char
@@ -196,10 +190,10 @@ leastFrequent' (x:xs) (least @ (Just (leastChar, leastFreq))) = do
   let least' = if freq < leastFreq then Just (x, freq) else least
   leastFrequent' xs least'
 
-normalizedFrequencies :: Int -> ((Map.Map Char Int), Int)
-normalizedFrequencies roughTotal =
-  let factor :: Float = fromIntegral roughTotal / fromIntegral maxDistribution
-      normalizer freq = max 1 (round $ fromIntegral freq * factor)
-      normalized = normalizer <$> frequencyMap
-      total = sum $ Map.elems normalized
-  in (normalized, total)
+-- normalizedFrequencies :: Int -> ((Map.Map Char Int), Int)
+-- normalizedFrequencies roughTotal =
+--   let factor :: Float = fromIntegral roughTotal / fromIntegral maxDistribution
+--       normalizer freq = max 1 (round $ fromIntegral freq * factor)
+--       normalized = normalizer <$> frequencyMap
+--       total = sum $ Map.elems normalized
+--   in (normalized, total)

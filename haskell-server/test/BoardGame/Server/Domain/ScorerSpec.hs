@@ -45,7 +45,7 @@ pointValues = replicate dimension $ replicate dimension 1
 scorer = Scorer.mkScorer pointValues
 scorePlay = Scorer.scorePlay scorer
 
-wt = Piece.letterWorth
+-- wt = Piece.letterWorth
 
 -- toPlayPiece :: MoveInfo -> PlayPiece
 -- toPlayPiece (ch, point, moved) = PlayPiece (Piece ch "") point moved
