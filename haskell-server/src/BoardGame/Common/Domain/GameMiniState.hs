@@ -15,6 +15,7 @@ import GHC.Generics (Generic)
 import Control.DeepSeq (NFData)
 import Data.Aeson (FromJSON, ToJSON)
 
+-- | Minimal state of the game needed by clients.
 data GameMiniState = GameMiniState {
     lastPlayScore :: Int
   , scores :: [Int]

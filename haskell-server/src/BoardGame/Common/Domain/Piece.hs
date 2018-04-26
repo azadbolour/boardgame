@@ -42,10 +42,10 @@ import Control.DeepSeq (NFData)
 import Data.Aeson (FromJSON, ToJSON)
 import Bolour.Util.MiscUtil as Misc
 
--- |A game piece.
+-- | A game piece aka tile.
 data Piece = Piece {
     value :: Char,      -- ^ The letter - an upper case alpha character.
-    id :: String     -- ^ The unique id of the piece.
+    id :: String        -- ^ The unique id of the piece.
 }
   deriving (Eq, Show, Generic, NFData)
 

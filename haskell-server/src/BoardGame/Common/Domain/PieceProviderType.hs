@@ -16,6 +16,7 @@ import GHC.Generics (Generic)
 import Data.Aeson (FromJSON, ToJSON)
 import Control.DeepSeq (NFData)
 
+-- | Different types of piece generators.
 data PieceProviderType = Random | Cyclic
   deriving (Eq, Show, Generic, NFData)
 

@@ -16,6 +16,7 @@ import Control.DeepSeq (NFData)
 import Data.Aeson (FromJSON, ToJSON)
 import BoardGame.Common.Domain.StopInfo (StopInfo)
 
+-- | Summary of the game at the end.
 data GameSummary = GameSummary {
     stopInfo :: StopInfo
 }
