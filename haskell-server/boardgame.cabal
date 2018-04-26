@@ -62,6 +62,7 @@ library
       Bolour.Util.FileUtil
       Bolour.Util.Empty
       Bolour.Util.BlackWhite
+      Bolour.Util.FrequencyDistribution
       Bolour.Language.Util.WordUtil
       Bolour.Language.Domain.WordDictionary
       Bolour.Language.Domain.DictionaryIO

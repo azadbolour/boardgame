@@ -14,8 +14,8 @@ case class FrequencyDistribution[T](frequencies: List[(T, Int)]) {
     */
   val distribution = frequencies.tail.scanLeft(frequencies.head) (
     (cumulative, element) => (cumulative, element) match {
-      case ((letter, cumWeight), (nextLetter, weight)) =>
-        (nextLetter, cumWeight + weight)
+      case ((_, cumWeight), (nextVal, weight)) =>
+        (nextVal, cumWeight + weight)
     }
   )
 
@@ -43,7 +43,7 @@ case class FrequencyDistribution[T](frequencies: List[(T, Int)]) {
   }
 
   /**
-    * Normalize the letter frequencies to obtain a given rough total
+    * Normalize the frequencies to obtain a given rough total
     * return the normalized frequencies and the actual total.
     */
   def normalizedFrequencies(roughTotal: Int): (Map[T, Int], Int) = {
