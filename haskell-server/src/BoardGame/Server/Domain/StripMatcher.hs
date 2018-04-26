@@ -105,15 +105,14 @@ findOptimalMatchForFittingCombos board dictionary ((count, (strips, combos)) : t
      Nothing -> findOptimalMatchForFittingCombos board dictionary tail
      Just match -> maybeMatch
 
--- | Find a best match (if any) for strips of a given length.
-findOptimalMatchForStripsByLength ::
+findMatchForStrips ::
      Board
   -> WordDictionary
   -> Map BlankCount [Strip]         -- ^ strips of a given length grouped by number of blanks
   -> Map ByteCount [LetterCombo]    -- ^ combinations of letters grouped by count
   -> Maybe (Strip, DictWord)
 
-findOptimalMatchForStripsByLength board dictionary stripsByBlanks combosByLength =
+findMatchForStrips board dictionary stripsByBlanks combosByLength =
   -- Create a descending list of all: [(blanks, ([Strip], [combos]))] for strips of a given length.
   -- The strips have the given number of blanks.
   -- And the number of letters in each combo is also the number of blanks.
@@ -122,31 +121,29 @@ findOptimalMatchForStripsByLength board dictionary stripsByBlanks combosByLength
   in if null matchedStripsAndCombos then Nothing
      else findOptimalMatchForFittingCombos board dictionary matchedStripsAndCombos
 
+findMatchForValue :: Board -> WordDictionary -> Int -> GroupedStrips -> Map ByteCount [LetterCombo] -> Maybe (Strip, DictWord)
+findMatchForValue board dictionary value stripsByValueAndBlanks combosByLength = do
+  stripsByBlanks <- Map.lookup value stripsByValueAndBlanks
+  findMatchForStrips board dictionary stripsByBlanks combosByLength
+
 -- | Find a best match (if any) for strips of at most a given length.
 --   Recursive on the length limit.
 --   Recursion allows us to break out as soon as we find a match at the limit.
 --   Recursive matches will all be shorter and therefore inferior.
-findOptimalMatchForStripsOfLimitedLength ::
+bestMatchUpToValue ::
      Board
   -> WordDictionary
-  -> ByteCount
+  -> Int
   -> GroupedStrips
   -> Map ByteCount [LetterCombo]
   -> Maybe (Strip, DictWord)
 
-findOptimalMatchForStripsOfLimitedLength board dictionary limit groupedStrips combosByLength
-  | limit <= 1 = Nothing
-  | limit == 2 =
-     do
-       stripsByBlanks <- Map.lookup 2 groupedStrips
-       findOptimalMatchForStripsByLength board dictionary stripsByBlanks combosByLength
+bestMatchUpToValue board dictionary maxValue stripsByValueAndBlanks combosByLength
+  | maxValue == 0 = Nothing
   | otherwise =
-       let foundAtLimit =
-             do
-                stripsByBlanks <- Map.lookup limit groupedStrips
-                findOptimalMatchForStripsByLength board dictionary stripsByBlanks combosByLength
+       let foundAtLimit = findMatchForValue board dictionary maxValue stripsByValueAndBlanks combosByLength
        in case foundAtLimit of
-            Nothing -> findOptimalMatchForStripsOfLimitedLength board dictionary (limit - 1) groupedStrips combosByLength
+            Nothing -> bestMatchUpToValue board dictionary (maxValue - 1) stripsByValueAndBlanks combosByLength
             Just found -> return found
 
 findOptimalMatch ::
@@ -159,16 +156,17 @@ findOptimalMatch dictionary board trayContent =
   let dimension = Board.dimension board
       trayLength = length trayContent
       stripValue Strip {blanks} = blanks
-      playableStrips = groupedPlayableStrips board trayLength stripValue
-      playableCombos = WordUtil.computeCombosGroupedByLength trayContent
-  in findOptimalMatchForStripsOfLimitedLength board dictionary dimension playableStrips playableCombos
+      stripsByValueAndBlanks = groupedPlayableStrips board trayLength stripValue
+      maxValue = maximum $ Map.keys stripsByValueAndBlanks
+      combosByLength = WordUtil.computeCombosGroupedByLength trayContent
+  in bestMatchUpToValue
+       board dictionary maxValue stripsByValueAndBlanks combosByLength
 
--- | Get the strips of a two-dimensional grid of characters that can potentially house a word.
---   A strip is playable iff it has at least 1 anchor letter,
---   and at most c blanks, where c is the capacity of the tray.
+-- | Groups the playable strips of the board by their "value", and within
+--   a value by the number of blanks.
 groupedPlayableStrips ::
-     Board        -- ^ the board
-  -> Int          -- ^ tray capacity - maximum number of blanks in a play strip
+     Board           -- ^ the board
+  -> Int             -- ^ tray capacity - maximum number of blanks in a play strip
   -> (Strip -> Int)  -- ^ Valuation function for the strip.
   -> Map ByteCount (Map BlankCount [Strip])
 

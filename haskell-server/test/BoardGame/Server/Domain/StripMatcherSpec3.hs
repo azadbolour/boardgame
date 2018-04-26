@@ -48,8 +48,18 @@ baseTestGrid = [
 
 testBoard = Board.mkBoardFromPieces baseTestGrid 3
 
-trayCapacity :: Int
-trayCapacity = 1
+singleLetterGrid :: [[Maybe Piece]]
+singleLetterGrid = [
+--        0        1        2        3
+      [Nothing, Nothing, Nothing] -- 0
+    , [Nothing, pce 'A', Nothing] -- 1
+    , [Nothing, Nothing, Nothing] -- 2
+  ]
+
+singleLetterBoard = Board.mkBoardFromPieces singleLetterGrid 3
+
+-- trayCapacity :: Int
+-- trayCapacity = 1
 
 maxMaskedWords :: Int
 maxMaskedWords = 2
@@ -58,12 +68,40 @@ stringWords :: [String]
 stringWords = ["AS"]
 maskedWords = Set.toList $ Dict.mkMaskedWords stringWords maxMaskedWords
 dictionary = Dict.mkDictionary "en" stringWords maskedWords maxMaskedWords
-trayContents = "S"
+trayContents = "SA"
+
+stringWords1 = ["AT", "BAR"]
+maskedWords1 = Set.toList $ Dict.mkMaskedWords stringWords1 maxMaskedWords
+dictionary1 = Dict.mkDictionary "en" stringWords1 maskedWords1 maxMaskedWords
+
+emptyBoard = Board.mkEmptyBoard 3
 
 spec :: Spec
-spec =
-  describe "find optimal match" $
-    it "optimal match checks cross words" $ do
+spec = do
+  describe "find optimal match" $ do
+    it "optimal match" $ do
       let optimal = Matcher.findOptimalMatch dictionary testBoard trayContents
       print optimal
       snd (Maybe.fromJust optimal) `shouldBe` "AS"
+    it "optimal match on empty board" $ do
+      let playableStrips = Board.playableStrips emptyBoard 2
+      print playableStrips
+      let optimal = Matcher.findOptimalMatch dictionary emptyBoard trayContents
+      print optimal
+      snd (Maybe.fromJust optimal) `shouldBe` "AS"
+    it "optimal match on single letter board" $ do
+      let optimal = Matcher.findOptimalMatch dictionary singleLetterBoard "S"
+      print optimal
+      snd (Maybe.fromJust optimal) `shouldBe` "AS"
+    it "optimal match is the one with more blanks" $ do
+      let optimal = Matcher.findOptimalMatch dictionary1 singleLetterBoard "BRT"
+      print optimal
+      snd (Maybe.fromJust optimal) `shouldBe` "BAR"
+  describe "no match" $ do
+    it "no match with 1 tray letter" $ do
+      let optimal = Matcher.findOptimalMatch dictionary singleLetterBoard "K"
+      optimal `shouldBe` Nothing
+    it "no match with multiple tray letter" $ do
+      let optimal = Matcher.findOptimalMatch dictionary1 singleLetterBoard "KBA"
+      optimal `shouldBe` Nothing
+

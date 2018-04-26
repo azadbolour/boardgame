@@ -77,7 +77,7 @@ spec =
     it "no fitting word" $ do
       let combo = "DINRSW"
           blanks = 6
-          strip = Strip Axis.X 2 1 8 ['\0', '\0', '\0', 'E', '\0', 'E', '\0', '\0'] "EE" blanks
+          strip = Strip Axis.X 2 1 8 [' ', ' ', ' ', 'E', ' ', 'E', ' ', ' '] "EE" blanks
           crossWords = CrossWordFinder.findStripCrossWords testBoard strip "WIDENERS"
           maybeWords = Matcher.findFittingWord testBoard dictionary blanks strip [combo]
       print crossWords
