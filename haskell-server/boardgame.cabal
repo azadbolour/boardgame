@@ -90,7 +90,6 @@ library
       BoardGame.Common.Domain.StopInfo
       BoardGame.Common.Domain.GameMiniState
       BoardGame.Common.Domain.GameSummary
-      BoardGame.Common.Domain.PointSymmetry
       BoardGame.Server.Domain.PieceProvider
       BoardGame.Server.Domain.Board
       BoardGame.Server.Domain.GameError
