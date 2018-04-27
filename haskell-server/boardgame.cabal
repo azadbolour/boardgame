@@ -113,7 +113,7 @@ library
       BoardGame.Server.Service.GameDao
       BoardGame.Server.Service.GamePersister
       BoardGame.Server.Service.GameJsonPersister
-      BoardGame.Server.Service.GameJsonSlickPersister
+      BoardGame.Server.Service.GameJsonSqlPersister
       BoardGame.Client.GameClient
   other-modules:
       Paths_boardgame

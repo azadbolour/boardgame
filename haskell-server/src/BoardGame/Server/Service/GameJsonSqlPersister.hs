@@ -7,7 +7,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 
-module BoardGame.Server.Service.GameJsonSlickPersister (
+module BoardGame.Server.Service.GameJsonSqlPersister (
   mkPersister
 ) where
 
