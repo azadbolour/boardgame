@@ -96,7 +96,8 @@ import BoardGame.Server.Domain.ServerConfig as ServerConfig
 import qualified BoardGame.Server.Domain.StripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
-import BoardGame.Server.Domain.PieceProvider (PieceProvider(..))
+import BoardGame.Server.Domain.PieceProvider (PieceProvider(..), mkDefaultCyclicPieceProvider)
+import qualified BoardGame.Server.Service.GameLetterDistribution as GameLetterDistribution
 
 unknownPlayerName = "You"
 unknownPlayer = Player unknownPlayerName
@@ -325,13 +326,6 @@ savePlay gameId playNumber playerType isPlay details = do
   let playRow = PlayRow gameRowId playNumber (show playerType) isPlay details
   GameDao.addPlay connectionProvider playRow
 
--- TODO. Obsolete.
-optimalMatch :: [Play] -> Maybe Play
-optimalMatch matches =
-  if null matches
-    then Nothing
-    else Just $ maximumBy (comparing (length . Play.playPieces)) matches
-
 gameToRow :: PlayerRowId -> Game -> GameRow
 gameToRow playerId game =
   GameRow gameId playerId (Board.dimension board) trayCapacity
@@ -382,43 +376,12 @@ stripMatchAsPlay board tray strip word = do
   (reversePlayPieces, depletedTray) <- playPiecePeeler word 0 ([], tray)
   return (reverse reversePlayPieces, depletedTray)
 
-letterFrequencies :: [(Char, Int)]
-letterFrequencies = [
-    ('A', 81),
-    ('B', 15),
-    ('C', 28),
-    ('D', 42),
-    ('E', 127),
-    ('F', 22),
-    ('G', 20),
-    ('H', 61),
-    ('I', 70),
-    ('J', 2),
-    ('K', 8),
-    ('L', 40),
-    ('M', 24),
-    ('N', 67),
-    ('O', 80),
-    ('P', 19),
-    ('Q', 1),
-    ('R', 60),
-    ('S', 63),
-    ('T', 91),
-    ('U', 28),
-    ('V', 10),
-    ('W', 23),
-    ('X', 2),
-    ('Y', 20),
-    ('Z', 1)
-  ]
-
-caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
 letterDistribution :: FrequencyDistribution Char
-letterDistribution = FrequencyDistribution.mkFrequencyDistribution letterFrequencies
+letterDistribution = GameLetterDistribution.letterDistribution
 
 mkPieceProvider :: PieceProviderType -> PieceProvider
 mkPieceProvider PieceProviderType.Random =
-  RandomPieceProvider 0 (FrequencyDistribution.randomValue letterDistribution)
+  let randomizer = FrequencyDistribution.randomValue letterDistribution
+  in RandomPieceProvider 0 randomizer
 
-mkPieceProvider PieceProviderType.Cyclic = CyclicPieceProvider 0 (cycle caps)
+mkPieceProvider PieceProviderType.Cyclic = mkDefaultCyclicPieceProvider

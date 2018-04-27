@@ -109,6 +109,7 @@ library
       BoardGame.Server.Web.Converters
       BoardGame.Server.Service.GameTransformerStack
       BoardGame.Server.Service.GameService
+      BoardGame.Server.Service.GameLetterDistribution
       BoardGame.Server.Service.GameDao
       BoardGame.Client.GameClient
   other-modules:
