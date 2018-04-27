@@ -107,6 +107,7 @@ library
       BoardGame.Server.Domain.Scorer
       BoardGame.Server.Web.GameEndPoint
       BoardGame.Server.Web.Converters
+      BoardGame.Server.Service.TypeDefs
       BoardGame.Server.Service.GameTransformerStack
       BoardGame.Server.Service.GameService
       BoardGame.Server.Service.GameLetterDistribution
