@@ -81,7 +81,7 @@ import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 import BoardGame.Server.Domain.PlayInfo (PlayInfo, PlayInfo(PlayInfo))
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
-import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack, liftGameExceptToStack)
+import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack, exceptTToStack)
 import BoardGame.Server.Service.GameDao (
     GameRow(..)
   , PlayerRow(..)
@@ -119,7 +119,7 @@ timeoutLongRunningGames = do
   let games = foldl' (++) [] $ (: []) <$> gamesMap
       agedGameIds = let aged = ((maxGameMinutes * 60) <) . Game.gameAgeSeconds utcNow
                      in Game.gameId <$> aged `filter` games
-  liftGameExceptToStack $ GameCache.deleteItems agedGameIds gameCache
+  exceptTToStack $ GameCache.deleteItems agedGameIds gameCache
   -- TODO. End the games in the database with a timed out indication.
 
 -- | Service function to add a player to the system.
@@ -176,7 +176,7 @@ startGameService gameParams initGridPieces initUserPieces initMachinePieces poin
   let pieceProvider = mkPieceProvider pieceProviderType
   game @ Game{ gameId } <- Game.mkInitialGame params pieceProvider initGridPieces initUserPieces initMachinePieces pointValues playerName
   GameDao.addGame connectionProvider $ gameToRow playerRowId game
-  liftGameExceptToStack $ GameCache.insert game gameCache
+  exceptTToStack $ GameCache.insert game gameCache
   return game
 
 validateCrossWords :: Board -> WordDictionary -> Strip -> String -> GameTransformerStack ()
@@ -200,7 +200,7 @@ commitPlayService ::
 
 commitPlayService gmId playPieces = do
   GameEnv { gameCache } <- ask
-  game @ Game {languageCode, board} <- liftGameExceptToStack $ GameCache.lookup gmId gameCache
+  game @ Game {languageCode, board} <- exceptTToStack $ GameCache.lookup gmId gameCache
   let playWord = PlayPiece.playPiecesToWord playPieces
   dictionary <- lookupDictionary languageCode
   let wordExists = Dict.isWord dictionary playWord
@@ -218,7 +218,7 @@ commitPlayService gmId playPieces = do
       game'' = Game.setBoard game' newBoard'
 
   saveWordPlay gmId playNumber UserPlayer playPieces refills
-  liftGameExceptToStack $ GameCache.insert game'' gameCache
+  exceptTToStack $ GameCache.insert game'' gameCache
   let miniState = Game.toMiniState game''
   return (miniState, refills, deadPoints)
 
@@ -230,7 +230,7 @@ commitPlayService gmId playPieces = do
 machinePlayService :: String -> GameTransformerStack (GameMiniState, [PlayPiece], [Point])
 machinePlayService gameId = do
   GameEnv { gameCache } <- ask
-  (game @ Game {gameId, languageCode, board, trays}) <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
+  (game @ Game {gameId, languageCode, board, trays}) <- exceptTToStack $ GameCache.lookup gameId gameCache
   dictionary <- lookupDictionary languageCode
   let machineTray @ Tray {pieces} = trays !! Player.machineIndex
       trayChars = Piece.value <$> pieces
@@ -249,7 +249,7 @@ machinePlayService gameId = do
       saveWordPlay gameId playNumber MachinePlayer playPieces refills
       return (gm', playPieces, deadPoints)
 
-  liftGameExceptToStack $ GameCache.insert game' gameCache
+  exceptTToStack $ GameCache.insert game' gameCache
   let miniState = Game.toMiniState game'
   return (miniState, machinePlayPieces, deadPoints)
 
@@ -260,13 +260,13 @@ swapPieceService :: String -> Piece -> GameTransformerStack (GameMiniState, Piec
 
 swapPieceService gameId (piece @ (Piece {id})) = do
   gameCache <- asks GameEnv.gameCache
-  (game @ Game {gameId, board, trays}) <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
+  (game @ Game {gameId, board, trays}) <- exceptTToStack $ GameCache.lookup gameId gameCache
   let (userTray @ (Tray {pieces})) = trays !! Player.userIndex
   index <- Tray.findPieceIndexById userTray id
   let swappedPiece = pieces !! index
   (game' @ Game {playNumber}, newPiece) <- Game.doExchange game UserPlayer index
   saveSwap gameId playNumber UserPlayer swappedPiece newPiece
-  liftGameExceptToStack $ GameCache.insert game' gameCache
+  exceptTToStack $ GameCache.insert game' gameCache
   let miniState = Game.toMiniState game'
   return (miniState, newPiece)
 
@@ -287,8 +287,8 @@ exchangeMachinePiece (game @ Game.Game {gameId, board, trays, playNumber}) = do
 closeGameService :: String -> GameTransformerStack GameSummary
 closeGameService gameId = do
   gameCache <- asks GameEnv.gameCache
-  game <- liftGameExceptToStack $ GameCache.lookup gameId gameCache
-  liftGameExceptToStack $ GameCache.delete gameId gameCache
+  game <- exceptTToStack $ GameCache.lookup gameId gameCache
+  exceptTToStack $ GameCache.delete gameId gameCache
   return $ Game.summary game
   -- TODO. Tell the database that the game has ended - as opposed to suspended.
   -- TODO. Game.summary should return the game updated with the bonus/penalty scores.

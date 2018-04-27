@@ -9,7 +9,7 @@
 
 module BoardGame.Server.Service.GameTransformerStack (
     GameTransformerStack
-  , liftGameExceptToStack
+  , exceptTToStack
   , run
   , runDefault
   , runUnprotected
@@ -45,8 +45,8 @@ logger s = do
 -- | Build a game transformer stack from a low-level stack: result of
 --   low-level function calls packaged in ExceptGame representing both
 --   either and IO effects.
-liftGameExceptToStack :: ExceptGame result -> GameTransformerStack result
-liftGameExceptToStack exceptGame = lift $ lift exceptGame
+exceptTToStack :: ExceptGame result -> GameTransformerStack result
+exceptTToStack exceptGame = lift $ lift exceptGame
 
 -- TODO. Low-level functions doing IO should return ExceptGame rather than just IO.
 -- Then use the above lift function to transform them to the stack.
@@ -84,7 +84,7 @@ runDefaultUnprotected = runUnprotected logger
 -- for any actual parameters of the transformer stack.
 catcher :: (NFData a) => GameTransformerStack a -> GameTransformerStack a
 catcher stack =
-  catchAnyDeep stack (liftGameExceptToStack . exceptionToGameExcept)
+  catchAnyDeep stack (exceptTToStack . exceptionToGameExcept)
 
 exceptionToGameExcept :: SomeException -> ExceptGame a
 exceptionToGameExcept someEx = ExceptT $ return $ Left $ InternalError $ show someEx
