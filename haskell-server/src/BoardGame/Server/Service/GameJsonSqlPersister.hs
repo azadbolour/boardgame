@@ -28,7 +28,7 @@ module BoardGame.Server.Service.GameJsonSqlPersister (
 ) where
 
 -- import Control.Monad.Reader (asks)
--- import Control.Monad.IO.Class (MonadIO, liftIO)
+import Control.Monad.IO.Class (liftIO)
 -- import Control.Monad.Except (MonadError(..))
 
 import Database.Esqueleto (
@@ -55,7 +55,7 @@ import Database.Persist.Sql (
   )
 
 import Database.Persist.TH
-import Bolour.Util.Core(EntityId)
+import Bolour.Util.Core (EntityId)
 import BoardGame.Server.Domain.GameError(GameError(..))
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv(GameEnv(..))
 
@@ -88,66 +88,65 @@ GameRow sql=game
     deriving Show Eq
 |]
 
+playerToRow :: PlayerId -> String -> JsonEncoded -> PlayerRow
+playerToRow = PlayerRow
+
+gameToRow :: GameId -> PlayerId -> String -> PlayerRowId -> GameRow
+gameToRow = GameRow
+
 migration = migrateAll -- Generated.
 
 migrateDb :: ConnectionProvider -> IO ()
 migrateDb provider = PersistRunner.migrateDatabase provider migration
 
-migrate :: Result ()
-migrate =
+migrate :: ConnectionProvider -> Result ()
+migrate provider =
   return ()
 
-savePlayer :: PlayerId -> String -> JsonEncoded -> Result ()
-savePlayer playerId playerName json =
+savePlayer :: ConnectionProvider -> PlayerId -> String -> JsonEncoded -> Result ()
+savePlayer provider playerId playerName json = do
+  let row = PlayerRow playerId playerName json
+  liftIO $ PersistRunner.runQuery provider (addPlayerReader row)
   return ()
-
-{-
-addPlayer provider player =
-  liftIO $ PersistRunner.runQuery provider (addPlayerReader player)
 
 addPlayerReader :: PlayerRow -> SqlPersistM EntityId
-addPlayerReader player = fromSqlKey <$> insert player
+addPlayerReader row = fromSqlKey <$> insert row
 
-playerToRow :: Player.Player -> PlayerRow
-playerToRow player = PlayerRow $ Player.name player -- TODO. Clean this up.
-
--}
-
-findPlayerByName :: String -> Result (Maybe JsonEncoded)
-findPlayerByName playerName =
+findPlayerByName :: ConnectionProvider -> String -> Result (Maybe JsonEncoded)
+findPlayerByName provider playerName =
   return Nothing
 
-clearPlayers :: Result ()
-clearPlayers =
+clearPlayers :: ConnectionProvider -> Result ()
+clearPlayers provider =
   return ()
 
-saveGame :: GameId -> PlayerId -> JsonEncoded -> Result ()
-saveGame gameId playerId json =
+saveGame :: ConnectionProvider -> GameId -> PlayerId -> JsonEncoded -> Result ()
+saveGame provider gameId playerId json =
   return ()
 
-findGameById :: GameId -> Result (Maybe JsonEncoded)
-findGameById gameId =
+findGameById :: ConnectionProvider -> GameId -> Result (Maybe JsonEncoded)
+findGameById provider gameId =
   return Nothing
 
-deleteGame :: GameId -> Result ()
-deleteGame gameId =
+deleteGame :: ConnectionProvider -> GameId -> Result ()
+deleteGame provider gameId =
   return ()
 
-clearGames :: Result ()
-clearGames =
+clearGames :: ConnectionProvider -> Result ()
+clearGames provider =
   return ()
 
-mkPersister :: GameJsonPersister
-mkPersister =
+mkPersister :: ConnectionProvider -> GameJsonPersister
+mkPersister provider =
   GameJsonPersister
-    migrate
-    savePlayer
-    findPlayerByName
-    clearPlayers
-    saveGame
-    findGameById
-    deleteGame
-    clearGames
+    (migrate provider)
+    (savePlayer provider)
+    (findPlayerByName provider)
+    (clearPlayers provider)
+    (saveGame provider)
+    (findGameById provider)
+    (deleteGame provider)
+    (clearGames provider)
 
 
 
