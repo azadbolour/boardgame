@@ -35,6 +35,7 @@ import Data.List
 import Data.Maybe (fromJust, isNothing)
 import Data.Time (getCurrentTime)
 import Data.Bool (bool)
+import qualified Data.Map as Map
 
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..), withExceptT)
@@ -116,10 +117,9 @@ timeoutLongRunningGames = do
   let ServerConfig {maxGameMinutes} = serverConfig
   gamesMap <- GameCache.cacheGetGamesMap gameCache
   utcNow <- liftIO getCurrentTime
-  -- TODO. Direct function to get map's keys?
-  let games = foldl' (++) [] $ (: []) <$> gamesMap
+  let games = Map.elems gamesMap
       agedGameIds = let aged = ((maxGameMinutes * 60) <) . Game.gameAgeSeconds utcNow
-                     in Game.gameId <$> aged `filter` games
+                    in Game.gameId <$> aged `filter` games
   exceptTToStack $ GameCache.deleteItems agedGameIds gameCache
   -- TODO. End the games in the database with a timed out indication.
 
@@ -173,7 +173,6 @@ startGameService gameParams initGridPieces initUserPieces initMachinePieces poin
   let playerName = GameParams.playerName params
   playerRowId <- GameDao.findExistingPlayerRowIdByName connectionProvider playerName
   dictionary <- lookupDictionary languageCode
-  -- let pieceProvider = PieceProvider.mkDefaultPieceProvider pieceProviderType dimension
   let pieceProvider = mkPieceProvider pieceProviderType
   game @ Game{ gameId } <- Game.mkInitialGame params pieceProvider initGridPieces initUserPieces initMachinePieces pointValues playerName
   GameDao.addGame connectionProvider $ gameToRow playerRowId game
@@ -278,7 +277,7 @@ exchangeMachinePiece (game @ Game.Game {gameId, board, trays, playNumber}) = do
   if Tray.isEmpty machineTray
     then return game
     else do
-      let piece @ Piece { id } = head $ pieces
+      let piece @ Piece { id } = head pieces
       index <- Tray.findPieceIndexById machineTray id
       (game' @ Game {playNumber}, newPiece) <- Game.doExchange game MachinePlayer index
       -- TODO. Update play number at the right place before using it here.
@@ -335,7 +334,6 @@ gameToRow playerId game =
           trays = Game.trays game
           playerName = Game.playerName game -- TODO. Ditto.
           userTray = trays !! Player.userIndex
-          -- Game {gameId, board , trays, playerName} = game -- no can do with existentially-quantified data
           trayCapacity = length $ Tray.pieces (trays !! Player.userIndex) -- TODO. Just use tray capacity.
 
 playerToRow :: Player.Player -> PlayerRow
