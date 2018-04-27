@@ -31,7 +31,7 @@ dim = 9
 pieceProviderType = PieceProviderType.Cyclic
 params :: GameParams
 params = GameParams dim 12 Dict.defaultLanguageCode name pieceProviderType
-tileSack = PieceProvider.mkDefaultPieceProvider PieceProviderType.Cyclic dim
+tileSack = PieceProvider.mkDefaultCyclicPieceProvider
 
 pointValues :: [[Int]]
 pointValues = replicate dim $ replicate dim 1
@@ -44,8 +44,8 @@ game = do
 spec = do
   describe "json for game data" $ do
     it "convert game params to/from json" $ do
-      piece <- Piece.mkPiece 'T'
-      let encoded = encode (params, [piece])
+      let piece = Piece.Piece 'T' "1"
+          encoded = encode (params, [piece])
       print encoded
       let decoded = decode encoded :: Maybe (GameParams, [Piece])
       print decoded

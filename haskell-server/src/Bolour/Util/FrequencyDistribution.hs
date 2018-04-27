@@ -30,7 +30,7 @@ data FrequencyDistribution value = FrequencyDistribution {
 mkFrequencyDistribution :: Ord value => [(value, Int)] -> FrequencyDistribution value
 mkFrequencyDistribution frequencies =
   let distribution = mkDistribution frequencies
-      maxDistribution = snd $ last frequencies
+      maxDistribution = snd $ last distribution
       frequencyMap = Map.fromList frequencies
   in FrequencyDistribution frequencies distribution maxDistribution frequencyMap
 
@@ -41,7 +41,8 @@ mkDistribution frequencies =
 
 randomValue :: FrequencyDistribution value -> IO value
 randomValue FrequencyDistribution {distribution, maxDistribution} = do
-  dist <- randomRIO (0, maxDistribution - 1)
+  dist <- randomRIO (0, maxDistribution - 1) -- uses closed interval [0, maxDistribution - 1]
+  -- Invariant dist < maxDistribution => there exists an index whose distribution value is > dist.
   let Just index = findIndex ((<) dist . snd) distribution
       val = fst $ distribution !! index
   return val

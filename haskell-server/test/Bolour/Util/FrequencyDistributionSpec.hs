@@ -9,13 +9,27 @@
 module Bolour.Util.FrequencyDistributionSpec where
 
 import Test.Hspec
-import Data.Map as Map
+import qualified Data.Map as Map
+import Data.List
 import Bolour.Util.FrequencyDistribution
 
 spec :: Spec
-spec = do
-  describe "calculate distribution" $ do
+spec =
+  describe "calculate distributions" $ do
     it "calculate" $ do
       let freqs = [('A', 100), ('B', 25)]
-          FrequencyDistribution {distribution, maxDistribution} = mkFrequencyDistribution freqs
+          frequencyDistribution = mkFrequencyDistribution freqs
+          FrequencyDistribution {distribution, maxDistribution} = frequencyDistribution
       distribution `shouldBe` [('A', 100), ('B', 125)]
+    it "gets random values" $ do
+      let freqs = [('A', 0), ('B', 1), ('C', 1)]
+          frequencyDistribution = mkFrequencyDistribution freqs
+          list = replicate 20 frequencyDistribution
+      values <- sequence $ randomValue <$> list
+      let maybeA = find (== 'A') values
+      maybeA `shouldBe` Nothing
+      let bs = filter (== 'B') values
+      let cs = filter (== 'C') values
+      (length bs + length cs) `shouldBe` 20
+      print $ "B: " ++ show (length bs)
+      print $ "C: " ++ show (length cs)

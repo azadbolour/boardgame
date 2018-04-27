@@ -24,7 +24,8 @@ player = Player name
 pieceGeneratorType = PieceProviderType.Cyclic
 gameParams = GameParams dimension 12 "en" name pieceGeneratorType
 
-mkPiece = Piece.mkPiece
+mkPiece :: Char -> Int -> Piece
+mkPiece letter id = Piece.Piece letter (show id)
 
 main :: IO ()
 main = do
@@ -36,8 +37,8 @@ main = do
   -- Ideally should get pieces from the server - since the server is the owner of the tile sack.
   -- We'll let that go for now.
 
-  uPieces <- sequence [mkPiece 'B', mkPiece 'E', mkPiece 'T'] -- Allow the word 'BET'
-  mPieces <- sequence [mkPiece 'S', mkPiece 'E', mkPiece 'Z'] -- Allow the word 'SET' across.
+  let uPieces = [mkPiece 'B' 1, mkPiece 'E' 2, mkPiece 'T' 3] -- Allow the word 'BET'
+      mPieces = [mkPiece 'S' 4, mkPiece 'E' 5, mkPiece 'Z' 6] -- Allow the word 'SET' across.
 
   eitherGameDto <- runExceptT (Client.startGame (StartGameRequest gameParams [] uPieces mPieces []) manager baseUrl)
   print $ show eitherGameDto

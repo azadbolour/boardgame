@@ -12,7 +12,7 @@ module BoardGame.Server.Service.BaseServiceFixtures (
   , gameParams
   , initTest
   , centerGridPoint
-  , centerGridPiece
+  -- , centerGridPiece
   , testDimension
   , testTrayCapacity
   ) where
@@ -51,10 +51,10 @@ gameParams = GameParams testDimension testTrayCapacity "tiny" thePlayer piecePro
 
 centerGridPoint = Point center center
 
-centerGridPiece :: Char -> IO GridPiece
-centerGridPiece value = do
-  piece <- Piece.mkPiece value
-  return $ GridValue piece centerGridPoint
+-- centerGridPiece :: Char -> IO GridPiece
+-- centerGridPiece value = do
+--   piece <- Piece.mkPiece value
+--   return $ GridValue piece centerGridPoint
 
 initTest :: IO GameEnv
 initTest = do

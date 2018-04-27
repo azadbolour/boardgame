@@ -46,6 +46,8 @@ import Bolour.Util.MiscUtil (
   isAlphaNumString,
  )
 import Bolour.Util.Core (EntityId)
+import Bolour.Util.FrequencyDistribution (FrequencyDistribution(..))
+import qualified Bolour.Util.FrequencyDistribution as FrequencyDistribution
 
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Axis as Axis
@@ -55,6 +57,8 @@ import qualified Bolour.Language.Domain.WordDictionary as Dict
 import Bolour.Language.Domain.WordDictionary (WordDictionary)
 import qualified Bolour.Language.Domain.DictionaryCache as DictionaryCache
 
+import BoardGame.Common.Domain.PieceProviderType (PieceProviderType(..))
+import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 import BoardGame.Common.Domain.Player (Player(Player), PlayerType(..))
 import qualified BoardGame.Common.Domain.Player as Player
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
@@ -96,6 +100,7 @@ import qualified BoardGame.Server.Domain.StripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
+import BoardGame.Server.Domain.PieceProvider (PieceProvider(..))
 
 unknownPlayerName = "You"
 unknownPlayer = Player unknownPlayerName
@@ -171,7 +176,8 @@ startGameService gameParams initGridPieces initUserPieces initMachinePieces poin
   let playerName = GameParams.playerName params
   playerRowId <- GameDao.findExistingPlayerRowIdByName connectionProvider playerName
   dictionary <- lookupDictionary languageCode
-  let pieceProvider = PieceProvider.mkDefaultPieceProvider pieceProviderType dimension
+  -- let pieceProvider = PieceProvider.mkDefaultPieceProvider pieceProviderType dimension
+  let pieceProvider = mkPieceProvider pieceProviderType
   game @ Game{ gameId } <- Game.mkInitialGame params pieceProvider initGridPieces initUserPieces initMachinePieces pointValues playerName
   GameDao.addGame connectionProvider $ gameToRow playerRowId game
   liftGameExceptToStack $ GameCache.insert game gameCache
@@ -385,8 +391,43 @@ stripMatchAsPlay board tray strip word = do
   (reversePlayPieces, depletedTray) <- playPiecePeeler word 0 ([], tray)
   return (reverse reversePlayPieces, depletedTray)
 
+letterFrequencies :: [(Char, Int)]
+letterFrequencies = [
+    ('A', 81),
+    ('B', 15),
+    ('C', 28),
+    ('D', 42),
+    ('E', 127),
+    ('F', 22),
+    ('G', 20),
+    ('H', 61),
+    ('I', 70),
+    ('J', 2),
+    ('K', 8),
+    ('L', 40),
+    ('M', 24),
+    ('N', 67),
+    ('O', 80),
+    ('P', 19),
+    ('Q', 1),
+    ('R', 60),
+    ('S', 63),
+    ('T', 91),
+    ('U', 28),
+    ('V', 10),
+    ('W', 23),
+    ('X', 2),
+    ('Y', 20),
+    ('Z', 1)
+  ]
 
+caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+letterDistribution :: FrequencyDistribution Char
+letterDistribution = FrequencyDistribution.mkFrequencyDistribution letterFrequencies
 
+mkPieceProvider :: PieceProviderType -> PieceProvider
+mkPieceProvider PieceProviderType.Random =
+  RandomPieceProvider 0 (FrequencyDistribution.randomValue letterDistribution)
 
-
+mkPieceProvider PieceProviderType.Cyclic = CyclicPieceProvider 0 (cycle caps)

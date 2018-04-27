@@ -117,7 +117,7 @@ updatePieceGenerator game generator = game { pieceProvider = generator }
 
 mkPieces :: (MonadError GameError m, MonadIO m) => Int -> Game -> m (Game, [Piece])
 mkPieces num (game @ Game { pieceProvider }) = do
-  (pieces, leftTileSack) <- PieceProvider.takeAvailableTiles pieceProvider num
+  (pieces, leftTileSack) <- PieceProvider.takePieces pieceProvider num
   let game' = game { pieceProvider = leftTileSack }
   return (game', pieces)
 
@@ -287,14 +287,11 @@ doExchange (game @ Game {gameId, board, trays, pieceProvider, numSuccessivePasse
       piece = pieces !! trayPos
       succPasses = numSuccessivePasses + 1
       game' = game { numSuccessivePasses = succPasses, lastPlayScore = 0 }
-  if PieceProvider.isEmpty pieceProvider
-    then return (game', piece)
-    else do
-      (piece', pieceProvider1) <- PieceProvider.swapOne pieceProvider piece
-      let game'' = game' { pieceProvider = pieceProvider1 }
-          tray' = Tray.replacePiece tray trayPos piece'
-          game''' = setPlayerTray game'' playerType tray'
-      return (game''', piece')
+  (piece', pieceProvider1) <- PieceProvider.swapOne pieceProvider piece
+  let game'' = game' { pieceProvider = pieceProvider1 }
+      tray' = Tray.replacePiece tray trayPos piece'
+      game''' = setPlayerTray game'' playerType tray'
+  return (game''', piece')
 
 -- Either is a MonadError - but this generalizes the function.
 -- In general rather than using a specific monad, use an mtl type class

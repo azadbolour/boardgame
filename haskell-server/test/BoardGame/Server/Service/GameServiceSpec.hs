@@ -94,8 +94,8 @@ spec = do
   describe "commits a play" $
     it "commit a play" $
       do -- IO
-        uPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
-        mPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
+        let uPieces = [Piece 'B' "1", Piece 'E' "2", Piece 'T' "3"] -- Allow the word 'BET'
+            mPieces = [Piece 'S' "4", Piece 'T' "5", Piece 'Z' "6"] -- Allow the word 'SET' across.
 
         (miniState, replacementPieces, deadPieces) <- runner'' $ do -- GameTransformerStack
           addPlayerService $ Player Fixtures.thePlayer

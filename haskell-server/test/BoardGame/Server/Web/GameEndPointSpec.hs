@@ -50,7 +50,7 @@ import qualified BoardGame.Server.Web.WebTestFixtures as Fixtures (
     , thePlayer
     , gameParams
     , initTest
-    , centerGridPiece
+    -- , centerGridPiece
     , testDimension
     , testTrayCapacity
   )
@@ -80,8 +80,8 @@ spec = do
       do
         env <- Fixtures.initTest
         Fixtures.makePlayer env Fixtures.thePlayer
-        uPieces <- sequence [Piece.mkPiece 'B', Piece.mkPiece 'E', Piece.mkPiece 'T'] -- Allow the word 'BET'
-        mPieces <- sequence [Piece.mkPiece 'S', Piece.mkPiece 'T', Piece.mkPiece 'Z'] -- Allow the word 'SET' across.
+        let uPieces = [Piece 'B' "1", Piece 'E' "2", Piece 'T' "3"] -- Allow the word 'BET'
+            mPieces = [Piece 'S' "4", Piece 'T' "5", Piece 'Z' "6"] -- Allow the word 'SET' across.
         StartGameResponse {gameId, gameParams, gridPieces, trayPieces}
           <- Fixtures.makeGame env Fixtures.gameParams [] uPieces mPieces pointValues
 --         let GridValue {value = piece, point = centerPoint} =

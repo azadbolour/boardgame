@@ -17,11 +17,6 @@
 
 module BoardGame.Common.Domain.Piece (
     Piece(..)
-  , mkPiece
-  , mkRandomPiece
-  , mkRandomPieceForId
-  , randomLetter
-  , frequencies
 ) where
 
 import System.Random
@@ -42,80 +37,3 @@ data Piece = Piece {
 
 instance FromJSON Piece
 instance ToJSON Piece
-
-piecesToString :: [Piece] -> String
-piecesToString pieces = value <$> pieces
-
-asciiA :: Int
-asciiA = ord 'A'
-
--- | Create a piece with given value and a unique id.
-mkPiece :: Char -> IO Piece
-mkPiece letter = do
-  id <- Misc.mkUuid
-  return $ Piece letter id
-
-mkRandomPiece :: IO Piece
-mkRandomPiece = mkRandomPieceInternal 1
-
-mkRandomPieceForId :: String -> IO Piece
-mkRandomPieceForId id = do
-  value <- randomLetter
-  return $ Piece value id
-
--- | Private helper function for creating a random piece.
---   The dummy int parameter is for convenience of mkRandomPieces.
-mkRandomPieceInternal :: Int -> IO Piece
-mkRandomPieceInternal _ = do
-  id <- Misc.mkUuid
-  offset <- randomRIO (0, 25)
-  let asciiValue = asciiA + offset
-  let value = chr asciiValue
-  return $ Piece value id
-
--- | Tile frequencies for 15x15 board.
-frequencies = [
-    ('A', 81),
-    ('B', 15),
-    ('C', 28),
-    ('D', 42),
-    ('E', 127),
-    ('F', 22),
-    ('G', 20),
-    ('H', 61),
-    ('I', 70),
-    ('J', 2),
-    ('K', 8),
-    ('L', 40),
-    ('M', 24),
-    ('N', 67),
-    ('O', 80),
-    ('P', 19),
-    ('Q', 1),
-    ('R', 60),
-    ('S', 63),
-    ('T', 91),
-    ('U', 28),
-    ('V', 10),
-    ('W', 23),
-    ('X', 2),
-    ('Y', 20),
-    ('Z', 1)
-  ]
-
-frequencyMap :: Map.Map Char Int
-frequencyMap = Map.fromList frequencies
-
--- | The distribution function of the letters.
-distribution :: [(Char, Int)]
-distribution = tail $ scanl' (\(l1, f1) (l2, f2) -> (l2, f1 + f2)) ('a', 0) frequencies
-
-maxDistribution = snd $ last distribution
-
--- | Get a random letter according to the letter frequencies.
-randomLetter :: IO Char
-randomLetter = do
-  dist <- randomRIO (0, maxDistribution - 1)
-  let Just offset = findIndex ((<) dist . snd) distribution
-  let asciiValue = asciiA + offset
-  return $ chr asciiValue

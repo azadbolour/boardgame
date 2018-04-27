@@ -40,7 +40,7 @@ pointValues = replicate dim $ replicate dim 1
 
 pieceProviderType = PieceProviderType.Cyclic
 params = GameParams dim 12 Dict.defaultLanguageCode thePlayer pieceProviderType
-tileSack = PieceProvider.mkDefaultPieceProvider PieceProviderType.Cyclic dim
+pieceProvider = PieceProvider.mkDefaultCyclicPieceProvider
 
 spec :: Spec
 spec = do
@@ -48,7 +48,7 @@ spec = do
     it "game to dto" $ do
       let playerName = "You"
       let gridPiece = GridValue (Piece 'E' "idE") (Point mid mid)
-      game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params tileSack [gridPiece] [] [] pointValues playerName)
+      game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params pieceProvider [gridPiece] [] [] pointValues playerName)
       let response = gameToStartGameResponse game
       let brd = Game.board game
       length (Board.getGridPieces brd) `shouldBe` length (StartGameResponse.gridPieces response)

@@ -181,6 +181,7 @@ test-suite spec
       BoardGame.Server.Service.ServiceTestFixtures
       BoardGame.Server.Service.GameServiceSpec
       BoardGame.Server.Service.NegativeGameServiceSpec
+      BoardGame.Server.Service.PieceProviderSpec
       BoardGame.Server.Web.GameEndPointSpec
       BoardGame.Server.Web.ConvertersSpec
       BoardGame.Server.Web.WebTestFixtures
