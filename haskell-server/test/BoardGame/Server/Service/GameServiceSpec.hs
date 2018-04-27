@@ -6,7 +6,6 @@
 
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
-{-# LANGUAGE RecordWildCards #-}
 
 module BoardGame.Server.Service.GameServiceSpec (
     spec
@@ -31,15 +30,16 @@ import qualified BoardGame.Common.Domain.GridPiece as GridPiece
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
+import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Server.Domain.GameCache as GameCache
 import BoardGame.Server.Service.GameDao (cleanupDb)
 import BoardGame.Server.Domain.GameError
 import BoardGame.Server.Domain.Game (Game(Game))
-import BoardGame.Server.Domain.Play (Play(Play))
+-- import BoardGame.Server.Domain.Play (Play(Play))
 import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
 import BoardGame.Server.Service.GameTransformerStack
 
-import qualified BoardGame.Server.Domain.Play as Play (playToWord)
+-- import qualified BoardGame.Server.Domain.Play as Play (playToWord)
 import qualified BoardGame.Common.Domain.Piece as Piece
 import qualified BoardGame.Server.Domain.Tray as Tray
 import qualified BoardGame.Server.Domain.Game as Game
@@ -117,7 +117,7 @@ spec = do
           addPlayerService $ Player Fixtures.thePlayer
           Game {gameId} <- startGameService Fixtures.gameParams [] [] [] []
           (miniState, playedPieces, deadPieces) <- machinePlayService gameId
-          let word = Play.playToWord $ Play playedPieces
+          let word = PlayPiece.playPiecesToWord playedPieces
           return word
         print word
         length word `shouldSatisfy` (> 1)

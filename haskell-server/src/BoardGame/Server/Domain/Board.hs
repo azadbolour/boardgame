@@ -30,19 +30,15 @@ module BoardGame.Server.Domain.Board (
 where
 
 import Data.List
-import qualified Data.Maybe as Maybe
-import Data.Map (Map)
 import qualified Data.Map as Map
-import Data.Maybe (fromJust, isJust)
 import Control.Monad.Except (MonadError(..))
 
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import qualified BoardGame.Common.Domain.GridPiece as GridPiece
 import qualified Bolour.Plane.Domain.GridValue as GridValue
-import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
+import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 import Bolour.Plane.Domain.Axis (Coordinate, Axis(..))
 import Bolour.Plane.Domain.Point (Point, Point(Point))

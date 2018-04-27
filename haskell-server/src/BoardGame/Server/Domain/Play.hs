@@ -11,33 +11,54 @@
 
 module BoardGame.Server.Domain.Play (
     Play(..)
-  , playToWord
-  , movesOfPlay
 )
 where
 
-import BoardGame.Common.Domain.GridPiece
+import qualified Data.ByteString.Lazy.Char8 as BC
+
+import GHC.Generics (Generic)
+import Data.Aeson (FromJSON, ToJSON)
+import qualified Data.Aeson as Aeson
+
+import Bolour.Plane.Domain.Point (Point)
+import BoardGame.Common.Domain.Piece (Piece)
+import BoardGame.Common.Domain.Player (PlayerType(..))
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 
-import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
+data PlayType = WordPlayType | SwapPlayType
+  deriving (Eq, Show, Generic)
 
-type Moved = Bool
+instance FromJSON PlayType
+instance ToJSON PlayType
 
--- | A word play including all the word's letters, their locations, and whether
---   formed a move in the play.
-data Play = Play {
-    -- | The pieces, their locations, and whether moved or existing,
-    --   in the line segment of this play.
-    playPieces :: [PlayPiece]
-}
-  deriving (Eq, Show)
+-- | Representation of a single play.
+data Play =
+  WordPlay {
+      playType :: PlayType
+    , playNumber :: Int
+    , playerType :: PlayerType
+    , scores :: [Int]
+    , playPieces :: [PlayPiece]
+    , replacementPieces :: [Piece]
+    , deadPoints :: [Point]
+  }
+  | SwapPlay {
+      playType :: PlayType
+    , playNumber :: Int
+    , playerType :: PlayerType
+    , scores :: [Int]
+    , swappedPiece :: Piece
+    , newPiece :: Piece
+  }
+  deriving (Eq, Show, Generic)
 
-playToWord :: Play -> String
-playToWord (Play playPieces) = PlayPiece.playPiecesToWord playPieces
+instance FromJSON Play
+instance ToJSON Play
 
-movesOfPlay :: Play -> [GridPiece]
-movesOfPlay Play {playPieces} =
-  let movedPlayPieces = filter (\x -> PlayPiece.moved x) playPieces
-  in PlayPiece.getGridPiece <$> movedPlayPieces
+encode :: Play -> String
+encode play = BC.unpack $ Aeson.encode play
+
+decode :: String -> Maybe Play
+decode encoded = Aeson.decode $ BC.pack encoded
 
 

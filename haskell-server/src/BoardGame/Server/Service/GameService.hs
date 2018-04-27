@@ -72,8 +72,6 @@ import qualified BoardGame.Common.Domain.GameParams as GameParams (GameParams(..
 import BoardGame.Server.Domain.Game (Game, Game(Game))
 import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.GameError (GameError(..))
-import BoardGame.Server.Domain.Play (Play)
-import qualified BoardGame.Server.Domain.Play as Play
 import BoardGame.Server.Domain.Tray (Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
 import qualified BoardGame.Server.Domain.Board as Board

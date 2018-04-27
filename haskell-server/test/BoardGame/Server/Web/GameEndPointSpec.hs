@@ -12,45 +12,37 @@ module BoardGame.Server.Web.GameEndPointSpec (
     spec
   ) where
 
-import Data.Char (isUpper)
-import Data.Maybe (fromJust)
-import Data.List
 import Test.Hspec
+import Data.Char (isUpper)
 import Control.Monad.Trans.Except (runExceptT)
+
 import Bolour.Util.SpecUtil (satisfiesRight)
 import BoardGame.Common.Message.SwapPieceResponse (SwapPieceResponse(..))
 import BoardGame.Common.Message.StartGameResponse (StartGameResponse(StartGameResponse))
 import qualified BoardGame.Common.Message.StartGameResponse as StartGameResponse(StartGameResponse(..))
-import BoardGame.Server.Domain.Play (Play, Play(Play))
-import qualified BoardGame.Server.Domain.Play as Play
-import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
+import BoardGame.Common.Domain.Piece (Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import Bolour.Plane.Domain.Point (Point, Point(Point))
-import qualified Bolour.Plane.Domain.Point as Point
-import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
+import Bolour.Plane.Domain.Point (Point(Point))
+import BoardGame.Common.Domain.PlayPiece (PlayPiece(PlayPiece))
+import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
-import qualified Bolour.Plane.Domain.GridValue as GridValue
-import qualified BoardGame.Common.Domain.GridPiece as GridPiece
 
-import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse, CommitPlayResponse(CommitPlayResponse))
+import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse(CommitPlayResponse))
 import qualified BoardGame.Common.Message.CommitPlayResponse as CommitPlayResponse
-import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse, MachinePlayResponse(MachinePlayResponse))
+import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse(MachinePlayResponse))
 import qualified BoardGame.Common.Message.MachinePlayResponse as MachinePlayResponse
-
 
 import BoardGame.Server.Web.GameEndPoint (
     commitPlayHandler
   , machinePlayHandler
   , swapPieceHandler
   )
-import BoardGame.Util.TestUtil (mkInitialPlayPieces)
 import qualified BoardGame.Server.Web.WebTestFixtures as Fixtures (
       makePlayer
     , makeGame
     , thePlayer
     , gameParams
     , initTest
-    -- , centerGridPiece
     , testDimension
     , testTrayCapacity
   )
@@ -108,7 +100,7 @@ spec = do
         gameDto <- Fixtures.makeGame env Fixtures.gameParams [] [] [] pointValues
         MachinePlayResponse {gameMiniState, playedPieces} <- satisfiesRight
           =<< runExceptT (machinePlayHandler env (StartGameResponse.gameId gameDto))
-        let word = Play.playToWord $ Play playedPieces
+        let word = PlayPiece.playPiecesToWord playedPieces
         length word `shouldSatisfy` (> 1)
   describe "swap a piece" $
     it "swap a piece" $

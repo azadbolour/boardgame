@@ -111,6 +111,9 @@ library
       BoardGame.Server.Service.GameService
       BoardGame.Server.Service.GameLetterDistribution
       BoardGame.Server.Service.GameDao
+      BoardGame.Server.Service.GamePersister
+      BoardGame.Server.Service.GameJsonPersister
+      BoardGame.Server.Service.GameJsonSlickPersister
       BoardGame.Client.GameClient
   other-modules:
       Paths_boardgame
