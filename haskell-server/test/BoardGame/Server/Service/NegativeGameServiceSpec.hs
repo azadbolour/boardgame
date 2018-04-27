@@ -19,7 +19,6 @@ import Control.Monad.Reader (runReaderT)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Log (runLoggingT)
 
-import BoardGame.Common.Domain.Player (Player, Player(Player))
 import BoardGame.Common.Domain.GameParams (GameParams(..))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 import qualified Bolour.Plane.Domain.Axis as Axis (Axis(..))
@@ -83,34 +82,34 @@ paramsBadTrayCapacity = Fixtures.gameParams {trayCapacity = badTrayCapacity}
 -- TODO. 0 and 1 are also bad sizes.
 
 spec :: Spec
-spec = do
+spec =
   describe "invalid data to start a game" $ do
     it "requires alphnumeric player names" $
       do
-        error <- runL' $ GameService.addPlayerService $ Player nonAlphaNumPlayerName
+        error <- runL' $ GameService.addPlayerService $ nonAlphaNumPlayerName
         error `shouldBe` GameError.InvalidPlayerNameError nonAlphaNumPlayerName
 
     it "guards against non-existent player" $
       do
-        runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
+        runR' $ GameService.addPlayerService $ Fixtures.thePlayer
         error <- runL' $ GameService.startGameService paramsBadPlayer [] [] [] []
         error `shouldBe` GameError.MissingPlayerError nonExistentPlayerName
 
     it "disallows negative board dimensions" $
       do
-        runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
+        runR' $ GameService.addPlayerService $ Fixtures.thePlayer
         error <- runL' $ GameService.startGameService paramsBadDimension [] [] [] []
         error `shouldBe` GameError.InvalidDimensionError badDimension
 
     it "disallows 0 board dimensions" $
       do
-        runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
+        runR' $ GameService.addPlayerService $ Fixtures.thePlayer
         error <- runL' $ GameService.startGameService paramsZeroWidth [] [] [] []
         error `shouldBe` GameError.InvalidDimensionError 0
 
     it "disallows trays with 0 capacity" $
       do
-        runR' $ GameService.addPlayerService $ Player Fixtures.thePlayer
+        runR' $ GameService.addPlayerService $ Fixtures.thePlayer
         error <- runL' $ GameService.startGameService paramsBadTrayCapacity [] [] [] []
         error `shouldBe` GameError.InvalidTrayCapacityError badTrayCapacity
 

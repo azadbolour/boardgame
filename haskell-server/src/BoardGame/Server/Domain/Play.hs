@@ -22,7 +22,7 @@ import qualified Data.Aeson as Aeson
 
 import Bolour.Plane.Domain.Point (Point)
 import BoardGame.Common.Domain.Piece (Piece)
-import BoardGame.Common.Domain.Player (PlayerType(..))
+import BoardGame.Server.Domain.Player (PlayerType(..))
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 
 data PlayType = WordPlayType | SwapPlayType

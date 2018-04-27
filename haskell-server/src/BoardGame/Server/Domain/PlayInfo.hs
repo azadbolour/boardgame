@@ -9,7 +9,7 @@ module BoardGame.Server.Domain.PlayInfo where
 -- TODO. Merge the data here into Play.
 
 import BoardGame.Server.Domain.PlayDetails (PlayDetails)
-import BoardGame.Common.Domain.Player (PlayerType(..))
+import BoardGame.Server.Domain.Player (PlayerType(..))
 
 -- | Master record of a play.
 data PlayInfo = PlayInfo {

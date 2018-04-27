@@ -36,7 +36,7 @@ import qualified Bolour.Plane.Domain.Point as Point
 -- import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.GameParams (GameParams(GameParams))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
-import BoardGame.Common.Domain.Player (Player(Player))
+import BoardGame.Common.Domain.PlayerDto (PlayerDto(PlayerDto))
 import BoardGame.Common.Message.SwapPieceResponse (SwapPieceResponse(..))
 import qualified BoardGame.Common.Message.StartGameResponse as StartGameResponse
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest(StartGameRequest))
@@ -105,7 +105,6 @@ thePlayer = "You"
 pieceProviderType = PieceProviderType.Cyclic
 params = GameParams dimension 12 "tiny" thePlayer pieceProviderType
 -- params = GameParams dimension 12 Dict.defaultLanguageCode thePlayer pieceProviderType
-playerJohn = Player thePlayer
 
 pointValues :: [[Int]]
 pointValues = replicate dimension $ replicate dimension 1
@@ -126,7 +125,7 @@ spec = beforeAll startApp $ afterAll endWaiApp $
       (threadId, baseUrl) <- startApp
       initTest
       manager <- mkManager
-      eitherMaybeUnit <- runExceptT (Client.addPlayer playerJohn manager baseUrl)
+      eitherMaybeUnit <- runExceptT (Client.addPlayer (PlayerDto thePlayer) manager baseUrl)
 
       let uPieces = [Piece 'B' "1", Piece 'E' "2", Piece 'T' "3"] -- Allow the word 'BET'
           mPieces = [Piece 'S' "4", Piece 'T' "5", Piece 'Z' "6"] -- Allow the word 'SET' across.

@@ -57,7 +57,6 @@ import Database.Persist.Sql (
 import Database.Persist.TH
 import Bolour.Util.Core(EntityId)
 import BoardGame.Server.Domain.GameError(GameError(..))
-import BoardGame.Common.Domain.Player (PlayerName)
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv(GameEnv(..))
 
 import BoardGame.Server.Service.TypeDefs
@@ -101,6 +100,18 @@ migrate =
 savePlayer :: PlayerId -> String -> JsonEncoded -> Result ()
 savePlayer playerId playerName json =
   return ()
+
+{-
+addPlayer provider player =
+  liftIO $ PersistRunner.runQuery provider (addPlayerReader player)
+
+addPlayerReader :: PlayerRow -> SqlPersistM EntityId
+addPlayerReader player = fromSqlKey <$> insert player
+
+playerToRow :: Player.Player -> PlayerRow
+playerToRow player = PlayerRow $ Player.name player -- TODO. Clean this up.
+
+-}
 
 findPlayerByName :: String -> Result (Maybe JsonEncoded)
 findPlayerByName playerName =

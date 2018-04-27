@@ -38,9 +38,9 @@ import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Common.Domain.GameParams as GameParams -- allows both qualified and unqualified names
 import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.Piece (Piece)
-import BoardGame.Common.Domain.Player (PlayerType(..))
-import qualified BoardGame.Common.Domain.Player as PlayerType
-import qualified BoardGame.Common.Domain.Player as Player
+import BoardGame.Server.Domain.Player (PlayerType(..))
+import qualified BoardGame.Server.Domain.Player as PlayerType
+import qualified BoardGame.Server.Domain.Player as Player
 import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import qualified Bolour.Plane.Domain.GridValue as GridValue
@@ -67,7 +67,7 @@ data Game = Game {
   , pointValues :: [[Int]]
   , board :: Board
   , trays :: [Tray.Tray] -- ^ Indexed by Player.playerTypeIndex UserPlayer or MachinePlayer. User 0, Machine 1.
-  , playerName :: Player.PlayerName
+  , playerName :: String
   , playNumber :: Int
   , playTurn :: PlayerType
   , pieceProvider :: PieceProvider
@@ -134,7 +134,7 @@ mkInitialGame :: (MonadError GameError m, MonadIO m) =>
   -> [Piece]
   -> [Piece]
   -> [[Int]]
-  -> Player.PlayerName
+  -> String
   -> m Game
 
 -- TODO. Fix duplicated player name.

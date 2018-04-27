@@ -22,8 +22,8 @@ import BoardGame.Common.Message.StartGameResponse as StartGameResponse
 import BoardGame.Server.Domain.Game(Game, Game(Game))
 import BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Tray as Tray
+import qualified BoardGame.Server.Domain.Player as Player
 
-import qualified BoardGame.Common.Domain.Player as Player
 import qualified BoardGame.Server.Domain.Game as Game
 import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
 import BoardGame.Server.Domain.PieceProvider

@@ -33,13 +33,13 @@ import BoardGame.Common.Message.StartGameRequest (StartGameRequest)
 import BoardGame.Common.Message.StartGameResponse (StartGameResponse)
 import BoardGame.Common.Message.SwapPieceResponse (SwapPieceResponse)
 import BoardGame.Common.Domain.GameSummary (GameSummary)
-import BoardGame.Common.Domain.Player (Player)
+import BoardGame.Common.Domain.PlayerDto (PlayerDto)
 import BoardGame.Common.Domain.Piece (Piece)
 
 -- | The api interface for the game as a type. All paths have a "game" prefix.
 type GameApi =
        "game" :> "hand-shake" :> Get '[JSON] HandShakeResponse
-  :<|> "game" :> "player" :> ReqBody '[JSON] Player :> Post '[JSON] ()
+  :<|> "game" :> "player" :> ReqBody '[JSON] PlayerDto :> Post '[JSON] ()
   :<|> "game" :> "game" :> ReqBody '[JSON] StartGameRequest :> Post '[JSON] StartGameResponse
   :<|> "game" :> "commit-play" :> Capture "gameId" String :> ReqBody '[JSON] [PlayPiece] :> Post '[JSON] CommitPlayResponse
   :<|> "game" :> "machine-play" :> Capture "gameId" String :> Post '[JSON] MachinePlayResponse

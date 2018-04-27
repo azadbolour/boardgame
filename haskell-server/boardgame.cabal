@@ -76,7 +76,7 @@ library
       Bolour.Plane.Domain.BlackWhiteGrid
       BoardGame.Common.GameApi
       BoardGame.Server.Domain.ServerConfig
-      BoardGame.Common.Domain.Player
+      BoardGame.Common.Domain.PlayerDto
       BoardGame.Common.Domain.Piece
       BoardGame.Common.Domain.GridPiece
       BoardGame.Common.Domain.PieceProviderType
@@ -96,6 +96,7 @@ library
       BoardGame.Server.Domain.GameError
       BoardGame.Server.Domain.Game
       BoardGame.Server.Domain.Play
+      BoardGame.Server.Domain.Player
       BoardGame.Server.Domain.Strip
       BoardGame.Server.Domain.Tray
       BoardGame.Server.Domain.PlayInfo

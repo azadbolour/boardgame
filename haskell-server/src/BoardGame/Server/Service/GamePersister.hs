@@ -13,7 +13,7 @@ module BoardGame.Server.Service.GamePersister (
 ) where
 
 import BoardGame.Server.Service.TypeDefs (Result)
-import BoardGame.Common.Domain.Player (Player)
+import BoardGame.Server.Domain.Player (Player)
 import BoardGame.Server.Domain.Game (Game)
 import BoardGame.Server.Domain.GameError (GameError)
 

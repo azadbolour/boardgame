@@ -15,7 +15,7 @@ import Control.Monad.Trans.Except (runExceptT)
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
-import BoardGame.Common.Domain.Player (userIndex)
+import BoardGame.Server.Domain.Player (userIndex)
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
 import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))

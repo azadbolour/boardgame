@@ -22,7 +22,6 @@ import Control.Monad.Log (runLoggingT)
 import qualified Bolour.Util.PersistRunner as PersistRunner
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
-import BoardGame.Common.Domain.Player(Player, Player(Player))
 import BoardGame.Common.Domain.Piece (Piece(Piece))
 import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
 import qualified Bolour.Plane.Domain.GridValue as GridValue
@@ -86,7 +85,7 @@ spec = do
     it "starts game" $
       do -- IO
         userTray <- runner'' $ do -- GameTransformerStack
-          addPlayerService $ Player Fixtures.thePlayer
+          addPlayerService $ Fixtures.thePlayer
           Game {trays} <- startGameService Fixtures.gameParams [] [] [] []
           return $ trays !! 0
         length (Tray.pieces userTray) `shouldSatisfy` (== Fixtures.testTrayCapacity)
@@ -98,7 +97,7 @@ spec = do
             mPieces = [Piece 'S' "4", Piece 'T' "5", Piece 'Z' "6"] -- Allow the word 'SET' across.
 
         (miniState, replacementPieces, deadPieces) <- runner'' $ do -- GameTransformerStack
-          addPlayerService $ Player Fixtures.thePlayer
+          addPlayerService $ Fixtures.thePlayer
           Game {gameId, board, trays} <- startGameService Fixtures.gameParams [] uPieces mPieces []
           let pc0:pc1:pc2:_ = uPieces
               center = Fixtures.testDimension `div` 2
@@ -114,7 +113,7 @@ spec = do
     it "make machine play" $
       do -- IO
         word <- runner'' $ do
-          addPlayerService $ Player Fixtures.thePlayer
+          addPlayerService $ Fixtures.thePlayer
           Game {gameId} <- startGameService Fixtures.gameParams [] [] [] []
           (miniState, playedPieces, deadPieces) <- machinePlayService gameId
           let word = PlayPiece.playPiecesToWord playedPieces
@@ -126,7 +125,7 @@ spec = do
     it "swap a piece" $
       do
         value <- runner'' $ do
-          addPlayerService $ Player Fixtures.thePlayer
+          addPlayerService $ Fixtures.thePlayer
           Game {gameId, trays} <- startGameService Fixtures.gameParams [] [] [] []
           let userTray = trays !! 0
               piece = head (Tray.pieces userTray)

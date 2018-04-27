@@ -6,7 +6,7 @@ import Network.HTTP.Client (Manager, newManager, defaultManagerSettings)
 import Servant.Client
 import Servant.Common.BaseUrl()
 
-import BoardGame.Common.Domain.Player (Player(Player))
+import BoardGame.Common.Domain.PlayerDto (PlayerDto(PlayerDto))
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 import Bolour.Plane.Domain.Point (Point(Point))
@@ -20,7 +20,7 @@ import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 
 dimension = 9
 name = "John"
-player = Player name
+player = PlayerDto name
 pieceGeneratorType = PieceProviderType.Cyclic
 gameParams = GameParams dimension 12 "en" name pieceGeneratorType
 

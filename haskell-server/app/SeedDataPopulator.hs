@@ -36,5 +36,6 @@ main = do
     when (isLeft eitherGameEnv) $
       die $ "unable to initialize the application environment for server config " ++ show serverConfig
     let Right gameEnv = eitherGameEnv
-    runExceptT $ TransformerStack.runDefault gameEnv $ GameService.addPlayerService $ GameService.unknownPlayer
+    runExceptT $ TransformerStack.runDefault gameEnv $
+      GameService.addPlayerService $ GameService.unknownPlayerName
     return ()

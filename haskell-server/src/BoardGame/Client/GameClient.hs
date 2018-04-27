@@ -31,7 +31,7 @@ import qualified BoardGame.Common.GameApi as GameApi
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 import Bolour.Plane.Domain.GridValue (GridValue)
 import BoardGame.Common.Domain.Piece (Piece)
-import BoardGame.Common.Domain.Player (Player)
+import BoardGame.Common.Domain.PlayerDto (PlayerDto)
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest)
 import BoardGame.Common.Message.HandShakeResponse (HandShakeResponse)
 import BoardGame.Common.Message.StartGameResponse (StartGameResponse)
@@ -41,7 +41,7 @@ import BoardGame.Common.Message.MachinePlayResponse
 import BoardGame.Common.Domain.GameSummary (GameSummary)
 
 handShake :: Manager -> BaseUrl -> ClientM HandShakeResponse
-addPlayer :: Player -> Manager -> BaseUrl -> ClientM ()
+addPlayer :: PlayerDto -> Manager -> BaseUrl -> ClientM ()
 startGame :: StartGameRequest -> Manager -> BaseUrl -> ClientM StartGameResponse
 commitPlay :: String -> [PlayPiece] -> Manager -> BaseUrl -> ClientM CommitPlayResponse
 machinePlay :: String -> Manager -> BaseUrl -> ClientM MachinePlayResponse

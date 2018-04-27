@@ -19,7 +19,6 @@ module BoardGame.Server.Service.BaseServiceFixtures (
 
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
-import BoardGame.Common.Domain.Player (Player, Player(Player))
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.GridPiece (GridPiece)

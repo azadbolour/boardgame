@@ -26,7 +26,7 @@ module BoardGame.Server.Service.GameService (
   , timeoutLongRunningGames
   , prepareDb
   , unknownPlayerName
-  , unknownPlayer
+  -- , unknownPlayer
   )
   where
 
@@ -45,6 +45,7 @@ import Control.Monad.Trans.Class (lift)
 
 import Bolour.Util.MiscUtil (isAlphaNumString)
 import Bolour.Util.Core (EntityId)
+import qualified Bolour.Util.MiscUtil as Util
 import Bolour.Util.FrequencyDistribution (FrequencyDistribution(..))
 import qualified Bolour.Util.FrequencyDistribution as FrequencyDistribution
 
@@ -58,8 +59,8 @@ import qualified Bolour.Language.Domain.DictionaryCache as DictionaryCache
 
 import BoardGame.Common.Domain.PieceProviderType (PieceProviderType(..))
 import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
-import BoardGame.Common.Domain.Player (Player(Player), PlayerType(..))
-import qualified BoardGame.Common.Domain.Player as Player
+import BoardGame.Server.Domain.Player (Player(Player), PlayerType(..))
+import qualified BoardGame.Server.Domain.Player as Player
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.GameMiniState (GameMiniState)
@@ -99,14 +100,14 @@ import BoardGame.Server.Domain.PieceProvider (PieceProvider(..), mkDefaultCyclic
 import qualified BoardGame.Server.Service.GameLetterDistribution as GameLetterDistribution
 
 unknownPlayerName = "You"
-unknownPlayer = Player unknownPlayerName
+-- unknownPlayer = Player unknownPlayerName
 
 prepareDb :: GameTransformerStack ()
 prepareDb = do
   ServerConfig {dbConfig} <- asks GameEnv.serverConfig
   connectionProvider <- asks GameEnv.connectionProvider
   liftIO $ GameDao.migrateDb connectionProvider
-  addPlayerIfNotExistsService $ Player unknownPlayerName
+  addPlayerIfNotExistsService $ unknownPlayerName
 
 timeoutLongRunningGames :: GameTransformerStack ()
 timeoutLongRunningGames = do
@@ -122,23 +123,25 @@ timeoutLongRunningGames = do
   -- TODO. End the games in the database with a timed out indication.
 
 -- | Service function to add a player to the system.
-addPlayerService :: Player.Player -> GameTransformerStack ()
-addPlayerService player = do
+addPlayerService :: String -> GameTransformerStack ()
+addPlayerService playerName = do
   connectionProvider <- asks GameEnv.connectionProvider
-  let Player { name } = player
-  if not (isAlphaNumString name) then
-    throwError $ InvalidPlayerNameError name
+  if not (isAlphaNumString playerName) then
+    throwError $ InvalidPlayerNameError playerName
   else do
+    playerId <- liftIO Util.mkUuid
+    let player = Player playerId playerName
     GameDao.addPlayer connectionProvider (playerToRow player)
     return ()
 
-addPlayerIfNotExistsService :: Player.Player -> GameTransformerStack ()
-addPlayerIfNotExistsService player = do
+addPlayerIfNotExistsService :: String -> GameTransformerStack ()
+addPlayerIfNotExistsService name = do
   connectionProvider <- asks GameEnv.connectionProvider
-  let Player { name } = player
   if not (isAlphaNumString name) then
     throwError $ InvalidPlayerNameError name
   else do
+    playerId <- liftIO Util.mkUuid
+    let player = Player playerId name
     GameDao.addPlayerIfNotExists connectionProvider (playerToRow player)
     return ()
 

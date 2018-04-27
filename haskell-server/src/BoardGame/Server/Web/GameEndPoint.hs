@@ -60,7 +60,8 @@ import Bolour.Util.MiscUtil (debug)
 import BoardGame.Common.GameApi (GameApi, GameApi', gameApi')
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import BoardGame.Common.Domain.Player (Player)
+import BoardGame.Common.Domain.PlayerDto (PlayerDto, PlayerDto(PlayerDto))
+import qualified BoardGame.Common.Domain.PlayerDto as PlayerDto
 import BoardGame.Common.Domain.GameSummary (GameSummary)
 import BoardGame.Common.Domain.GameParams (GameParams(..))
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
@@ -153,10 +154,10 @@ handShakeHandler env =
   gameTransformerStackHandler env $ return handShakeResponse
 
 -- | API handler to register a new player.
-addPlayerHandler :: GameEnv -> Player -> ExceptServant ()
-addPlayerHandler env player =
+addPlayerHandler :: GameEnv -> PlayerDto -> ExceptServant ()
+addPlayerHandler env PlayerDto {name} =
   gameTransformerStackHandler env $ do -- GameTransformerStack
-    result <- GameService.addPlayerService player
+    result <- GameService.addPlayerService name
     -- logMessage (show result) -- TODO. Could not prettify it. Looks awful.
     return result
 

@@ -15,7 +15,7 @@ module BoardGame.Server.Web.WebTestFixtures (
 
 import Control.Monad.Trans.Except (runExceptT)
 import Bolour.Util.SpecUtil (satisfiesRight) -- satisfiesJust
-import BoardGame.Common.Domain.Player (Player(Player))
+import BoardGame.Common.Domain.PlayerDto (PlayerDto(PlayerDto))
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.GameParams (GameParams)
@@ -27,7 +27,7 @@ import BoardGame.Common.Message.StartGameRequest (StartGameRequest(StartGameRequ
 
 makePlayer :: GameEnv -> String -> IO ()
 makePlayer env name = do
-    let player = Player name
+    let player = PlayerDto name
     eitherUnit <- runExceptT $ addPlayerHandler env player
     satisfiesRight eitherUnit
 

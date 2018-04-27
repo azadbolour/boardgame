@@ -6,9 +6,8 @@
 
 {-# LANGUAGE DeriveGeneric #-}
 
-module BoardGame.Common.Domain.Player (
-    PlayerName
-  , PlayerType (..)
+module BoardGame.Server.Domain.Player (
+    PlayerType (..)
   , userIndex, machineIndex
   , playerTypeIndex
   , Player(..)
@@ -16,9 +15,6 @@ module BoardGame.Common.Domain.Player (
 
 import GHC.Generics
 import Data.Aeson
-
--- | The name of a player.
-type PlayerName = String
 
 -- | Types of players.
 data PlayerType = UserPlayer | MachinePlayer
@@ -39,7 +35,8 @@ playerTypeIndex MachinePlayer = machineIndex
 
 -- | A user player.
 data Player = Player {
-    name :: PlayerName    -- ^ Unique name of the player.
+    playerId :: String
+  , name :: String    -- ^ Unique name of the player.
 }
   deriving (Eq, Show, Generic)
 

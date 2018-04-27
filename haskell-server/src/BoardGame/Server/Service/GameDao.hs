@@ -72,7 +72,6 @@ import Database.Persist.TH
 import Bolour.Util.Core(EntityId)
 import BoardGame.Server.Domain.GameError(GameError(..))
 import Bolour.Plane.Domain.Axis(Coordinate)
-import BoardGame.Common.Domain.Player (PlayerName)
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv(GameEnv(..))
 
 import Bolour.Util.PersistRunner (ConnectionProvider)
@@ -170,7 +169,7 @@ addGameReader game = fromSqlKey <$> insert game
 
 findExistingPlayerRowIdByName :: (MonadError GameError m, MonadIO m) =>
      ConnectionProvider
-  -> PlayerName
+  -> String
   -> m PlayerRowId
 findExistingPlayerRowIdByName provider playerName = do
   maybeRowId <- findPlayerRowIdByName provider playerName

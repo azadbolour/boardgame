@@ -18,7 +18,7 @@ module BoardGame.Server.Service.ServiceTestFixtures (
 import Data.Either
 import Control.Monad.Trans.Except (runExceptT)
 import Bolour.Util.SpecUtil (satisfiesRight) -- satisfiesJust
-import BoardGame.Common.Domain.Player (Player(Player))
+-- import BoardGame.Common.Domain.Player (Player(Player))
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.GameParams (GameParams)
@@ -30,8 +30,8 @@ import qualified BoardGame.Server.Service.GameService as GameService
 
 makePlayer :: GameEnv -> String -> IO ()
 makePlayer env name = do
-    let player = Player name
-    eitherUnit <- runExceptT $ TransformerStack.runDefaultUnprotected env $ GameService.addPlayerService player
+    -- let player = Player name
+    eitherUnit <- runExceptT $ TransformerStack.runDefaultUnprotected env $ GameService.addPlayerService name
     satisfiesRight eitherUnit
 
 makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO Game
