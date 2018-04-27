@@ -19,14 +19,9 @@ module BoardGame.Common.Domain.Piece (
     Piece(..)
 ) where
 
-import System.Random
-import Data.Char
-import Data.List
-import qualified Data.Map as Map
 import GHC.Generics (Generic)
 import Control.DeepSeq (NFData)
 import Data.Aeson (FromJSON, ToJSON)
-import Bolour.Util.MiscUtil as Misc
 
 -- | A game piece aka tile.
 data Piece = Piece {

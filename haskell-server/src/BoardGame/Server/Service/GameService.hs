@@ -38,13 +38,11 @@ import Data.Bool (bool)
 
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..), withExceptT)
+import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Reader (MonadReader(..), asks, ask)
-import Control.Monad.Trans.Except (ExceptT(ExceptT))
 import Control.Monad.Trans.Class (lift)
 
-import Bolour.Util.MiscUtil (
-  isAlphaNumString,
- )
+import Bolour.Util.MiscUtil (isAlphaNumString)
 import Bolour.Util.Core (EntityId)
 import Bolour.Util.FrequencyDistribution (FrequencyDistribution(..))
 import qualified Bolour.Util.FrequencyDistribution as FrequencyDistribution
@@ -95,11 +93,9 @@ import BoardGame.Server.Domain.PlayDetails (PlayDetails(WordPlayDetails), PlayDe
 import qualified BoardGame.Server.Domain.PlayDetails as PlayDetails
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv (GameEnv(..))
 import BoardGame.Server.Domain.ServerConfig as ServerConfig
-import qualified BoardGame.Server.Domain.ServerConfig as ServerParameters
 import qualified BoardGame.Server.Domain.StripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
-import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
 import BoardGame.Server.Domain.PieceProvider (PieceProvider(..))
 
 unknownPlayerName = "You"
@@ -210,7 +206,6 @@ commitPlayService gmId playPieces = do
   let wordExists = Dict.isWord dictionary playWord
   -- TODO. Library function for if problem throw error?
   bool (throwError $ InvalidWordError playWord) (return ()) wordExists
-  -- Dict.validateWord dictionary playWord
   let maybeStrip = Board.stripOfPlay board playPieces
   strip <- case maybeStrip of
            Nothing -> throwError $ WordTooShortError playWord
@@ -219,8 +214,7 @@ commitPlayService gmId playPieces = do
   (game' @ Game {board = newBoard, trays, playNumber}, refills)
     <- Game.reflectPlayOnGame game UserPlayer playPieces
 
-  let -- userTray @ Tray {capacity} = trays !! Player.userIndex
-      (newBoard', deadPoints) = updateDeadPoints newBoard dictionary
+  let (newBoard', deadPoints) = updateDeadPoints newBoard dictionary
       game'' = Game.setBoard game' newBoard'
 
   saveWordPlay gmId playNumber UserPlayer playPieces refills
@@ -240,9 +234,7 @@ machinePlayService gameId = do
   dictionary <- lookupDictionary languageCode
   let machineTray @ Tray {pieces} = trays !! Player.machineIndex
       trayChars = Piece.value <$> pieces
-      -- gridRows = Board.charRows board
       maybeMatch = Matcher.findOptimalMatch dictionary board trayChars
-      -- yields Maybe (Strip, DictWord)
   (game', machinePlayPieces, deadPoints) <- case maybeMatch of
     Nothing -> do
       gm <- exchangeMachinePiece game
@@ -251,8 +243,7 @@ machinePlayService gameId = do
       (playPieces, depletedTray) <- stripMatchAsPlay board machineTray strip word
       (gm @ Game {board = newBoard, trays, playNumber}, refills) <- Game.reflectPlayOnGame game MachinePlayer playPieces
 
-      let -- machineTray @ Tray {capacity} = trays !! Player.machineIndex
-          (newBoard', deadPoints) = updateDeadPoints newBoard dictionary
+      let (newBoard', deadPoints) = updateDeadPoints newBoard dictionary
           gm' = Game.setBoard gm newBoard'
 
       saveWordPlay gameId playNumber MachinePlayer playPieces refills
@@ -334,7 +325,7 @@ savePlay gameId playNumber playerType isPlay details = do
   let playRow = PlayRow gameRowId playNumber (show playerType) isPlay details
   GameDao.addPlay connectionProvider playRow
 
--- TODO. More intelligent optimal match based on values of moved pieces.
+-- TODO. Obsolete.
 optimalMatch :: [Play] -> Maybe Play
 optimalMatch matches =
   if null matches
