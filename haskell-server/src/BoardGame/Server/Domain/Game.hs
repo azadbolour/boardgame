@@ -22,6 +22,8 @@ module BoardGame.Server.Domain.Game (
   , toMiniState
   , summary
   , setBoard
+  , getBase
+  , fromTransitions
 )
 where
 
@@ -58,6 +60,10 @@ import BoardGame.Server.Domain.GameError
 import BoardGame.Server.Domain.PieceProvider
 import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
 import qualified BoardGame.Server.Domain.Scorer as Scorer
+import BoardGame.Server.Domain.GameBase (GameBase, GameBase(GameBase))
+import qualified BoardGame.Server.Domain.GameBase as GameBase
+import BoardGame.Server.Domain.GameTransitions (GameTransitions, GameTransitions(GameTransitions))
+import qualified BoardGame.Server.Domain.GameTransitions as GameTransitions
 
 -- TODO. Separate out Game from GameState. See Scala version.
 
@@ -77,6 +83,46 @@ data Game = Game {
   , scores :: [Int]
   , startTime :: UTCTime
 }
+
+getBase :: Game -> GameBase
+getBase Game {gameId, board, trays, languageCode, pieceProvider, pointValues, startTime} =
+  GameBase
+    gameId
+    (Board.dimension board)
+    (Tray.capacity $ head trays)
+    languageCode
+    (PieceProvider.pieceProviderType pieceProvider)
+    pointValues
+    "" -- playerId -- TODO.
+    startTime
+    Nothing -- TODO. Add end time.
+    [] -- piecePoints :: [GridPiece] -- TODO.
+    [] -- initUserPieces :: [Piece], -- TODO.
+    [] -- initMachinePieces :: [Piece] - TODO.
+
+fromTransitions :: GameTransitions -> Game
+fromTransitions GameTransitions {base, plays} = -- TODO. Implement fromTransitions.
+  let GameBase {id, dimension, trayCapacity, languageCode, pieceProviderType, pointValues, startTime, endTime} = base
+      emptyTray = Tray trayCapacity []
+      emptyTrays = [emptyTray, emptyTray]
+      pieceProvider = mkDefaultCyclicPieceProvider -- TODO. Must be based on piece provide type. Dummy for now.
+      scorePlay = Scorer.scorePlay $ Scorer.mkScorer pointValues
+  in
+    Game
+      id
+      languageCode
+      pointValues
+      (Board.mkEmptyBoard dimension)
+      emptyTrays
+      "" -- playerName -- TODO.
+      0
+      Player.UserPlayer
+      pieceProvider
+      scorePlay
+      initScore
+      0
+      [0, 0]
+      startTime
 
 -- TODO. Add deriving for basic classes.
 -- Will need custom instances for pieceProvider - since cyclic piece provider is an infinite structure.

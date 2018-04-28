@@ -95,6 +95,8 @@ library
       BoardGame.Server.Domain.Board
       BoardGame.Server.Domain.GameError
       BoardGame.Server.Domain.Game
+      BoardGame.Server.Domain.GameBase
+      BoardGame.Server.Domain.GameTransitions
       BoardGame.Server.Domain.Play
       BoardGame.Server.Domain.Player
       BoardGame.Server.Domain.Strip

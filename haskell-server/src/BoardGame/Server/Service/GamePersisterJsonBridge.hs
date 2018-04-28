@@ -16,7 +16,10 @@ import Bolour.Util.VersionStamped (Version, VersionStamped, VersionStamped(Versi
 import qualified Bolour.Util.VersionStamped as VersionStamped
 import BoardGame.Server.Domain.Player (Player, Player(Player))
 import qualified BoardGame.Server.Domain.Player as Player
-import BoardGame.Server.Domain.Game (Game)
+import BoardGame.Server.Domain.Game (Game, Game(Game))
+import qualified BoardGame.Server.Domain.Game as Game
+import BoardGame.Server.Domain.GameBase (GameBase, GameBase(GameBase))
+import qualified BoardGame.Server.Domain.GameBase as GameBase
 import BoardGame.Server.Domain.GameError (GameError)
 import BoardGame.Server.Service.TypeDefs (Result)
 import BoardGame.Server.Service.GamePersister (GamePersister, GamePersister(GamePersister))
@@ -38,24 +41,25 @@ findPlayerByName GameJsonPersister {findPlayerByName = delegate} playerName = do
   return $ maybeJson >>= VersionStamped.decodeAndExtract
 
 clearPlayers :: GameJsonPersister -> Result ()
-clearPlayers GameJsonPersister {clearPlayers = delegate} =
-  return ()
+clearPlayers GameJsonPersister {clearPlayers = delegate} = delegate
 
 saveGame :: GameJsonPersister -> Version -> Game -> Result ()
-saveGame GameJsonPersister {saveGame = delegate} version game =
-  return ()
+saveGame GameJsonPersister {saveGame = delegate} version game @ Game {gameId} = do
+  let gameBase @ GameBase {playerId} = Game.getBase game
+      json = VersionStamped.encodeWithVersion version gameBase
+  delegate gameId playerId json
 
 findGameById :: GameJsonPersister -> String -> Result (Maybe Game)
-findGameById GameJsonPersister {findGameById = delegate} gameUid =
-  return Nothing
+findGameById GameJsonPersister {findGameById = delegate} gameUid = do
+  maybeJson <- delegate gameUid
+  let maybeGameTransitions = maybeJson >>= VersionStamped.decodeAndExtract
+  return $ Game.fromTransitions <$> maybeGameTransitions
 
 deleteGame :: GameJsonPersister -> String -> Result ()
-deleteGame GameJsonPersister {deleteGame = delegate} gameUid =
-  return ()
+deleteGame GameJsonPersister {deleteGame = delegate} = delegate
 
 clearGames :: GameJsonPersister -> Result ()
-clearGames GameJsonPersister {clearGames = delegate} =
-  return ()
+clearGames GameJsonPersister {clearGames = delegate} = delegate
 
 mkBridge :: GameJsonPersister -> Version -> GamePersister
 mkBridge jsonPersister version =
