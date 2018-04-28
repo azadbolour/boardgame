@@ -11,10 +11,14 @@ module BoardGame.Server.Domain.Player (
   , userIndex, machineIndex
   , playerTypeIndex
   , Player(..)
+  , encode
+  , decode
 ) where
 
 import GHC.Generics
-import Data.Aeson
+import Data.Aeson (FromJSON, ToJSON)
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy.Char8 as BC
 
 -- | Types of players.
 data PlayerType = UserPlayer | MachinePlayer
@@ -42,6 +46,12 @@ data Player = Player {
 
 instance FromJSON Player
 instance ToJSON Player
+
+encode :: Player -> String
+encode player = BC.unpack $ Aeson.encode player
+
+decode :: String -> Maybe Player
+decode encoded = Aeson.decode $ BC.pack encoded
 
 
 
