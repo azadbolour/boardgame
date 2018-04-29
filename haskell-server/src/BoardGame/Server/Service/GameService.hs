@@ -68,10 +68,12 @@ import BoardGame.Common.Domain.GameSummary (GameSummary)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
-import BoardGame.Common.Domain.GameParams (GameParams)
-import qualified BoardGame.Common.Domain.GameParams as GameParams (GameParams(..))
+import BoardGame.Common.Domain.GameParams (GameParams, GameParams(..))
+import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Server.Domain.Game (Game, Game(Game))
 import qualified BoardGame.Server.Domain.Game as Game
+import BoardGame.Server.Domain.GameBase (GameBase, GameBase(GameBase))
+import qualified BoardGame.Server.Domain.GameBase as GameBase
 import BoardGame.Server.Domain.GameError (GameError(..))
 import BoardGame.Server.Domain.Tray (Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
@@ -175,7 +177,8 @@ startGameService gameParams initGridPieces initUserPieces initMachinePieces poin
   playerRowId <- GameDao.findExistingPlayerRowIdByName connectionProvider playerName
   dictionary <- lookupDictionary languageCode
   let pieceProvider = mkPieceProvider pieceProviderType
-  game @ Game{ gameId } <- Game.mkInitialGame params pieceProvider initGridPieces initUserPieces initMachinePieces pointValues playerName
+  game <- Game.mkInitialGame params pieceProvider initGridPieces initUserPieces initMachinePieces pointValues playerName
+  let gameId = Game.gameId game
   GameDao.addGame connectionProvider $ gameToRow playerRowId game
   exceptTToStack $ GameCache.insert game gameCache
   return game
@@ -201,8 +204,10 @@ commitPlayService ::
 
 commitPlayService gmId playPieces = do
   GameEnv { gameCache } <- ask
-  game @ Game {languageCode, board} <- exceptTToStack $ GameCache.lookup gmId gameCache
-  let playWord = PlayPiece.playPiecesToWord playPieces
+  game @ Game {gameBase, board} <- exceptTToStack $ GameCache.lookup gmId gameCache
+  let GameBase {gameParams} = gameBase
+      GameParams {languageCode} = gameParams
+      playWord = PlayPiece.playPiecesToWord playPieces
   dictionary <- lookupDictionary languageCode
   let wordExists = Dict.isWord dictionary playWord
   -- TODO. Library function for if problem throw error?
@@ -231,7 +236,10 @@ commitPlayService gmId playPieces = do
 machinePlayService :: String -> GameTransformerStack (GameMiniState, [PlayPiece], [Point])
 machinePlayService gameId = do
   GameEnv { gameCache } <- ask
-  (game @ Game {gameId, languageCode, board, trays}) <- exceptTToStack $ GameCache.lookup gameId gameCache
+  (game @ Game {gameBase, board, trays}) <- exceptTToStack $ GameCache.lookup gameId gameCache
+  let gameId = Game.gameId game
+      GameBase {gameParams} = gameBase
+      GameParams {languageCode} = gameParams
   dictionary <- lookupDictionary languageCode
   let machineTray @ Tray {pieces} = trays !! Player.machineIndex
       trayChars = Piece.value <$> pieces
@@ -259,10 +267,11 @@ machinePlayService gameId = do
 -- | Service function to swap a user piece for another.
 swapPieceService :: String -> Piece -> GameTransformerStack (GameMiniState, Piece)
 
-swapPieceService gameId (piece @ (Piece {id})) = do
+swapPieceService gameId (piece @ Piece {id}) = do
   gameCache <- asks GameEnv.gameCache
-  (game @ Game {gameId, board, trays}) <- exceptTToStack $ GameCache.lookup gameId gameCache
-  let (userTray @ (Tray {pieces})) = trays !! Player.userIndex
+  (game @ Game {board, trays}) <- exceptTToStack $ GameCache.lookup gameId gameCache
+  let gameId = Game.gameId game
+      (userTray @ Tray {pieces}) = trays !! Player.userIndex
   index <- Tray.findPieceIndexById userTray id
   let swappedPiece = pieces !! index
   (game' @ Game {playNumber}, newPiece) <- Game.doExchange game UserPlayer index
@@ -273,8 +282,9 @@ swapPieceService gameId (piece @ (Piece {id})) = do
 
 -- | No matches available for machine - do a swap instead.
 exchangeMachinePiece :: Game -> GameTransformerStack Game
-exchangeMachinePiece (game @ Game.Game {gameId, board, trays, playNumber}) = do
-  let (machineTray @ (Tray {pieces})) = trays !! Player.machineIndex
+exchangeMachinePiece (game @ Game.Game {board, trays, playNumber}) = do
+  let gameId = Game.gameId game
+      (machineTray @ Tray {pieces}) = trays !! Player.machineIndex
   if Tray.isEmpty machineTray
     then return game
     else do
@@ -330,10 +340,10 @@ gameToRow :: PlayerRowId -> Game -> GameRow
 gameToRow playerId game =
   GameRow gameId playerId (Board.dimension board) trayCapacity
     where gameId = Game.gameId game
-          languageCode = Game.languageCode game -- TODO. Add language code to the table.
+          GameBase {gameParams, playerName} = Game.gameBase game -- TODO. Add language code to the table.
+          GameParams {languageCode} = gameParams
           board = Game.board game
           trays = Game.trays game
-          playerName = Game.playerName game -- TODO. Ditto.
           userTray = trays !! Player.userIndex
           trayCapacity = length $ Tray.pieces (trays !! Player.userIndex) -- TODO. Just use tray capacity.
 

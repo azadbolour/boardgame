@@ -98,7 +98,7 @@ spec = do
 
         (miniState, replacementPieces, deadPieces) <- runner'' $ do -- GameTransformerStack
           addPlayerService $ Fixtures.thePlayer
-          Game {gameId, board, trays} <- startGameService Fixtures.gameParams [] uPieces mPieces []
+          game @ Game {board, trays} <- startGameService Fixtures.gameParams [] uPieces mPieces []
           let pc0:pc1:pc2:_ = uPieces
               center = Fixtures.testDimension `div` 2
               playPieces = [
@@ -106,7 +106,7 @@ spec = do
                 , PlayPiece pc1 (Point center center) True
                 , PlayPiece pc2 (Point center (center + 1)) True
                 ]
-          commitPlayService gameId playPieces -- refills
+          commitPlayService (Game.gameId game) playPieces -- refills
         length replacementPieces `shouldBe` 3
 
   describe "make machine play" $
@@ -114,7 +114,8 @@ spec = do
       do -- IO
         word <- runner'' $ do
           addPlayerService $ Fixtures.thePlayer
-          Game {gameId} <- startGameService Fixtures.gameParams [] [] [] []
+          game <- startGameService Fixtures.gameParams [] [] [] []
+          let gameId = Game.gameId game
           (miniState, playedPieces, deadPieces) <- machinePlayService gameId
           let word = PlayPiece.playPiecesToWord playedPieces
           return word
@@ -126,7 +127,8 @@ spec = do
       do
         value <- runner'' $ do
           addPlayerService $ Fixtures.thePlayer
-          Game {gameId, trays} <- startGameService Fixtures.gameParams [] [] [] []
+          game @ Game {trays} <- startGameService Fixtures.gameParams [] [] [] []
+          let gameId = Game.gameId game
           let userTray = trays !! 0
               piece = head (Tray.pieces userTray)
           -- TODO satisfiesRight

@@ -22,8 +22,8 @@ module BoardGame.Server.Domain.Game (
   , toMiniState
   , summary
   , setBoard
-  , getBase
   , fromTransitions
+  , BoardGame.Server.Domain.Game.gameId
 )
 where
 
@@ -37,7 +37,9 @@ import Control.Monad.Except (MonadError(..))
 
 import qualified Bolour.Util.MiscUtil as Util
 
-import BoardGame.Common.Domain.GameParams as GameParams -- allows both qualified and unqualified names
+import BoardGame.Common.Domain.GameParams as GameParams
+import BoardGame.Common.Domain.GameInitialPieces (GameInitialPieces, GameInitialPieces(GameInitialPieces))
+import qualified BoardGame.Common.Domain.GameInitialPieces as GameInitialPieces
 import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Server.Domain.Player (PlayerType(..))
@@ -65,64 +67,46 @@ import qualified BoardGame.Server.Domain.GameBase as GameBase
 import BoardGame.Server.Domain.GameTransitions (GameTransitions, GameTransitions(GameTransitions))
 import qualified BoardGame.Server.Domain.GameTransitions as GameTransitions
 
--- TODO. Separate out Game from GameState. See Scala version.
-
 data Game = Game {
-    gameId :: String
-  , languageCode :: String
-  , pointValues :: [[Int]]
+    gameBase :: GameBase
   , board :: Board
   , trays :: [Tray.Tray] -- ^ Indexed by Player.playerTypeIndex UserPlayer or MachinePlayer. User 0, Machine 1.
-  , playerName :: String
   , playNumber :: Int
   , playTurn :: PlayerType
   , pieceProvider :: PieceProvider
   , scorePlay :: [PlayPiece] -> Int
   , lastPlayScore :: Int
-  , numSuccessivePasses :: Int
   , scores :: [Int]
-  , startTime :: UTCTime
+  , numSuccessivePasses :: Int
 }
 
-getBase :: Game -> GameBase
-getBase Game {gameId, board, trays, languageCode, pieceProvider, pointValues, startTime} =
-  GameBase
-    gameId
-    (Board.dimension board)
-    (Tray.capacity $ head trays)
-    languageCode
-    (PieceProvider.pieceProviderType pieceProvider)
-    pointValues
-    "" -- playerId -- TODO.
-    startTime
-    Nothing -- TODO. Add end time.
-    [] -- piecePoints :: [GridPiece] -- TODO.
-    [] -- initUserPieces :: [Piece], -- TODO.
-    [] -- initMachinePieces :: [Piece] - TODO.
+initScore = 0
+initScores = [initScore, initScore]
+
+gameId :: Game -> String
+gameId Game {gameBase} = GameBase.gameId gameBase
 
 fromTransitions :: GameTransitions -> Game
 fromTransitions GameTransitions {base, plays} = -- TODO. Implement fromTransitions.
-  let GameBase {id, dimension, trayCapacity, languageCode, pieceProviderType, pointValues, startTime, endTime} = base
-      emptyTray = Tray trayCapacity []
-      emptyTrays = [emptyTray, emptyTray]
-      pieceProvider = mkDefaultCyclicPieceProvider -- TODO. Must be based on piece provide type. Dummy for now.
-      scorePlay = Scorer.scorePlay $ Scorer.mkScorer pointValues
+  let GameBase {gameParams, pointValues, initialPieces} = base
+      GameParams {dimension, trayCapacity, pieceProviderType} = gameParams
+      GameInitialPieces {initGridPieces, initUserPieces, initMachinePieces} = initialPieces
+      userTray = Tray trayCapacity initUserPieces
+      machineTray = Tray trayCapacity initMachinePieces
+      pieceProvider = mkDefaultCyclicPieceProvider -- TODO. Use piece provider type.
+      playScorer = Scorer.scorePlay $ Scorer.mkScorer pointValues
   in
     Game
-      id
-      languageCode
-      pointValues
-      (Board.mkEmptyBoard dimension)
-      emptyTrays
-      "" -- playerName -- TODO.
+      base
+      (Board.mkEmptyBoard dimension) -- TODO. Initialize with grid pieces.
+      [userTray, machineTray]
       0
-      Player.UserPlayer
+      Player.UserPlayer -- TODO. Keep track of initial player.
       pieceProvider
-      scorePlay
+      playScorer
       initScore
+      initScores
       0
-      [0, 0]
-      startTime
 
 -- TODO. Add deriving for basic classes.
 -- Will need custom instances for pieceProvider - since cyclic piece provider is an infinite structure.
@@ -167,11 +151,6 @@ mkPieces num (game @ Game { pieceProvider }) = do
   let game' = game { pieceProvider = leftTileSack }
   return (game', pieces)
 
--- mkPieces num game = mkPieces' num (game, [])
-
-initScore = 0
-initScores = [initScore, initScore]
-
 -- | Note. Validation of player name does not happen here.
 mkInitialGame :: (MonadError GameError m, MonadIO m) =>
   GameParams
@@ -187,26 +166,32 @@ mkInitialGame :: (MonadError GameError m, MonadIO m) =>
 mkInitialGame gameParams pieceProvider initGridPieces initUserPieces initMachinePieces pointValues playerName = do
   let GameParams.GameParams { dimension, trayCapacity, languageCode } = gameParams
   gameId <- Util.mkUuid
-  let board' = Board.mkBoardFromPiecePoints initGridPieces dimension
   now <- liftIO getCurrentTime
-  let emptyTray = Tray trayCapacity []
+  let initialPieces = GameInitialPieces initGridPieces initUserPieces initMachinePieces
+      gameBase = GameBase
+                   gameId
+                   gameParams
+                   pointValues
+                   initialPieces
+                   playerName
+                   "" -- TODO. Add player id.
+                   now
+                   Nothing
+      board' = Board.mkBoardFromPiecePoints initGridPieces dimension
+      emptyTray = Tray trayCapacity []
       emptyTrays = [emptyTray, emptyTray]
       scorePlay = Scorer.scorePlay $ Scorer.mkScorer pointValues
       game = Game
-                gameId
-                languageCode
-                pointValues
+                gameBase
                 board'
                 emptyTrays
-                playerName
                 0
                 Player.UserPlayer
                 pieceProvider
                 scorePlay
                 initScore
-                0
                 initScores
-                now
+                0
   game' <- initTray game Player.UserPlayer initUserPieces
   initTray game' Player.MachinePlayer initMachinePieces
 
@@ -217,8 +202,8 @@ toMiniState game @ Game {board, pieceProvider, lastPlayScore, scores} =
   in GameMiniState lastPlayScore scores gameEnded
 
 gameAgeSeconds :: UTCTime -> Game -> Int
-gameAgeSeconds utcNow game =
-  let diffTime = diffUTCTime utcNow (startTime game)
+gameAgeSeconds utcNow game @ Game {gameBase} =
+  let diffTime = diffUTCTime utcNow (GameBase.startTime gameBase)
       ageSeconds = toInteger $ floor diffTime
   in fromIntegral ageSeconds
 
@@ -327,7 +312,7 @@ reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, s
   return (game' { board = b, trays = trays', playNumber = playNumber', lastPlayScore = thisScore, numSuccessivePasses = 0, scores = scores' }, newPieces)
 
 doExchange :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> Int -> m (Game, Piece)
-doExchange (game @ Game {gameId, board, trays, pieceProvider, numSuccessivePasses}) playerType trayPos = do
+doExchange (game @ Game {board, trays, pieceProvider, numSuccessivePasses}) playerType trayPos = do
   let whichTray = Player.playerTypeIndex playerType
       tray @ Tray {pieces} = trays !! whichTray
       piece = pieces !! trayPos

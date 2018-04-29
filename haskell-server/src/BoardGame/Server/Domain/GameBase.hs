@@ -7,7 +7,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
 
 module BoardGame.Server.Domain.GameBase (
@@ -22,22 +21,20 @@ import Data.Aeson (FromJSON, ToJSON)
 import qualified Data.Aeson as Aeson
 
 import BoardGame.Common.Domain.PieceProviderType (PieceProviderType)
+import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
+import BoardGame.Common.Domain.GameInitialPieces (GameInitialPieces)
 
 data GameBase = GameBase {
-  id :: String,
-  dimension :: Int,
-  trayCapacity :: Int,
-  languageCode :: String,
-  pieceProviderType :: PieceProviderType,
-  pointValues :: [[Int]],
-  playerId :: String,
-  startTime :: UTCTime,
-  endTime :: Maybe UTCTime,
-  piecePoints :: [GridPiece],
-  initUserPieces :: [Piece],
-  initMachinePieces :: [Piece]
+    gameId :: String
+  , gameParams :: GameParams
+  , pointValues :: [[Int]]
+  , initialPieces :: GameInitialPieces
+  , playerName :: String
+  , playerId :: String
+  , startTime :: UTCTime
+  , endTime :: Maybe UTCTime
 }
   deriving (Eq, Show, Generic)
 

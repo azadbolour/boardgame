@@ -20,8 +20,8 @@ module BoardGame.Common.Domain.Piece (
 ) where
 
 import GHC.Generics (Generic)
-import Control.DeepSeq (NFData)
 import Data.Aeson (FromJSON, ToJSON)
+import Control.DeepSeq (NFData)
 
 -- | A game piece aka tile.
 data Piece = Piece {

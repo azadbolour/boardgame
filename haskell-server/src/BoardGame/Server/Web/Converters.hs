@@ -20,11 +20,13 @@ import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Common.Message.StartGameResponse as StartGameResponse
 import BoardGame.Server.Domain.Game(Game, Game(Game))
+import qualified BoardGame.Server.Domain.Game as Game
+import BoardGame.Server.Domain.GameBase(GameBase, GameBase(GameBase))
+import qualified BoardGame.Server.Domain.GameBase as GameBase
 import BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Tray as Tray
 import qualified BoardGame.Server.Domain.Player as Player
 
-import qualified BoardGame.Server.Domain.Game as Game
 import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
 import BoardGame.Server.Domain.PieceProvider
 import BoardGame.Common.Domain.PieceProviderType
@@ -43,9 +45,9 @@ class Converter entity dto where
   toEntity :: dto -> entity
   toDto :: entity -> dto
 
-gameToStartGameResponse (Game {gameId, languageCode, board, trays, playerName, pieceProvider}) =
-   let dimension = Board.dimension board
+gameToStartGameResponse Game {gameBase, board, trays, pieceProvider} =
+   let GameBase {gameId, gameParams, playerName} = gameBase
+       GameParams {dimension, languageCode} = gameParams
        pieceProviderType = PieceProvider.pieceProviderType pieceProvider
        Tray {capacity, pieces = trayPieces} = trays !! Player.userIndex
-       gameParams = GameParams dimension capacity languageCode playerName pieceProviderType
    in StartGameResponse gameId gameParams (Board.getGridPieces board) trayPieces

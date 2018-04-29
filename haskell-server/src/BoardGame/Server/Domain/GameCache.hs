@@ -67,7 +67,8 @@ insert game (cache @ (GameCache {lock})) =
   in ExceptT ioEither
 
 insertInternal :: Game -> GameCache -> IOEither GameError ()
-insertInternal (game @ Game.Game {gameId}) (GameCache {gameMapRef}) = do
+insertInternal game (GameCache {gameMapRef}) = do
+  let gameId = Game.gameId game
   map <- readIORef gameMapRef
   let numGames = Map.size map
   if numGames < 100 -- TODO. Use configured number.
