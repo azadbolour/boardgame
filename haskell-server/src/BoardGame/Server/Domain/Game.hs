@@ -29,6 +29,8 @@ where
 
 import Data.Char (isAlphaNum)
 import Data.List
+import Data.Sequence (Seq, (><))
+import qualified Data.Sequence as Seq
 import Data.Time (UTCTime, getCurrentTime)
 import Data.Time.Clock (diffUTCTime)
 
@@ -43,6 +45,8 @@ import qualified BoardGame.Common.Domain.GameInitialPieces as GameInitialPieces
 import Bolour.Plane.Domain.Point (Point)
 import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.Piece (Piece)
+import BoardGame.Server.Domain.Play (Play)
+import qualified BoardGame.Server.Domain.Play as Play (mkWordPlay, mkSwapPlay)
 import BoardGame.Server.Domain.Player (PlayerType(..))
 import qualified BoardGame.Server.Domain.Player as PlayerType
 import qualified BoardGame.Server.Domain.Player as Player
@@ -79,6 +83,7 @@ data Game = Game {
   , lastPlayScore :: Int
   , scores :: [Int]
   , numSuccessivePasses :: Int
+  , plays :: Seq Play
 }
 
 initScore = 0
@@ -88,7 +93,8 @@ gameId :: Game -> String
 gameId Game {gameBase} = GameBase.gameId gameBase
 
 fromTransitions :: GameTransitions -> Game
-fromTransitions GameTransitions {base, plays} = -- TODO. Implement fromTransitions.
+-- TODO. State of the game needs to be brought up to date by using the plays.
+fromTransitions GameTransitions {base, plays} =
   let GameBase {gameParams, pointValues, initialPieces} = base
       GameParams {dimension, trayCapacity, pieceProviderType} = gameParams
       GameInitialPieces {initGridPieces, initUserPieces, initMachinePieces} = initialPieces
@@ -108,6 +114,7 @@ fromTransitions GameTransitions {base, plays} = -- TODO. Implement fromTransitio
       initScore
       initScores
       0
+      plays
 
 -- TODO. Add deriving for basic classes.
 -- Will need custom instances for pieceProvider - since cyclic piece provider is an infinite structure.
@@ -193,6 +200,7 @@ mkInitialGame gameParams pieceProvider initGridPieces initUserPieces initMachine
                 initScore
                 initScores
                 0
+                Seq.empty
   game' <- initTray game Player.UserPlayer initUserPieces
   initTray game' Player.MachinePlayer initMachinePieces
 
@@ -294,7 +302,7 @@ checkPlayBoardPieces Game {board} playPieces =
 
 reflectPlayOnGame :: (MonadError GameError m, MonadIO m) =>
   Game -> PlayerType -> [PlayPiece] -> (Board -> (Board, [Point])) -> m (Game, [Piece], [Point])
-reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, scorePlay, scores})
+reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, scorePlay, scores, plays})
                   playerType playPieces deadPointFinder = do
   _ <- if playerType == PlayerType.UserPlayer then validatePlayAgainstGame game playPieces else return playPieces
   let movedPlayPieces = filter PlayPiece.moved playPieces
@@ -312,18 +320,24 @@ reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, s
       thisScore = scorePlay playPieces
       score' = earlierScore + thisScore
       scores' = Util.setListElement scores playerIndex score'
-      game'' = game' { board = b', trays = trays', playNumber = playNumber', lastPlayScore = thisScore, numSuccessivePasses = 0, scores = scores' }
+      play =  Play.mkWordPlay playNumber' playerType scores' playPieces newPieces deadPoints
+      plays' = plays >< Seq.singleton play
+      game'' = game' { board = b', trays = trays', playNumber = playNumber', lastPlayScore = thisScore, numSuccessivePasses = 0, scores = scores', plays = plays' }
   return (game'', newPieces, deadPoints)
 
 doExchange :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> Int -> m (Game, Piece)
-doExchange (game @ Game {board, trays, pieceProvider, numSuccessivePasses}) playerType trayPos = do
+doExchange (game @ Game {board, trays, pieceProvider, playNumber, numSuccessivePasses, scores, plays}) playerType trayPos = do
   let whichTray = Player.playerTypeIndex playerType
       tray @ Tray {pieces} = trays !! whichTray
       piece = pieces !! trayPos
       succPasses = numSuccessivePasses + 1
-      game' = game { numSuccessivePasses = succPasses, lastPlayScore = 0 }
+      playNumber' = playNumber + 1
+      game' = game { numSuccessivePasses = succPasses, lastPlayScore = 0 , playNumber = playNumber'}
   (piece', pieceProvider1) <- PieceProvider.swapOne pieceProvider piece
-  let game'' = game' { pieceProvider = pieceProvider1 }
+  -- TODO. Reduce constructions.
+  let play =  Play.mkSwapPlay playNumber' playerType scores piece piece'
+      plays' = plays >< Seq.singleton play
+      game'' = game' { pieceProvider = pieceProvider1, plays = plays' }
       tray' = Tray.replacePiece tray trayPos piece'
       game''' = setPlayerTray game'' playerType tray'
   return (game''', piece')

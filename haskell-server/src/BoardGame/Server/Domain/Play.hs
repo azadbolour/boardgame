@@ -11,6 +11,8 @@
 
 module BoardGame.Server.Domain.Play (
     Play(..)
+  , mkWordPlay
+  , mkSwapPlay
 )
 where
 
@@ -60,5 +62,24 @@ encode play = BC.unpack $ Aeson.encode play
 
 decode :: String -> Maybe Play
 decode encoded = Aeson.decode $ BC.pack encoded
+
+mkWordPlay ::
+     Int
+  -> PlayerType
+  -> [Int]
+  -> [PlayPiece]
+  -> [Piece]
+  -> [Point]
+  -> Play
+mkWordPlay = WordPlay WordPlayType
+
+mkSwapPlay ::
+     Int
+  -> PlayerType
+  -> [Int]
+  -> Piece
+  -> Piece
+  -> Play
+mkSwapPlay = SwapPlay SwapPlayType
 
 
