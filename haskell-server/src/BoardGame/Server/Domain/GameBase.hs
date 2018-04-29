@@ -24,13 +24,14 @@ import BoardGame.Common.Domain.PieceProviderType (PieceProviderType)
 import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
-import BoardGame.Common.Domain.GameInitialPieces (GameInitialPieces)
+import BoardGame.Common.Domain.InitPieces (InitPieces)
+import qualified BoardGame.Common.Domain.InitPieces as InitPieces
 
 data GameBase = GameBase {
     gameId :: String
   , gameParams :: GameParams
   , pointValues :: [[Int]]
-  , initialPieces :: GameInitialPieces
+  , initPieces :: InitPieces
   , playerName :: String
   , playerId :: String
   , startTime :: UTCTime
@@ -40,5 +41,3 @@ data GameBase = GameBase {
 
 instance FromJSON GameBase
 instance ToJSON GameBase
-
-

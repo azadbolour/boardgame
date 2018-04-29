@@ -40,8 +40,8 @@ import Control.Monad.Except (MonadError(..))
 import qualified Bolour.Util.MiscUtil as Util
 
 import BoardGame.Common.Domain.GameParams as GameParams
-import BoardGame.Common.Domain.GameInitialPieces (GameInitialPieces, GameInitialPieces(GameInitialPieces))
-import qualified BoardGame.Common.Domain.GameInitialPieces as GameInitialPieces
+import BoardGame.Common.Domain.InitPieces (InitPieces, InitPieces(InitPieces))
+import qualified BoardGame.Common.Domain.InitPieces as InitPieces
 import Bolour.Plane.Domain.Point (Point)
 import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.Piece (Piece)
@@ -86,43 +86,45 @@ data Game = Game {
   , plays :: Seq Play
 }
 
-initScore = 0
-initScores = [initScore, initScore]
-
-gameId :: Game -> String
-gameId Game {gameBase} = GameBase.gameId gameBase
-
-fromTransitions :: GameTransitions -> Game
--- TODO. State of the game needs to be brought up to date by using the plays.
-fromTransitions GameTransitions {base, plays} =
-  let GameBase {gameParams, pointValues, initialPieces} = base
-      GameParams {dimension, trayCapacity, pieceProviderType} = gameParams
-      GameInitialPieces {initGridPieces, initUserPieces, initMachinePieces} = initialPieces
-      pieceProvider = mkDefaultCyclicPieceProvider -- TODO. Use piece provider type.
-      userTray = Tray trayCapacity initUserPieces -- TODO. These are the init parameters. Need to track the initial trays in base.
-      machineTray = Tray trayCapacity initMachinePieces
-      playScorer = Scorer.scorePlay $ Scorer.mkScorer pointValues
-  in
-    Game
-      base
-      (Board.mkEmptyBoard dimension) -- TODO. Initialize with grid pieces. mkBoardFromPiecePoints.
-      [userTray, machineTray]
-      0
-      Player.UserPlayer -- TODO. Keep track of initial player.
-      pieceProvider
-      playScorer
-      initScore
-      initScores
-      0
-      plays
-
--- TODO. Complete show of game if needed.
-instance Show Game where
-  show game @ Game {board} = "Game {" ++ "board" ++ show board ++ "}"
+noScore = 0
+noScores = [0, 0]
+initPlayNumber = 0
 
 maxDimension = 120
 maxTraySize = 26
 maxSuccessivePasses = 10
+noPasses = 0
+
+gameId :: Game -> String
+gameId Game {gameBase} = GameBase.gameId gameBase
+
+mkStartingGame :: GameBase -> Board -> [Tray] -> PieceProvider -> Game
+mkStartingGame base board trays pieceProvider =
+  let GameBase {gameParams, pointValues, initPieces} = base
+      GameParams {dimension, trayCapacity, pieceProviderType} = gameParams
+      InitPieces {gridPieces, userPieces, machinePieces} = initPieces
+      trays = Tray trayCapacity <$> [userPieces, machinePieces]
+      board = Board.mkBoardFromPiecePoints gridPieces dimension
+      scorer = Scorer.scorePlay $ Scorer.mkScorer pointValues
+      initPlayerType = Player.UserPlayer -- Won't be used. Arbitrarily set to user.
+  in Game base board trays initPlayNumber initPlayerType pieceProvider
+        scorer noScore noScores noPasses Seq.empty
+
+fromTransitions :: GameTransitions -> PieceProvider -> Game
+fromTransitions GameTransitions {base, plays} pieceProvider =
+  let GameBase {gameParams, pointValues, initPieces} = base
+      GameParams {dimension, trayCapacity, pieceProviderType} = gameParams
+      InitPieces {gridPieces, userPieces, machinePieces} = initPieces
+      -- TODO. Track the initial trays in base.
+      trays = Tray trayCapacity <$> [userPieces, machinePieces]
+      board = Board.mkBoardFromPiecePoints gridPieces dimension
+      game = mkStartingGame base board trays pieceProvider
+      -- TODO. Update the state of the game using the plays.
+  in game {plays = plays}
+
+-- TODO. Complete show of game if needed.
+instance Show Game where
+  show game @ Game {board} = "Game {" ++ "board" ++ show board ++ "}"
 
 passesMaxedOut :: Game -> Bool
 passesMaxedOut Game { numSuccessivePasses } = numSuccessivePasses == maxSuccessivePasses
@@ -158,48 +160,24 @@ mkPieces num (game @ Game { pieceProvider }) = do
 
 -- | Note. Validation of player name does not happen here.
 mkInitialGame :: (MonadError GameError m, MonadIO m) =>
-  GameParams
-  -> PieceProvider
-  -> [GridPiece]
-  -> [Piece]
-  -> [Piece]
-  -> [[Int]]
-  -> String
-  -> m Game
+  GameParams -> PieceProvider -> [GridPiece] -> [Piece] -> [Piece] -> [[Int]] -> String -> m Game
 
 -- TODO. Fix duplicated player name.
 mkInitialGame gameParams pieceProvider initGridPieces initUserPieces initMachinePieces pointValues playerName = do
   let GameParams.GameParams { dimension, trayCapacity, languageCode } = gameParams
   gameId <- Util.mkUuid
-  now <- liftIO getCurrentTime
-  let initialPieces = GameInitialPieces initGridPieces initUserPieces initMachinePieces
-      gameBase = GameBase
-                   gameId
-                   gameParams
-                   pointValues
-                   initialPieces
-                   playerName
-                   "" -- TODO. Add player id.
-                   now
-                   Nothing
-      board' = Board.mkBoardFromPiecePoints initGridPieces dimension
-      emptyTray = Tray trayCapacity []
-      emptyTrays = [emptyTray, emptyTray]
-      scorePlay = Scorer.scorePlay $ Scorer.mkScorer pointValues
-      game = Game
-                gameBase
-                board'
-                emptyTrays
-                0
-                Player.UserPlayer
-                pieceProvider
-                scorePlay
-                initScore
-                initScores
-                0
-                Seq.empty
+  startTime <- liftIO getCurrentTime
+  let playerId = "" -- TODO. Add player id.
+      endTime = Nothing
+      initPieces = InitPieces initGridPieces initUserPieces initMachinePieces
+      base = GameBase gameId gameParams pointValues initPieces playerName playerId
+                      startTime endTime
+      board = Board.mkBoardFromPiecePoints initGridPieces dimension
+      emptyTrays = Tray trayCapacity <$> [[], []]
+      game = mkStartingGame base board emptyTrays pieceProvider
   game' <- initTray game Player.UserPlayer initUserPieces
   initTray game' Player.MachinePlayer initMachinePieces
+  -- TODO. Base needs to be updated with the completed trays.
 
 toMiniState :: Game -> GameMiniState
 toMiniState game @ Game {board, pieceProvider, lastPlayScore, scores} =

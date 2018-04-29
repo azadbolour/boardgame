@@ -306,7 +306,6 @@ closeGameService gameId = do
   -- TODO. Game.summary should return the game updated with the bonus/penalty scores.
   -- TODO. Persist that final state of the game.
 
-
 -- TODO. A swap is also a play and should increment the playNumber. For both machine and user.
 -- TODO. play number needs to be updated at the right time.
 

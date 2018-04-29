@@ -7,8 +7,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
 
-module BoardGame.Common.Domain.GameInitialPieces (
-    GameInitialPieces(..)
+module BoardGame.Common.Domain.InitPieces (
+    InitPieces(..)
 )
 where
 
@@ -19,12 +19,12 @@ import Control.DeepSeq (NFData)
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 
-data GameInitialPieces = GameInitialPieces {
-    initGridPieces :: [GridPiece]
-  , initUserPieces :: [Piece]
-  , initMachinePieces :: [Piece]
+data InitPieces = InitPieces {
+    gridPieces :: [GridPiece]
+  , userPieces :: [Piece]
+  , machinePieces :: [Piece]
 }
   deriving (Eq, Show, Generic, NFData)
 
-instance FromJSON GameInitialPieces
-instance ToJSON GameInitialPieces
+instance FromJSON InitPieces
+instance ToJSON InitPieces
