@@ -85,6 +85,9 @@
 
 ## Technical Debt
 
+- Currently storage of games in the database is not in focus. It is only
+  partially implemented. Work in progress.
+
 - Add error boundary for React.
 
 - The game cache should go under the persistence layer.

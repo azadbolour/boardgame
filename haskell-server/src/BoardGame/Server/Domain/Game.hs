@@ -98,14 +98,14 @@ fromTransitions GameTransitions {base, plays} =
   let GameBase {gameParams, pointValues, initialPieces} = base
       GameParams {dimension, trayCapacity, pieceProviderType} = gameParams
       GameInitialPieces {initGridPieces, initUserPieces, initMachinePieces} = initialPieces
-      userTray = Tray trayCapacity initUserPieces
-      machineTray = Tray trayCapacity initMachinePieces
       pieceProvider = mkDefaultCyclicPieceProvider -- TODO. Use piece provider type.
+      userTray = Tray trayCapacity initUserPieces -- TODO. These are the init parameters. Need to track the initial trays in base.
+      machineTray = Tray trayCapacity initMachinePieces
       playScorer = Scorer.scorePlay $ Scorer.mkScorer pointValues
   in
     Game
       base
-      (Board.mkEmptyBoard dimension) -- TODO. Initialize with grid pieces.
+      (Board.mkEmptyBoard dimension) -- TODO. Initialize with grid pieces. mkBoardFromPiecePoints.
       [userTray, machineTray]
       0
       Player.UserPlayer -- TODO. Keep track of initial player.
@@ -115,9 +115,6 @@ fromTransitions GameTransitions {base, plays} =
       initScores
       0
       plays
-
--- TODO. Add deriving for basic classes.
--- Will need custom instances for pieceProvider - since cyclic piece provider is an infinite structure.
 
 -- TODO. Complete show of game if needed.
 instance Show Game where

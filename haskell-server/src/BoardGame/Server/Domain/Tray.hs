@@ -30,6 +30,8 @@ import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Server.Domain.GameError(GameError(..))
 import Bolour.Util.MiscUtil (setListElement)
 
+-- TODO. Keep the invariant that the tray is always full. Do not expose constructor.
+-- Force the caller to give the right number of pieces - else error out.
 -- | A user or machine tray containing pieces available for play.
 data Tray = Tray {
     capacity :: Int
