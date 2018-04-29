@@ -62,6 +62,6 @@ spec = do
       Dict.isMaskedWord dictionary "  D" `shouldBe` True
   describe "set hopeless blank points as dead recursive" $
     it "set hopeless blank points as dead recursive" $ do
-      let (finalBoard, deadPoints) = StripMatcher.setHopelessBlankPointsAsDeadRecursive board dictionary
+      let (finalBoard, deadPoints) = StripMatcher.findAndSetBoardBlackPoints dictionary board
       print deadPoints
 

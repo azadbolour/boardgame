@@ -64,7 +64,7 @@ spec = do
       let hopeless = StripMatcher.hopelessBlankPoints board dictionary
       print hopeless
     it "should find hopeless blank point recursively" $ do
-      let (board', hopelessPoints) = StripMatcher.setHopelessBlankPointsAsDeadRecursive board dictionary
+      let (board', hopelessPoints) = StripMatcher.findAndSetBoardBlackPoints dictionary board
       print hopelessPoints
 
 

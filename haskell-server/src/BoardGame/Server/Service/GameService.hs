@@ -191,8 +191,8 @@ validateCrossWords board dictionary strip word = do
 
 -- | Find points on the board that cannot possibly be played
 --   and update board accordingly.
-updateDeadPoints :: Board -> WordDictionary -> (Board, [Point])
-updateDeadPoints = Matcher.setHopelessBlankPointsAsDeadRecursive
+-- updateDeadPoints :: WordDictionary -> Board -> (Board, [Point])
+-- updateDeadPoints = Matcher.findAndSetBoardBlackPoints
 
 -- | Service function to commit a user play - reflecting it on the
 --   game's board, and and refilling the user tray.
@@ -217,15 +217,15 @@ commitPlayService gmId playPieces = do
            Nothing -> throwError $ WordTooShortError playWord
            Just str -> return str
   validateCrossWords board dictionary strip playWord
-  (game' @ Game {board = newBoard, trays, playNumber}, refills)
-    <- Game.reflectPlayOnGame game UserPlayer playPieces
+  (game' @ Game {board = newBoard, trays, playNumber}, refills, deadPoints)
+    <- Game.reflectPlayOnGame game UserPlayer playPieces (Matcher.findAndSetBoardBlackPoints dictionary)
 
-  let (newBoard', deadPoints) = updateDeadPoints newBoard dictionary
-      game'' = Game.setBoard game' newBoard'
+--   let (newBoard', deadPoints) = updateDeadPoints dictionary newBoard
+--       game'' = Game.setBoard game' newBoard'
 
   saveWordPlay gmId playNumber UserPlayer playPieces refills
-  exceptTToStack $ GameCache.insert game'' gameCache
-  let miniState = Game.toMiniState game''
+  exceptTToStack $ GameCache.insert game' gameCache
+  let miniState = Game.toMiniState game'
   return (miniState, refills, deadPoints)
 
 -- TODO. Save the replacement pieces in the database.
@@ -250,13 +250,14 @@ machinePlayService gameId = do
       return (gm, [], []) -- If no pieces were used - we know it was a swap.
     Just (strip, word) -> do
       (playPieces, depletedTray) <- stripMatchAsPlay board machineTray strip word
-      (gm @ Game {board = newBoard, trays, playNumber}, refills) <- Game.reflectPlayOnGame game MachinePlayer playPieces
+      (gm @ Game {board = newBoard, trays, playNumber}, refills, deadPoints)
+        <- Game.reflectPlayOnGame game MachinePlayer playPieces (Matcher.findAndSetBoardBlackPoints dictionary)
 
-      let (newBoard', deadPoints) = updateDeadPoints newBoard dictionary
-          gm' = Game.setBoard gm newBoard'
+--       let (newBoard', deadPoints) = updateDeadPoints dictionary newBoard
+--           gm' = Game.setBoard gm newBoard'
 
       saveWordPlay gameId playNumber MachinePlayer playPieces refills
-      return (gm', playPieces, deadPoints)
+      return (gm, playPieces, deadPoints)
 
   exceptTToStack $ GameCache.insert game' gameCache
   let miniState = Game.toMiniState game'

@@ -40,6 +40,7 @@ import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Common.Domain.GameInitialPieces (GameInitialPieces, GameInitialPieces(GameInitialPieces))
 import qualified BoardGame.Common.Domain.GameInitialPieces as GameInitialPieces
+import Bolour.Plane.Domain.Point (Point)
 import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Server.Domain.Player (PlayerType(..))
@@ -291,12 +292,15 @@ checkPlayBoardPieces Game {board} playPieces =
        Nothing -> return playPieces
        Just gridPiece -> throwError $ UnmatchedBoardPlayPieceError gridPiece
 
-reflectPlayOnGame :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> [PlayPiece] -> m (Game, [Piece])
-reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, scorePlay, scores}) playerType playPieces = do
+reflectPlayOnGame :: (MonadError GameError m, MonadIO m) =>
+  Game -> PlayerType -> [PlayPiece] -> (Board -> (Board, [Point])) -> m (Game, [Piece], [Point])
+reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, scorePlay, scores})
+                  playerType playPieces deadPointFinder = do
   _ <- if playerType == PlayerType.UserPlayer then validatePlayAgainstGame game playPieces else return playPieces
   let movedPlayPieces = filter PlayPiece.moved playPieces
       movedGridPieces = PlayPiece.getGridPiece <$> movedPlayPieces
       b = Board.setPiecePoints board movedGridPieces
+      (b', deadPoints) = deadPointFinder b
       usedPieces = GridValue.value <$> movedGridPieces
       playerIndex = Player.playerTypeIndex playerType
   (game', newPieces) <- mkPieces (length usedPieces) game
@@ -304,12 +308,12 @@ reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, s
       tray' = Tray.replacePieces tray usedPieces newPieces
       trays' = Util.setListElement trays playerIndex tray'
       playNumber' = playNumber + 1
-      -- score' = length playPieces -- TODO. Compute real score.
       earlierScore = scores !! playerIndex
       thisScore = scorePlay playPieces
       score' = earlierScore + thisScore
       scores' = Util.setListElement scores playerIndex score'
-  return (game' { board = b, trays = trays', playNumber = playNumber', lastPlayScore = thisScore, numSuccessivePasses = 0, scores = scores' }, newPieces)
+      game'' = game' { board = b', trays = trays', playNumber = playNumber', lastPlayScore = thisScore, numSuccessivePasses = 0, scores = scores' }
+  return (game'', newPieces, deadPoints)
 
 doExchange :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> Int -> m (Game, Piece)
 doExchange (game @ Game {board, trays, pieceProvider, numSuccessivePasses}) playerType trayPos = do

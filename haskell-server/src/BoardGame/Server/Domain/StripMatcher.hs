@@ -14,7 +14,7 @@ module BoardGame.Server.Domain.StripMatcher (
   , findOptimalMatch
   , groupedPlayableStrips -- expose for testing
   , hopelessBlankPoints
-  , setHopelessBlankPointsAsDeadRecursive
+  , findAndSetBoardBlackPoints
   ) where
 
 import qualified Data.Set as Set
@@ -199,14 +199,14 @@ findDenselyEnclosedBlanks board maxBlanks axis =
       allDense = all (`Strip.isDense` maxBlanks)
   in Map.filter allDense blanksToStrips
 
-setHopelessBlankPointsAsDeadRecursive :: Board -> WordDictionary -> (Board, [Point])
-setHopelessBlankPointsAsDeadRecursive board dictionary =
+findAndSetBoardBlackPoints :: WordDictionary -> Board -> (Board, [Point])
+findAndSetBoardBlackPoints dictionary board =
   let directDeadPoints = Set.toList $ hopelessBlankPoints board dictionary
       newBoard = Board.setBlackPoints board directDeadPoints
   in if null directDeadPoints then
        (newBoard, directDeadPoints)
      else
-       let (b, moreDeadPoints) = setHopelessBlankPointsAsDeadRecursive newBoard dictionary
+       let (b, moreDeadPoints) = findAndSetBoardBlackPoints dictionary newBoard
            allDeadPoints = directDeadPoints ++ moreDeadPoints
        in (b, allDeadPoints)
 
