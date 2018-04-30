@@ -17,7 +17,6 @@ import Control.Monad (when)
 import qualified Bolour.Util.PersistRunner as PersistRunner
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig))
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
-import qualified BoardGame.Server.Service.GameDao as GameDao
 import qualified BoardGame.Server.Service.GameService as GameService
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv
@@ -31,11 +30,10 @@ main = do
     args <- getArgs
     let maybeConfigPath = if null args then Nothing else Just $ head args
     serverConfig <- ServerConfig.getServerConfig maybeConfigPath
-    -- gameEnv <- GameEnv.mkGameEnv serverConfig
     eitherGameEnv <- runExceptT $ GameEnv.mkGameEnv serverConfig
     when (isLeft eitherGameEnv) $
       die $ "unable to initialize the application environment for server config " ++ show serverConfig
     let Right gameEnv = eitherGameEnv
     runExceptT $ TransformerStack.runDefault gameEnv $
-      GameService.addPlayerService $ GameService.unknownPlayerName
+      GameService.addPlayerService GameService.unknownPlayerName
     return ()

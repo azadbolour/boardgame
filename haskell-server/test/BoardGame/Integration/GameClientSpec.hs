@@ -45,7 +45,6 @@ import qualified BoardGame.Common.Message.CommitPlayResponse as CommitPlayRespon
 import BoardGame.Common.Message.MachinePlayResponse (MachinePlayResponse, MachinePlayResponse(MachinePlayResponse))
 import qualified BoardGame.Common.Message.MachinePlayResponse as MachinePlayResponse
 
-import qualified BoardGame.Server.Service.GameDao as GameDao
 import qualified BoardGame.Server.Web.GameEndPoint as GameEndPoint
 import qualified BoardGame.Util.TestUtil as TestUtil
 import qualified Bolour.Util.SpecUtil as SpecUtil
@@ -53,6 +52,7 @@ import BoardGame.Server.Domain.GameEnv (GameEnv, GameEnv(GameEnv))
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv
 
 import qualified Bolour.Util.PersistRunner as PersistRunner
+import Bolour.Util.PersistRunner (ConnectionProvider)
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 
@@ -65,6 +65,12 @@ import qualified Bolour.Language.Domain.DictionaryCache as DictCache
 import qualified Bolour.Language.Domain.DictionaryIO as DictIO
 import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 
+import BoardGame.Server.Service.GamePersister (GamePersister, GamePersister(GamePersister))
+import qualified BoardGame.Server.Service.GamePersister as GamePersister
+import qualified BoardGame.Server.Service.GamePersisterJsonBridge as GamePersisterJsonBridge
+import qualified BoardGame.Server.Service.GameJsonSqlPersister as GameJsonSqlPersister
+import qualified BoardGame.Server.Service.GameJsonSqlPersister as GamePersister
+import qualified BoardGame.Server.Domain.ServerVersion as ServerVersion
 
 -- TODO. Start the server within the test - just copy main and test against it.
 -- TODO. Need to shut down the server.
@@ -74,17 +80,22 @@ import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 
 -- TODO. How to access the values returned by beforeAll within the test.
 
+mkPersister :: ConnectionProvider -> GamePersister
+mkPersister connectionProvider =
+  let jsonPersister = GameJsonSqlPersister.mkPersister connectionProvider
+      version = ServerVersion.version
+  in GamePersisterJsonBridge.mkBridge jsonPersister version
+
 testConfigPath = "test-data/test-config.yml"
 
 getGameEnv :: IO GameEnv
 getGameEnv = do
   serverConfig <- ServerConfig.getServerConfig $ Just testConfigPath
   let ServerConfig {maxActiveGames, dbConfig} = serverConfig
-  -- let serverConfig = ServerConfig.defaultServerConfig
-      -- ServerConfig {maxActiveGames, dbConfig} = serverConfig
   connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
-  GameDao.migrateDb connectionProvider
-  GameDao.cleanupDb connectionProvider
+  let persister @ GamePersister {migrate} = mkPersister connectionProvider
+  runExceptT migrate
+  runExceptT $ GamePersister.clearAllData persister
   cache <- GameCache.mkGameCache maxActiveGames
   dictionaryDir <- GameEnv.getDictionaryDir "data"
   -- dictionaryCache <- DictCache.mkCache dictionaryDir 100 2
@@ -111,11 +122,6 @@ pointValues = replicate dimension $ replicate dimension 1
 
 centerGridPoint = Point center center
 
--- centerGridPiece :: Char -> IO GridPiece
--- centerGridPiece value = do
---   piece <- Piece.mkPiece value
---   return $ GridValue piece centerGridPoint
-
 -- TODO. End duplicated
 
 spec :: Spec
@@ -132,10 +138,6 @@ spec = beforeAll startApp $ afterAll endWaiApp $
 
       (StartGameResponse.StartGameResponse {gameId, trayPieces, gridPieces}) <- SpecUtil.satisfiesRight
         =<< runExceptT (Client.startGame (StartGameRequest params [] uPieces mPieces pointValues) manager baseUrl)
-
---       let GridValue {value = piece, point = centerPoint} =
---             fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
---           Point {row, col} = centerPoint
 
       let pc0:pc1:pc2:_ = uPieces
           center = dimension `div` 2
@@ -162,7 +164,6 @@ spec = beforeAll startApp $ afterAll endWaiApp $
 initTest :: IO ()
 initTest = do
   gameEnv @ GameEnv {connectionProvider} <- getGameEnv
-  GameDao.cleanupDb connectionProvider
   return ()
 
 mkManager :: IO Manager

@@ -117,7 +117,6 @@ library
       BoardGame.Server.Service.GameService
       BoardGame.Server.Service.GameLetterDistribution
       BoardGame.Server.Service.GameData
-      BoardGame.Server.Service.GameDao
       BoardGame.Server.Service.GamePersister
       BoardGame.Server.Service.GameJsonPersister
       BoardGame.Server.Service.GamePersisterJsonBridge
@@ -178,7 +177,6 @@ test-suite spec
       Bolour.Util.SpecUtil
       BoardGame.Util.TestUtil
       BoardGame.Integration.GameClientSpec
-      BoardGame.Integration.JsonSpec
       BoardGame.Common.Domain.GridSpec
       BoardGame.Server.Domain.BoardSpec
       BoardGame.Server.Domain.CommonSpec
@@ -194,6 +192,7 @@ test-suite spec
       BoardGame.Server.Service.GameServiceSpec
       BoardGame.Server.Service.NegativeGameServiceSpec
       BoardGame.Server.Service.PieceProviderSpec
+      BoardGame.Server.Web.JsonSpec
       BoardGame.Server.Web.GameEndPointSpec
       BoardGame.Server.Web.ConvertersSpec
       BoardGame.Server.Web.WebTestFixtures
@@ -240,6 +239,7 @@ executable boardgame-database-migrator
   ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
   build-depends:
       base
+    , transformers
     , boardgame
   default-language: Haskell2010
 

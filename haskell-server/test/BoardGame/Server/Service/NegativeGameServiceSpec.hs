@@ -19,13 +19,13 @@ import Control.Monad.Reader (runReaderT)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Log (runLoggingT)
 
+import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import BoardGame.Common.Domain.GameParams (GameParams(..))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 import qualified Bolour.Plane.Domain.Axis as Axis (Axis(..))
 import qualified Bolour.Util.PersistRunner as PersistRunner
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
-import BoardGame.Server.Service.GameDao (cleanupDb)
 import BoardGame.Server.Domain.GameCache as GameCache
 import BoardGame.Server.Domain.GameError (GameError)
 
@@ -80,6 +80,7 @@ paramsZeroWidth = Fixtures.gameParams {dimension = 0}
 badTrayCapacity = 0
 paramsBadTrayCapacity = Fixtures.gameParams {trayCapacity = badTrayCapacity}
 -- TODO. 0 and 1 are also bad sizes.
+initPieces = InitPieces [] [] []
 
 spec :: Spec
 spec =
@@ -92,25 +93,25 @@ spec =
     it "guards against non-existent player" $
       do
         runR' $ GameService.addPlayerService $ Fixtures.thePlayer
-        error <- runL' $ GameService.startGameService paramsBadPlayer [] [] [] []
+        error <- runL' $ GameService.startGameService paramsBadPlayer initPieces []
         error `shouldBe` GameError.MissingPlayerError nonExistentPlayerName
 
     it "disallows negative board dimensions" $
       do
         runR' $ GameService.addPlayerService $ Fixtures.thePlayer
-        error <- runL' $ GameService.startGameService paramsBadDimension [] [] [] []
+        error <- runL' $ GameService.startGameService paramsBadDimension initPieces []
         error `shouldBe` GameError.InvalidDimensionError badDimension
 
     it "disallows 0 board dimensions" $
       do
         runR' $ GameService.addPlayerService $ Fixtures.thePlayer
-        error <- runL' $ GameService.startGameService paramsZeroWidth [] [] [] []
+        error <- runL' $ GameService.startGameService paramsZeroWidth initPieces []
         error `shouldBe` GameError.InvalidDimensionError 0
 
     it "disallows trays with 0 capacity" $
       do
         runR' $ GameService.addPlayerService $ Fixtures.thePlayer
-        error <- runL' $ GameService.startGameService paramsBadTrayCapacity [] [] [] []
+        error <- runL' $ GameService.startGameService paramsBadTrayCapacity initPieces []
         error `shouldBe` GameError.InvalidTrayCapacityError badTrayCapacity
 
 

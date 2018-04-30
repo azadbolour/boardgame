@@ -19,6 +19,7 @@ import Control.Monad.Reader (runReaderT)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Log (runLoggingT)
 
+import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import qualified Bolour.Util.PersistRunner as PersistRunner
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
@@ -31,7 +32,6 @@ import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Server.Domain.GameCache as GameCache
-import BoardGame.Server.Service.GameDao (cleanupDb)
 import BoardGame.Server.Domain.GameError
 import BoardGame.Server.Domain.Game (Game(Game))
 -- import BoardGame.Server.Domain.Play (Play(Play))
@@ -49,12 +49,13 @@ import BoardGame.Server.Service.GameService (
   , startGameService
   , machinePlayService
   , swapPieceService
-  , getGamePlayDetailsService
   )
 -- TODO. Should not depend on higher level module.
 import BoardGame.Util.TestUtil (mkInitialPlayPieces)
 import qualified BoardGame.Server.Service.ServiceTestFixtures as Fixtures
 import qualified Bolour.Language.Domain.DictionaryCache as DictCache
+
+initPieces = InitPieces [] [] []
 
 printx :: String -> ExceptT GameError IO ()
 printx s = do
@@ -86,7 +87,7 @@ spec = do
       do -- IO
         userTray <- runner'' $ do -- GameTransformerStack
           addPlayerService $ Fixtures.thePlayer
-          Game {trays} <- startGameService Fixtures.gameParams [] [] [] []
+          Game {trays} <- startGameService Fixtures.gameParams initPieces []
           return $ trays !! 0
         length (Tray.pieces userTray) `shouldSatisfy` (== Fixtures.testTrayCapacity)
 
@@ -98,7 +99,7 @@ spec = do
 
         (miniState, replacementPieces, deadPieces) <- runner'' $ do -- GameTransformerStack
           addPlayerService $ Fixtures.thePlayer
-          game @ Game {board, trays} <- startGameService Fixtures.gameParams [] uPieces mPieces []
+          game @ Game {board, trays} <- startGameService Fixtures.gameParams (InitPieces [] uPieces mPieces) []
           let pc0:pc1:pc2:_ = uPieces
               center = Fixtures.testDimension `div` 2
               playPieces = [
@@ -114,7 +115,7 @@ spec = do
       do -- IO
         word <- runner'' $ do
           addPlayerService $ Fixtures.thePlayer
-          game <- startGameService Fixtures.gameParams [] [] [] []
+          game <- startGameService Fixtures.gameParams initPieces []
           let gameId = Game.gameId game
           (miniState, playedPieces, deadPieces) <- machinePlayService gameId
           let word = PlayPiece.playPiecesToWord playedPieces
@@ -127,7 +128,7 @@ spec = do
       do
         value <- runner'' $ do
           addPlayerService $ Fixtures.thePlayer
-          game @ Game {trays} <- startGameService Fixtures.gameParams [] [] [] []
+          game @ Game {trays} <- startGameService Fixtures.gameParams initPieces []
           let gameId = Game.gameId game
           let userTray = trays !! 0
               piece = head (Tray.pieces userTray)

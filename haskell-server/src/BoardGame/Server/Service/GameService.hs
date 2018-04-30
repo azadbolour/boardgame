@@ -90,15 +90,6 @@ import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 import BoardGame.Server.Domain.PlayInfo (PlayInfo, PlayInfo(PlayInfo))
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack, exceptTToStack)
--- import BoardGame.Server.Service.GameDao (
---     GameRow(..)
---   , PlayerRow(..)
---   , PlayerRowId
---   , PlayRow(..)
---   )
--- import qualified BoardGame.Server.Service.GameDao as GameDao
--- import BoardGame.Server.Domain.PlayDetails (PlayDetails(WordPlayDetails), PlayDetails(SwapPlayDetails))
--- import qualified BoardGame.Server.Domain.PlayDetails as PlayDetails
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv (GameEnv(..))
 import BoardGame.Server.Domain.ServerConfig as ServerConfig
 import qualified BoardGame.Server.Domain.StripMatcher as Matcher

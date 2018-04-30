@@ -27,8 +27,8 @@ import BoardGame.Server.Service.GameJsonPersister (GameJsonPersister, GameJsonPe
 import qualified BoardGame.Server.Service.GameJsonPersister as GameJsonPersister
 
 migrate :: GameJsonPersister -> Result ()
-migrate GameJsonPersister {savePlayer = delegate} =
-  return ()
+migrate GameJsonPersister {migrate = delegate} =
+  delegate
 
 savePlayer :: GameJsonPersister -> Version -> Player -> Result ()
 savePlayer GameJsonPersister {savePlayer = delegate} version player @ Player {playerId, name} = do

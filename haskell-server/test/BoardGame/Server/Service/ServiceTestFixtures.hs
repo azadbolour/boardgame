@@ -19,6 +19,7 @@ import Data.Either
 import Control.Monad.Trans.Except (runExceptT)
 import Bolour.Util.SpecUtil (satisfiesRight) -- satisfiesJust
 -- import BoardGame.Common.Domain.Player (Player(Player))
+import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.GameParams (GameParams)
@@ -36,10 +37,9 @@ makePlayer env name = do
 
 makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO Game
 makeGame env gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith = do
+  let initPieces = InitPieces initialGridPieces userTrayStartsWith machineTrayStartsWith
   eitherResult <- runExceptT $ TransformerStack.runDefaultUnprotected env $ GameService.startGameService
-    gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith []
+    gameParams initPieces []
   satisfiesRight eitherResult
-  -- let (game, maybePlayPieces) = head $ rights [eitherResult]
-  -- let (Right (game, maybePlayPieces)) = eitherResult
   let (Right game) = eitherResult
   return game

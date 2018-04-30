@@ -34,9 +34,16 @@ import qualified Bolour.Language.Domain.WordDictionary as Dict
 import qualified Bolour.Language.Domain.DictionaryCache as DictCache
 import qualified Bolour.Language.Domain.DictionaryIO as DictIO
 import qualified Bolour.Util.PersistRunner as PersistRunner
-import qualified BoardGame.Server.Service.GameDao as GameDao
+import Bolour.Util.PersistRunner (ConnectionProvider)
 import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
 import Control.Monad.Except (ExceptT(ExceptT), runExceptT)
+
+import BoardGame.Server.Service.GamePersister (GamePersister, GamePersister(GamePersister))
+import qualified BoardGame.Server.Service.GamePersister as GamePersister
+import qualified BoardGame.Server.Service.GamePersisterJsonBridge as GamePersisterJsonBridge
+import qualified BoardGame.Server.Service.GameJsonSqlPersister as GameJsonSqlPersister
+import qualified BoardGame.Server.Service.GameJsonSqlPersister as GamePersister
+import qualified BoardGame.Server.Domain.ServerVersion as ServerVersion
 
 testConfigPath = "test-data/test-config.yml"
 thePlayer = "You"
@@ -45,23 +52,24 @@ center = testDimension `div` 2
 testTrayCapacity = 3
 pieceProviderType = PieceProviderType.Cyclic
 
--- gameParams = GameParams testDimension testTrayCapacity Dict.defaultLanguageCode thePlayer pieceProviderType
+mkPersister :: ConnectionProvider -> GamePersister
+mkPersister connectionProvider =
+  let jsonPersister = GameJsonSqlPersister.mkPersister connectionProvider
+      version = ServerVersion.version
+  in GamePersisterJsonBridge.mkBridge jsonPersister version
+
 gameParams = GameParams testDimension testTrayCapacity "tiny" thePlayer pieceProviderType
 
 centerGridPoint = Point center center
-
--- centerGridPiece :: Char -> IO GridPiece
--- centerGridPiece value = do
---   piece <- Piece.mkPiece value
---   return $ GridValue piece centerGridPoint
 
 initTest :: IO GameEnv
 initTest = do
   serverConfig <- ServerConfig.getServerConfig $ Just testConfigPath
   let ServerConfig {maxActiveGames, dbConfig} = serverConfig
   connectionProvider <- PersistRunner.mkConnectionProvider dbConfig
-  GameDao.migrateDb connectionProvider
-  GameDao.cleanupDb connectionProvider
+  let persister @ GamePersister {migrate} = mkPersister connectionProvider
+  runExceptT migrate
+  runExceptT $ GamePersister.clearAllData persister
   cache <- GameCache.mkGameCache maxActiveGames
   dictionaryDir <- GameEnv.getDictionaryDir "data"
   -- dictionaryCache <- DictCache.mkCache dictionaryDir 100 2

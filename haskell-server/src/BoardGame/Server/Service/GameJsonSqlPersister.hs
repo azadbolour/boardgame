@@ -92,6 +92,7 @@ GameRow sql=game
     deriving Show Eq
 |]
 
+
 playerToRow :: PlayerId -> String -> JsonEncoded -> PlayerRow
 playerToRow = PlayerRow
 
@@ -101,13 +102,14 @@ gameToRow = GameRow
 migration = migrateAll -- Generated.
 
 migrateDb :: ConnectionProvider -> IO ()
-migrateDb provider = PersistRunner.migrateDatabase provider migration
+migrateDb provider =
+  PersistRunner.migrateDatabase provider migration
 
 -- TODO. Should just have one migrate!
 
 migrate :: ConnectionProvider -> Result ()
 migrate provider =
-  return ()
+  liftIO $ migrateDb provider
 
 savePlayer :: ConnectionProvider -> PlayerId -> String -> JsonEncoded -> Result ()
 savePlayer provider playerId playerName json = do

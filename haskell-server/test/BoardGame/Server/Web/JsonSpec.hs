@@ -4,19 +4,19 @@
 --   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
 --
 
-module BoardGame.Integration.JsonSpec (
+module BoardGame.Server.Web.JsonSpec (
     spec
   ) where
 
 import Test.Hspec
 import Data.Aeson
 import Control.Monad.Trans.Except (runExceptT)
+
+import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import BoardGame.Common.Domain.Piece (Piece)
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Server.Domain.Game (Game, Game(Game))
-import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.GameError
 import qualified Bolour.Util.SpecUtil as SpecUtil
 import qualified Bolour.Language.Domain.WordDictionary as Dict
@@ -31,17 +31,18 @@ dim = 9
 pieceProviderType = PieceProviderType.Cyclic
 params :: GameParams
 params = GameParams dim 12 Dict.defaultLanguageCode name pieceProviderType
-tileSack = PieceProvider.mkDefaultCyclicPieceProvider
+pieceProvider = PieceProvider.mkDefaultCyclicPieceProvider
 
 pointValues :: [[Int]]
 pointValues = replicate dim $ replicate dim 1
 
+initPieces = InitPieces [] [] []
 
-game :: IO Game
-game = do
-  SpecUtil.satisfiesRight =<< runExceptT (Game.mkInitialGame params tileSack [] [] [] pointValues name)
+-- game :: IO Game
+-- game =
+--   SpecUtil.satisfiesRight =<< runExceptT (Game.mkInitialGame params initPieces pieceProvider pointValues player)
 
-spec = do
+spec =
   describe "json for game data" $ do
     it "convert game params to/from json" $ do
       let piece = Piece.Piece 'T' "1"

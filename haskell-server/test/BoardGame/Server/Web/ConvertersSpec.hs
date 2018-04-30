@@ -14,8 +14,9 @@ import Test.Hspec
 import Control.Monad.Trans.Except (runExceptT)
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import BoardGame.Common.Domain.GridPiece (GridPiece)
+import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
-import BoardGame.Server.Domain.Player (userIndex)
+import BoardGame.Server.Domain.Player (Player(Player), userIndex)
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
 import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
@@ -43,12 +44,14 @@ params = GameParams dim 12 Dict.defaultLanguageCode thePlayer pieceProviderType
 pieceProvider = PieceProvider.mkDefaultCyclicPieceProvider
 
 spec :: Spec
-spec = do
+spec =
   describe "convert game to game dto" $
     it "game to dto" $ do
       let playerName = "You"
       let gridPiece = GridValue (Piece 'E' "idE") (Point mid mid)
-      game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params pieceProvider [gridPiece] [] [] pointValues playerName)
+      let initPieces = InitPieces [gridPiece] [] []
+          player = Player "1" playerName
+      game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params initPieces pieceProvider pointValues player)
       let response = gameToStartGameResponse game
       let brd = Game.board game
       length (Board.getGridPieces brd) `shouldBe` length (StartGameResponse.gridPieces response)
