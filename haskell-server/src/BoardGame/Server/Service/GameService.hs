@@ -37,6 +37,7 @@ import Data.Time (getCurrentTime)
 import Data.Bool (bool)
 import qualified Data.Map as Map
 
+import Control.Monad (unless)
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..), withExceptT)
 import Control.Monad.Trans.Except (ExceptT)
@@ -90,15 +91,15 @@ import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
 import BoardGame.Server.Domain.PlayInfo (PlayInfo, PlayInfo(PlayInfo))
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack, exceptTToStack)
-import BoardGame.Server.Service.GameDao (
-    GameRow(..)
-  , PlayerRow(..)
-  , PlayerRowId
-  , PlayRow(..)
-  )
-import qualified BoardGame.Server.Service.GameDao as GameDao
-import BoardGame.Server.Domain.PlayDetails (PlayDetails(WordPlayDetails), PlayDetails(SwapPlayDetails))
-import qualified BoardGame.Server.Domain.PlayDetails as PlayDetails
+-- import BoardGame.Server.Service.GameDao (
+--     GameRow(..)
+--   , PlayerRow(..)
+--   , PlayerRowId
+--   , PlayRow(..)
+--   )
+-- import qualified BoardGame.Server.Service.GameDao as GameDao
+-- import BoardGame.Server.Domain.PlayDetails (PlayDetails(WordPlayDetails), PlayDetails(SwapPlayDetails))
+-- import qualified BoardGame.Server.Domain.PlayDetails as PlayDetails
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv (GameEnv(..))
 import BoardGame.Server.Domain.ServerConfig as ServerConfig
 import qualified BoardGame.Server.Domain.StripMatcher as Matcher
@@ -108,6 +109,16 @@ import BoardGame.Server.Domain.PieceProvider (PieceProvider(..), mkDefaultCyclic
 import qualified BoardGame.Server.Service.GameLetterDistribution as GameLetterDistribution
 import BoardGame.Server.Service.GameData (GameData, GameData(GameData))
 import qualified BoardGame.Server.Service.GameData as GameData
+
+import BoardGame.Server.Service.GamePersister (GamePersister)
+import qualified BoardGame.Server.Service.GamePersisterJsonBridge as GamePersisterJsonBridge
+import qualified BoardGame.Server.Service.GameJsonSqlPersister as GamePersister
+
+mkPersister :: GameTransformerStack GamePersister
+mkPersister = do
+  connectionProvider <- asks GameEnv.connectionProvider
+  let jsonPersister = GameJsonSqlPersister.mkPersister connectionProvider
+  return $ GamePersisterJsonBridge.mkBridge jsonPersister
 
 unknownPlayerName = "You"
 -- unknownPlayer = Player unknownPlayerName
@@ -140,7 +151,7 @@ prepareDb = do
   ServerConfig {dbConfig} <- asks GameEnv.serverConfig
   connectionProvider <- asks GameEnv.connectionProvider
   liftIO $ GameDao.migrateDb connectionProvider
-  addPlayerIfNotExistsService $ unknownPlayerName
+  addPlayerIfNotExistsService unknownPlayerName
 
 timeoutLongRunningGames :: GameTransformerStack ()
 timeoutLongRunningGames = do
@@ -155,28 +166,35 @@ timeoutLongRunningGames = do
   exceptTToStack $ GameCache.deleteItems agedGameIds gameCache
   -- TODO. End the games in the database with a timed out indication.
 
--- | Service function to add a player to the system.
-addPlayerService :: String -> GameTransformerStack ()
-addPlayerService playerName = do
-  connectionProvider <- asks GameEnv.connectionProvider
-  if not (isAlphaNumString playerName) then
-    throwError $ InvalidPlayerNameError playerName
-  else do
-    playerId <- liftIO Util.mkUuid
-    let player = Player playerId playerName
-    GameDao.addPlayer connectionProvider (playerToRow player)
-    return ()
+existsOk = True
+existsNotOk = not existsOk
 
+saveNamedPlayer :: String -> Bool -> GameTransformerStack ()
+saveNamedPlayer GamePersister {savePlayer} existsOk = do
+  persister @ GamePersister {savePlayer, findPlayerByName} <- mkPersister
+  maybePlayer <- exceptTToStack $ findPlayerByName name
+  case maybePlayer of
+    Nothing -> do
+      playerId <- liftIO Util.mkUuid
+      let player = Player playerId name
+      exceptTToStack $ savePlayer player
+    _ -> unless existsOk $ throwError $ PlayerNameExistsError playerName
+
+-- | Service function to add a player to the system - error if name exists.
+addPlayerService :: String -> GameTransformerStack ()
+addPlayerService playerName =
+  if isAlphaNumString playerName then
+    saveNamedPlayer playerName existsNotOk
+  else
+    throwError $ InvalidPlayerNameError playerName
+
+-- | Service function to add a player if not present - no-op if nae exists.
 addPlayerIfNotExistsService :: String -> GameTransformerStack ()
-addPlayerIfNotExistsService name = do
-  connectionProvider <- asks GameEnv.connectionProvider
-  if not (isAlphaNumString name) then
+addPlayerIfNotExistsService name =
+  if isAlphaNumString name then
+    saveNamedPlayer playerName existsOk
+  else
     throwError $ InvalidPlayerNameError name
-  else do
-    playerId <- liftIO Util.mkUuid
-    let player = Player playerId name
-    GameDao.addPlayerIfNotExists connectionProvider (playerToRow player)
-    return ()
 
 -- TODO. Move to GameError.
 type GameIOEither a = IO (Either GameError a)
