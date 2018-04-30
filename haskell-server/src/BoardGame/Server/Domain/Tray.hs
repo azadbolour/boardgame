@@ -23,11 +23,16 @@ module BoardGame.Server.Domain.Tray (
 where
 
 import Data.List
+import GHC.Generics
+import Data.Aeson (FromJSON, ToJSON)
 import Control.Monad.Except (MonadError(..))
+import Control.Monad.IO.Class (MonadIO(..))
 
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Server.Domain.GameError(GameError(..))
+import BoardGame.Server.Domain.PieceProvider (PieceProvider)
+import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
+import BoardGame.Server.Domain.GameError (GameError(..))
 import Bolour.Util.MiscUtil (setListElement)
 
 -- TODO. Keep the invariant that the tray is always full. Do not expose constructor.
@@ -37,13 +42,25 @@ data Tray = Tray {
     capacity :: Int
   , pieces :: [Piece]
 }
-  deriving (Show)
+  deriving (Eq, Show, Generic)
+
+instance FromJSON Tray
+instance ToJSON Tray
 
 -- TODO. Validate capacity.
 --   if capacity <= 0 then throwError $ InvalidTrayCapacityError capacity
 
-mkTray :: [Piece] -> Tray
-mkTray pieces = Tray (length pieces) pieces
+-- mkTray :: [Piece] -> Tray
+-- mkTray pieces = Tray (length pieces) pieces
+
+mkTray :: (MonadError GameError m, MonadIO m) =>
+  PieceProvider -> Int -> [Piece] -> m (Tray, PieceProvider)
+
+mkTray pieceProvider capacity initPieces = do
+  let needed = capacity - length initPieces
+  (newPieces, provider') <- PieceProvider.takePieces pieceProvider needed
+  let tray = Tray capacity (initPieces ++ newPieces)
+  return (tray, provider')
 
 isEmpty :: Tray -> Bool
 isEmpty Tray { pieces } = null pieces
@@ -55,7 +72,7 @@ isEmpty Tray { pieces } = null pieces
 replacePieces :: Tray -> [Piece] -> [Piece] -> Tray
 replacePieces (tray @ Tray {pieces = trayPieces}) originalPieces replacements =
   let remainingPieces = trayPieces \\ originalPieces
-  in mkTray (remainingPieces ++ replacements)
+  in tray {pieces = remainingPieces ++ replacements}
 
 findPieceIndexById :: (MonadError GameError m) => Tray -> String -> m Int
 findPieceIndexById (Tray {pieces}) id =

@@ -25,6 +25,7 @@ The data access layer for the board game application.
 -}
 module BoardGame.Server.Service.GameJsonSqlPersister (
     migrateDb
+  , mkPersister
 ) where
 
 import Data.Maybe (listToMaybe)

@@ -63,6 +63,7 @@ import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.PlayerDto (PlayerDto, PlayerDto(PlayerDto))
 import qualified BoardGame.Common.Domain.PlayerDto as PlayerDto
 import BoardGame.Common.Domain.GameSummary (GameSummary)
+import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import BoardGame.Common.Domain.GameParams (GameParams(..))
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 import BoardGame.Common.Message.HandShakeResponse (HandShakeResponse, HandShakeResponse(HandShakeResponse))
@@ -179,8 +180,8 @@ startGameServiceWrapper ::
   -> [[Int]]
   -> GameTransformerStack StartGameResponse
 startGameServiceWrapper params initGridPieces initUserPieces initMachinePieces pointValues = do
-  -- (game, maybePlayPieces) <- GameService.startGameService params gridPieces initUserPieces initMachinePieces
-  game <- GameService.startGameService params initGridPieces initUserPieces initMachinePieces pointValues
+  let initPieces = InitPieces initGridPieces initUserPieces initMachinePieces
+  game <- GameService.startGameService params initPieces pointValues
   return $ gameToStartGameResponse game
 
 -- | API handler to commit a new play by the player side of the game.

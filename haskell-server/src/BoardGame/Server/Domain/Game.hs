@@ -46,6 +46,7 @@ import qualified BoardGame.Common.Domain.InitPieces as InitPieces
 import Bolour.Plane.Domain.Point (Point)
 import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.Piece (Piece)
+import BoardGame.Server.Domain.Player (Player)
 import BoardGame.Server.Domain.Play (Play)
 import qualified BoardGame.Server.Domain.Play as Play (mkWordPlay, mkSwapPlay)
 import BoardGame.Server.Domain.Player (PlayerType(..))
@@ -65,7 +66,7 @@ import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
 import BoardGame.Server.Domain.GameError
-import BoardGame.Server.Domain.PieceProvider
+import BoardGame.Server.Domain.PieceProvider (PieceProvider)
 import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
 import qualified BoardGame.Server.Domain.Scorer as Scorer
 import BoardGame.Server.Domain.GameBase (GameBase, GameBase(GameBase))
@@ -93,21 +94,22 @@ maxDimension = 120
 maxTraySize = 26
 maxSuccessivePasses = 10
 noPasses = 0
+noPlays :: Seq Play
+noPlays = Seq.empty
 
 gameId :: Game -> String
 gameId Game {gameBase} = GameBase.gameId gameBase
 
-mkStartingGame :: GameBase -> Board -> [Tray] -> PieceProvider -> Game
-mkStartingGame base board trays pieceProvider =
-  let GameBase {gameParams, pointValues, initPieces} = base
-      GameParams {dimension, trayCapacity, pieceProviderType} = gameParams
-      InitPieces {gridPieces, userPieces, machinePieces} = initPieces
-      trays = Tray trayCapacity <$> [userPieces, machinePieces]
+mkStartingGame :: GameBase -> PieceProvider -> Game
+mkStartingGame base pieceProvider =
+  let GameBase {gameParams, pointValues, initPieces, initTrays} = base
+      GameParams {dimension} = gameParams
+      InitPieces {gridPieces} = initPieces
       board = Board.mkBoardFromPiecePoints gridPieces dimension
       scorer = Scorer.scorePlay $ Scorer.mkScorer pointValues
       initPlayerType = Player.UserPlayer -- Won't be used. Arbitrarily set to user.
-  in Game base board trays initPlayNumber initPlayerType pieceProvider
-        scorer noScore noScores noPasses Seq.empty
+  in Game base board initTrays initPlayNumber initPlayerType pieceProvider
+          scorer noScore noScores noPasses noPlays
 
 -- TODO. Complete show of game if needed.
 instance Show Game where
@@ -126,15 +128,6 @@ stopInfo :: Game -> StopInfo
 stopInfo game @ Game { board, numSuccessivePasses } =
   StopInfo numSuccessivePasses (Board.isFilled board)
 
-initTray :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> [Piece] -> m Game
-initTray (game @ Game { trays }) playerType initPieces = do
-  let Tray.Tray { capacity } = trays !! Player.playerTypeIndex playerType
-  let needed = capacity - length initPieces
-  (game', newPieces) <- mkPieces needed game
-  let tray = Tray capacity (initPieces ++ newPieces)
-      game'' = setPlayerTray game' playerType tray
-  return game''
-
 updatePieceGenerator :: Game -> PieceProvider -> Game
 
 -- | Explicit record update for fieldGenerator.
@@ -142,32 +135,12 @@ updatePieceGenerator :: Game -> PieceProvider -> Game
 --   Record update for insufficiently polymorphic field: pieceProvider.
 updatePieceGenerator game generator = game { pieceProvider = generator }
 
-mkPieces :: (MonadError GameError m, MonadIO m) => Int -> Game -> m (Game, [Piece])
-mkPieces num (game @ Game { pieceProvider }) = do
-  (pieces, leftTileSack) <- PieceProvider.takePieces pieceProvider num
-  let game' = game { pieceProvider = leftTileSack }
-  return (game', pieces)
-
 -- | Note. Validation of player name does not happen here.
 mkInitialGame :: (MonadError GameError m, MonadIO m) =>
-  GameParams -> PieceProvider -> [GridPiece] -> [Piece] -> [Piece] -> [[Int]] -> String -> m Game
-
--- TODO. Fix duplicated player name.
-mkInitialGame gameParams pieceProvider initGridPieces initUserPieces initMachinePieces pointValues playerName = do
-  let GameParams.GameParams { dimension, trayCapacity, languageCode } = gameParams
-  gameId <- Util.mkUuid
-  startTime <- liftIO getCurrentTime
-  let playerId = "" -- TODO. Add player id.
-      endTime = Nothing
-      initPieces = InitPieces initGridPieces initUserPieces initMachinePieces
-      base = GameBase gameId gameParams pointValues initPieces playerName playerId
-                      startTime endTime
-      board = Board.mkBoardFromPiecePoints initGridPieces dimension
-      emptyTrays = Tray trayCapacity <$> [[], []]
-      game = mkStartingGame base board emptyTrays pieceProvider
-  game' <- initTray game Player.UserPlayer initUserPieces
-  initTray game' Player.MachinePlayer initMachinePieces
-  -- TODO. Base needs to be updated with the completed trays.
+  GameParams -> InitPieces -> PieceProvider -> [[Int]] -> Player -> m Game
+mkInitialGame gameParams initPieces pieceProvider pointValues player = do
+  (base, pieceProvider') <- GameBase.mkInitialBase gameParams pointValues initPieces player pieceProvider
+  return $ mkStartingGame base pieceProvider'
 
 toMiniState :: Game -> GameMiniState
 toMiniState game @ Game {board, pieceProvider, lastPlayScore, scores} =
@@ -267,8 +240,9 @@ checkPlayBoardPieces Game {board} playPieces =
 
 reflectPlayOnGame :: (MonadError GameError m, MonadIO m) =>
   Game -> PlayerType -> [PlayPiece] -> (Board -> (Board, [Point])) -> m (Game, [Piece], [Point])
-reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, scorePlay, scores, plays})
-                  playerType playPieces deadPointFinder = do
+
+reflectPlayOnGame game playerType playPieces deadPointFinder = do
+  let Game {board, trays, playNumber, pieceProvider, numSuccessivePasses, scorePlay, scores, plays} = game
   _ <- if playerType == PlayerType.UserPlayer then validatePlayAgainstGame game playPieces else return playPieces
   let movedPlayPieces = filter PlayPiece.moved playPieces
       movedGridPieces = PlayPiece.getGridPiece <$> movedPlayPieces
@@ -276,7 +250,9 @@ reflectPlayOnGame (game @ Game {board, trays, playNumber, numSuccessivePasses, s
       (b', deadPoints) = deadPointFinder b
       usedPieces = GridValue.value <$> movedGridPieces
       playerIndex = Player.playerTypeIndex playerType
-  (game', newPieces) <- mkPieces (length usedPieces) game
+  (newPieces, pieceProvider') <- PieceProvider.takePieces pieceProvider (length usedPieces)
+  let game' = game {pieceProvider = pieceProvider'}
+  -- (game', newPieces) <- mkPieces (length usedPieces) game
   let tray = trays !! playerIndex
       tray' = Tray.replacePieces tray usedPieces newPieces
       trays' = Util.setListElement trays playerIndex tray'

@@ -64,7 +64,7 @@ takePieces provider max = takePiecesAux provider [] max
 
 takePiecesAux :: (MonadError GameError m, MonadIO m) => PieceProvider -> [Piece] -> Int -> m ([Piece], PieceProvider)
 takePiecesAux provider list n =
-  if n == 0
+  if n <= 0
     then return (list, provider)
     else do
       (piece, provider1) <- take' provider

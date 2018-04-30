@@ -62,6 +62,7 @@ library
       Bolour.Util.FileUtil
       Bolour.Util.Empty
       Bolour.Util.BlackWhite
+      Bolour.Util.VersionStamped
       Bolour.Util.FrequencyDistribution
       Bolour.Language.Util.WordUtil
       Bolour.Language.Domain.WordDictionary
@@ -106,6 +107,7 @@ library
       BoardGame.Server.Domain.StripMatcher
       BoardGame.Server.Domain.GameCache
       BoardGame.Server.Domain.GameEnv
+      BoardGame.Server.Domain.ServerVersion
       BoardGame.Server.Domain.CrossWordFinder
       BoardGame.Server.Domain.Scorer
       BoardGame.Server.Web.GameEndPoint
@@ -118,6 +120,7 @@ library
       BoardGame.Server.Service.GameDao
       BoardGame.Server.Service.GamePersister
       BoardGame.Server.Service.GameJsonPersister
+      BoardGame.Server.Service.GamePersisterJsonBridge
       BoardGame.Server.Service.GameJsonSqlPersister
       BoardGame.Client.GameClient
   other-modules:

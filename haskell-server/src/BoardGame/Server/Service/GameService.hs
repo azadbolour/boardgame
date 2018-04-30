@@ -22,11 +22,9 @@ module BoardGame.Server.Service.GameService (
   , machinePlayService
   , swapPieceService
   , closeGameService
-  , getGamePlayDetailsService
   , timeoutLongRunningGames
   , prepareDb
   , unknownPlayerName
-  -- , unknownPlayer
   )
   where
 
@@ -37,7 +35,7 @@ import Data.Time (getCurrentTime)
 import Data.Bool (bool)
 import qualified Data.Map as Map
 
-import Control.Monad (unless)
+import Control.Monad (when, unless)
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..), withExceptT)
 import Control.Monad.Trans.Except (ExceptT)
@@ -72,6 +70,7 @@ import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(..))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
 
+import qualified BoardGame.Server.Domain.ServerVersion as ServerVersion
 import BoardGame.Server.Domain.Game (Game, Game(Game))
 import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.GameBase (GameBase, GameBase(GameBase))
@@ -110,15 +109,18 @@ import qualified BoardGame.Server.Service.GameLetterDistribution as GameLetterDi
 import BoardGame.Server.Service.GameData (GameData, GameData(GameData))
 import qualified BoardGame.Server.Service.GameData as GameData
 
-import BoardGame.Server.Service.GamePersister (GamePersister)
+import BoardGame.Server.Service.GamePersister (GamePersister, GamePersister(GamePersister))
+import qualified BoardGame.Server.Service.GamePersister as GamePersister
 import qualified BoardGame.Server.Service.GamePersisterJsonBridge as GamePersisterJsonBridge
+import qualified BoardGame.Server.Service.GameJsonSqlPersister as GameJsonSqlPersister
 import qualified BoardGame.Server.Service.GameJsonSqlPersister as GamePersister
 
 mkPersister :: GameTransformerStack GamePersister
 mkPersister = do
   connectionProvider <- asks GameEnv.connectionProvider
   let jsonPersister = GameJsonSqlPersister.mkPersister connectionProvider
-  return $ GamePersisterJsonBridge.mkBridge jsonPersister
+      version = ServerVersion.version
+  return $ GamePersisterJsonBridge.mkBridge jsonPersister version
 
 unknownPlayerName = "You"
 -- unknownPlayer = Player unknownPlayerName
@@ -129,13 +131,10 @@ unknownPlayerName = "You"
 --   to be constant.
 gameFromData :: GameData -> Game
 gameFromData GameData {base, plays} =
-  let GameBase {gameParams, pointValues, initPieces} = base
-      GameParams {dimension, trayCapacity, pieceProviderType} = gameParams
-      InitPieces {gridPieces, userPieces, machinePieces} = initPieces
+  let GameBase {gameParams} = base
+      GameParams {pieceProviderType} = gameParams
       pieceProvider = mkPieceProvider pieceProviderType
-      trays = Tray trayCapacity <$> [userPieces, machinePieces]
-      board = Board.mkBoardFromPiecePoints gridPieces dimension
-      game = Game.mkStartingGame base board trays pieceProvider
+      game = Game.mkStartingGame base pieceProvider
       -- TODO. Update the state of the game using the plays.
   in Game.setPlays game plays
 
@@ -148,10 +147,9 @@ dataFromGame Game {gameBase, plays} = GameData gameBase plays
 
 prepareDb :: GameTransformerStack ()
 prepareDb = do
-  ServerConfig {dbConfig} <- asks GameEnv.serverConfig
-  connectionProvider <- asks GameEnv.connectionProvider
-  liftIO $ GameDao.migrateDb connectionProvider
-  addPlayerIfNotExistsService unknownPlayerName
+  GamePersister {migrate} <- mkPersister
+  exceptTToStack migrate
+  addPlayerIfAbsentService unknownPlayerName
 
 timeoutLongRunningGames :: GameTransformerStack ()
 timeoutLongRunningGames = do
@@ -170,7 +168,7 @@ existsOk = True
 existsNotOk = not existsOk
 
 saveNamedPlayer :: String -> Bool -> GameTransformerStack ()
-saveNamedPlayer GamePersister {savePlayer} existsOk = do
+saveNamedPlayer name existsOk = do
   persister @ GamePersister {savePlayer, findPlayerByName} <- mkPersister
   maybePlayer <- exceptTToStack $ findPlayerByName name
   case maybePlayer of
@@ -178,21 +176,21 @@ saveNamedPlayer GamePersister {savePlayer} existsOk = do
       playerId <- liftIO Util.mkUuid
       let player = Player playerId name
       exceptTToStack $ savePlayer player
-    _ -> unless existsOk $ throwError $ PlayerNameExistsError playerName
+    _ -> unless existsOk $ throwError $ PlayerNameExistsError name
 
 -- | Service function to add a player to the system - error if name exists.
 addPlayerService :: String -> GameTransformerStack ()
-addPlayerService playerName =
-  if isAlphaNumString playerName then
-    saveNamedPlayer playerName existsNotOk
+addPlayerService name =
+  if isAlphaNumString name then
+    saveNamedPlayer name existsNotOk
   else
-    throwError $ InvalidPlayerNameError playerName
+    throwError $ InvalidPlayerNameError name
 
 -- | Service function to add a player if not present - no-op if nae exists.
-addPlayerIfNotExistsService :: String -> GameTransformerStack ()
-addPlayerIfNotExistsService name =
+addPlayerIfAbsentService :: String -> GameTransformerStack ()
+addPlayerIfAbsentService name =
   if isAlphaNumString name then
-    saveNamedPlayer playerName existsOk
+    saveNamedPlayer name existsOk
   else
     throwError $ InvalidPlayerNameError name
 
@@ -212,36 +210,41 @@ lookupDictionary languageCode = do
 
 -- | Service function to create and start a new game.
 startGameService ::
-     GameParams
-  -> [GridPiece]
-  -> [Piece]
-  -> [Piece]
-  -> [[Int]]
+     GameParams   -- Basic game parameters - dimension, etc.
+  -> InitPieces   -- Initial pieces in trays and on board - for testing.
+  -> [[Int]]      -- Values assigned to the board's points for scoring.
   -> GameTransformerStack Game
 
-startGameService gameParams initGridPieces initUserPieces initMachinePieces pointValues = do
-  params @ GameParams.GameParams {dimension, languageCode, pieceProviderType} <- Game.validateGameParams gameParams
-  GameEnv { connectionProvider, gameCache } <- ask
-  let playerName = GameParams.playerName params
-  playerRowId <- GameDao.findExistingPlayerRowIdByName connectionProvider playerName
-  dictionary <- lookupDictionary languageCode
-  let pieceProvider = mkPieceProvider pieceProviderType
-  game <- Game.mkInitialGame params pieceProvider initGridPieces initUserPieces initMachinePieces pointValues playerName
-  let gameId = Game.gameId game
-  GameDao.addGame connectionProvider $ gameToRow playerRowId game
-  exceptTToStack $ GameCache.insert game gameCache
-  return game
+startGameService gameParams initPieces pointValues = do
+  params <- Game.validateGameParams gameParams
+  let GameParams {dimension, languageCode, pieceProviderType, playerName} = params
+  let InitPieces {gridPieces, userPieces, machinePieces} = initPieces
+  GameEnv { gameCache } <- ask
+  persister @ GamePersister {findPlayerByName} <- mkPersister
+  maybePlayer <- exceptTToStack $ findPlayerByName playerName
+  case maybePlayer of
+    Nothing -> throwError $ MissingPlayerError playerName
+    Just player -> do
+      let pieceProvider = mkPieceProvider pieceProviderType
+      game <- Game.mkInitialGame params initPieces pieceProvider pointValues player
+      persistGame persister game
+      exceptTToStack $ GameCache.insert game gameCache
+      return game
+
+restoreGameService :: String -> GameTransformerStack (Maybe Game)
+restoreGameService gameId = do
+  persister @ GamePersister {findGameById} <- mkPersister
+  maybeGameData <- exceptTToStack $ findGameById gameId
+  return $ gameFromData <$> maybeGameData
+
+persistGame :: GamePersister -> Game -> GameTransformerStack ()
+persistGame GamePersister {saveGame} game = exceptTToStack $ saveGame $ dataFromGame game
 
 validateCrossWords :: Board -> WordDictionary -> Strip -> String -> GameTransformerStack ()
 validateCrossWords board dictionary strip word = do
   let crosswords = CrossWordFinder.findStripCrossWords board strip word
       invalidCrosswords = filter (not . Dict.isWord dictionary) crosswords
   bool (throwError $ InvalidCrossWordError invalidCrosswords) (return ()) (null invalidCrosswords)
-
--- | Find points on the board that cannot possibly be played
---   and update board accordingly.
--- updateDeadPoints :: WordDictionary -> Board -> (Board, [Point])
--- updateDeadPoints = Matcher.findAndSetBoardBlackPoints
 
 -- | Service function to commit a user play - reflecting it on the
 --   game's board, and and refilling the user tray.
@@ -251,34 +254,28 @@ commitPlayService ::
   -> [PlayPiece]
   -> GameTransformerStack (GameMiniState, [Piece], [Point])
 
-commitPlayService gmId playPieces = do
+commitPlayService gameId playPieces = do
   GameEnv { gameCache } <- ask
-  game @ Game {gameBase, board} <- exceptTToStack $ GameCache.lookup gmId gameCache
+  game @ Game {gameBase, board} <- exceptTToStack $ GameCache.lookup gameId gameCache
   let GameBase {gameParams} = gameBase
       GameParams {languageCode} = gameParams
       playWord = PlayPiece.playPiecesToWord playPieces
   dictionary <- lookupDictionary languageCode
-  let wordExists = Dict.isWord dictionary playWord
-  -- TODO. Library function for if problem throw error?
-  bool (throwError $ InvalidWordError playWord) (return ()) wordExists
+  unless (Dict.isWord dictionary playWord) $
+    throwError $ InvalidWordError playWord
   let maybeStrip = Board.stripOfPlay board playPieces
-  strip <- case maybeStrip of
-           Nothing -> throwError $ WordTooShortError playWord
-           Just str -> return str
+  when (isNothing maybeStrip) $
+    throwError $ WordTooShortError playWord
+  let Just strip = maybeStrip
   validateCrossWords board dictionary strip playWord
-  (game' @ Game {board = newBoard, trays, playNumber}, refills, deadPoints)
-    <- Game.reflectPlayOnGame game UserPlayer playPieces (Matcher.findAndSetBoardBlackPoints dictionary)
-
---   let (newBoard', deadPoints) = updateDeadPoints dictionary newBoard
---       game'' = Game.setBoard game' newBoard'
-
-  saveWordPlay gmId playNumber UserPlayer playPieces refills
+  let blackPointFinder = Matcher.findAndSetBoardBlackPoints dictionary
+  (game', refills, deadPoints)
+    <- Game.reflectPlayOnGame game UserPlayer playPieces blackPointFinder
+  persister <- mkPersister
+  persistGame persister game'
   exceptTToStack $ GameCache.insert game' gameCache
   let miniState = Game.toMiniState game'
   return (miniState, refills, deadPoints)
-
--- TODO. Save the replacement pieces in the database.
--- TODO. Need to save the update game info in the DB.
 
 -- | Service function to obtain the next machine play.
 --   If no match is found, then the machine exchanges a piece.
@@ -299,40 +296,36 @@ machinePlayService gameId = do
       return (gm, [], []) -- If no pieces were used - we know it was a swap.
     Just (strip, word) -> do
       (playPieces, depletedTray) <- stripMatchAsPlay board machineTray strip word
-      (gm @ Game {board = newBoard, trays, playNumber}, refills, deadPoints)
-        <- Game.reflectPlayOnGame game MachinePlayer playPieces (Matcher.findAndSetBoardBlackPoints dictionary)
-
---       let (newBoard', deadPoints) = updateDeadPoints dictionary newBoard
---           gm' = Game.setBoard gm newBoard'
-
-      saveWordPlay gameId playNumber MachinePlayer playPieces refills
+      let blackPointFinder = Matcher.findAndSetBoardBlackPoints dictionary
+      (gm, refills, deadPoints)
+        <- Game.reflectPlayOnGame game MachinePlayer playPieces blackPointFinder
       return (gm, playPieces, deadPoints)
-
+  persister <- mkPersister
+  persistGame persister game'
   exceptTToStack $ GameCache.insert game' gameCache
   let miniState = Game.toMiniState game'
   return (miniState, machinePlayPieces, deadPoints)
 
--- TODO. Save the new game data in the database.
--- TODO. Would this be simpler with a stack of ExceptT May IO??
 -- | Service function to swap a user piece for another.
 swapPieceService :: String -> Piece -> GameTransformerStack (GameMiniState, Piece)
 
 swapPieceService gameId (piece @ Piece {id}) = do
   gameCache <- asks GameEnv.gameCache
-  (game @ Game {board, trays}) <- exceptTToStack $ GameCache.lookup gameId gameCache
+  (game @ Game {trays}) <- exceptTToStack $ GameCache.lookup gameId gameCache
   let gameId = Game.gameId game
       (userTray @ Tray {pieces}) = trays !! Player.userIndex
   index <- Tray.findPieceIndexById userTray id
   let swappedPiece = pieces !! index
-  (game' @ Game {playNumber}, newPiece) <- Game.doExchange game UserPlayer index
-  saveSwap gameId playNumber UserPlayer swappedPiece newPiece
+  (game', newPiece) <- Game.doExchange game UserPlayer index
   exceptTToStack $ GameCache.insert game' gameCache
+  persister <- mkPersister
+  persistGame persister game'
   let miniState = Game.toMiniState game'
   return (miniState, newPiece)
 
 -- | No matches available for machine - do a swap instead.
 exchangeMachinePiece :: Game -> GameTransformerStack Game
-exchangeMachinePiece (game @ Game.Game {board, trays, playNumber}) = do
+exchangeMachinePiece (game @ Game {trays}) = do
   let gameId = Game.gameId game
       (machineTray @ Tray {pieces}) = trays !! Player.machineIndex
   if Tray.isEmpty machineTray
@@ -340,9 +333,7 @@ exchangeMachinePiece (game @ Game.Game {board, trays, playNumber}) = do
     else do
       let piece @ Piece { id } = head pieces
       index <- Tray.findPieceIndexById machineTray id
-      (game' @ Game {playNumber}, newPiece) <- Game.doExchange game MachinePlayer index
-      -- TODO. Update play number at the right place before using it here.
-      saveSwap gameId playNumber MachinePlayer piece newPiece
+      (game', newPiece) <- Game.doExchange game MachinePlayer index
       return game'
 
 closeGameService :: String -> GameTransformerStack GameSummary
@@ -354,63 +345,6 @@ closeGameService gameId = do
   -- TODO. Tell the database that the game has ended - as opposed to suspended.
   -- TODO. Game.summary should return the game updated with the bonus/penalty scores.
   -- TODO. Persist that final state of the game.
-
--- TODO. A swap is also a play and should increment the playNumber. For both machine and user.
--- TODO. play number needs to be updated at the right time.
-
-saveWordPlay :: String -> Int -> PlayerType -> [PlayPiece] -> [Piece]
-  -> GameTransformerStack EntityId
-saveWordPlay gameId playNumber playerType playPieces replacementPieces =
-  let playDetails = WordPlayDetails playPieces replacementPieces
-      detailsJson = PlayDetails.encode playDetails
-  in savePlay gameId playNumber playerType True detailsJson
-
-saveSwap :: String -> Int -> PlayerType -> Piece -> Piece
-  -> GameTransformerStack EntityId
-saveSwap gameId playNumber playerType swappedPiece replacementPiece =
-  let swapDetails = SwapPlayDetails swappedPiece replacementPiece
-      detailsJson = PlayDetails.encode swapDetails
-  in savePlay gameId playNumber playerType False detailsJson
-
-savePlay ::
-     String
-  -> Int
-  -> PlayerType
-  -> Bool
-  -> String
-  -> GameTransformerStack EntityId
-savePlay gameId playNumber playerType isPlay details = do
-  connectionProvider <- asks GameEnv.connectionProvider
-  gameRowId <- GameDao.findExistingGameRowIdByGameId connectionProvider gameId
-  let playRow = PlayRow gameRowId playNumber (show playerType) isPlay details
-  GameDao.addPlay connectionProvider playRow
-
-gameToRow :: PlayerRowId -> Game -> GameRow
-gameToRow playerId game =
-  GameRow gameId playerId (Board.dimension board) trayCapacity
-    where gameId = Game.gameId game
-          GameBase {gameParams, playerName} = Game.gameBase game -- TODO. Add language code to the table.
-          GameParams {languageCode} = gameParams
-          board = Game.board game
-          trays = Game.trays game
-          userTray = trays !! Player.userIndex
-          trayCapacity = length $ Tray.pieces (trays !! Player.userIndex) -- TODO. Just use tray capacity.
-
-playerToRow :: Player.Player -> PlayerRow
-playerToRow player = PlayerRow $ Player.name player -- TODO. Clean this up.
-
-getGamePlayDetailsService :: String -> GameTransformerStack [PlayInfo]
-getGamePlayDetailsService gameId = do
-  connectionProvider <- asks GameEnv.connectionProvider
-  playRows <- GameDao.getGamePlays connectionProvider gameId
-  return $ playRowToPlayInfo <$> playRows
-
--- TODO. Check for decode returning Nothing - error in decoding.
-
-playRowToPlayInfo :: PlayRow -> PlayInfo
-playRowToPlayInfo PlayRow {playRowNumber, playRowTurn, playRowIsPlay, playRowDetails} =
-  let maybePlayDetails = PlayDetails.decode playRowDetails
-  in PlayInfo playRowNumber (read playRowTurn) (fromJust maybePlayDetails)
 
 stripPoint :: Strip -> Int -> Point
 stripPoint (strip @ Strip {axis, lineNumber, begin}) offset =

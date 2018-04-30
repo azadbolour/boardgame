@@ -67,6 +67,10 @@ data GameError =
       playerName :: String
   }
   |
+  PlayerNameExistsError {
+      playerName :: String
+  }
+  |
   MissingGameError {
       gameId :: String
   }
