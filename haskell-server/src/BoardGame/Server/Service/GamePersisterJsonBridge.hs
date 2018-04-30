@@ -16,8 +16,8 @@ import Bolour.Util.VersionStamped (Version, VersionStamped, VersionStamped(Versi
 import qualified Bolour.Util.VersionStamped as VersionStamped
 import BoardGame.Server.Domain.Player (Player, Player(Player))
 import qualified BoardGame.Server.Domain.Player as Player
-import BoardGame.Server.Domain.Game (Game, Game(Game))
-import qualified BoardGame.Server.Domain.Game as Game
+import BoardGame.Server.Service.GameData (GameData, GameData(GameData))
+import qualified BoardGame.Server.Service.GameData as GameData
 import BoardGame.Server.Domain.GameBase (GameBase, GameBase(GameBase))
 import qualified BoardGame.Server.Domain.GameBase as GameBase
 import BoardGame.Server.Domain.GameError (GameError)
@@ -43,17 +43,17 @@ findPlayerByName GameJsonPersister {findPlayerByName = delegate} playerName = do
 clearPlayers :: GameJsonPersister -> Result ()
 clearPlayers GameJsonPersister {clearPlayers = delegate} = delegate
 
-saveGame :: GameJsonPersister -> Version -> Game -> Result ()
-saveGame GameJsonPersister {saveGame = delegate} version game @ Game {gameId} = do
-  let gameBase @ GameBase {playerId} = Game.getBase game
-      json = VersionStamped.encodeWithVersion version gameBase
+saveGame :: GameJsonPersister -> Version -> GameData -> Result ()
+saveGame GameJsonPersister {saveGame = delegate} version gameData @ GameData {base} = do
+  let GameBase {gameId, playerId} = base
+      json = VersionStamped.encodeWithVersion version gameData
   delegate gameId playerId json
 
-findGameById :: GameJsonPersister -> String -> Result (Maybe Game)
+findGameById :: GameJsonPersister -> String -> Result (Maybe GameData)
 findGameById GameJsonPersister {findGameById = delegate} gameUid = do
   maybeJson <- delegate gameUid
-  let maybeGameTransitions = maybeJson >>= VersionStamped.decodeAndExtract
-  return $ Game.fromTransitions <$> maybeGameTransitions
+  let maybeGameData = maybeJson >>= VersionStamped.decodeAndExtract
+  return $ maybeGameData
 
 deleteGame :: GameJsonPersister -> String -> Result ()
 deleteGame GameJsonPersister {deleteGame = delegate} = delegate

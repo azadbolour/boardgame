@@ -70,8 +70,14 @@ import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(..))
 import qualified BoardGame.Common.Domain.GameParams as GameParams
+
 import BoardGame.Server.Domain.Game (Game, Game(Game))
 import qualified BoardGame.Server.Domain.Game as Game
+import BoardGame.Server.Domain.GameBase (GameBase, GameBase(GameBase))
+import qualified BoardGame.Server.Domain.GameBase as GameBase
+import BoardGame.Common.Domain.InitPieces (InitPieces, InitPieces(InitPieces))
+import qualified BoardGame.Common.Domain.InitPieces as InitPieces
+
 import BoardGame.Server.Domain.GameBase (GameBase, GameBase(GameBase))
 import qualified BoardGame.Server.Domain.GameBase as GameBase
 import BoardGame.Server.Domain.GameError (GameError(..))
@@ -100,9 +106,34 @@ import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
 import BoardGame.Server.Domain.PieceProvider (PieceProvider(..), mkDefaultCyclicPieceProvider)
 import qualified BoardGame.Server.Service.GameLetterDistribution as GameLetterDistribution
+import BoardGame.Server.Service.GameData (GameData, GameData(GameData))
+import qualified BoardGame.Server.Service.GameData as GameData
 
 unknownPlayerName = "You"
 -- unknownPlayer = Player unknownPlayerName
+
+-- | Convert game data stored in the database to a game domain object.
+--   Assumes that the parameters of the piece provider have not changed.
+--   Those parameters are not stored in the database and are considered
+--   to be constant.
+gameFromData :: GameData -> Game
+gameFromData GameData {base, plays} =
+  let GameBase {gameParams, pointValues, initPieces} = base
+      GameParams {dimension, trayCapacity, pieceProviderType} = gameParams
+      InitPieces {gridPieces, userPieces, machinePieces} = initPieces
+      pieceProvider = mkPieceProvider pieceProviderType
+      trays = Tray trayCapacity <$> [userPieces, machinePieces]
+      board = Board.mkBoardFromPiecePoints gridPieces dimension
+      game = Game.mkStartingGame base board trays pieceProvider
+      -- TODO. Update the state of the game using the plays.
+  in Game.setPlays game plays
+
+-- | Convert a game domain object to its db-storable representation.
+--   Note that the parameters of the piece provider of the game
+--   are not stored in the database. For now the potential change
+--   of these parameters over time is a non-requirement.
+dataFromGame :: Game -> GameData
+dataFromGame Game {gameBase, plays} = GameData gameBase plays
 
 prepareDb :: GameTransformerStack ()
 prepareDb = do

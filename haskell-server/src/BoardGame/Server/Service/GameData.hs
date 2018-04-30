@@ -8,7 +8,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 
-module BoardGame.Server.Domain.GameTransitions where
+module BoardGame.Server.Service.GameData where
 
 import Data.Sequence (Seq)
 import GHC.Generics (Generic)
@@ -17,12 +17,14 @@ import Data.Aeson (FromJSON, ToJSON)
 import BoardGame.Server.Domain.Play (Play)
 import BoardGame.Server.Domain.GameBase (GameBase)
 
-data GameTransitions = GameTransitions {
+-- | Storable/retrievable data about a game in its entirety.
+--   Includes the initial condition (base) and the sequence of successive plays.
+data GameData = GameData {
     base :: GameBase
   , plays :: Seq Play
 }
   deriving (Eq, Show, Generic)
 
-instance FromJSON GameTransitions
-instance ToJSON GameTransitions
+instance FromJSON GameData
+instance ToJSON GameData
 

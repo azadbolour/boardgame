@@ -14,7 +14,7 @@ module BoardGame.Server.Service.GamePersister (
 
 import BoardGame.Server.Service.TypeDefs (Result)
 import BoardGame.Server.Domain.Player (Player)
-import BoardGame.Server.Domain.Game (Game)
+import BoardGame.Server.Service.GameData (GameData)
 import BoardGame.Server.Domain.GameError (GameError)
 
 data GamePersister = GamePersister {
@@ -22,8 +22,8 @@ data GamePersister = GamePersister {
   , savePlayer :: Player -> Result ()
   , findPlayerByName :: String -> Result (Maybe Player)
   , clearPlayers :: Result ()
-  , saveGame :: Game -> Result ()
-  , findGameById :: String -> Result (Maybe Game)
+  , saveGame :: GameData -> Result ()
+  , findGameById :: String -> Result (Maybe GameData)
   , deleteGame :: String -> Result ()
   , clearGames :: Result ()
 }

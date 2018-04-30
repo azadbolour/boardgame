@@ -97,7 +97,6 @@ library
       BoardGame.Server.Domain.GameError
       BoardGame.Server.Domain.Game
       BoardGame.Server.Domain.GameBase
-      BoardGame.Server.Domain.GameTransitions
       BoardGame.Server.Domain.Play
       BoardGame.Server.Domain.Player
       BoardGame.Server.Domain.Strip
@@ -115,6 +114,7 @@ library
       BoardGame.Server.Service.GameTransformerStack
       BoardGame.Server.Service.GameService
       BoardGame.Server.Service.GameLetterDistribution
+      BoardGame.Server.Service.GameData
       BoardGame.Server.Service.GameDao
       BoardGame.Server.Service.GamePersister
       BoardGame.Server.Service.GameJsonPersister

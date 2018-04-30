@@ -12,6 +12,7 @@
 
 module BoardGame.Server.Domain.Game (
     Game(..)
+  , mkStartingGame
   , mkInitialGame
   , setPlayerTray
   , validatePlayAgainstGame
@@ -22,7 +23,7 @@ module BoardGame.Server.Domain.Game (
   , toMiniState
   , summary
   , setBoard
-  , fromTransitions
+  , setPlays
   , BoardGame.Server.Domain.Game.gameId
 )
 where
@@ -69,8 +70,6 @@ import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
 import qualified BoardGame.Server.Domain.Scorer as Scorer
 import BoardGame.Server.Domain.GameBase (GameBase, GameBase(GameBase))
 import qualified BoardGame.Server.Domain.GameBase as GameBase
-import BoardGame.Server.Domain.GameTransitions (GameTransitions, GameTransitions(GameTransitions))
-import qualified BoardGame.Server.Domain.GameTransitions as GameTransitions
 
 data Game = Game {
     gameBase :: GameBase
@@ -110,18 +109,6 @@ mkStartingGame base board trays pieceProvider =
   in Game base board trays initPlayNumber initPlayerType pieceProvider
         scorer noScore noScores noPasses Seq.empty
 
-fromTransitions :: GameTransitions -> PieceProvider -> Game
-fromTransitions GameTransitions {base, plays} pieceProvider =
-  let GameBase {gameParams, pointValues, initPieces} = base
-      GameParams {dimension, trayCapacity, pieceProviderType} = gameParams
-      InitPieces {gridPieces, userPieces, machinePieces} = initPieces
-      -- TODO. Track the initial trays in base.
-      trays = Tray trayCapacity <$> [userPieces, machinePieces]
-      board = Board.mkBoardFromPiecePoints gridPieces dimension
-      game = mkStartingGame base board trays pieceProvider
-      -- TODO. Update the state of the game using the plays.
-  in game {plays = plays}
-
 -- TODO. Complete show of game if needed.
 instance Show Game where
   show game @ Game {board} = "Game {" ++ "board" ++ show board ++ "}"
@@ -131,6 +118,9 @@ passesMaxedOut Game { numSuccessivePasses } = numSuccessivePasses == maxSuccessi
 
 setBoard :: Game -> Board -> Game
 setBoard game b = game {board = b}
+
+setPlays :: Game -> Seq Play -> Game
+setPlays game plays = game {plays = plays}
 
 stopInfo :: Game -> StopInfo
 stopInfo game @ Game { board, numSuccessivePasses } =
