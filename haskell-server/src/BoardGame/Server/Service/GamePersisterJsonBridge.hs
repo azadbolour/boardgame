@@ -12,6 +12,7 @@ module BoardGame.Server.Service.GamePersisterJsonBridge (
 )
 where
 
+import Control.Monad.IO.Class (liftIO)
 import Bolour.Util.VersionStamped (Version, VersionStamped, VersionStamped(VersionStamped))
 import qualified Bolour.Util.VersionStamped as VersionStamped
 import BoardGame.Server.Domain.Player (Player, Player(Player))
@@ -31,9 +32,14 @@ migrate GameJsonPersister {migrate = delegate} =
   delegate
 
 savePlayer :: GameJsonPersister -> Version -> Player -> Result ()
-savePlayer GameJsonPersister {savePlayer = delegate} version player @ Player {playerId, name} = do
+savePlayer GameJsonPersister {addPlayer = delegate} version player @ Player {playerId, name} = do
   let json = VersionStamped.encodeWithVersion version player
   delegate playerId name json
+
+findPlayerById :: GameJsonPersister -> String -> Result (Maybe Player)
+findPlayerById GameJsonPersister {findPlayerById = delegate} playerId = do
+  maybeJson <- delegate playerId
+  return $ maybeJson >>= VersionStamped.decodeAndExtract
 
 findPlayerByName :: GameJsonPersister -> String -> Result (Maybe Player)
 findPlayerByName GameJsonPersister {findPlayerByName = delegate} playerName = do
@@ -43,17 +49,24 @@ findPlayerByName GameJsonPersister {findPlayerByName = delegate} playerName = do
 clearPlayers :: GameJsonPersister -> Result ()
 clearPlayers GameJsonPersister {clearPlayers = delegate} = delegate
 
-saveGame :: GameJsonPersister -> Version -> GameData -> Result ()
-saveGame GameJsonPersister {saveGame = delegate} version gameData @ GameData {base} = do
+addGame :: GameJsonPersister -> Version -> GameData -> Result ()
+addGame GameJsonPersister {addGame = delegate} version gameData @ GameData {base} = do
   let GameBase {gameId, playerId} = base
       json = VersionStamped.encodeWithVersion version gameData
   delegate gameId playerId json
+
+updateGame :: GameJsonPersister -> Version -> GameData -> Result ()
+updateGame GameJsonPersister {updateGame = delegate} version gameData @ GameData {base} = do
+  let GameBase {gameId} = base
+      json = VersionStamped.encodeWithVersion version gameData
+  liftIO $ print "location 4 - update in bridge"
+  delegate gameId json
 
 findGameById :: GameJsonPersister -> String -> Result (Maybe GameData)
 findGameById GameJsonPersister {findGameById = delegate} gameUid = do
   maybeJson <- delegate gameUid
   let maybeGameData = maybeJson >>= VersionStamped.decodeAndExtract
-  return $ maybeGameData
+  return maybeGameData
 
 deleteGame :: GameJsonPersister -> String -> Result ()
 deleteGame GameJsonPersister {deleteGame = delegate} = delegate
@@ -66,9 +79,11 @@ mkBridge jsonPersister version =
   GamePersister
     (migrate jsonPersister)
     (savePlayer jsonPersister version)
+    (findPlayerById jsonPersister)
     (findPlayerByName jsonPersister)
     (clearPlayers jsonPersister)
-    (saveGame jsonPersister version)
+    (addGame jsonPersister version)
+    (updateGame jsonPersister version)
     (findGameById jsonPersister)
     (deleteGame jsonPersister)
     (clearGames jsonPersister)

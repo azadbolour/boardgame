@@ -38,7 +38,7 @@
   See  https://wiki.haskell.org/Debugging.
   ghc Crash.hs -prof -fprof-auto -fprof-cafs && ./Crash +RTS -xc
   But stack only has --profile.
-  See profile-bld.sh and rofile-run.sh.
+  See profile-bld.sh and profile-run.sh.
 
   Best way to get stack trace from tests?
 

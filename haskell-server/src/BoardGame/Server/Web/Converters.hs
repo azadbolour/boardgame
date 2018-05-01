@@ -46,7 +46,7 @@ class Converter entity dto where
   toDto :: entity -> dto
 
 gameToStartGameResponse Game {gameBase, board, trays, pieceProvider} =
-   let GameBase {gameId, gameParams, playerName} = gameBase
+   let GameBase {gameId, gameParams} = gameBase
        GameParams {dimension, languageCode} = gameParams
        pieceProviderType = PieceProvider.pieceProviderType pieceProvider
        Tray {capacity, pieces = trayPieces} = trays !! Player.userIndex

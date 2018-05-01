@@ -16,10 +16,12 @@ import BoardGame.Server.Service.TypeDefs
 
 data GameJsonPersister = GameJsonPersister {
     migrate :: Result ()
-  , savePlayer :: PlayerId -> String -> JsonEncoded -> Result ()
+  , addPlayer :: PlayerId -> String -> JsonEncoded -> Result ()
+  , findPlayerById :: String -> Result (Maybe JsonEncoded)
   , findPlayerByName :: String -> Result (Maybe JsonEncoded)
   , clearPlayers :: Result ()
-  , saveGame :: GameId -> PlayerId -> JsonEncoded -> Result ()
+  , addGame :: GameId -> PlayerId -> JsonEncoded -> Result ()
+  , updateGame :: GameId -> JsonEncoded -> Result ()
   , findGameById :: GameId -> Result (Maybe JsonEncoded)
   , deleteGame :: GameId -> Result ()
   , clearGames :: Result ()

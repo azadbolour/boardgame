@@ -160,13 +160,13 @@ existsNotOk = not existsOk
 
 saveNamedPlayer :: String -> Bool -> GameTransformerStack ()
 saveNamedPlayer name existsOk = do
-  persister @ GamePersister {savePlayer, findPlayerByName} <- mkPersister
+  persister @ GamePersister {addPlayer, findPlayerByName} <- mkPersister
   maybePlayer <- exceptTToStack $ findPlayerByName name
   case maybePlayer of
     Nothing -> do
       playerId <- liftIO Util.mkUuid
       let player = Player playerId name
-      exceptTToStack $ savePlayer player
+      exceptTToStack $ addPlayer player
     _ -> unless existsOk $ throwError $ PlayerNameExistsError name
 
 -- | Service function to add a player to the system - error if name exists.
@@ -218,7 +218,7 @@ startGameService gameParams initPieces pointValues = do
     Just player -> do
       let pieceProvider = mkPieceProvider pieceProviderType
       game <- Game.mkInitialGame params initPieces pieceProvider pointValues player
-      persistGame persister game
+      persistGame game
       exceptTToStack $ GameCache.insert game gameCache
       return game
 
@@ -228,8 +228,10 @@ restoreGameService gameId = do
   maybeGameData <- exceptTToStack $ findGameById gameId
   return $ gameFromData <$> maybeGameData
 
-persistGame :: GamePersister -> Game -> GameTransformerStack ()
-persistGame GamePersister {saveGame} game = exceptTToStack $ saveGame $ dataFromGame game
+persistGame :: Game -> GameTransformerStack ()
+persistGame game = do
+  persister <- mkPersister
+  exceptTToStack $ GamePersister.saveGame persister $ dataFromGame game
 
 validateCrossWords :: Board -> WordDictionary -> Strip -> String -> GameTransformerStack ()
 validateCrossWords board dictionary strip word = do
@@ -262,8 +264,7 @@ commitPlayService gameId playPieces = do
   let blackPointFinder = Matcher.findAndSetBoardBlackPoints dictionary
   (game', refills, deadPoints)
     <- Game.reflectPlayOnGame game UserPlayer playPieces blackPointFinder
-  persister <- mkPersister
-  persistGame persister game'
+  persistGame game'
   exceptTToStack $ GameCache.insert game' gameCache
   let miniState = Game.toMiniState game'
   return (miniState, refills, deadPoints)
@@ -291,8 +292,7 @@ machinePlayService gameId = do
       (gm, refills, deadPoints)
         <- Game.reflectPlayOnGame game MachinePlayer playPieces blackPointFinder
       return (gm, playPieces, deadPoints)
-  persister <- mkPersister
-  persistGame persister game'
+  persistGame game'
   exceptTToStack $ GameCache.insert game' gameCache
   let miniState = Game.toMiniState game'
   return (miniState, machinePlayPieces, deadPoints)
@@ -309,8 +309,7 @@ swapPieceService gameId (piece @ Piece {id}) = do
   let swappedPiece = pieces !! index
   (game', newPiece) <- Game.doExchange game UserPlayer index
   exceptTToStack $ GameCache.insert game' gameCache
-  persister <- mkPersister
-  persistGame persister game'
+  persistGame game'
   let miniState = Game.toMiniState game'
   return (miniState, newPiece)
 

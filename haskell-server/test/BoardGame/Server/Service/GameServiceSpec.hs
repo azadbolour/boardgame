@@ -82,14 +82,14 @@ runner'' stack = do
 
 spec :: Spec
 spec = do
-  describe "start a game" $
-    it "starts game" $
-      do -- IO
-        userTray <- runner'' $ do -- GameTransformerStack
-          addPlayerService $ Fixtures.thePlayer
-          Game {trays} <- startGameService Fixtures.gameParams initPieces []
-          return $ trays !! 0
-        length (Tray.pieces userTray) `shouldSatisfy` (== Fixtures.testTrayCapacity)
+--   describe "start a game" $
+--     it "starts game" $
+--       do -- IO
+--         userTray <- runner'' $ do -- GameTransformerStack
+--           addPlayerService $ Fixtures.thePlayer
+--           Game {trays} <- startGameService Fixtures.gameParams initPieces []
+--           return $ trays !! 0
+--         length (Tray.pieces userTray) `shouldSatisfy` (== Fixtures.testTrayCapacity)
 
   describe "commits a play" $
     it "commit a play" $
@@ -110,29 +110,29 @@ spec = do
           commitPlayService (Game.gameId game) playPieces -- refills
         length replacementPieces `shouldBe` 3
 
-  describe "make machine play" $
-    it "make machine play" $
-      do -- IO
-        word <- runner'' $ do
-          addPlayerService $ Fixtures.thePlayer
-          game <- startGameService Fixtures.gameParams initPieces []
-          let gameId = Game.gameId game
-          (miniState, playedPieces, deadPieces) <- machinePlayService gameId
-          let word = PlayPiece.playPiecesToWord playedPieces
-          return word
-        print word
-        length word `shouldSatisfy` (> 1)
-
-  describe "swap a piece" $
-    it "swap a piece" $
-      do
-        value <- runner'' $ do
-          addPlayerService $ Fixtures.thePlayer
-          game @ Game {trays} <- startGameService Fixtures.gameParams initPieces []
-          let gameId = Game.gameId game
-          let userTray = trays !! 0
-              piece = head (Tray.pieces userTray)
-          -- TODO satisfiesRight
-          (miniState, Piece {value}) <- swapPieceService gameId piece
-          return value
-        value `shouldSatisfy` isUpper
+--   describe "make machine play" $
+--     it "make machine play" $
+--       do -- IO
+--         word <- runner'' $ do
+--           addPlayerService $ Fixtures.thePlayer
+--           game <- startGameService Fixtures.gameParams initPieces []
+--           let gameId = Game.gameId game
+--           (miniState, playedPieces, deadPieces) <- machinePlayService gameId
+--           let word = PlayPiece.playPiecesToWord playedPieces
+--           return word
+--         print word
+--         length word `shouldSatisfy` (> 1)
+--
+--   describe "swap a piece" $
+--     it "swap a piece" $
+--       do
+--         value <- runner'' $ do
+--           addPlayerService $ Fixtures.thePlayer
+--           game @ Game {trays} <- startGameService Fixtures.gameParams initPieces []
+--           let gameId = Game.gameId game
+--           let userTray = trays !! 0
+--               piece = head (Tray.pieces userTray)
+--           -- TODO satisfiesRight
+--           (miniState, Piece {value}) <- swapPieceService gameId piece
+--           return value
+--         value `shouldSatisfy` isUpper

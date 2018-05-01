@@ -53,7 +53,7 @@ data GameBase = GameBase {
   , pointValues :: [[Int]]
   , initPieces :: InitPieces
   , initTrays :: [Tray]
-  , playerName :: String
+  -- , playerName :: String
   , playerId :: String
   , startTime :: UTCTime
   , endTime :: Maybe UTCTime
@@ -77,7 +77,7 @@ mkInitialBase gameParams pointValues initPieces player pieceProvider = do
   let trays = [userTray, machineTray]
       endTime = Nothing
       base = GameBase gameId gameParams pointValues initPieces trays
-             playerName playerId startTime endTime
+             playerId startTime endTime
   return (base, pieceProvider'')
 
 

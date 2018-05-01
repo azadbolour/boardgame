@@ -28,9 +28,9 @@ module BoardGame.Server.Service.GameJsonSqlPersister (
   , mkPersister
 ) where
 
-import Data.Maybe (listToMaybe)
+import Data.Maybe (listToMaybe, isJust)
 
--- import Control.Monad.Reader (asks)
+import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Except (throwE)
 
@@ -42,11 +42,14 @@ import Database.Esqueleto (
   , insert
   , delete
   , where_
+  , update
+  , set
   -- , orderBy
   -- , desc
   , val
   , unValue
   , (==.)
+  , (=.)
   , (^.)
   )
 
@@ -111,8 +114,8 @@ migrate :: ConnectionProvider -> Result ()
 migrate provider =
   liftIO $ migrateDb provider
 
-savePlayer :: ConnectionProvider -> PlayerId -> String -> JsonEncoded -> Result ()
-savePlayer provider playerId playerName json = do
+addPlayer :: ConnectionProvider -> PlayerId -> String -> JsonEncoded -> Result ()
+addPlayer provider playerId playerName json = do
   let row = PlayerRow playerId playerName json
   liftIO $ PersistRunner.runQuery provider (savePlayerReader row)
   return ()
@@ -133,6 +136,20 @@ findPlayerByNameReader playerName = do
   let maybeValue = listToMaybe selectedList
   return $ unValue <$> maybeValue
 
+findPlayerById :: ConnectionProvider -> String -> Result (Maybe JsonEncoded)
+findPlayerById provider playerUid =
+  liftIO $ PersistRunner.runQuery provider (findPlayerByIdReader playerUid)
+
+findPlayerByIdReader :: String -> SqlPersistM (Maybe JsonEncoded)
+findPlayerByIdReader playerUid = do
+  selectedList <- select $
+    from $ \player -> do
+      where_ (player ^. PlayerRowPlayerUid ==. val playerUid)
+      return $ player ^. PlayerRowJson
+  let maybeValue = listToMaybe selectedList
+  return $ unValue <$> maybeValue
+
+-- TODO. Use findPlayerById. Remove duplicate code.
 findPlayerRowIdById :: ConnectionProvider -> String -> Result (Maybe PlayerRowId)
 findPlayerRowIdById provider playerUid =
   liftIO $ PersistRunner.runQuery provider (findPlayerRowIdByIdReader playerUid)
@@ -159,19 +176,34 @@ clearPlayersReader =
     from $ \(player :: SqlExpr (Entity PlayerRow)) ->
     return ()
 
-saveGame :: ConnectionProvider -> GameId -> PlayerId -> JsonEncoded -> Result ()
-saveGame provider gameUid playerUid json = do
+addGame :: ConnectionProvider -> GameId -> PlayerId -> JsonEncoded -> Result ()
+addGame provider gameUid playerUid json = do
   maybePlayerRowId <- findPlayerRowIdById provider playerUid
   case maybePlayerRowId of
-    Nothing -> throwE $ MissingPlayerError gameUid -- TODO. Should be player name!
+    Nothing -> throwE $ MissingPlayerError playerUid -- TODO. Should be MissingPlayerIdError
     Just playerRowId -> do
       let row = GameRow gameUid playerUid json playerRowId
-      liftIO $ PersistRunner.runQuery provider (saveGameReader row)
+      liftIO $ PersistRunner.runQuery provider (addGameReader row)
       return ()
 
 -- TODO. Generic insert?
-saveGameReader :: GameRow -> SqlPersistM EntityId
-saveGameReader row = fromSqlKey <$> insert row
+addGameReader :: GameRow -> SqlPersistM EntityId
+addGameReader row = fromSqlKey <$> insert row
+
+updateGame :: ConnectionProvider -> GameId -> JsonEncoded -> Result ()
+updateGame provider gameUid json = do
+  maybeGame <- findGameById provider gameUid
+  unless (isJust maybeGame) $ throwE $ MissingGameError gameUid
+  liftIO $ print "location 5 - updateGame json sql implementation"
+  liftIO $ PersistRunner.runQuery provider (updateGameReader gameUid json)
+  liftIO $ print "location 6 - updateGame json sql implementation"
+  return ()
+
+updateGameReader :: GameId -> JsonEncoded -> SqlPersistM ()
+updateGameReader gameUid json =
+  update $ \game -> do
+    set game [ GameRowJson =. val json ]
+    where_ (game ^. GameRowGameUid ==. val gameUid)
 
 findGameById :: ConnectionProvider -> GameId -> Result (Maybe JsonEncoded)
 findGameById provider gameUid =
@@ -211,10 +243,12 @@ mkPersister :: ConnectionProvider -> GameJsonPersister
 mkPersister provider =
   GameJsonPersister
     (migrate provider)
-    (savePlayer provider)
+    (addPlayer provider)
+    (findPlayerById provider)
     (findPlayerByName provider)
     (clearPlayers provider)
-    (saveGame provider)
+    (addGame provider)
+    (updateGame provider)
     (findGameById provider)
     (deleteGame provider)
     (clearGames provider)
