@@ -13,9 +13,12 @@ module BoardGame.Server.Service.GamePersisterJsonBridge (
 where
 
 import Control.Monad.IO.Class (liftIO)
+import qualified Data.Sequence as Sequence
 import Bolour.Util.VersionStamped (Version, VersionStamped, VersionStamped(VersionStamped))
 import qualified Bolour.Util.VersionStamped as VersionStamped
 import BoardGame.Server.Domain.Player (Player, Player(Player))
+import BoardGame.Server.Domain.Play (Play(WordPlay), BasePlay(..))
+import qualified BoardGame.Server.Domain.Play as Play
 import qualified BoardGame.Server.Domain.Player as Player
 import BoardGame.Server.Service.GameData (GameData, GameData(GameData))
 import qualified BoardGame.Server.Service.GameData as GameData
@@ -56,10 +59,9 @@ addGame GameJsonPersister {addGame = delegate} version gameData @ GameData {base
   delegate gameId playerId json
 
 updateGame :: GameJsonPersister -> Version -> GameData -> Result ()
-updateGame GameJsonPersister {updateGame = delegate} version gameData @ GameData {base} = do
+updateGame GameJsonPersister {updateGame = delegate} version gameData @ GameData {base, plays} = do
   let GameBase {gameId} = base
       json = VersionStamped.encodeWithVersion version gameData
-  liftIO $ print "location 4 - update in bridge"
   delegate gameId json
 
 findGameById :: GameJsonPersister -> String -> Result (Maybe GameData)

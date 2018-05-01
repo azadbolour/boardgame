@@ -207,6 +207,7 @@ startGameService ::
   -> GameTransformerStack Game
 
 startGameService gameParams initPieces pointValues = do
+  -- TODO. Validate parameters. Point values must be a dimension x dimension matrix.
   params <- Game.validateGameParams gameParams
   let GameParams {dimension, languageCode, pieceProviderType, playerName} = params
   let InitPieces {gridPieces, userPieces, machinePieces} = initPieces

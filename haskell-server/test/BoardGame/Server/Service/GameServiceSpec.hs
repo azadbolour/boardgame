@@ -19,6 +19,8 @@ import Control.Monad.Reader (runReaderT)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Log (runLoggingT)
 
+import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
+import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import qualified Bolour.Util.PersistRunner as PersistRunner
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
@@ -80,26 +82,30 @@ runner'' stack = do
   env <- Fixtures.initTest
   runner' env stack
 
+values :: [[Int]]
+values =
+  let GameParams {dimension} = Fixtures.gameParams
+  in replicate dimension $ replicate dimension 1
+
 spec :: Spec
 spec = do
---   describe "start a game" $
---     it "starts game" $
---       do -- IO
---         userTray <- runner'' $ do -- GameTransformerStack
---           addPlayerService $ Fixtures.thePlayer
---           Game {trays} <- startGameService Fixtures.gameParams initPieces []
---           return $ trays !! 0
---         length (Tray.pieces userTray) `shouldSatisfy` (== Fixtures.testTrayCapacity)
+  describe "start a game" $
+    it "starts game" $
+      do -- IO
+        userTray <- runner'' $ do -- GameTransformerStack
+          addPlayerService $ Fixtures.thePlayer
+          Game {trays} <- startGameService Fixtures.gameParams initPieces values
+          return $ trays !! 0
+        length (Tray.pieces userTray) `shouldSatisfy` (== Fixtures.testTrayCapacity)
 
   describe "commits a play" $
     it "commit a play" $
       do -- IO
         let uPieces = [Piece 'B' "1", Piece 'E' "2", Piece 'T' "3"] -- Allow the word 'BET'
             mPieces = [Piece 'S' "4", Piece 'T' "5", Piece 'Z' "6"] -- Allow the word 'SET' across.
-
         (miniState, replacementPieces, deadPieces) <- runner'' $ do -- GameTransformerStack
           addPlayerService $ Fixtures.thePlayer
-          game @ Game {board, trays} <- startGameService Fixtures.gameParams (InitPieces [] uPieces mPieces) []
+          game @ Game {board, trays} <- startGameService Fixtures.gameParams (InitPieces [] uPieces mPieces) values
           let pc0:pc1:pc2:_ = uPieces
               center = Fixtures.testDimension `div` 2
               playPieces = [
@@ -110,29 +116,29 @@ spec = do
           commitPlayService (Game.gameId game) playPieces -- refills
         length replacementPieces `shouldBe` 3
 
---   describe "make machine play" $
---     it "make machine play" $
---       do -- IO
---         word <- runner'' $ do
---           addPlayerService $ Fixtures.thePlayer
---           game <- startGameService Fixtures.gameParams initPieces []
---           let gameId = Game.gameId game
---           (miniState, playedPieces, deadPieces) <- machinePlayService gameId
---           let word = PlayPiece.playPiecesToWord playedPieces
---           return word
---         print word
---         length word `shouldSatisfy` (> 1)
---
---   describe "swap a piece" $
---     it "swap a piece" $
---       do
---         value <- runner'' $ do
---           addPlayerService $ Fixtures.thePlayer
---           game @ Game {trays} <- startGameService Fixtures.gameParams initPieces []
---           let gameId = Game.gameId game
---           let userTray = trays !! 0
---               piece = head (Tray.pieces userTray)
---           -- TODO satisfiesRight
---           (miniState, Piece {value}) <- swapPieceService gameId piece
---           return value
---         value `shouldSatisfy` isUpper
+  describe "make machine play" $
+    it "make machine play" $
+      do -- IO
+        word <- runner'' $ do
+          addPlayerService $ Fixtures.thePlayer
+          game <- startGameService Fixtures.gameParams initPieces values
+          let gameId = Game.gameId game
+          (miniState, playedPieces, deadPieces) <- machinePlayService gameId
+          let word = PlayPiece.playPiecesToWord playedPieces
+          return word
+        print word
+        length word `shouldSatisfy` (> 1)
+
+  describe "swap a piece" $
+    it "swap a piece" $
+      do
+        value <- runner'' $ do
+          addPlayerService $ Fixtures.thePlayer
+          game @ Game {trays} <- startGameService Fixtures.gameParams initPieces values
+          let gameId = Game.gameId game
+          let userTray = trays !! 0
+              piece = head (Tray.pieces userTray)
+          -- TODO satisfiesRight
+          (miniState, Piece {value}) <- swapPieceService gameId piece
+          return value
+        value `shouldSatisfy` isUpper

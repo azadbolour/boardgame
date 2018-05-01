@@ -11,6 +11,7 @@
 
 module BoardGame.Server.Domain.Play (
     Play(..)
+  , BasePlay(..)
   , mkWordPlay
   , mkSwapPlay
 )
@@ -33,22 +34,27 @@ data PlayType = WordPlayType | SwapPlayType
 instance FromJSON PlayType
 instance ToJSON PlayType
 
+data BasePlay = BasePlay {
+    playType :: PlayType
+  , playNumber :: Int
+  , playerType :: PlayerType
+  , scores :: [Int]
+}
+  deriving (Eq, Show, Generic)
+
+instance FromJSON BasePlay
+instance ToJSON BasePlay
+
 -- | Representation of a single play.
 data Play =
   WordPlay {
-      playType :: PlayType
-    , playNumber :: Int
-    , playerType :: PlayerType
-    , scores :: [Int]
+      basePlay :: BasePlay
     , playPieces :: [PlayPiece]
     , replacementPieces :: [Piece]
     , deadPoints :: [Point]
   }
   | SwapPlay {
-      playType :: PlayType
-    , playNumber :: Int
-    , playerType :: PlayerType
-    , scores :: [Int]
+      basePlay :: BasePlay
     , swappedPiece :: Piece
     , newPiece :: Piece
   }
@@ -71,7 +77,9 @@ mkWordPlay ::
   -> [Piece]
   -> [Point]
   -> Play
-mkWordPlay = WordPlay WordPlayType
+mkWordPlay playNumber playerType scores =
+  let basePlay = BasePlay WordPlayType playNumber playerType scores
+  in WordPlay basePlay
 
 mkSwapPlay ::
      Int
@@ -80,6 +88,8 @@ mkSwapPlay ::
   -> Piece
   -> Piece
   -> Play
-mkSwapPlay = SwapPlay SwapPlayType
+mkSwapPlay playNumber playerType scores =
+  let basePlay = BasePlay SwapPlayType playNumber playerType scores
+  in SwapPlay basePlay
 
 

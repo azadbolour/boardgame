@@ -252,14 +252,13 @@ reflectPlayOnGame game playerType playPieces deadPointFinder = do
       playerIndex = Player.playerTypeIndex playerType
   (newPieces, pieceProvider') <- PieceProvider.takePieces pieceProvider (length usedPieces)
   let game' = game {pieceProvider = pieceProvider'}
-  -- (game', newPieces) <- mkPieces (length usedPieces) game
   let tray = trays !! playerIndex
       tray' = Tray.replacePieces tray usedPieces newPieces
       trays' = Util.setListElement trays playerIndex tray'
       playNumber' = playNumber + 1
       earlierScore = scores !! playerIndex
       thisScore = scorePlay playPieces
-      score' = earlierScore + thisScore
+  let score' = earlierScore + thisScore
       scores' = Util.setListElement scores playerIndex score'
       play =  Play.mkWordPlay playNumber' playerType scores' playPieces newPieces deadPoints
       plays' = plays >< Seq.singleton play

@@ -28,7 +28,7 @@ module BoardGame.Server.Service.GameJsonSqlPersister (
   , mkPersister
 ) where
 
-import Data.Maybe (listToMaybe, isJust)
+import Data.Maybe (listToMaybe, isJust, fromJust)
 
 import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
@@ -60,6 +60,7 @@ import Database.Persist.Sql (
   , fromSqlKey
   , runSqlPool
   )
+import qualified Database.Persist.Sql as PersistSql (update, (=.))
 
 import Database.Persist.TH
 import Bolour.Util.Core (EntityId)
@@ -192,10 +193,8 @@ addGameReader row = fromSqlKey <$> insert row
 
 updateGame :: ConnectionProvider -> GameId -> JsonEncoded -> Result ()
 updateGame provider gameUid json = do
-  maybeGame <- findGameById provider gameUid
-  unless (isJust maybeGame) $ throwE $ MissingGameError gameUid
-  liftIO $ print "location 5 - updateGame json sql implementation"
-  liftIO $ PersistRunner.runQuery provider (updateGameReader gameUid json)
+  maybeEntity <- liftIO $ PersistRunner.runQuery provider (findGameByIdReader gameUid)
+  unless (isJust maybeEntity) $ throwE $ MissingGameError gameUid
   liftIO $ print "location 6 - updateGame json sql implementation"
   return ()
 
@@ -206,17 +205,20 @@ updateGameReader gameUid json =
     where_ (game ^. GameRowGameUid ==. val gameUid)
 
 findGameById :: ConnectionProvider -> GameId -> Result (Maybe JsonEncoded)
-findGameById provider gameUid =
-  liftIO $ PersistRunner.runQuery provider (findGameByIdReader gameUid)
+findGameById provider gameUid = do
+  maybeEntity <- liftIO $ PersistRunner.runQuery provider (findGameByIdReader gameUid)
+  let extractJson entity = case entityVal entity of
+                             GameRow _ _ json _ -> json
+  return $ extractJson <$> maybeEntity
 
-findGameByIdReader :: String -> SqlPersistM (Maybe JsonEncoded)
+findGameByIdReader :: String -> SqlPersistM (Maybe (Entity GameRow))
 findGameByIdReader gameUid = do
   selectedList <- select $
     from $ \game -> do
       where_ (game ^. GameRowGameUid ==. val gameUid)
-      return $ game ^. GameRowJson
-  let maybeValue = listToMaybe selectedList
-  return $ unValue <$> maybeValue
+      return game
+  let maybeEntity = listToMaybe selectedList
+  return maybeEntity
 
 deleteGame :: ConnectionProvider -> GameId -> Result ()
 deleteGame provider gameUid =
