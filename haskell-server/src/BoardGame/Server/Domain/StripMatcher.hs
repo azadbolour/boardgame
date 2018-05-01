@@ -157,10 +157,12 @@ findOptimalMatch dictionary board trayContent =
       trayLength = length trayContent
       stripValue Strip {blanks} = blanks
       stripsByValueAndBlanks = groupedPlayableStrips board trayLength stripValue
-      maxValue = maximum $ Map.keys stripsByValueAndBlanks
-      combosByLength = WordUtil.computeCombosGroupedByLength trayContent
-  in bestMatchUpToValue
-       board dictionary maxValue stripsByValueAndBlanks combosByLength
+  in if Map.null stripsByValueAndBlanks then Nothing
+     else
+        let maxValue = maximum $ Map.keys stripsByValueAndBlanks
+            combosByLength = WordUtil.computeCombosGroupedByLength trayContent
+        in bestMatchUpToValue
+             board dictionary maxValue stripsByValueAndBlanks combosByLength
 
 -- | Groups the playable strips of the board by their "value", and within
 --   a value by the number of blanks.
