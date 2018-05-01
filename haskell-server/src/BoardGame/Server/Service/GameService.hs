@@ -87,7 +87,6 @@ import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Board (Board)
 import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Domain.CrossWordFinder as CrossWordFinder
-import BoardGame.Server.Domain.PlayInfo (PlayInfo, PlayInfo(PlayInfo))
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack, exceptTToStack)
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv (GameEnv(..))
