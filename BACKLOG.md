@@ -85,8 +85,8 @@
 
 ## Technical Debt
 
-- Currently storage of games in the database is not in focus. It is only
-  partially implemented. Work in progress.
+- Currently storage of games in the database is not in focus. 
+  Restoration of games from teh database remains to be implemented.
 
 - Add error boundary for React.
 

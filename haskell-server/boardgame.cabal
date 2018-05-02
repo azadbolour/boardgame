@@ -241,6 +241,8 @@ executable boardgame-database-migrator
       base
     , transformers
     , boardgame
+  other-modules:
+      Paths_boardgame
   default-language: Haskell2010
 
 executable masked-words-preprocessor
@@ -259,6 +261,8 @@ executable boardgame-seed-data-populator
       base
     , transformers
     , boardgame
+  other-modules:
+      Paths_boardgame
   default-language: Haskell2010
 
 executable boardgame-sample-client

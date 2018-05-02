@@ -56,7 +56,7 @@ defaultAppEnv = Dev
 defaultGameServerPort = 6587
 defaultMaxActiveGames = 100
 defaultMaxGameMinutes = 30
-defaultDictionaryDir = ""
+defaultDictionaryDir = "dict"
 defaultLanguageCodes = ["en"]
 
 -- | Default configuration parameters of the application.

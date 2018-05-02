@@ -11,7 +11,7 @@
 module Main where
 
 import System.Exit (die)
-import Data.Either (isLeft)
+-- import Data.Either (isLeft)
 import System.Environment (getArgs)
 import Data.String.Here.Interpolated (iTrim)
 import Control.Monad (forever)
@@ -22,7 +22,7 @@ import Network.Wai (Middleware)
 import qualified Network.Wai.Handler.Warp as Warp (run)
 import Network.Wai.Middleware.Cors
 
-import qualified Bolour.Util.PersistRunner as PersistRunner
+-- import qualified Bolour.Util.PersistRunner as PersistRunner
 import qualified Bolour.Util.HttpUtil as HttpUtil
 import qualified Bolour.Util.Middleware as MyMiddleware
 import Bolour.Util.MiscUtil (IOEither)
@@ -34,7 +34,7 @@ import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv
 import BoardGame.Server.Domain.GameError (GameError)
 import qualified BoardGame.Server.Web.GameEndPoint as GameEndPoint (mkGameApp)
-import qualified BoardGame.Server.Domain.GameCache as GameCache
+-- import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Service.GameTransformerStack as TransformerStack
 import qualified BoardGame.Server.Service.GameService as GameService
 
@@ -53,20 +53,24 @@ main :: IO ()
 main = do
     serverConfig <- getServerConfig
     let ServerConfig {deployEnv, serverPort} = serverConfig
+    -- TODO. Do not print db password - should not be in server config.
+    print [iTrim|game server configuration - ${serverConfig}|]
     eitherGameEnv <- runExceptT $ GameEnv.mkGameEnv serverConfig
-    when (isLeft eitherGameEnv) $
-      die $ "unable to initialize the application environment for server config " ++ show serverConfig
-    let Right gameEnv = eitherGameEnv
-    okEither <- prepareDb gameEnv
-    when (isLeft okEither) $ do
-      print $ show okEither
-      die "database initialization failure"
-    gameApp <- GameEndPoint.mkGameApp gameEnv
-    forkIO $ longRunningGamesHarvester gameEnv
-    print [iTrim|game server configuration ${serverConfig}|]
-    print [iTrim|running Warp server on port '${serverPort}' for env '${deployEnv}'|]
-    let logger = MyMiddleware.mkMiddlewareLogger deployEnv
-    Warp.run serverPort $ logger $ myOptionsHandler $ simpleCors gameApp
+    case eitherGameEnv of
+      Left error -> do
+        let message = "unable to initialize the application environment - "
+        die $ message ++ show error
+      Right gameEnv -> do
+        okEither <- prepareDb gameEnv
+        case okEither of
+          Left error ->
+            die $ "database initialization failure - " ++ show error
+          Right _ -> do
+            gameApp <- GameEndPoint.mkGameApp gameEnv
+            forkIO $ longRunningGamesHarvester gameEnv
+            print [iTrim|running Warp server on port '${serverPort}' for env '${deployEnv}'|]
+            let logger = MyMiddleware.mkMiddlewareLogger deployEnv
+            Warp.run serverPort $ logger $ myOptionsHandler $ simpleCors gameApp
 
 -- Could not get this to work:
 -- Warp.run serverPort $ logger $ MyMiddleware.gameCorsMiddleware $ simpleCors gameApp
@@ -76,6 +80,7 @@ getServerConfig :: IO ServerConfig
 getServerConfig = do
     -- TODO. Use getOpt. from System.Console.GetOpt.
     args <- getArgs
+    when (null args) $ print "Beware! No config file supplied as argument - using default config parameters."
     let maybeConfigPath = if null args then Nothing else Just $ head args
     print $ show maybeConfigPath
     ServerConfig.getServerConfig maybeConfigPath

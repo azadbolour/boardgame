@@ -9,16 +9,13 @@
 
 module Main where
 
-import Data.Either (isLeft)
 import System.Exit (die)
 import System.Environment (getArgs)
 import Control.Monad.Trans.Except (runExceptT)
 import Control.Monad (when)
 
-import qualified Bolour.Util.PersistRunner as PersistRunner
-import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv
-import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig))
+import BoardGame.Server.Domain.ServerConfig (ServerConfig(ServerConfig))
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import qualified BoardGame.Server.Service.GameTransformerStack as TransformerStack
 import qualified BoardGame.Server.Service.GameService as GameService
@@ -29,13 +26,19 @@ main :: IO ()
 
 main = do
     args <- getArgs
+    when (null args) $ print "Beware! No config file supplied as argument - using default config parameters."
     let maybeConfigPath = if null args then Nothing else Just $ head args
     serverConfig <- ServerConfig.getServerConfig maybeConfigPath
+    -- TODO. Do not print db password - should not be in server config.
+    print $ "server config - " ++ show serverConfig
     let ServerConfig {dbConfig} = serverConfig
     eitherGameEnv <- runExceptT $ GameEnv.mkGameEnv serverConfig
-    when (isLeft eitherGameEnv) $
-      die $ "unable to initialize the application environment for server config " ++ show serverConfig
-    let Right gameEnv = eitherGameEnv
-    runExceptT $ TransformerStack.runDefault gameEnv $ GameService.prepareDb
-    return ()
+    case eitherGameEnv of
+      Left error -> do
+        let message = "unable to initialize the application environment - "
+        die $ message ++ show error
+      Right gameEnv -> do
+        let Right gameEnv = eitherGameEnv
+        runExceptT $ TransformerStack.runDefault gameEnv $ GameService.prepareDb
+        print "OK"
 
