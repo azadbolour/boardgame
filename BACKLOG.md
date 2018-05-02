@@ -30,7 +30,9 @@
 
 - Show all cross words found in the UI so user can ascertain their meanings.
 
-- After a game ends, start game should be enabled again.
+- Clicking on buttons in iPad browsers at times just shows the tooltip.
+  And a second click is needed to actually press the button. Check again
+  and improve user experience if possible.
 
 ## User Suggestions
 
@@ -75,7 +77,8 @@
 
 ## Technical Debt
 
-- Write low-level tests for persistence of games.
+- Write low-level tests for persistence of games. Including duplicate
+  key checks.
 
 - Currently storage of games in the database is not in focus. 
   Restoration of games from teh database remains to be implemented.

@@ -195,7 +195,6 @@ updateGame :: ConnectionProvider -> GameId -> JsonEncoded -> Result ()
 updateGame provider gameUid json = do
   maybeEntity <- liftIO $ PersistRunner.runQuery provider (findGameByIdReader gameUid)
   unless (isJust maybeEntity) $ throwE $ MissingGameError gameUid
-  liftIO $ print "location 6 - updateGame json sql implementation"
   return ()
 
 updateGameReader :: GameId -> JsonEncoded -> SqlPersistM ()
