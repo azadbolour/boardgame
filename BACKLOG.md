@@ -5,7 +5,7 @@
 ## System Improvements
 
 - User registration. Currently there are no registered users. Just a built-in
-  one called _You_.
+  one called _You_. Use a microservice and if affordable, and external service.
 
 - Button to end the game at any time.
 
@@ -30,17 +30,7 @@
 
 - Show all cross words found in the UI so user can ascertain their meanings.
 
-- Start game should tell user who is going first.
-
-  starting the game ..., bot gets to start and is gearing up ...,
-  you get to start ...
-
-  Disable after first play.
-
 - After a game ends, start game should be enabled again.
-
-- Additional information on the game page: Server name on the UI. 
-  Powered by Haskell, or Scala. Copyright. Build number. 
 
 ## User Suggestions
 
@@ -174,26 +164,12 @@
   thing. Hence not migrating at every startup of the server. But we should
   either via Persistent migration or separate scripts or both.
 
-- In production mode need to have obscure postgres user. Best practices for security
+- In production mode need to have obscure postgres user/password. Best practices for security
   to postgres in production mode? Needs to be set in the production deployment
   script. Best practices for password protection. Make sure postgres port is 
   closed to the outside. For now we are just using sqlite.
 
-- Use Servant's enter functionality for cleaner end point code.
-
-    https://haskell-servant.github.io/tutorial/0.4/server.html
-
-    http://stackoverflow.com/questions/31279943/using-servant-with-readert-io-a
-
-- Use LoggingT after ReaderT in transformer stack.
-
-- Logging in server. How to restrict logging level in logging-effect?
-
 - Logging - debug versus info in all projects.
-
-- Add start time of game to database.
-
-  https://www.schoolofhaskell.com/school/advanced-haskell/persistent-in-detail/persistent-time-values
 
 - Clean up tests.
 
@@ -201,6 +177,9 @@
   Create a test for it and check if the exception is caught.
 
 - Use a config parameter for the stale game harvester interval. Add it to run.sh.
+
+- Standardize errors sent to the client so we get the same API behavior from all
+  servers.
 
 - Test for cache full.
 
@@ -253,3 +232,9 @@
 
 - Check that you can debug minimized UI code with source maps in chrome.
 
+- Put the persistence layer in a microservice so we won't have to port it to 
+  the specific database access facilties of different languages. Learning the 
+  specific and sometimes arcane bahaviors of all different database packages 
+  for different languages is not the best use of our time.
+
+  Perhaps use GraphQL.
