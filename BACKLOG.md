@@ -85,6 +85,8 @@
 
 ## Technical Debt
 
+- Write low-level tests for persistence of games.
+
 - Currently storage of games in the database is not in focus. 
   Restoration of games from teh database remains to be implemented.
 

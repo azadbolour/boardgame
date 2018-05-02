@@ -29,6 +29,22 @@ minimal. Here is the general dependency structure:
     BoardGame.Client << BoardGame.Common
   `
 
+An application object generally has a representation in the Server.Domain
+package. This is the object that not only has data but also associated business
+logic.
+
+Such as object may need to be transferred back and forth to the client on
+the one hand, and to the database on the other. When an application object 
+is very simple, unlikely to change in its representation over time,
+and can be transferred in its entirely to/from the client,
+it is located in the Common/Domain package, and shared by both the Server 
+and Client packages.
+
+When a special representation of an application object is needed for its storage
+in the database, a corresponding object is placed in the Server.Service package,
+and functions are provided for converting the domain object to/from its
+representation needed by the persistence package.
+
 ## Type and Constructor Naming
 
 Types and constructor names are generally chosen not to clash with 

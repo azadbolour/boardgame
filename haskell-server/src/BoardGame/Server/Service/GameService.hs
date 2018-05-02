@@ -116,9 +116,17 @@ unknownPlayerName = "You"
 -- unknownPlayer = Player unknownPlayerName
 
 -- | Convert game data stored in the database to a game domain object.
---   Assumes that the parameters of the piece provider have not changed.
---   Those parameters are not stored in the database and are considered
---   to be constant.
+--   Important. The game's piece provider depends on specific parameters
+--   that are not stored in the database (for simplicity).
+--   It is assumed that these parameters are immutable constants over
+--   versions of the system. They are defined in this module.
+--   Furthermore, the state of a piece provider changes during the
+--   the game, and that state is also not tracked in the database.
+--   So the state of the piece provider in a restored game may be
+--   different than that of the saved game. For the use cases of
+--   our current piece providers this is not a major issue.
+--   Random piece providers should function as expected. And
+--   cyclic piece providers are only used in testing.
 gameFromData :: GameData -> Game
 gameFromData GameData {base, plays} =
   let GameBase {gameParams} = base
@@ -366,4 +374,5 @@ mkPieceProvider PieceProviderType.Random =
   let randomizer = FrequencyDistribution.randomValue letterDistribution
   in RandomPieceProvider 0 randomizer
 
-mkPieceProvider PieceProviderType.Cyclic = mkDefaultCyclicPieceProvider
+caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+mkPieceProvider PieceProviderType.Cyclic = CyclicPieceProvider 0 (cycle caps)

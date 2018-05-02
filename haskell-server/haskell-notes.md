@@ -1,4 +1,14 @@
 
+- In development workflow use stack repl and load files into it 
+  as they change for quick compilation. It is much faster than
+  doing stack builds for uncovering compilation issues.
+
+  - stack repl ~-~-test ~-~-ghci-options -isrc ~-~-ghci-options -itest
+  - :l Bolour.Util.MiscUtil
+  - :r -- for reload
+  - :l BoardGame.Server.Service.GameServiceSpec
+  - hspec spec
+
 - To read large text files, use lazy byte strings, i.e., the functions provided by: 
   Data.ByteString.Lazy.Char8. 
   
