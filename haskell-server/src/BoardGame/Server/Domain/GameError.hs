@@ -5,25 +5,41 @@
 --
 
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module BoardGame.Server.Domain.GameError (
     GameError(..)
   , ExceptGame
+  , getMessage
+  , encodeGameErrorWithMessage
 )
 where
 
+import qualified Data.Text as Text
+import Data.ByteString.Lazy.Char8 as BS
+
+import qualified Data.HashMap.Strict as HashMap
+
+import Data.String.Here.Interpolated (iTrim)
 import GHC.Generics
-import Data.Aeson
+-- import Data.Aeson
+import Data.Aeson (FromJSON, ToJSON)
+import qualified Data.Aeson as Aeson
+import Data.Aeson (encode, decode, toJSON, Value, Value(Object))
+
 import Control.Monad.Except (ExceptT)
 
 import Bolour.Plane.Domain.Axis
 import Bolour.Plane.Domain.Point
-import BoardGame.Common.Domain.Piece
+import BoardGame.Common.Domain.Piece (Piece(..), Piece(Piece))
+import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.GridPiece (GridPiece)
+import qualified Bolour.Plane.Domain.GridValue as GridValue
+import Bolour.Plane.Domain.GridValue (GridValue(..), GridValue(GridValue))
 
--- TODO. Create a function gameErrorMessage :: GameError -> String
--- Default is encode error - can specialize for some.
 data GameError =
   PositionOutOfBoundsError {
     axis :: Axis
@@ -52,11 +68,11 @@ data GameError =
   }
   |
   PieceIdNotFoundError {
-      id :: String
+      pieceId :: String
   }
   |
   PieceValueNotFoundError {
-      value :: Char
+      pieceValue :: Char
   }
   |
   MissingPlayerError {
@@ -111,15 +127,6 @@ data GameError =
       point :: Point
   }
   |
-  CrossLinkedMoveDestinationError {
-      gridPiece :: GridPiece,
-      crossLinkedGridPiece :: GridPiece
-  }
-  |
-  MissingMoveSourceError {
-      trayPiece :: Piece
-  }
-  |
   SystemOverloadedError
   |
   GameTimedOutError {
@@ -138,9 +145,73 @@ instance ToJSON GameError
 -- | Return type of low-level IO-dependent function.
 type ExceptGame result = ExceptT GameError IO result
 
+getMessage :: GameError -> String
 
--- TODO. May want to pretty-print show for errors.
+getMessage PositionOutOfBoundsError {axis, range, position} =
+  [iTrim|position ${position} outside valid range ${range}|]
+getMessage PositionEmptyError {pos} =
+  [iTrim|position ${pos} is empty|]
+getMessage PositionTakenError {pos} =
+  [iTrim|position ${pos} is taken|]
+getMessage InvalidDimensionError {dimension} =
+  [iTrim|invalid board dimension ${dimension}|]
+getMessage InvalidTrayCapacityError {trayCapacity} =
+  [iTrim|invalid trayCapacity ${trayCapacity}|]
+getMessage MissingPieceError {pos} =
+  [iTrim|expected a piece at position ${pos} but found none|]
+getMessage PieceIdNotFoundError {pieceId} =
+  [iTrim|piece id ${pieceId} not found|]
+getMessage PieceValueNotFoundError {pieceValue} =
+  [iTrim|failed to find piece with value '${pieceValue}'|]
+getMessage MissingPlayerError {playerName} =
+  [iTrim|player name ${playerName} not found|]
+getMessage InvalidPlayerNameError {playerName} =
+  [iTrim|invalid player name ${playerName}|]
+getMessage PlayerNameExistsError {playerName} =
+  [iTrim|duplicate player name ${playerName}|]
+getMessage MissingGameError {gameId} =
+  [iTrim|game id ${gameId} does not exist|]
+getMessage GameTimeoutError {gameId} =
+  [iTrim|game id ${gameId} was timed out|]
+getMessage InvalidWordError {word} =
+  [iTrim|'${word}' does not exist in the dictionary|]
+getMessage WordTooShortError {word} =
+  [iTrim|word '${word}' not accepted - it is too short|]
+getMessage InvalidCrossWordError {crossWords} =
+  [iTrim|crosswords '${crossWords}' do not exist in the dictionary|]
+getMessage NonContiguousPlayError {points} =
+  [iTrim|word play locations '${points}' are not contiguous|]
+getMessage PlayPieceIndexOutOfBoundsError {gridPiece} =
+  let GridValue {value = piece, point} = gridPiece
+      Piece {value = letter} = piece
+  in [iTrim|attempt to play letter '${letter}' off the board at position ${point}|]
+getMessage MissingBoardPlayPieceError {gridPiece} =
+  let GridValue {value = piece, point} = gridPiece
+      Piece {Piece.value = letter} = piece
+  in [iTrim|play uses existing '${letter}' for position ${point} which does not exist|]
+getMessage UnmatchedBoardPlayPieceError {gridPiece} =
+  let GridValue {value = piece, point} = gridPiece
+      Piece {Piece.value = letter} = piece
+  in [iTrim|board position '${point}' has a different piece than that claimed in the play: '${letter}'|]
+getMessage OccupiedMoveDestinationError {point} =
+  [iTrim|board position '${point}' used in play is already occupied|]
+getMessage SystemOverloadedError =
+  [iTrim|the system is currently overloaded|]
+getMessage GameTimedOutError {gameId, timeLimit} =
+  [iTrim|the system is currently overloaded|]
+getMessage InternalError {message} = message
 
+jsonMessageFieldName = Text.pack "message"
 
-
+encodeGameErrorWithMessage :: GameError -> ByteString
+encodeGameErrorWithMessage gameError =
+  let message = getMessage gameError
+      messageValue = Aeson.String $ Text.pack message
+      errorValue = toJSON gameError
+      hashMap =
+        case errorValue of
+          Object map -> map
+          _ -> HashMap.empty -- Defensively. Should never happen.
+      hashMap' = HashMap.insert jsonMessageFieldName messageValue hashMap
+  in encode $ Object hashMap'
 

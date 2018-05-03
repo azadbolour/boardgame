@@ -73,7 +73,7 @@ import BoardGame.Common.Message.SwapPieceResponse (SwapPieceResponse, tupleToSwa
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest, StartGameRequest(StartGameRequest))
 import qualified BoardGame.Common.Message.StartGameRequest as StartGameRequest
 import BoardGame.Common.Message.StartGameResponse (StartGameResponse)
-import BoardGame.Server.Domain.GameError (GameError(..), ExceptGame)
+import BoardGame.Server.Domain.GameError (GameError(..), ExceptGame, encodeGameErrorWithMessage)
 import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import BoardGame.Server.Service.GameTransformerStack (GameTransformerStack)
 import qualified BoardGame.Server.Service.GameTransformerStack as TransformerStack
@@ -123,7 +123,8 @@ gameErrorToServantErr gameError = debug (show gameError) $ Servant.ServantErr
     422 -- errHTTPCode
     "Unprocessable entity." -- errReasonPhrase
     -- (BS.pack $ show gameError) -- errBody
-    (encode gameError) -- errBody
+    (encodeGameErrorWithMessage gameError) -- errBody
+    -- (encode gameError) -- errBody
     [] -- errHeaders
 
 -- | Execute a game transformer stack, resolving its logger monad with

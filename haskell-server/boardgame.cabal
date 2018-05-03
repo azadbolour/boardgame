@@ -48,6 +48,7 @@ library
     , yaml
     , split
     , hashable
+    , unordered-containers
   exposed-modules:
       -- TODO. Separate out util, language, plane, and server into different packages.
       Bolour.Util.Core
@@ -110,8 +111,6 @@ library
       BoardGame.Server.Domain.ServerVersion
       BoardGame.Server.Domain.CrossWordFinder
       BoardGame.Server.Domain.Scorer
-      BoardGame.Server.Web.GameEndPoint
-      BoardGame.Server.Web.Converters
       BoardGame.Server.Service.TypeDefs
       BoardGame.Server.Service.GameTransformerStack
       BoardGame.Server.Service.GameService
@@ -121,6 +120,8 @@ library
       BoardGame.Server.Service.GameJsonPersister
       BoardGame.Server.Service.GamePersisterJsonBridge
       BoardGame.Server.Service.GameJsonSqlPersister
+      BoardGame.Server.Web.GameEndPoint
+      BoardGame.Server.Web.Converters
       BoardGame.Client.GameClient
   other-modules:
       Paths_boardgame
@@ -301,6 +302,11 @@ executable trial
     , containers
     , aeson
     , bytestring
+    , text
+    , transformers
+    , unordered-containers
+    , boardgame
+
   default-language: Haskell2010
 --executable trial
 --  main-is: app/Trial.hs

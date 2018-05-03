@@ -369,10 +369,10 @@ stripMatchAsPlay board tray strip word = do
 letterDistribution :: FrequencyDistribution Char
 letterDistribution = GameLetterDistribution.letterDistribution
 
+caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 mkPieceProvider :: PieceProviderType -> PieceProvider
 mkPieceProvider PieceProviderType.Random =
   let randomizer = FrequencyDistribution.randomValue letterDistribution
   in RandomPieceProvider 0 randomizer
-
-caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 mkPieceProvider PieceProviderType.Cyclic = CyclicPieceProvider 0 (cycle caps)

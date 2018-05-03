@@ -113,10 +113,18 @@ export const mkGameEventHandler = function(gameService) {
   };
 
   /**
-   * FUTURE. Convert error message to user-readable form.
-   * For now good enough for beta.
+   * For now we use the default error message provided by the server.
+   * Future clients may wish to further customize messages using specific
+   * fields of each type of error. But note that as of May 2018 the error
+   * API has not been standardized.
    */
-  const errorText = (response) => JSON.stringify(response.json);
+  const errorText = (response) => {
+    let json = response.json;
+    let message = json.message;
+    if (message === undefined)
+      message = JSON.stringify(json);
+    return message;
+  };
 
   const noGame = () => _game === undefined || _game.terminated();
 

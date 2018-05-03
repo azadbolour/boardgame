@@ -22,11 +22,9 @@ import Network.Wai (Middleware)
 import qualified Network.Wai.Handler.Warp as Warp (run)
 import Network.Wai.Middleware.Cors
 
--- import qualified Bolour.Util.PersistRunner as PersistRunner
 import qualified Bolour.Util.HttpUtil as HttpUtil
 import qualified Bolour.Util.Middleware as MyMiddleware
 import Bolour.Util.MiscUtil (IOEither)
--- import qualified Bolour.Language.Domain.DictionaryCache as DictCache
 
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig))
@@ -34,7 +32,6 @@ import BoardGame.Server.Domain.GameEnv (GameEnv(..))
 import qualified BoardGame.Server.Domain.GameEnv as GameEnv
 import BoardGame.Server.Domain.GameError (GameError)
 import qualified BoardGame.Server.Web.GameEndPoint as GameEndPoint (mkGameApp)
--- import qualified BoardGame.Server.Domain.GameCache as GameCache
 import qualified BoardGame.Server.Service.GameTransformerStack as TransformerStack
 import qualified BoardGame.Server.Service.GameService as GameService
 
