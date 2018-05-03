@@ -174,16 +174,11 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       _ <- game.checkCrossWords(playPieces, dict)
-      (newState, refills, deadPoints)
+      (newGame, refills, deadPoints)
         <- game.addWordPlay(UserPlayer, playPieces, findAndSetBoardBlackPoints(odict.get))
-      _ <- savePlay(newState, playPieces, refills)
-      _ = gameCache.put(gameId, newState)
-    } yield (newState.miniState, refills, deadPoints)
-  }
-
-  // TODO. Persist play.
-  private def savePlay(gameState: Game, playPieces: PlayPieces, replacements: List[Piece]): Try[Unit] = {
-    Success(())
+      _ <- saveGame(newGame)
+      _ = gameCache.put(gameId, newGame)
+    } yield (newGame.miniState, refills, deadPoints)
   }
 
   override def machinePlay(gameId: String): Try[(GameMiniState, List[PlayPiece], List[Point])] = {
@@ -207,35 +202,50 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       override def tray: Tray = machineTray
     }
 
-    stripMatcher.bestMatch() match {
-      case Nil =>
-        for {
-          game <- swapMachinePiece(game)
-          _ = gameCache.put(gameId, game)
-        } yield (game.miniState, Nil, Nil)
-      case playPieces =>
-        for {
-          (game, refills, deadPoints)
-            <- game.addWordPlay(MachinePlayer, playPieces, findAndSetBoardBlackPoints(dict))
-          // TODO. How to eliminate dummy values entirely in for.
-          _ <- savePlay(game, playPieces, refills)
-          _ = gameCache.put(gameId, game)
-        } yield (game.miniState, playPieces, deadPoints)
-    }
+    val playPieces = stripMatcher.bestMatch()
+
+     for {
+      (newGame, deadPoints) <- playPieces match {
+        case Nil => for {
+            newGame <- swapMachinePiece(game)
+          } yield (newGame, Nil)
+        case _ => for {
+          (newGame, _, deadPoints)
+          <- game.addWordPlay(MachinePlayer, playPieces, findAndSetBoardBlackPoints(dict))
+        } yield (newGame, deadPoints)
+      }
+      _ <- saveGame(newGame)
+      _ = gameCache.put(gameId, newGame)
+    } yield (newGame.miniState, playPieces, deadPoints)
+    // TODO. How to eliminate dummy values entirely in for.
   }
+
+  //
+  //    stripMatcher.bestMatch() match {
+  //      case Nil =>
+  //        for {
+  //          newGame <- swapMachinePiece(game)
+  //          _ <- saveGame(newGame)
+  //          _ = gameCache.put(gameId, newGame)
+  //        } yield (newGame.miniState, Nil, Nil)
+  //      case playPieces =>
+  //        for {
+  //          (newGame, _, deadPoints)
+  //            <- game.addWordPlay(MachinePlayer, playPieces, findAndSetBoardBlackPoints(dict))
+  //          // TODO. How to eliminate dummy values entirely in for.
+  //          _ <- saveGame(newGame)
+  //          _ = gameCache.put(gameId, newGame)
+  //        } yield (newGame.miniState, playPieces, deadPoints)
+  //    }
 
   private def swapMachinePiece(game: Game): Try[Game] = {
     val tray = game.tray(MachinePlayer)
     val letter = letterDistribution.leastFrequentValue(tray.letters.toList).get
     val swappedPiece = tray.findPieceByLetter(letter).get
     for {
-      (newState, newPiece) <- game.addSwapPlay(swappedPiece, MachinePlayer)
-      _ = saveSwap(game.gameBase.id, game.playNumber, MachinePlayer, swappedPiece, newPiece)
-    } yield newState
+      (newGame, _) <- game.addSwapPlay(swappedPiece, MachinePlayer)
+    } yield newGame
   }
-
-  private def saveSwap(gameId: String, playNumber: Int, playerType: PlayerType, swappedPiece: Piece, newPiece: Piece): Try[Unit] =
-    Success(()) // TODO. Implement saveSwap.
 
   override def swapPiece(gameId: String, piece: Piece): Try[(GameMiniState, Piece)] = {
     val ogame = Option(gameCache.get(gameId))
@@ -245,7 +255,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
         for {
           (newGame, newPiece) <- game.addSwapPlay(piece, UserPlayer)
           _ = gameCache.put(gameId, newGame)
-          _ = saveSwap(game.gameBase.id, game.playNumber, UserPlayer, piece, newPiece)
+          _ = saveGame(newGame)
         } yield (newGame.miniState, newPiece)
     }
   }
