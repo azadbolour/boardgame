@@ -75,7 +75,7 @@ class GameJsonPersisterSlickImpl(val profile: JdbcProfile, db: Database) extends
     gameRows.delete
   }
 
-  override def saveJsonVersionedPlayer(playerId: ID, playerName: String, json: String) = Try {
+  override def savePlayer(playerId: ID, playerName: String, json: String) = Try {
     val playerRow = PlayerRow(playerId, playerName, json)
     val save = playerRows.insertOrUpdate(playerRow)
     val future = db.run(save)
@@ -83,14 +83,14 @@ class GameJsonPersisterSlickImpl(val profile: JdbcProfile, db: Database) extends
     logger.debug(s"added ${numRows} player(s)")
   }
 
-  override def findJsonVersionedPlayerByName(name: String) = Try {
+  override def findPlayerByName(name: String) = Try {
     val query = playerRows.filter {_.name === name }
     val future = db.run(query.result)
     val rows = Await.result(future, timeout)
     rows.headOption map { _.json }
   }
 
-  override def saveJsonVersionedGameTransitions(gameId: ID, playerId: ID, json: String) = Try {
+  override def saveGame(gameId: ID, playerId: ID, json: String) = Try {
     val gameRow = GameRow(gameId, playerId, json)
     val save = gameRows.insertOrUpdate(gameRow)
     val future = db.run(save)
@@ -98,14 +98,14 @@ class GameJsonPersisterSlickImpl(val profile: JdbcProfile, db: Database) extends
     logger.debug(s"added ${numRows} game(s)")
   }
 
-  override def findJsonVersionedGameTransitionsById(gameId: ID) = Try {
+  override def findGameById(gameId: ID) = Try {
     val query = gameRows.filter {_.id === gameId }
     val future = db.run(query.result)
     val rows = Await.result(future, timeout)
     rows.headOption map { _.json }
   }
 
-  override def deleteVersionedGameTransitions(gameId: ID) = Try {
+  override def deleteGame(gameId: ID) = Try {
     val query = gameRows.filter {_.id === gameId }
     val future = db.run(query.delete)
     Await.result(future, timeout)

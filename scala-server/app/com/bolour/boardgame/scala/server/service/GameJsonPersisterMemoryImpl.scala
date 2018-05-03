@@ -20,24 +20,24 @@ class GameJsonPersisterMemoryImpl extends GameJsonPersister {
 
   override def clearGames() = Try { gamesById = mutable.Map.empty }
 
-  override def saveJsonVersionedPlayer(playerId: ID, playerName: String, json: String) = Try {
+  override def savePlayer(playerId: ID, playerName: String, json: String) = Try {
     playersByName += ((playerName, json))
   }
 
-  override def findJsonVersionedPlayerByName(name: String) = Try {
+  override def findPlayerByName(name: String) = Try {
     playersByName.get(name)
   }
 
-  override def saveJsonVersionedGameTransitions(gameId: ID, playerId: ID, json: String) = Try {
+  override def saveGame(gameId: ID, playerId: ID, json: String) = Try {
     gamesById += ((gameId, json))
     // TODO. save playerId to make possible retrieval of games of player.
   }
 
-  override def findJsonVersionedGameTransitionsById(gameId: ID) = Try {
+  override def findGameById(gameId: ID) = Try {
     gamesById.get(gameId)
   }
 
-  override def deleteVersionedGameTransitions(gameId: ID) = Try {
+  override def deleteGame(gameId: ID) = Try {
     gamesById.remove(gameId)
   }
 }

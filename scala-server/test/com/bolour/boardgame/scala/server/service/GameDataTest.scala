@@ -15,7 +15,7 @@ import com.bolour.util.scala.server.BasicServerUtil.stringId
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
-import com.bolour.boardgame.scala.server.domain.json.CaseClassFormats._
+import com.bolour.boardgame.scala.server.service.json.CaseClassFormats._
 
 class GameDataTest extends FlatSpec with Matchers {
 
@@ -70,9 +70,9 @@ class GameDataTest extends FlatSpec with Matchers {
     val game = triedGame.get
     game.plays.size shouldEqual 1
 
-    val gameTransitions = game.transitions
+    val gameData = GameData.fromGame(game)
 
-    val json = gameTransitions.toJson
+    val json = gameData.toJson
     val string = json.prettyPrint
 
     logger.info(s"${string}")
@@ -80,7 +80,7 @@ class GameDataTest extends FlatSpec with Matchers {
     val jsonAst = string.parseJson
     val decodedTransitions: GameData = jsonAst.convertTo[GameData]
 
-    decodedTransitions shouldEqual gameTransitions
+    decodedTransitions shouldEqual gameData
   }
 
 

@@ -4,9 +4,10 @@ import spray.json._
 import com.bolour.boardgame.scala.server.domain.{Game, Player}
 import com.bolour.util.scala.common.CommonUtil.ID
 import com.bolour.boardgame.scala.server.domain.json.CaseClassFormats._
+import com.bolour.boardgame.scala.server.service.json.CaseClassFormats._
 import com.bolour.util.scala.common.VersionStamped
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 /**
   * Implementation of the hig-level game persister interface using a JSON persister.
@@ -27,12 +28,12 @@ class GamePersisterJsonImpl(jsonPersister: GameJsonPersister, version: Int) exte
   override def savePlayer(player: Player) = {
     val versionedPlayer = VersionStamped[Player](version, player)
     val json = versionedPlayer.toJson.prettyPrint
-    jsonPersister.saveJsonVersionedPlayer(player.id, player.name, json)
+    jsonPersister.savePlayer(player.id, player.name, json)
   }
 
   override def findPlayerByName(name: String) = {
     for {
-      ojson <- jsonPersister.findJsonVersionedPlayerByName(name)
+      ojson <- jsonPersister.findPlayerByName(name)
       oplayer = ojson map { json =>
         val jsonAst = json.parseJson
         val versionedPlayer = jsonAst.convertTo[VersionStamped[Player]]
@@ -41,34 +42,26 @@ class GamePersisterJsonImpl(jsonPersister: GameJsonPersister, version: Int) exte
     } yield oplayer
   }
 
-  override def saveGame(game: Game) = {
-    val versionedGameTransitions = VersionStamped[GameData](version, game.transitions)
-    val gameId = game.gameBase.id
-    val playerId = game.gameBase.playerId
-    val json = versionedGameTransitions.toJson.prettyPrint
+  override def saveGame(gameData: GameData): Try[Unit] = {
+    val versionedGameData = VersionStamped[GameData](version, gameData)
+    val gameId = gameData.base.id
+    val playerId = gameData.base.playerId
+    val json = versionedGameData.toJson.prettyPrint
     // TODO. Game should expose id itself.
-    jsonPersister.saveJsonVersionedGameTransitions(gameId, playerId, json)
+    jsonPersister.saveGame(gameId, playerId, json)
   }
 
   override def findGameById(gameId: ID) = {
     for {
-      ojson <- jsonPersister.findJsonVersionedGameTransitionsById(gameId)
-      otransitions = ojson map { json =>
+      ojson <- jsonPersister.findGameById(gameId)
+      odata = ojson map { json =>
         val jsonAst = json.parseJson
-        val versionedTransitions = jsonAst.convertTo[VersionStamped[GameData]]
-        versionedTransitions.data
+        val versionedData = jsonAst.convertTo[VersionStamped[GameData]]
+        versionedData.data
       }
-      ogame <- otransitions match {
-        case None => Success(None)
-        case Some(transitions) =>
-          Game.fromTransitions(transitions) match {
-            case Failure(ex) => Failure(ex)
-            case Success(game) => Success(Some(game))
-          }
-      }
-    } yield ogame
+    } yield odata
   }
 
-  override def deleteGame(gameId: ID) = jsonPersister.deleteVersionedGameTransitions(gameId)
+  override def deleteGame(gameId: ID) = jsonPersister.deleteGame(gameId)
 
 }

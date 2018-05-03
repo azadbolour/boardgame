@@ -30,8 +30,8 @@ trait GamePersister {
   def savePlayer(player: Player): Try[Unit]
   def findPlayerByName(name: String): Try[Option[Player]]
 
-  def saveGame(game: Game): Try[Unit]
-  def findGameById(gameId: ID): Try[Option[Game]]
+  def saveGame(game: GameData): Try[Unit]
+  def findGameById(gameId: ID): Try[Option[GameData]]
   def deleteGame(gameId: ID): Try[Unit]
 
 }

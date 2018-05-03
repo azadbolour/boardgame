@@ -134,7 +134,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       player <- getPlayerByName(gameParams.playerName)
       gameBase = GameBase(gameParams, pointValues, player.id, piecePoints, initUserPieces, initMachinePieces)
       game <- Game.mkGame(gameBase, pieceProvider, piecePoints, initUserPieces, initMachinePieces)
-      _ <- persister.saveGame(game)
+      _ <- saveGame(game)
       _ = gameCache.put(gameBase.id, game)
     } yield game
     // } yield (gameState, Some(machinePlayPieces))
@@ -257,7 +257,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       case Some(game) => {
         val endedGame = game.end()
         gameCache.remove(gameId)
-        persister.saveGame(endedGame)
+        saveGame(endedGame)
 
         /*
          * Purging ended games to minimize DB space needs in containers.
@@ -275,8 +275,19 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
   // TODO. Check the cache first for the game.
   // TODO. Get the correct piece generator for the game. For now using cyclic.
-  override def findGameById(gameId: ID): Try[Option[Game]] =
-    persister.findGameById(gameId)
+  override def findGameById(gameId: ID): Try[Option[Game]] = {
+    for {
+      maybeGameData: Option[GameData] <- persister.findGameById(gameId)
+      maybeGame: Option[Game] <- maybeGameData match {
+        case None => Success(None)
+        case Some(gameData) =>
+          GameData.toGame(gameData) match {
+            case Failure(ex) => Failure(ex)
+            case Success(game) => Success(Some(game))
+          }
+      }
+    } yield maybeGame
+  }
 
   def timeoutLongRunningGames(): Try[Unit] = Try {
     import scala.collection.JavaConverters._
@@ -295,6 +306,11 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     val longRunningGameIdList = gameIdList filter { aged }
     // logger.info(s"games running more than ${maxGameMinutes}: ${longRunningGameIdList}")
     longRunningGameIdList.foreach(endGame)
+  }
+
+  private def saveGame(game: Game) : Try[Unit] = {
+    val gameData = GameData.fromGame(game)
+    persister.saveGame(gameData)
   }
 }
 

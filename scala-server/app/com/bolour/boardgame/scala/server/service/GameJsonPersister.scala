@@ -26,11 +26,11 @@ trait GameJsonPersister {
   def clearPlayers(): Try[Unit]
   def clearGames(): Try[Unit]
 
-  def saveJsonVersionedPlayer(playerId: ID, playerName: String, json: String): Try[Unit]
-  def findJsonVersionedPlayerByName(name: String): Try[Option[String]]
+  def savePlayer(playerId: ID, playerName: String, json: String): Try[Unit]
+  def findPlayerByName(name: String): Try[Option[String]]
 
-  def saveJsonVersionedGameTransitions(gameId: ID, playerId: ID, json: String): Try[Unit]
-  def findJsonVersionedGameTransitionsById(gameId: ID): Try[Option[String]]
-  def deleteVersionedGameTransitions(gameId: ID): Try[Unit]
+  def saveGame(gameId: ID, playerId: ID, json: String): Try[Unit]
+  def findGameById(gameId: ID): Try[Option[String]]
+  def deleteGame(gameId: ID): Try[Unit]
 
 }
