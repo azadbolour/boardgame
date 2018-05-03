@@ -8,6 +8,7 @@ package com.bolour.boardgame.scala.server.domain
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType._
 import com.bolour.boardgame.scala.server.domain.GameExceptions.{InvalidCrosswordsException, MalformedPlayException}
+import com.bolour.boardgame.scala.server.service.GameData
 import com.bolour.language.scala.domain.WordDictionary
 import com.bolour.plane.scala.domain.Point
 import org.slf4j.LoggerFactory
@@ -62,7 +63,7 @@ case class Game(
 
   def end(): Game = this.copy(gameBase = gameBase.end)
 
-  def transitions: GameTransitions = GameTransitions(gameBase, plays)
+  def transitions: GameData = GameData(gameBase, plays)
 
   /**
     * Add the next play to the game, updating the board and returning
@@ -132,7 +133,6 @@ case class Game(
       swapPlay = Play.mkSwapPlay(newGame.playNumber, playerType, newGame.scores, piece, newPiece)
       playsPlus = plays :+ swapPlay
       newGamePlus = newGame.copy(plays = playsPlus)
-      // TODO. Add to list of play effects.
     } yield (newGamePlus, newPiece)
   }
 
@@ -287,5 +287,5 @@ object Game {
   def noDeads(board: Board): (Board, List[Point]) = (board, Nil)
 
   // TODO. Implement Game.fromTransitions - recover the current state of the game from its history.ß´
-  def fromTransitions(transitions: GameTransitions): Try[Game] = ???
+  def fromTransitions(transitions: GameData): Try[Game] = ???
 }

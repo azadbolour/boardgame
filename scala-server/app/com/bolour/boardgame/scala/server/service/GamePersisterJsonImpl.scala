@@ -1,7 +1,7 @@
 package com.bolour.boardgame.scala.server.service
 
 import spray.json._
-import com.bolour.boardgame.scala.server.domain.{Game, GameTransitions, Player}
+import com.bolour.boardgame.scala.server.domain.{Game, Player}
 import com.bolour.util.scala.common.CommonUtil.ID
 import com.bolour.boardgame.scala.server.domain.json.CaseClassFormats._
 import com.bolour.util.scala.common.VersionStamped
@@ -42,7 +42,7 @@ class GamePersisterJsonImpl(jsonPersister: GameJsonPersister, version: Int) exte
   }
 
   override def saveGame(game: Game) = {
-    val versionedGameTransitions = VersionStamped[GameTransitions](version, game.transitions)
+    val versionedGameTransitions = VersionStamped[GameData](version, game.transitions)
     val gameId = game.gameBase.id
     val playerId = game.gameBase.playerId
     val json = versionedGameTransitions.toJson.prettyPrint
@@ -55,7 +55,7 @@ class GamePersisterJsonImpl(jsonPersister: GameJsonPersister, version: Int) exte
       ojson <- jsonPersister.findJsonVersionedGameTransitionsById(gameId)
       otransitions = ojson map { json =>
         val jsonAst = json.parseJson
-        val versionedTransitions = jsonAst.convertTo[VersionStamped[GameTransitions]]
+        val versionedTransitions = jsonAst.convertTo[VersionStamped[GameData]]
         versionedTransitions.data
       }
       ogame <- otransitions match {

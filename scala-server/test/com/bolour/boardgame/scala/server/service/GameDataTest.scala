@@ -9,7 +9,7 @@ package com.bolour.boardgame.scala.server.service
 import spray.json._
 import com.bolour.boardgame.scala.common.domain.PlayerType.UserPlayer
 import com.bolour.boardgame.scala.common.domain._
-import com.bolour.boardgame.scala.server.domain.{GameTransitions, Player}
+import com.bolour.boardgame.scala.server.domain.Player
 import com.bolour.plane.scala.domain.Point
 import com.bolour.util.scala.server.BasicServerUtil.stringId
 import com.typesafe.config.ConfigFactory
@@ -17,7 +17,7 @@ import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
 import com.bolour.boardgame.scala.server.domain.json.CaseClassFormats._
 
-class GameTransitionsTest extends FlatSpec with Matchers {
+class GameDataTest extends FlatSpec with Matchers {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -78,7 +78,7 @@ class GameTransitionsTest extends FlatSpec with Matchers {
     logger.info(s"${string}")
 
     val jsonAst = string.parseJson
-    val decodedTransitions: GameTransitions = jsonAst.convertTo[GameTransitions]
+    val decodedTransitions: GameData = jsonAst.convertTo[GameData]
 
     decodedTransitions shouldEqual gameTransitions
   }
