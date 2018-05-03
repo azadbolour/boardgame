@@ -19,11 +19,11 @@ import Control.DeepSeq (NFData)
 
 import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.Piece (Piece)
-import Bolour.Plane.Domain.GridValue (GridValue)
+import BoardGame.Common.Domain.PiecePoint (PiecePoint)
 
 data StartGameRequest = StartGameRequest {
     gameParams :: GameParams
-  , initGridPieces :: [GridValue Piece]
+  , initGridPieces :: [PiecePoint]
   , initUserPieces :: [Piece]
   , initMachinePieces :: [Piece]
   , pointValues :: [[Int]]

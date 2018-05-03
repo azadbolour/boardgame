@@ -21,7 +21,7 @@ import Bolour.Util.SpecUtil (satisfiesRight) -- satisfiesJust
 -- import BoardGame.Common.Domain.Player (Player(Player))
 import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import BoardGame.Common.Domain.Piece (Piece)
-import BoardGame.Common.Domain.GridPiece (GridPiece)
+import BoardGame.Common.Domain.PiecePoint (PiecePoint)
 import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Server.Domain.Game (Game)
 import BoardGame.Server.Domain.GameEnv (GameEnv)
@@ -35,9 +35,9 @@ makePlayer env name = do
     eitherUnit <- runExceptT $ TransformerStack.runDefaultUnprotected env $ GameService.addPlayerService name
     satisfiesRight eitherUnit
 
-makeGame :: GameEnv -> GameParams -> [GridPiece] -> [Piece] -> [Piece] -> IO Game
-makeGame env gameParams initialGridPieces userTrayStartsWith machineTrayStartsWith = do
-  let initPieces = InitPieces initialGridPieces userTrayStartsWith machineTrayStartsWith
+makeGame :: GameEnv -> GameParams -> [PiecePoint] -> [Piece] -> [Piece] -> IO Game
+makeGame env gameParams initialPiecePoints userTrayStartsWith machineTrayStartsWith = do
+  let initPieces = InitPieces initialPiecePoints userTrayStartsWith machineTrayStartsWith
   eitherResult <- runExceptT $ TransformerStack.runDefaultUnprotected env $ GameService.startGameService
     gameParams initPieces []
   satisfiesRight eitherResult

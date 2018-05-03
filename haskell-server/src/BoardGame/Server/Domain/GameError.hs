@@ -35,10 +35,8 @@ import Control.Monad.Except (ExceptT)
 import Bolour.Plane.Domain.Axis
 import Bolour.Plane.Domain.Point
 import BoardGame.Common.Domain.Piece (Piece(..), Piece(Piece))
+import BoardGame.Common.Domain.PiecePoint (PiecePoint(..), PiecePoint(PiecePoint))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Common.Domain.GridPiece (GridPiece)
-import qualified Bolour.Plane.Domain.GridValue as GridValue
-import Bolour.Plane.Domain.GridValue (GridValue(..), GridValue(GridValue))
 
 data GameError =
   PositionOutOfBoundsError {
@@ -112,15 +110,15 @@ data GameError =
   }
   |
   PlayPieceIndexOutOfBoundsError {
-      gridPiece :: GridPiece
+      piecePoint :: PiecePoint
   }
   |
   MissingBoardPlayPieceError {
-      gridPiece :: GridPiece
+      piecePoint :: PiecePoint
   }
   |
   UnmatchedBoardPlayPieceError {
-      gridPiece :: GridPiece
+      piecePoint :: PiecePoint
   }
   |
   OccupiedMoveDestinationError {
@@ -181,16 +179,16 @@ getMessage InvalidCrossWordError {crossWords} =
   [iTrim|crosswords '${crossWords}' do not exist in the dictionary|]
 getMessage NonContiguousPlayError {points} =
   [iTrim|word play locations '${points}' are not contiguous|]
-getMessage PlayPieceIndexOutOfBoundsError {gridPiece} =
-  let GridValue {value = piece, point} = gridPiece
+getMessage PlayPieceIndexOutOfBoundsError {piecePoint} =
+  let PiecePoint {piece, point} = piecePoint
       Piece {value = letter} = piece
   in [iTrim|attempt to play letter '${letter}' off the board at position ${point}|]
-getMessage MissingBoardPlayPieceError {gridPiece} =
-  let GridValue {value = piece, point} = gridPiece
+getMessage MissingBoardPlayPieceError {piecePoint} =
+  let PiecePoint {piece, point} = piecePoint
       Piece {Piece.value = letter} = piece
   in [iTrim|play uses existing '${letter}' for position ${point} which does not exist|]
-getMessage UnmatchedBoardPlayPieceError {gridPiece} =
-  let GridValue {value = piece, point} = gridPiece
+getMessage UnmatchedBoardPlayPieceError {piecePoint} =
+  let PiecePoint {piece, point} = piecePoint
       Piece {Piece.value = letter} = piece
   in [iTrim|board position '${point}' has a different piece than that claimed in the play: '${letter}'|]
 getMessage OccupiedMoveDestinationError {point} =

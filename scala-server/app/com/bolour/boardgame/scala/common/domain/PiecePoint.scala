@@ -7,11 +7,7 @@ package com.bolour.boardgame.scala.common.domain
 
 import com.bolour.plane.scala.domain.Point
 
-// TODO. Rename value to piece. Changes API. So have to do it for Haskell as well.
-
 /**
   * Combination of a piece and its location on the board.
   */
-case class PiecePoint(value: Piece, point: Point) {
-  def piece = value
-}
+case class PiecePoint(piece: Piece, point: Point)

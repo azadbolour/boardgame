@@ -19,9 +19,6 @@ import qualified Bolour.Plane.Domain.Grid as Grid
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Common.Domain.GridPiece (GridPiece)
-import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
-import qualified Bolour.Plane.Domain.GridValue as GridValue
 import qualified BoardGame.Server.Domain.Board as Board
 
 import Bolour.Plane.Domain.Point (Point, Point(Point))
@@ -43,12 +40,6 @@ baseGrid = [
     , [Nothing, Nothing, Nothing, Nothing, Nothing, Nothing] -- 5
   ]
 
--- testGrid :: Grid GridPiece
--- testGrid =
---   let cellMaker r c = Maybe.fromMaybe Piece.emptyPiece (baseGrid !! r !! c)
---   in Grid.mkPointedGrid cellMaker 6 6
-
--- board = Board 6 testGrid
 board = Board.mkBoardFromPieces baseGrid 6
 
 findExpectedCrossPlay board point ch axis = fromJust $ CrossWordFinder.findCrossPlay board point ch axis
@@ -94,8 +85,6 @@ spec = do
            point4 = Point 2 4
            piece3 = fromJust $ Board.getPiece board point3
            piece4 = fromJust $ Board.getPiece board point4
-           -- GridValue {value = piece3, point = point3} = Board.cell board $ Point 2 3
-           -- GridValue {value = piece4, point = point4} = Board.cell board $ Point 2 4
            playPiece1 = PlayPiece (Piece 'L' "") (Point 2 1) True
            playPiece2 = PlayPiece (Piece 'O' "") (Point 2 2) True
            playPiece3 = PlayPiece piece3 point3 False

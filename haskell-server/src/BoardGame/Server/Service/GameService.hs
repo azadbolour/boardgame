@@ -64,7 +64,7 @@ import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.GameMiniState (GameMiniState)
 import BoardGame.Common.Domain.GameSummary (GameSummary)
-import BoardGame.Common.Domain.GridPiece (GridPiece)
+-- import BoardGame.Common.Domain.PiecePoint (PiecePoint)
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(..))
@@ -217,7 +217,7 @@ startGameService gameParams initPieces pointValues = do
   -- TODO. Validate parameters. Point values must be a dimension x dimension matrix.
   params <- Game.validateGameParams gameParams
   let GameParams {dimension, languageCode, pieceProviderType, playerName} = params
-  let InitPieces {gridPieces, userPieces, machinePieces} = initPieces
+  let InitPieces {piecePoints, userPieces, machinePieces} = initPieces
   GameEnv { gameCache } <- ask
   persister @ GamePersister {findPlayerByName} <- mkPersister
   maybePlayer <- exceptTToStack $ findPlayerByName playerName

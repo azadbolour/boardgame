@@ -21,9 +21,9 @@ where
 import GHC.Generics (Generic)
 import Control.DeepSeq (NFData)
 import Data.Aeson (FromJSON, ToJSON)
-import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
 import Bolour.Plane.Domain.Point (Point)
 import BoardGame.Common.Domain.Piece (Piece)
+import BoardGame.Common.Domain.PiecePoint (PiecePoint, PiecePoint(PiecePoint))
 import qualified BoardGame.Common.Domain.Piece as Piece
 
 -- | A piece that forms part of the word formed in a play.
@@ -44,9 +44,10 @@ type MoveInfo = (Letter, Point, Moved)
 toMoveInfo :: PlayPiece -> MoveInfo
 toMoveInfo (PlayPiece { piece, point, moved }) = (Piece.value piece, point, moved)
 
+-- TODO. Change name to piecePoint.
 -- | Convenience function to get the play piece's location on the board.
-getGridPiece :: PlayPiece -> GridValue Piece
-getGridPiece PlayPiece {piece, point} = GridValue piece point
+getGridPiece :: PlayPiece -> PiecePoint
+getGridPiece PlayPiece {piece, point} = PiecePoint piece point
 
 -- | Get the word spelled out by the pieces in a list of play pieces.
 playPiecesToWord :: [PlayPiece] -> String

@@ -26,10 +26,6 @@ import BoardGame.Common.Domain.Piece (Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.PlayPiece (PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
-import BoardGame.Common.Domain.GridPiece (GridPiece)
-import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
-import qualified Bolour.Plane.Domain.GridValue as GridValue
-import qualified BoardGame.Common.Domain.GridPiece as GridPiece
 
 import Bolour.Plane.Domain.Point (Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point

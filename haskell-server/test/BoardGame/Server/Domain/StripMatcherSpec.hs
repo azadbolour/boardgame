@@ -25,8 +25,6 @@ import Bolour.Plane.Domain.Point (Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Common.Domain.GridPiece (GridPiece)
-import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
 import qualified BoardGame.Server.Domain.Board as Board
 import qualified BoardGame.Server.Domain.StripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip

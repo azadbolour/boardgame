@@ -12,7 +12,6 @@ module BoardGame.Server.Service.BaseServiceFixtures (
   , gameParams
   , initTest
   , centerGridPoint
-  -- , centerGridPiece
   , testDimension
   , testTrayCapacity
   ) where
@@ -21,9 +20,6 @@ import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerCo
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
-import BoardGame.Common.Domain.GridPiece (GridPiece)
-import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
-import qualified Bolour.Plane.Domain.GridValue as GridValue
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
 import qualified BoardGame.Common.Domain.GameParams as GameParams

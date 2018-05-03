@@ -30,7 +30,6 @@ import qualified BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.InitPieces (InitPieces, InitPieces(InitPieces))
 import qualified BoardGame.Common.Domain.InitPieces as InitPieces
-import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.InitPieces (InitPieces)
 import qualified BoardGame.Common.Domain.InitPieces as InitPieces
 import qualified BoardGame.Server.Domain.Player as Player
@@ -42,7 +41,7 @@ import BoardGame.Server.Domain.PieceProvider (PieceProvider)
 import qualified BoardGame.Server.Domain.PieceProvider as PieceProvider
 
 -- Note. Excludes initial board to save space.
--- Initial board is reconstructed by using InitPiece {gridPieces}.
+-- Initial board is reconstructed by using InitPiece {piecePoints}.
 
 -- | The base state of the game - properties that are conceptually
 --   immutable once set, and can be used to reconstitute the initial state
@@ -68,7 +67,7 @@ mkInitialBase :: (MonadError GameError m, MonadIO m) =>
 
 mkInitialBase gameParams pointValues initPieces player pieceProvider = do
   let GameParams { dimension, trayCapacity, languageCode} = gameParams
-  let InitPieces {gridPieces, userPieces, machinePieces} = initPieces
+  let InitPieces {userPieces, machinePieces} = initPieces
   let Player {playerId, name = playerName} = player
   gameId <- Util.mkUuid
   startTime <- liftIO getCurrentTime

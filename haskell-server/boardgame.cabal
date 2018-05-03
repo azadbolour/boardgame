@@ -71,7 +71,6 @@ library
       Bolour.Language.Domain.DictionaryCache
       Bolour.Plane.Domain.Point
       Bolour.Plane.Domain.Axis
-      Bolour.Plane.Domain.GridValue
       Bolour.Plane.Domain.Grid
       Bolour.Plane.Domain.LineSegment
       Bolour.Plane.Domain.BlackWhitePoint
@@ -80,9 +79,9 @@ library
       BoardGame.Server.Domain.ServerConfig
       BoardGame.Common.Domain.PlayerDto
       BoardGame.Common.Domain.Piece
-      BoardGame.Common.Domain.GridPiece
       BoardGame.Common.Domain.PieceProviderType
       BoardGame.Common.Domain.GameParams
+      BoardGame.Common.Domain.PiecePoint
       BoardGame.Common.Domain.InitPieces
       BoardGame.Common.Domain.PlayPiece
       BoardGame.Common.Domain.StopInfo

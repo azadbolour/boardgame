@@ -59,7 +59,7 @@ import Bolour.Util.MiscUtil (debug)
 
 import BoardGame.Common.GameApi (GameApi, GameApi', gameApi')
 import BoardGame.Common.Domain.Piece (Piece)
-import BoardGame.Common.Domain.GridPiece (GridPiece)
+import BoardGame.Common.Domain.PiecePoint (PiecePoint)
 import BoardGame.Common.Domain.PlayerDto (PlayerDto, PlayerDto(PlayerDto))
 import qualified BoardGame.Common.Domain.PlayerDto as PlayerDto
 import BoardGame.Common.Domain.GameSummary (GameSummary)
@@ -175,13 +175,13 @@ startGameHandler env (StartGameRequest{gameParams, initGridPieces, initUserPiece
 
 startGameServiceWrapper ::
      GameParams
-  -> [GridPiece]
+  -> [PiecePoint]
   -> [Piece]
   -> [Piece]
   -> [[Int]]
   -> GameTransformerStack StartGameResponse
-startGameServiceWrapper params initGridPieces initUserPieces initMachinePieces pointValues = do
-  let initPieces = InitPieces initGridPieces initUserPieces initMachinePieces
+startGameServiceWrapper params initPiecePoints initUserPieces initMachinePieces pointValues = do
+  let initPieces = InitPieces initPiecePoints initUserPieces initMachinePieces
   game <- GameService.startGameService params initPieces pointValues
   return $ gameToStartGameResponse game
 

@@ -25,7 +25,6 @@ import qualified BoardGame.Common.Domain.Piece as Piece
 import Bolour.Plane.Domain.Point (Point(Point))
 import BoardGame.Common.Domain.PlayPiece (PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
-import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
 
 import BoardGame.Common.Message.CommitPlayResponse (CommitPlayResponse(CommitPlayResponse))
 import qualified BoardGame.Common.Message.CommitPlayResponse as CommitPlayResponse
@@ -76,10 +75,6 @@ spec = do
             mPieces = [Piece 'S' "4", Piece 'T' "5", Piece 'Z' "6"] -- Allow the word 'SET' across.
         StartGameResponse {gameId, gameParams, gridPieces, trayPieces}
           <- Fixtures.makeGame env Fixtures.gameParams [] uPieces mPieces pointValues
---         let GridValue {value = piece, point = centerPoint} =
---               fromJust $ find (\gridPiece -> GridPiece.gridLetter gridPiece == 'E') gridPieces
---             Point {row, col} = centerPoint
-
         let pc0:pc1:pc2:_ = uPieces
             center = Fixtures.testDimension `div` 2
             playPieces = [

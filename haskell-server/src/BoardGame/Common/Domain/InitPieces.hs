@@ -17,10 +17,10 @@ import Data.Aeson (FromJSON, ToJSON)
 import Control.DeepSeq (NFData)
 
 import BoardGame.Common.Domain.Piece (Piece)
-import BoardGame.Common.Domain.GridPiece (GridPiece)
+import BoardGame.Common.Domain.PiecePoint (PiecePoint)
 
 data InitPieces = InitPieces {
-    gridPieces :: [GridPiece]
+    piecePoints :: [PiecePoint]
   , userPieces :: [Piece]
   , machinePieces :: [Piece]
 }

@@ -35,9 +35,8 @@ import Control.Monad.Except (MonadError(..))
 
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
-import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
-import BoardGame.Common.Domain.GridPiece (GridPiece)
-import qualified Bolour.Plane.Domain.GridValue as GridValue
+import BoardGame.Common.Domain.PiecePoint (PiecePoint, PiecePoint(PiecePoint))
+import qualified BoardGame.Common.Domain.PiecePoint as PiecePoint
 import BoardGame.Common.Domain.Piece (Piece)
 import qualified BoardGame.Common.Domain.Piece as Piece
 import Bolour.Plane.Domain.Axis (Coordinate, Axis(..))
@@ -71,13 +70,13 @@ mkBoardFromPieces cells =
   let cellMaker row col = White $ cells !! row !! col
   in mkBoard cellMaker
 
-mkBoardFromPiecePoints :: [GridPiece] -> Int -> Board
+mkBoardFromPiecePoints :: [PiecePoint] -> Int -> Board
 mkBoardFromPiecePoints piecePoints dimension =
-  let maybePiecePoint row col = find (\GridValue {point} -> point == Point row col) piecePoints
+  let maybePiecePoint row col = find (\PiecePoint {point} -> point == Point row col) piecePoints
       pieceMaker row col =
         case maybePiecePoint row col of
           Nothing -> White Nothing
-          Just (GridValue value point) -> White (Just value)
+          Just (PiecePoint piece point) -> White (Just piece)
   in mkBoard pieceMaker dimension
 
 mkEmptyBoard :: Int -> Board
@@ -136,10 +135,11 @@ get board @ Board { grid }  = Gr.get grid
 getPiece :: Board -> Point -> Maybe Piece
 getPiece board point = BlackWhite.fromWhite $ get board point
 
-getGridPieces :: Board -> [GridPiece]
+-- TODO. Rename to piecePoints.
+getGridPieces :: Board -> [PiecePoint]
 getGridPieces Board {grid} =
   let locatedPieces = Gr.getValues grid
-      toGridPiece (piece, point) = GridValue piece point
+      toGridPiece (piece, point) = PiecePoint piece point
   in toGridPiece <$> locatedPieces
 
 setN :: Board -> [BlackWhitePoint Piece] -> Board
@@ -147,9 +147,9 @@ setN Board {dimension, grid} bwPiecePoints =
   let updatedGrid = Gr.setN grid bwPiecePoints
   in Board dimension updatedGrid
 
-setPiecePoints :: Board -> [GridPiece] -> Board
+setPiecePoints :: Board -> [PiecePoint] -> Board
 setPiecePoints board piecePoints =
-  let toBWPoint GridValue {value = piece, point} = BlackWhitePoint (White (Just piece)) point
+  let toBWPoint PiecePoint {piece, point} = BlackWhitePoint (White (Just piece)) point
       bwPiecePoints = toBWPoint <$> piecePoints
   in setN board bwPiecePoints
 
@@ -295,8 +295,8 @@ playableEnclosingStripsOfBlankPoints board axis =
 --   ordered in increasing value of the line index (excluding the point
 --   itself). A colinear point is considered a neighbor if it has a real value,
 --   and is adjacent to the given point, or recursively adjacent to a neighbor.
-lineNeighbors :: Board -> Point -> Axis -> Int -> [GridPiece]
+lineNeighbors :: Board -> Point -> Axis -> Int -> [PiecePoint]
 lineNeighbors board @ Board {grid} point axis direction =
   let piecePointPairs = Gr.lineNeighbors grid point axis direction
-  in toGridPiece <$> piecePointPairs
-     where toGridPiece (piece, point) = GridValue piece point
+  in toPiecePoint <$> piecePointPairs
+     where toPiecePoint (piece, point) = PiecePoint piece point

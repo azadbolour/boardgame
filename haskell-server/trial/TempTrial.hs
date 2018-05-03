@@ -4,7 +4,7 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module TempTrial where
+module Main where
 
 import qualified Data.Maybe as Maybe
 

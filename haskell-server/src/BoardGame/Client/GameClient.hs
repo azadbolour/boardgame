@@ -29,7 +29,6 @@ import Servant.Common.Req (ClientM)
 import BoardGame.Common.Domain.GameParams
 import qualified BoardGame.Common.GameApi as GameApi
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
-import Bolour.Plane.Domain.GridValue (GridValue)
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.PlayerDto (PlayerDto)
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest)

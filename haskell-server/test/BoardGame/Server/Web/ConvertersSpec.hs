@@ -13,14 +13,13 @@ module BoardGame.Server.Web.ConvertersSpec where
 import Test.Hspec
 import Control.Monad.Trans.Except (runExceptT)
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(GameParams))
-import BoardGame.Common.Domain.GridPiece (GridPiece)
 import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import BoardGame.Server.Domain.Player (Player(Player), userIndex)
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
-import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
-import qualified Bolour.Plane.Domain.GridValue as GridValue
+import BoardGame.Common.Domain.PiecePoint (PiecePoint, PiecePoint(PiecePoint))
+import qualified BoardGame.Common.Domain.PiecePoint as PiecePoint
 import BoardGame.Common.Message.StartGameResponse as StartGameResponse
 import qualified BoardGame.Server.Domain.Game as Game
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
@@ -48,14 +47,14 @@ spec =
   describe "convert game to game dto" $
     it "game to dto" $ do
       let playerName = "You"
-      let gridPiece = GridValue (Piece 'E' "idE") (Point mid mid)
+      let gridPiece = PiecePoint (Piece 'E' "idE") (Point mid mid)
       let initPieces = InitPieces [gridPiece] [] []
           player = Player "1" playerName
       game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params initPieces pieceProvider pointValues player)
       let response = gameToStartGameResponse game
       let brd = Game.board game
       length (Board.getGridPieces brd) `shouldBe` length (StartGameResponse.gridPieces response)
-      let GridValue.GridValue {value = piece, point} = head (StartGameResponse.gridPieces response)
+      let PiecePoint {piece, point} = head (StartGameResponse.gridPieces response)
       let Point.Point {row} = point
       row `shouldBe` mid
 

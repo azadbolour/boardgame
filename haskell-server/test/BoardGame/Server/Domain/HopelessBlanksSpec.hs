@@ -15,8 +15,7 @@ import qualified BoardGame.Server.Domain.StripMatcher as StripMatcher
 import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Board (Board, Board(Board))
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
-import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
-import BoardGame.Common.Domain.GridPiece
+import BoardGame.Common.Domain.PiecePoint (PiecePoint, PiecePoint(PiecePoint))
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Axis as Axis
@@ -38,13 +37,13 @@ myWords = ["AND", "TAN"]
 maskedWords = Set.toList $ Dict.mkMaskedWords myWords maxMaskedWords
 dictionary = Dict.mkDictionary "en" myWords maskedWords maxMaskedWords
 
-gridPieces :: [GridPiece]
+gridPieces :: [PiecePoint]
 gridPieces = [
-    GridValue (Piece 'A' "0") (Point 2 0),
-    GridValue (Piece 'N' "1") (Point 2 1),
-    GridValue (Piece 'D' "2") (Point 2 2),
-    GridValue (Piece 'T' "3") (Point 0 1),
-    GridValue (Piece 'A' "4") (Point 1 1)
+    PiecePoint (Piece 'A' "0") (Point 2 0),
+    PiecePoint (Piece 'N' "1") (Point 2 1),
+    PiecePoint (Piece 'D' "2") (Point 2 2),
+    PiecePoint (Piece 'T' "3") (Point 0 1),
+    PiecePoint (Piece 'A' "4") (Point 1 1)
   ]
 
 board = Board.setPiecePoints emptyBoard gridPieces

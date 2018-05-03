@@ -18,7 +18,7 @@ import Control.DeepSeq (NFData)
 
 import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.Piece (Piece)
-import Bolour.Plane.Domain.GridValue (GridValue)
+import BoardGame.Common.Domain.PiecePoint (PiecePoint)
 
 -- | Data transfer object for a game.
 --   The machine tray is excluded -
@@ -26,7 +26,7 @@ import Bolour.Plane.Domain.GridValue (GridValue)
 data StartGameResponse = StartGameResponse {
     gameId :: String          -- ^ The unique identifier of the game.
   , gameParams :: GameParams
-  , gridPieces :: [GridValue Piece]   -- ^ The pieces in play and their positions.
+  , gridPieces :: [PiecePoint]   -- ^ The pieces in play and their positions.
   , trayPieces :: [Piece]     -- ^ The pieces on the user tray.
 }
   deriving (Eq, Show, Generic, NFData)

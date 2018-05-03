@@ -32,7 +32,7 @@ import Data.Char (isAlphaNum)
 import Data.List
 import Data.Sequence (Seq, (><))
 import qualified Data.Sequence as Seq
-import Data.Time (UTCTime, getCurrentTime)
+import Data.Time (UTCTime)
 import Data.Time.Clock (diffUTCTime)
 
 import Control.Monad.IO.Class (MonadIO(..))
@@ -43,6 +43,8 @@ import qualified Bolour.Util.MiscUtil as Util
 import BoardGame.Common.Domain.GameParams as GameParams
 import BoardGame.Common.Domain.InitPieces (InitPieces, InitPieces(InitPieces))
 import qualified BoardGame.Common.Domain.InitPieces as InitPieces
+import BoardGame.Common.Domain.PiecePoint (PiecePoint, PiecePoint(PiecePoint))
+import qualified BoardGame.Common.Domain.PiecePoint as PiecePoint
 import Bolour.Plane.Domain.Point (Point)
 import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.Piece (Piece)
@@ -52,9 +54,6 @@ import qualified BoardGame.Server.Domain.Play as Play (mkWordPlay, mkSwapPlay)
 import BoardGame.Server.Domain.Player (PlayerType(..))
 import qualified BoardGame.Server.Domain.Player as PlayerType
 import qualified BoardGame.Server.Domain.Player as Player
-import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
-import BoardGame.Common.Domain.GridPiece (GridPiece)
-import qualified Bolour.Plane.Domain.GridValue as GridValue
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameMiniState (GameMiniState, GameMiniState(GameMiniState))
@@ -104,8 +103,8 @@ mkStartingGame :: GameBase -> PieceProvider -> Game
 mkStartingGame base pieceProvider =
   let GameBase {gameParams, pointValues, initPieces, initTrays} = base
       GameParams {dimension} = gameParams
-      InitPieces {gridPieces} = initPieces
-      board = Board.mkBoardFromPiecePoints gridPieces dimension
+      InitPieces {piecePoints} = initPieces
+      board = Board.mkBoardFromPiecePoints piecePoints dimension
       scorer = Scorer.scorePlay $ Scorer.mkScorer pointValues
       initPlayerType = Player.UserPlayer -- Won't be used. Arbitrarily set to user.
   in Game base board initTrays initPlayNumber initPlayerType pieceProvider
@@ -228,7 +227,7 @@ checkPlayBoardPieces :: MonadError GameError m => Game -> [PlayPiece] -> m [Play
 checkPlayBoardPieces Game {board} playPieces =
   let boardPlayPieces = filter (not . PlayPiece.moved) playPieces
       gridPieces = PlayPiece.getGridPiece <$> boardPlayPieces
-      gridPieceMatchesBoard GridValue {value = piece, point} =
+      gridPieceMatchesBoard PiecePoint {piece, point} =
         let maybePiece = Board.getPiece board point
         in case maybePiece of
            Nothing -> False
@@ -245,10 +244,10 @@ reflectPlayOnGame game playerType playPieces deadPointFinder = do
   let Game {board, trays, playNumber, pieceProvider, numSuccessivePasses, scorePlay, scores, plays} = game
   _ <- if playerType == PlayerType.UserPlayer then validatePlayAgainstGame game playPieces else return playPieces
   let movedPlayPieces = filter PlayPiece.moved playPieces
-      movedGridPieces = PlayPiece.getGridPiece <$> movedPlayPieces
-      b = Board.setPiecePoints board movedGridPieces
+      movedPiecePoints = PlayPiece.getGridPiece <$> movedPlayPieces
+      b = Board.setPiecePoints board movedPiecePoints
       (b', deadPoints) = deadPointFinder b
-      usedPieces = GridValue.value <$> movedGridPieces
+      usedPieces = PiecePoint.piece <$> movedPiecePoints
       playerIndex = Player.playerTypeIndex playerType
   (newPieces, pieceProvider') <- PieceProvider.takePieces pieceProvider (length usedPieces)
   let game' = game {pieceProvider = pieceProvider'}

@@ -26,9 +26,6 @@ import qualified Bolour.Util.PersistRunner as PersistRunner
 import BoardGame.Server.Domain.ServerConfig (ServerConfig, ServerConfig(ServerConfig), DeployEnv(..))
 import qualified BoardGame.Server.Domain.ServerConfig as ServerConfig
 import BoardGame.Common.Domain.Piece (Piece(Piece))
-import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
-import qualified Bolour.Plane.Domain.GridValue as GridValue
-import qualified BoardGame.Common.Domain.GridPiece as GridPiece
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))

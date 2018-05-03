@@ -23,7 +23,6 @@ module BoardGame.Common.GameApi (
 where
 
 import Servant
-import Bolour.Plane.Domain.GridValue (GridValue)
 import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 import BoardGame.Common.Message.HandShakeResponse (HandShakeResponse)

@@ -24,8 +24,6 @@ import qualified BoardGame.Server.Domain.StripMatcher as StripMatcher
 import qualified BoardGame.Server.Domain.Board as Board
 import BoardGame.Server.Domain.Board (Board, Board(Board))
 import BoardGame.Server.Domain.Tray (Tray, Tray(Tray))
-import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
-import BoardGame.Common.Domain.GridPiece
 import BoardGame.Common.Domain.Piece (Piece, Piece(Piece))
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Axis as Axis

@@ -105,7 +105,7 @@ case class Game(
     */
   private def addGoodWordPlay(playerType: PlayerType, piecePoints: List[PiecePoint], score: Int): Try[(Game, List[Piece])] = {
     val newBoard = board.setPiecePoints(piecePoints)
-    val usedPieces = piecePoints map { _.value }
+    val usedPieces = piecePoints map { _.piece }
     val succPasses = if (score > 0) 0 else numSuccessivePasses + 1
     val ind = playerIndex(playerType)
     for {

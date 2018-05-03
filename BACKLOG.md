@@ -80,6 +80,8 @@
 - Write low-level tests for persistence of games. Including duplicate
   key checks.
 
+- Test scala against a real database.
+
 - Currently storage of games in the database is not in focus. 
   Restoration of games from teh database remains to be implemented.
 

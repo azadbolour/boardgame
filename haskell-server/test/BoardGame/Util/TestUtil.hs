@@ -14,15 +14,13 @@ module BoardGame.Util.TestUtil (
 
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
-import BoardGame.Common.Domain.GridPiece (GridPiece)
--- import qualified BoardGame.Common.Domain.GridPiece as GridPiece
-import Bolour.Plane.Domain.GridValue (GridValue(GridValue))
-import qualified Bolour.Plane.Domain.GridValue as GridValue
 import Bolour.Plane.Domain.Point (Point, Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
+import BoardGame.Common.Domain.PiecePoint (PiecePoint, PiecePoint(PiecePoint))
+import qualified BoardGame.Common.Domain.PiecePoint as PiecePoint
 
-mkInitialPlayPieces :: GridPiece -> [Piece] -> [PlayPiece]
-mkInitialPlayPieces (centerBoardPiece @ GridValue.GridValue {value = piece, point}) trayPieces = playPieces where
+mkInitialPlayPieces :: PiecePoint -> [Piece] -> [PlayPiece]
+mkInitialPlayPieces (centerBoardPiece @ PiecePoint {piece, point}) trayPieces = playPieces where
   Point.Point {row, col} = point
   -- r = row $ point
   -- c = col $ point

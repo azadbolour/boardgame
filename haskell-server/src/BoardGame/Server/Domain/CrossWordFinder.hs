@@ -24,8 +24,8 @@ import qualified Bolour.Plane.Domain.Axis as Axis
 import qualified Bolour.Plane.Domain.Point as Point
 import Bolour.Plane.Domain.Axis (Axis)
 import Bolour.Plane.Domain.Point (Point, Point(Point))
-import qualified Bolour.Plane.Domain.GridValue
-import Bolour.Plane.Domain.GridValue (GridValue, GridValue(GridValue))
+import qualified BoardGame.Common.Domain.PiecePoint
+import BoardGame.Common.Domain.PiecePoint (PiecePoint, PiecePoint(PiecePoint))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, MoveInfo)
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
@@ -67,7 +67,7 @@ findCrossPlay board point movingLetter crossAxis =
       forthNeighbors = Board.lineNeighbors board point crossAxis Axis.forward
       backNeighbors = Board.lineNeighbors board point crossAxis Axis.backward
       moveInfo neighbor =
-        let GridValue {value = piece, point} = neighbor
+        let PiecePoint {piece, point} = neighbor
         in (Piece.value piece, point, False)
   in if null backNeighbors && null forthNeighbors then Nothing
      else Just $ (moveInfo <$> backNeighbors) ++ [crossingMoveInfo] ++ (moveInfo <$> forthNeighbors)
