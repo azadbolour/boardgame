@@ -132,9 +132,9 @@ export const mkBoard = function(matrix) {
       return $board;
     },
 
-    commitMachineMoves: function(moveGridPieces) {
+    commitMachineMoves: function(movePiecePoints) {
       let $board = this;
-      moveGridPieces.forEach(move => {
+      movePiecePoints.forEach(move => {
         $board = $board.setPlayPiece(mkCommittedPlayPiece(move.piece, move.point));
       });
       return $board;

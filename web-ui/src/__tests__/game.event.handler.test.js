@@ -13,7 +13,7 @@ import GameParams from "../domain/GameParams";
 import {mkGameEventHandler} from '../event/GameEventHandler';
 import * as Piece from "../domain/Piece";
 import {mkPoint} from "../domain/Point";
-import {mkGridPiece} from "../domain/GridPiece";
+import {mkPiecePoint} from "../domain/PiecePoint";
 import GameService from "../service/GameService"
 import {gameDispatcher} from '../event/GameDispatcher';
 
@@ -61,7 +61,7 @@ test('generate events to exercise game transitions', done => {
       handler.unregisterChangeObserver(startCallback);
       handler.registerChangeObserver(moveCallback);
       movingPiece = game.tray.pieces[0];
-      let move = mkGridPiece(movingPiece, moveDest);
+      let move = mkPiecePoint(movingPiece, moveDest);
       actions.move(move);
     }, 20);
   };

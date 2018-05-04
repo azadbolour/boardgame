@@ -15,7 +15,7 @@ import actions from '../event/GameActions';
 import * as Piece from '../domain/Piece';
 import {mkPiece} from '../domain/Piece';
 import {mkPoint} from '../domain/Point';
-import {mkGridPiece} from '../domain/GridPiece';
+import {mkPiecePoint} from '../domain/PiecePoint';
 import {stringify} from "../util/Logger";
 import {pieceIsDead} from "../domain/Piece";
 
@@ -153,7 +153,7 @@ const pieceDropper = {
   drop: function (props, monitor) {
     let piece = getMonitorPiece(monitor);
     let point = props.point;
-    let move = mkGridPiece(piece, point);
+    let move = mkPiecePoint(piece, point);
     actions.move(move);
   }
 };

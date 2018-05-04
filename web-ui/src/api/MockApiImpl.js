@@ -26,21 +26,7 @@ class MockApiImpl {
     this.moves = [];
     // this.numPiecesInPlay = this.machineTray.pieces.length; // TODO. Use method.
     this.gameId = gameId;
-    // TODO. Only do this if initGridPieces is not provided.
-    const mid = Math.floor(gameParams.dimension / 2);
-    this.center = mid;
-    const midPiece = this.getPiece();
-    const pos = {row: mid, col: mid};
-    const pos1 = {row: mid + 1, col: mid - 1};
-    const piece1 = this.getPiece();
-    const midGridPiece = {
-      point: pos,
-      value: midPiece
-    };
-    const otherGridPiece = {
-      point: pos1,
-      value: piece1
-    };
+    this.center = Math.floor(gameParams.dimension / 2);;
 
     let {boardPiecePoints, userPieces, machinePieces} = initPieces;
 
@@ -118,7 +104,7 @@ class MockApiImpl {
     if (!this.isGameEmpty()) {
       start = this.filledPositions().find(pos => it.twoBelowEmpty(pos, this.dimension));
       if (start === undefined) return [];
-      startPiece = this.getPieceAtGridPoint(start);
+      startPiece = this.getBoardPiece(start);
       startMoved = !pieceMoves;
     }
 
@@ -167,7 +153,7 @@ class MockApiImpl {
   
   filledPositions() {
     // console.log(`${JSON.stringify(this.gameDto.boardPiecePoints)}`);
-    return this.gameDto.boardPiecePoints.map(gridPiece => gridPiece.point);
+    return this.gameDto.boardPiecePoints.map(piecePoint => piecePoint.point);
   }
 
   posFilled(pos) {
@@ -199,13 +185,12 @@ class MockApiImpl {
 
   // TODO. Private functions. Move these out of the class.
 
-  // Assumes gridPoint has a piece.
-  getPieceAtGridPoint(point) {
-    const gridPiece = this.gameDto.boardPiecePoints.find(gp => {
-      let gpPoint = gp.point;
-      return point.row === gpPoint.row && point.col === gpPoint.col;
+  getBoardPiece(point) {
+    const piecePoint = this.gameDto.boardPiecePoints.find(piecePoint => {
+      let pt = piecePoint.point;
+      return point.row === pt.row && point.col === pt.col;
     });
-    return (gridPiece !== undefined) ? gridPiece.piece : undefined; // TODO. Avoid verbosity.
+    return (piecePoint !== undefined) ? piecePoint.piece : undefined;
   }
 
   removePieceById(pieces, piece) {
@@ -225,9 +210,7 @@ class MockApiImpl {
 
   reflectMovesOnGame(movedPlayPieces) {
     let it = this;
-    // console.log(`moved play pieces: ${JSON.stringify(movedPlayPieces)}`);
     movedPlayPieces.forEach(playPiece =>
-      // this.gameDto.boardPiecePoints.push(playPiece.gridPiece));
       this.gameDto.boardPiecePoints.push({piece: playPiece.piece, point: playPiece.point})
     );
   }

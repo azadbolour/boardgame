@@ -50,7 +50,6 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
 
   let updateScore = function(playerIndex, playScore) {
     let updatedScore = _score.slice();
-    // updatedScore[playerIndex] += playedPieces.length;
     updatedScore[playerIndex] += playScore;
     return updatedScore;
   };
@@ -170,12 +169,10 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
       return $game;
     },
 
-    commitMachineMoves: function(playScore, moveGridPieces, deadPoints) {
-      let $board = _board.commitMachineMoves(moveGridPieces);
-      let playedPieces = moveGridPieces.map(move => move.piece);
-      // let $score = updateScore(MACHINE_INDEX, playedPieces);
+    commitMachineMoves: function(playScore, movePiecePoints, deadPoints) {
+      let $board = _board.commitMachineMoves(movePiecePoints);
       let $score = updateScore(MACHINE_INDEX, playScore);
-      let $game = mkGame(_gameParams, _gameId, $board, _tray, _pointValues, $score, moveGridPieces);
+      let $game = mkGame(_gameParams, _gameId, $board, _tray, _pointValues, $score, movePiecePoints);
       $game = $game.setDeadPoints(deadPoints);
       return $game;
     },

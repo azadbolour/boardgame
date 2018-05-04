@@ -100,7 +100,7 @@ test('machine play', done => {
   }).
   then(response => {
     let {gameMiniState, playedPieces} = response.json;
-    let moves = PlayPiece.movedGridPieces(playedPieces);
+    let moves = PlayPiece.movedPiecePoints(playedPieces);
     expect(moves.length).toBeGreaterThan(0);
     expect(gameMiniState.lastPlayScore).toBeGreaterThan(0);
     done();

@@ -7,7 +7,7 @@
 
 import {stringify} from "../util/Logger";
 import {mkBoard, mkEmptyBoard} from "../domain/Board";
-import {mkGridPiece} from "../domain/GridPiece";
+import {mkPiecePoint} from "../domain/PiecePoint";
 import {mkPiece} from "../domain/Piece";
 import * as Piece from "../domain/Piece";
 import {mkPoint} from "../domain/Point";
@@ -42,13 +42,13 @@ let mkDefaultGame = function(dimension) {
 
 let moveFromTray = function(game, point) {
   let piece = game.tray.piece(0);
-  let move = mkGridPiece(piece, point);
+  let move = mkPiecePoint(piece, point);
   let $game = game.applyUserMove(move);
   return [$game, move];
 };
 
 let moveFromBoard = function(game, piece, point) {
-  let move = mkGridPiece(piece, point);
+  let move = mkPiecePoint(piece, point);
   let $game = game.applyUserMove(move);
   return [$game, move];
 };

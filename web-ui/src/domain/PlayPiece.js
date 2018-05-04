@@ -7,21 +7,19 @@
 
 import {stringify} from "../util/Logger";
 import * as Piece from './Piece';
-import {mkGridPiece} from './GridPiece';
-import * as GridPiece from './GridPiece';
+import {mkPiecePoint} from './PiecePoint';
 import {DEAD_PIECE} from "./Piece";
 
 export const MOVED = true;
 
-// TODO. Should just give it a piece and a point instead of gridPiece.
 export const mkPlayPiece = function(piece, point, moved) {
   let _piece = piece;
   let _point = point;
   let _moved = moved;
-  let _gridPiece = mkGridPiece(piece, point);
+  let _piecePoint = mkPiecePoint(piece, point);
 
   return {
-    get gridPiece() { return _gridPiece; },
+    get piecePoint() { return _piecePoint; },
     get moved() { return _moved; },
     get piece() { return _piece; },
     get point() { return _point; },
@@ -87,9 +85,9 @@ export const findFilledSegmentBoundary = function(playPieces, index, direction) 
   return to;
 };
 
-export const movedGridPieces = function(playPieces) {
+export const movedPiecePoints = function(playPieces) {
   let movedPlayPieces = playPieces.filter(p => p.moved);
-  let movedGridPieces = movedPlayPieces.map(p => p.gridPiece);
-  return movedGridPieces;
+  let moved = movedPlayPieces.map(p => p.piecePoint);
+  return moved;
 };
 

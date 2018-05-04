@@ -252,10 +252,10 @@ export const mkGameEventHandler = function(gameService) {
       let processedPromise = promise.then(response => {
         if (response.ok) {
           let {gameMiniState, playedPieces, deadPoints} = response.json;
-          let movedGridPieces = PlayPiece.movedGridPieces(playedPieces);
-          _game = _game.commitMachineMoves(gameMiniState.lastPlayScore, movedGridPieces, deadPoints);
+          let movedPiecePoints = PlayPiece.movedPiecePoints(playedPieces);
+          _game = _game.commitMachineMoves(gameMiniState.lastPlayScore, movedPiecePoints, deadPoints);
           // _game = $game.setDeadPoints(deadPoints);
-          _status = movedGridPieces.length > 0 ? OK : "bot took a pass";
+          _status = movedPiecePoints.length > 0 ? OK : "bot took a pass";
           _auxGameData.pushWordPlayed(playPiecesWord(playedPieces), "Bot"); // TODO. Constant.
           emitChange(systemResponseType(response));
           return convertResponse(response, gameMiniState);

@@ -9,10 +9,9 @@ import {stringify} from "../util/Logger";
 import {mkGame} from "../domain/Game";
 import {mkBoard, mkEmptyBoard} from "../domain/Board";
 import {mkTray} from "../domain/Tray";
-import Play from "../domain/Play";
 import {mkPiece} from "../domain/Piece";
 import {mkPoint} from "../domain/Point";
-import {mkGridPiece} from "../domain/GridPiece";
+import {mkPiecePoint} from "../domain/PiecePoint";
 import {mkCommittedPlayPiece, mkPlayPiece} from "../domain/PlayPiece";
 
 // TODO. Conversion of class object to json - use JSON.stringify in simple cases.
@@ -47,11 +46,11 @@ export const GameConverter = {
    */
   fromJson: function(json, gameParams, pointValues) {
     let gameId = json.gameId;
-    let gridPiecesJson = json.boardPiecePoints;
+    let piecePointsJson = json.boardPiecePoints;
     let trayPiecesJson = json.trayPieces;
     let trayPieces = trayPiecesJson.map(p => PieceConverter.fromJson(p));
     let tray = mkTray(gameParams.trayCapacity, trayPieces);
-    let playPieces = gridPiecesJson.map(gp => {
+    let playPieces = piecePointsJson.map(gp => {
       // let piece = PieceConverter.fromJson(gp.piece);
       let piece = PieceConverter.fromJson(gp.value);
       let p = gp.point;
@@ -108,21 +107,4 @@ export const PointConverter = {
   }
 };
 
-export const GridPieceConverter = {
-  toJson: function(gridPiece) {
-    let point = gridPiece.point;
-    let piece = gridPiece.piece;
-    return {
-      piece: PieceConverter.toJson(piece),
-      point: {row: point.row, col: point.col} // TODO. Unnecessary!
-    };
-  },
-  
-  fromJson: function(json) {
-    let piece = json.piece;
-    let point = json.point;
-    let pos = mkPoint(point.row, point.col);
-    return new mkGridPiece(PieceConverter.fromJson(piece), pos);
-  }
-};
 

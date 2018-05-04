@@ -62,7 +62,7 @@ test('start game and make user and machine plays', () => {
     console.log(`machine play response: ${stringify(response.json)}`);
     let {gameMiniState, playedPieces} = response.json;
     console.log(`machine play: ${stringify(playedPieces)}`);
-    let moves = PlayPiece.movedGridPieces(playedPieces);
+    let moves = PlayPiece.movedPiecePoints(playedPieces);
     expect(moves.length).toBeGreaterThan(1);
     expect(gameMiniState.lastPlayScore).toBeGreaterThan(0);
     return gameService.closeGame(game.gameId);

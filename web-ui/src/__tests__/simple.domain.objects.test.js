@@ -10,7 +10,7 @@ import * as Piece from '../domain/Piece';
 import {mkPiece} from '../domain/Piece';
 import {mkPoint} from '../domain/Point';
 import * as Point from '../domain/Point';
-import {mkGridPiece} from '../domain/GridPiece';
+import {mkPiecePoint} from '../domain/PiecePoint';
 import {mkTray} from '../domain/Tray';
 import {mkPlayPiece} from '../domain/PlayPiece';
 import * as PlayPiece from '../domain/PlayPiece';
@@ -25,11 +25,11 @@ test('test construction', () => {
   let point = mkPoint(1, 1);
   expect(point.row).toBe(1);
   expect(point.col).toBe(1);
-  let gridPiece = mkGridPiece(piece, point);
-  expect(gridPiece.piece.value).toBe('A');
+  let piecePoint = mkPiecePoint(piece, point);
+  expect(piecePoint.piece.value).toBe('A');
 
   let destPoint = mkPoint(2, 1);
-  let move = mkGridPiece(piece, destPoint);
+  let move = mkPiecePoint(piece, destPoint);
   expect(move.point.row).toBe(2);
 });
 
@@ -53,8 +53,6 @@ test('play piece manipulation', () => {
   let piece = mkPiece('A', "1");
   let noPiece = Piece.NO_PIECE;
   let point = mkPoint(1, 1);
-  // let filledGridPiece = mkGridPiece(piece, point);
-  // let emptyGridPiece = mkGridPiece(noPiece, point);
   let filledPlayPiece = mkPlayPiece(piece, point, !PlayPiece.MOVED);
   let emptyPlayPiece = mkPlayPiece(noPiece, point, !PlayPiece.MOVED);
 

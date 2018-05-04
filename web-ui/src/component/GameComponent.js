@@ -309,7 +309,7 @@ class GameComponent extends React.Component {
     // let isError = (status !== "OK" && status !== "game over"); // TODO. This is a hack! Better indication of error and severity.
     // TODO. Fatal error should end the session. Indicate fatal errors.
     let pointValues = game.pointValues;
-    let machineMovePoints = game.machineMoves.map(gridPiece => gridPiece.point);
+    let machineMovePoints = game.machineMoves.map(piecePoint => piecePoint.point);
     let productInfo = `Powered by ${serverType} server, React client.`;
 
     /*
