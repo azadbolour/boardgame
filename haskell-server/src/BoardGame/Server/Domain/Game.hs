@@ -103,8 +103,8 @@ mkStartingGame :: GameBase -> PieceProvider -> Game
 mkStartingGame base pieceProvider =
   let GameBase {gameParams, pointValues, initPieces, initTrays} = base
       GameParams {dimension} = gameParams
-      InitPieces {piecePoints} = initPieces
-      board = Board.mkBoardFromPiecePoints piecePoints dimension
+      InitPieces {boardPiecePoints} = initPieces
+      board = Board.mkBoardFromPiecePoints boardPiecePoints dimension
       scorer = Scorer.scorePlay $ Scorer.mkScorer pointValues
       initPlayerType = Player.UserPlayer -- Won't be used. Arbitrarily set to user.
   in Game base board initTrays initPlayNumber initPlayerType pieceProvider

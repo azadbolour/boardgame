@@ -12,12 +12,12 @@ import com.bolour.boardgame.scala.common.domain.{GameParams, PiecePoint, Piece}
   *
   * @param gameId Unique id of the game.
   * @param gameParams The game parameters. In case some are assigned at the server.
-  * @param gridPieces The initial state of the board. TODO. Unnecessary.
+  * @param boardPiecePoints The initial state of the board. TODO. Unnecessary.
   * @param trayPieces The user's initial tray  pieces.
   */
 case class StartGameResponse(
   gameId: String,
   gameParams: GameParams,
-  gridPieces: List[PiecePoint],
+  boardPiecePoints: List[PiecePoint],
   trayPieces: List[Piece]
 )

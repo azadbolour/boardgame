@@ -42,12 +42,6 @@ trait GameService {
     * Start a new game.
     *
     * @param gameParams Specification of the new game.
-    * @param piecePoints Pieces and their locations for initializing the board (for testing).
-    *                    Normally Nil - board is initially empty in real play.
-    * @param initUserPieces Initial user pieces (for testing only).
-    *                       Normally Nil and assigned by the server.
-    * @param initMachinePieces Initial machine pieces (for testing only).
-    *                          Normally Nil and assigned by the server.
     * @param pointValues The values assigned to each point of the board for scoring.
     *                    Scores depend on point values captured by a played word.
     *                    Point values are always provided by clients.
@@ -55,9 +49,7 @@ trait GameService {
     */
   def startGame(
     gameParams: GameParams,
-    piecePoints: List[PiecePoint],
-    initUserPieces: List[Piece],
-    initMachinePieces: List[Piece],
+    initPieces: InitPieces,
     pointValues: List[List[Int]]
   ): Try[Game]
 

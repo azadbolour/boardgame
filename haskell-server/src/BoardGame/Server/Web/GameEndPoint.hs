@@ -59,11 +59,10 @@ import Bolour.Util.MiscUtil (debug)
 
 import BoardGame.Common.GameApi (GameApi, GameApi', gameApi')
 import BoardGame.Common.Domain.Piece (Piece)
-import BoardGame.Common.Domain.PiecePoint (PiecePoint)
 import BoardGame.Common.Domain.PlayerDto (PlayerDto, PlayerDto(PlayerDto))
 import qualified BoardGame.Common.Domain.PlayerDto as PlayerDto
 import BoardGame.Common.Domain.GameSummary (GameSummary)
-import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
+import BoardGame.Common.Domain.InitPieces (InitPieces)
 import BoardGame.Common.Domain.GameParams (GameParams(..))
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
 import BoardGame.Common.Message.HandShakeResponse (HandShakeResponse, HandShakeResponse(HandShakeResponse))
@@ -167,21 +166,18 @@ addPlayerHandler env PlayerDto {name} =
 
 -- | API handler to create and start a new game.
 startGameHandler :: GameEnv -> StartGameRequest -> ExceptServant StartGameResponse
-startGameHandler env (StartGameRequest{gameParams, initGridPieces, initUserPieces, initMachinePieces, pointValues}) =
+startGameHandler env (StartGameRequest{gameParams, initPieces, pointValues}) =
   gameTransformerStackHandler env $ do -- GameTransformerStack
-    response <- startGameServiceWrapper gameParams initGridPieces initUserPieces initMachinePieces pointValues
+    response <- startGameServiceWrapper gameParams initPieces pointValues
     -- logMessage (show gameDto) -- TODO. Could not prettify it - tried groom and pretty-show. No good.
     return response
 
 startGameServiceWrapper ::
      GameParams
-  -> [PiecePoint]
-  -> [Piece]
-  -> [Piece]
+  -> InitPieces
   -> [[Int]]
   -> GameTransformerStack StartGameResponse
-startGameServiceWrapper params initPiecePoints initUserPieces initMachinePieces pointValues = do
-  let initPieces = InitPieces initPiecePoints initUserPieces initMachinePieces
+startGameServiceWrapper params initPieces pointValues = do
   game <- GameService.startGameService params initPieces pointValues
   return $ gameToStartGameResponse game
 

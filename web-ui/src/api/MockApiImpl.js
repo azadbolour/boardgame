@@ -15,7 +15,7 @@ const pieceMoves = true;
 // TODO. Take account of initialGrid and initial machine pieces.
 
 class MockApiImpl {
-  constructor(gameId, gameParams, initGridPieces, initUserTray, initMachineTray, pointValues) {
+  constructor(gameId, gameParams, initPieces, pointValues) {
     // TODO. Reflect initial conditions on game. Check server-side code for logic.
     this.gameParams = gameParams;
     this.nextPieceId = 0;
@@ -42,17 +42,19 @@ class MockApiImpl {
       value: piece1
     };
 
+    let {boardPiecePoints, userPieces, machinePieces} = initPieces;
+
     // TODO. Streamline tray initialization.
-    const additionalTrayPieces = this.getPieces(gameParams.trayCapacity - initUserTray.length);;
-    const trayPieces = initUserTray.concat(additionalTrayPieces);
-    const additionalMachinePieces = this.getPieces(gameParams.trayCapacity - initMachineTray.length);;
-    this.machinePieces = initMachineTray.concat(additionalMachinePieces);
+    const additionalTrayPieces = this.getPieces(gameParams.trayCapacity - userPieces.length);
+    const trayPieces = userPieces.concat(additionalTrayPieces);
+    const additionalMachinePieces = this.getPieces(gameParams.trayCapacity - machinePieces.length);;
+    this.machinePieces = machinePieces.concat(additionalMachinePieces);
 
     this.gameDto = {
       gameId: gameId,
       dimension: gameParams.dimension,
       trayCapacity: gameParams.trayCapacity,
-      gridPieces: [], // Start with an empty board.
+      boardPiecePoints: [], // Start with an empty board. TODO. Use the init piece points.
       trayPieces: trayPieces
     };
   }
@@ -98,7 +100,7 @@ class MockApiImpl {
   }
 
   isGameEmpty() {
-    return this.gameDto.gridPieces.length === 0;
+    return this.gameDto.boardPiecePoints.length === 0;
   }
 
   /**
@@ -164,8 +166,8 @@ class MockApiImpl {
   // Begin auxiliary functions. Use in unit tests but not part of the api.
   
   filledPositions() {
-    // console.log(`${JSON.stringify(this.gameDto.gridPieces)}`);
-    return this.gameDto.gridPieces.map(gridPiece => gridPiece.point);
+    // console.log(`${JSON.stringify(this.gameDto.boardPiecePoints)}`);
+    return this.gameDto.boardPiecePoints.map(gridPiece => gridPiece.point);
   }
 
   posFilled(pos) {
@@ -199,7 +201,7 @@ class MockApiImpl {
 
   // Assumes gridPoint has a piece.
   getPieceAtGridPoint(point) {
-    const gridPiece = this.gameDto.gridPieces.find(gp => {
+    const gridPiece = this.gameDto.boardPiecePoints.find(gp => {
       let gpPoint = gp.point;
       return point.row === gpPoint.row && point.col === gpPoint.col;
     });
@@ -225,8 +227,8 @@ class MockApiImpl {
     let it = this;
     // console.log(`moved play pieces: ${JSON.stringify(movedPlayPieces)}`);
     movedPlayPieces.forEach(playPiece =>
-      // this.gameDto.gridPieces.push(playPiece.gridPiece));
-      this.gameDto.gridPieces.push({piece: playPiece.piece, point: playPiece.point})
+      // this.gameDto.boardPiecePoints.push(playPiece.gridPiece));
+      this.gameDto.boardPiecePoints.push({piece: playPiece.piece, point: playPiece.point})
     );
   }
 

@@ -19,13 +19,11 @@ import Control.DeepSeq (NFData)
 
 import BoardGame.Common.Domain.GameParams (GameParams)
 import BoardGame.Common.Domain.Piece (Piece)
-import BoardGame.Common.Domain.PiecePoint (PiecePoint)
+import BoardGame.Common.Domain.InitPieces (InitPieces)
 
 data StartGameRequest = StartGameRequest {
     gameParams :: GameParams
-  , initGridPieces :: [PiecePoint]
-  , initUserPieces :: [Piece]
-  , initMachinePieces :: [Piece]
+  , initPieces :: InitPieces
   , pointValues :: [[Int]]
 } deriving (Eq, Show, Generic, NFData)
 

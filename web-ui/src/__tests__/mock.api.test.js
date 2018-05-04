@@ -16,6 +16,7 @@ import {mkMovePlayPiece, mkCommittedPlayPiece} from "../domain/PlayPiece";
 import GameService from "../service/GameService"
 import {stringify} from "../util/Logger";
 import * as PointValue from '../domain/PointValue';
+import {mkInitPieces} from '../domain/InitPieces'
 
 // TODO. Clean up promise tests.
 // Returning a promise from a test is sufficient.
@@ -42,7 +43,7 @@ test('start a new game', done => {
 
   let game = undefined;
   let gameService = new GameService(gameParams);
-  gameService.start([], [], [], pointValues).then(response => {
+  gameService.start(mkInitPieces([], [], []), pointValues).then(response => {
     game = response.json;
     expect(game.tray.pieces.length).toBe(gameParams.trayCapacity);
     expect(game.board.dimension).toBe(gameParams.dimension);
@@ -61,7 +62,7 @@ test('commit play', done => {
   // let rightPiece = mkPiece('T', 'idRight');
   // let initUserTray = [leftPiece, rightPiece];
 
-  gameService.start([], uPieces, mPieces, pointValues).then(response => {
+  gameService.start(mkInitPieces([], uPieces, mPieces), pointValues).then(response => {
     game = response.json;
     // TODO. expect good game
     // let $game = TestUtil.addInitialPlayToGame(game);
@@ -87,7 +88,7 @@ test('machine play', done => {
   // let rightPiece = mkPiece('T', 'idRight');
   // let initUserTray = [leftPiece, rightPiece];
 
-  gameService.start([], uPieces, mPieces, pointValues).then(response => {
+  gameService.start(mkInitPieces([], uPieces, mPieces), pointValues).then(response => {
     game = response.json;
     return gameService.commitUserPlay(game.gameId, userPlayPieces);
   }).then(response => {

@@ -1,6 +1,6 @@
 package com.bolour.boardgame.scala.server.domain.json
 
-import com.bolour.boardgame.scala.common.domain.{Piece, PiecePoint, PlayPiece}
+import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain._
 import com.bolour.plane.scala.domain.Point
 import com.bolour.util.scala.common.VersionStamped
@@ -17,11 +17,13 @@ object CaseClassFormats extends DefaultJsonProtocol {
   implicit val pointFormat = jsonFormat2(Point)
   implicit val piecePointFormat = jsonFormat2(PiecePoint)
   implicit val playPieceFormat = jsonFormat3(PlayPiece)
+  implicit val gameParamsFormat = jsonFormat5(GameParams)
+  implicit val InitPiecesFormat = jsonFormat3(InitPieces)
 
   implicit val wordPlayFormat = jsonFormat7(WordPlay)
   implicit val swapPlayFormat = jsonFormat6(SwapPlay)
 
-  implicit def gameBaseFormat = jsonFormat12(GameBase.apply)
+  implicit def gameBaseFormat = jsonFormat7(GameBase.apply)
 
   implicit val playerFormat = jsonFormat2(Player)
   implicit val versionedPlayerFormat = jsonFormat2(VersionStamped[Player])

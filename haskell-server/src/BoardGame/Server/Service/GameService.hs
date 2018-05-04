@@ -217,7 +217,7 @@ startGameService gameParams initPieces pointValues = do
   -- TODO. Validate parameters. Point values must be a dimension x dimension matrix.
   params <- Game.validateGameParams gameParams
   let GameParams {dimension, languageCode, pieceProviderType, playerName} = params
-  let InitPieces {piecePoints, userPieces, machinePieces} = initPieces
+  let InitPieces {userPieces, machinePieces} = initPieces
   GameEnv { gameCache } <- ask
   persister @ GamePersister {findPlayerByName} <- mkPersister
   maybePlayer <- exceptTToStack $ findPlayerByName playerName

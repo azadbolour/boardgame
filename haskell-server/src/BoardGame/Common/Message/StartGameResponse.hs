@@ -24,10 +24,10 @@ import BoardGame.Common.Domain.PiecePoint (PiecePoint)
 --   The machine tray is excluded -
 --   we don't want to reveal the machine's hand to client programs.
 data StartGameResponse = StartGameResponse {
-    gameId :: String          -- ^ The unique identifier of the game.
+    gameId :: String              -- ^ The unique identifier of the game.
   , gameParams :: GameParams
-  , gridPieces :: [PiecePoint]   -- ^ The pieces in play and their positions.
-  , trayPieces :: [Piece]     -- ^ The pieces on the user tray.
+  , boardPiecePoints :: [PiecePoint]   -- ^ The pieces in play and their positions.
+  , trayPieces :: [Piece]         -- ^ The pieces on the user tray.
 }
   deriving (Eq, Show, Generic, NFData)
 

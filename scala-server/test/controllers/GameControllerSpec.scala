@@ -66,7 +66,8 @@ class GameControllerSpec extends PlaySpec with Results {
     val uPieces = List(Piece('B', stringId()), Piece('E', stringId()), Piece('T', stringId())) // User to play "BET".
     val mPieces = List(Piece('S', stringId()), Piece('T', stringId()), Piece('Z', stringId())) // Machine to play "SET" using user's 'E'.
     val pointValues = List.fill(dimension, dimension)(1)
-    val startGameRequest = StartGameRequest(gameParams, Nil, uPieces, mPieces, pointValues)
+    val initPieces = InitPieces(Nil, uPieces, mPieces)
+    val startGameRequest = StartGameRequest(gameParams, initPieces, pointValues)
 
     val center = dimension/2
 

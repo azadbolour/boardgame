@@ -49,9 +49,10 @@ class GameDataTest extends FlatSpec with Matchers {
   )
 
   def startGameAndCommitPlay(initUserPieces: List[Piece], playPieces: List[PlayPiece]) = {
+    val initPieces = InitPieces(piecePoints, initUserPieces, List())
     val pointValues = List.fill(dimension, dimension)(1)
     for {
-      game <- service.startGame(gameParams, piecePoints, initUserPieces, List(), pointValues)
+      game <- service.startGame(gameParams, initPieces, pointValues)
       (playedGame, _, _) <- game.addWordPlay(UserPlayer, playPieces)
     } yield playedGame
   }

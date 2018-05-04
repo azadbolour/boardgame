@@ -23,6 +23,7 @@ import Servant.Client
 import Servant.Common.BaseUrl()
 
 import BoardGame.Common.Domain.Piece (Piece(Piece))
+import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import BoardGame.Common.Domain.PlayPiece (PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
@@ -131,9 +132,10 @@ spec = beforeAll startApp $ afterAll endWaiApp $
 
       let uPieces = [Piece 'B' "1", Piece 'E' "2", Piece 'T' "3"] -- Allow the word 'BET'
           mPieces = [Piece 'S' "4", Piece 'T' "5", Piece 'Z' "6"] -- Allow the word 'SET' across.
+          initPieces = InitPieces [] uPieces mPieces
 
-      (StartGameResponse.StartGameResponse {gameId, trayPieces, gridPieces}) <- SpecUtil.satisfiesRight
-        =<< runExceptT (Client.startGame (StartGameRequest params [] uPieces mPieces pointValues) manager baseUrl)
+      StartGameResponse.StartGameResponse {gameId, trayPieces} <- SpecUtil.satisfiesRight
+        =<< runExceptT (Client.startGame (StartGameRequest params initPieces pointValues) manager baseUrl)
 
       let pc0:pc1:pc2:_ = uPieces
           center = dimension `div` 2

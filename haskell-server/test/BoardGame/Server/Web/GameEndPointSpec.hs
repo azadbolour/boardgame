@@ -22,6 +22,7 @@ import BoardGame.Common.Message.StartGameResponse (StartGameResponse(StartGameRe
 import qualified BoardGame.Common.Message.StartGameResponse as StartGameResponse(StartGameResponse(..))
 import BoardGame.Common.Domain.Piece (Piece(Piece))
 import qualified BoardGame.Common.Domain.Piece as Piece
+import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import Bolour.Plane.Domain.Point (Point(Point))
 import BoardGame.Common.Domain.PlayPiece (PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
@@ -63,7 +64,7 @@ spec = do
       do
         env <- Fixtures.initTest
         Fixtures.makePlayer env Fixtures.thePlayer
-        gameDto <- Fixtures.makeGame env Fixtures.gameParams [] [] [] pointValues
+        gameDto <- Fixtures.makeGame env Fixtures.gameParams (InitPieces [] [] []) pointValues
         length (StartGameResponse.trayPieces gameDto) `shouldSatisfy` (== Fixtures.testTrayCapacity)
 
   describe "commits a play" $
@@ -73,8 +74,8 @@ spec = do
         Fixtures.makePlayer env Fixtures.thePlayer
         let uPieces = [Piece 'B' "1", Piece 'E' "2", Piece 'T' "3"] -- Allow the word 'BET'
             mPieces = [Piece 'S' "4", Piece 'T' "5", Piece 'Z' "6"] -- Allow the word 'SET' across.
-        StartGameResponse {gameId, gameParams, gridPieces, trayPieces}
-          <- Fixtures.makeGame env Fixtures.gameParams [] uPieces mPieces pointValues
+        StartGameResponse {gameId, gameParams, trayPieces}
+          <- Fixtures.makeGame env Fixtures.gameParams (InitPieces [] uPieces mPieces) pointValues
         let pc0:pc1:pc2:_ = uPieces
             center = Fixtures.testDimension `div` 2
             playPieces = [
@@ -92,7 +93,7 @@ spec = do
       do
         env <- Fixtures.initTest
         Fixtures.makePlayer env Fixtures.thePlayer
-        gameDto <- Fixtures.makeGame env Fixtures.gameParams [] [] [] pointValues
+        gameDto <- Fixtures.makeGame env Fixtures.gameParams (InitPieces [] [] []) pointValues
         MachinePlayResponse {gameMiniState, playedPieces} <- satisfiesRight
           =<< runExceptT (machinePlayHandler env (StartGameResponse.gameId gameDto))
         let word = PlayPiece.playPiecesToWord playedPieces
@@ -102,7 +103,7 @@ spec = do
       do
         env <- Fixtures.initTest
         Fixtures.makePlayer env Fixtures.thePlayer
-        (StartGameResponse {gameId, trayPieces}) <- Fixtures.makeGame env Fixtures.gameParams [] [] [] pointValues
+        (StartGameResponse {gameId, trayPieces}) <- Fixtures.makeGame env Fixtures.gameParams (InitPieces [] [] []) pointValues
         let piece = head trayPieces
         SwapPieceResponse {gameMiniState, piece = swappedPiece} <- satisfiesRight
           =<< runExceptT (swapPieceHandler env gameId piece)

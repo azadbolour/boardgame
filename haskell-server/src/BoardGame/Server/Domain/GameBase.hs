@@ -52,7 +52,6 @@ data GameBase = GameBase {
   , pointValues :: [[Int]]
   , initPieces :: InitPieces
   , initTrays :: [Tray]
-  -- , playerName :: String
   , playerId :: String
   , startTime :: UTCTime
   , endTime :: Maybe UTCTime

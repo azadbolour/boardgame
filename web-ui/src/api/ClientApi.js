@@ -25,9 +25,8 @@ class ClientApi {
     return promise;
   }
 
-  startGame(gameParams, initGridPieces, initUserTray, initMachineTray, pointValues) {
-    // let body = JSON.stringify([gameParams, initGridPieces, initUserTray, initMachineTray]);
-    let startGameRequest = StartGameRequestConverter.toJson(gameParams, initGridPieces, initUserTray, initMachineTray, pointValues);
+  startGame(gameParams, initPieces, pointValues) {
+    let startGameRequest = StartGameRequestConverter.toJson(gameParams, initPieces, pointValues);
     let body = JSON.stringify(startGameRequest);
     let request = restManager.mkPostRequest(body);
     let promise = restManager.send(request, this.gameServerUrl, '/game/game');

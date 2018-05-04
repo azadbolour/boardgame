@@ -8,6 +8,7 @@ import Servant.Common.BaseUrl()
 
 import BoardGame.Common.Domain.PlayerDto (PlayerDto(PlayerDto))
 import BoardGame.Common.Domain.Piece (Piece)
+import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import qualified BoardGame.Common.Domain.Piece as Piece
 import Bolour.Plane.Domain.Point (Point(Point))
 import qualified Bolour.Plane.Domain.Point as Point
@@ -39,8 +40,9 @@ main = do
 
   let uPieces = [mkPiece 'B' 1, mkPiece 'E' 2, mkPiece 'T' 3] -- Allow the word 'BET'
       mPieces = [mkPiece 'S' 4, mkPiece 'E' 5, mkPiece 'Z' 6] -- Allow the word 'SET' across.
+      initPieces = InitPieces [] uPieces mPieces
 
-  eitherGameDto <- runExceptT (Client.startGame (StartGameRequest gameParams [] uPieces mPieces []) manager baseUrl)
+  eitherGameDto <- runExceptT (Client.startGame (StartGameRequest gameParams initPieces []) manager baseUrl)
   print $ show eitherGameDto
   print ""
 

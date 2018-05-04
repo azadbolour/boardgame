@@ -120,9 +120,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   // player name not empty - alphanumeric.
   override def startGame(
     gameParams: GameParams,
-    piecePoints: List[PiecePoint],
-    initUserPieces: List[Piece],
-    initMachinePieces: List[Piece],
+    initPieces: InitPieces,
     pointValues: List[List[Int]]
   ): Try[Game] = {
     if (gameCache.size >= maxActiveGames)
@@ -132,10 +130,10 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     for {
       player <- getPlayerByName(gameParams.playerName)
-      gameBase = GameBase(gameParams, pointValues, player.id, piecePoints, initUserPieces, initMachinePieces)
-      game <- Game.mkGame(gameBase, pieceProvider, piecePoints, initUserPieces, initMachinePieces)
+      gameBase = GameBase(gameParams, initPieces, pointValues, player.id)
+      game <- Game.mkGame(gameBase, pieceProvider)
       _ <- saveGame(game)
-      _ = gameCache.put(gameBase.id, game)
+      _ = gameCache.put(gameBase.gameId, game)
     } yield game
     // } yield (gameState, Some(machinePlayPieces))
   }
@@ -159,7 +157,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
 
     val game = ogame.get
     val word = PlayPieceObj.playPiecesToWord(playPieces)
-    val languageCode = game.gameBase.languageCode
+    val languageCode = game.gameBase.gameParams.languageCode
 
     val odict = dictionaryCache.get(languageCode)
     if (odict.isEmpty)
@@ -187,7 +185,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
       return Failure(MissingGameException(gameId))
 
     val game = ogame.get
-    val languageCode = game.gameBase.languageCode
+    val languageCode = game.gameBase.gameParams.languageCode
 
     val odict = dictionaryCache.get(languageCode)
     if (odict.isEmpty)

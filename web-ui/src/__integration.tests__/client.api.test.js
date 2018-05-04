@@ -14,6 +14,7 @@ import * as PlayPiece from "../domain/PlayPiece";
 import GameService from "../service/GameService";
 import {stringify} from "../util/Logger";
 import * as PointValue from '../domain/PointValue';
+import {mkInitPieces} from '../domain/InitPieces'
 
 // TODO. URGENT. Fail on rejection.
 // TODO. Better use game event handler rather than game service - better error handling.
@@ -31,8 +32,9 @@ test('start game and make user and machine plays', () => {
 
   let valueFactory = PointValue.mkValueFactory(gameParams.dimension);
   let pointValues = valueFactory.mkEmptyValueGrid();
+  let initPieces = mkInitPieces([], uPieces, mPieces);
 
-  gameService.start([], uPieces, mPieces, pointValues).
+  gameService.start(initPieces, pointValues).
   then(response => {
     game = response.json;
     console.log(`${stringify(game)}`);

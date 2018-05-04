@@ -20,7 +20,7 @@ import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.PiecePoint (PiecePoint)
 
 data InitPieces = InitPieces {
-    piecePoints :: [PiecePoint]
+    boardPiecePoints :: [PiecePoint]
   , userPieces :: [Piece]
   , machinePieces :: [Piece]
 }

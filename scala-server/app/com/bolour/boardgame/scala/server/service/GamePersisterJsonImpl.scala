@@ -44,7 +44,7 @@ class GamePersisterJsonImpl(jsonPersister: GameJsonPersister, version: Int) exte
 
   override def saveGame(gameData: GameData): Try[Unit] = {
     val versionedGameData = VersionStamped[GameData](version, gameData)
-    val gameId = gameData.base.id
+    val gameId = gameData.base.gameId
     val playerId = gameData.base.playerId
     val json = versionedGameData.toJson.prettyPrint
     // TODO. Game should expose id itself.
