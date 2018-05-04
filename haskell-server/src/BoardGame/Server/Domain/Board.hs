@@ -15,7 +15,7 @@ module BoardGame.Server.Domain.Board (
   , mkBoard, mkEmptyBoard, mkBoardFromPieces, mkBoardFromPiecePoints
   , rows, cols
   , next, prev, adjacent
-  , get, getPiece, getGridPieces
+  , get, getPiece, getPiecePoints
   , setN, setBlackPoints, setPiecePoints
   , isEmpty, isFilled, inBounds
   , stripOfPlay, stripOfBoard
@@ -135,12 +135,10 @@ get board @ Board { grid }  = Gr.get grid
 getPiece :: Board -> Point -> Maybe Piece
 getPiece board point = BlackWhite.fromWhite $ get board point
 
--- TODO. Rename to piecePoints.
-getGridPieces :: Board -> [PiecePoint]
-getGridPieces Board {grid} =
-  let locatedPieces = Gr.getValues grid
-      toGridPiece (piece, point) = PiecePoint piece point
-  in toGridPiece <$> locatedPieces
+getPiecePoints :: Board -> [PiecePoint]
+getPiecePoints Board {grid} =
+   let locatedPieces = Gr.getValues grid
+   in uncurry PiecePoint <$> locatedPieces
 
 setN :: Board -> [BlackWhitePoint Piece] -> Board
 setN Board {dimension, grid} bwPiecePoints =

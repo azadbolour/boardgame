@@ -172,11 +172,11 @@ getMessage MissingGameError {gameId} =
 getMessage GameTimeoutError {gameId} =
   [iTrim|game id ${gameId} was timed out|]
 getMessage InvalidWordError {word} =
-  [iTrim|'${word}' does not exist in the dictionary|]
+  [iTrim|'${word}' not found in the dictionary|]
 getMessage WordTooShortError {word} =
   [iTrim|word '${word}' not accepted - it is too short|]
 getMessage InvalidCrossWordError {crossWords} =
-  [iTrim|crosswords '${crossWords}' do not exist in the dictionary|]
+  [iTrim|crosswords '${crossWords}' not found in the dictionary|]
 getMessage NonContiguousPlayError {points} =
   [iTrim|word play locations '${points}' are not contiguous|]
 getMessage PlayPieceIndexOutOfBoundsError {piecePoint} =

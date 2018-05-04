@@ -53,7 +53,7 @@ spec =
       game <- satisfiesRight =<< runExceptT (Game.mkInitialGame params initPieces pieceProvider pointValues player)
       let response = gameToStartGameResponse game
       let brd = Game.board game
-      length (Board.getGridPieces brd) `shouldBe` length (StartGameResponse.boardPiecePoints response)
+      length (Board.getPiecePoints brd) `shouldBe` length (StartGameResponse.boardPiecePoints response)
       let PiecePoint {piece, point} = head (StartGameResponse.boardPiecePoints response)
       let Point.Point {row} = point
       row `shouldBe` mid

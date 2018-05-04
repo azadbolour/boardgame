@@ -13,7 +13,7 @@ module BoardGame.Common.Domain.PlayPiece (
     PlayPiece(..)
   , MoveInfo
   , playPiecesToWord
-  , getGridPiece
+  , getPiecePoint
   , toMoveInfo
 )
 where
@@ -46,8 +46,8 @@ toMoveInfo (PlayPiece { piece, point, moved }) = (Piece.value piece, point, move
 
 -- TODO. Change name to piecePoint.
 -- | Convenience function to get the play piece's location on the board.
-getGridPiece :: PlayPiece -> PiecePoint
-getGridPiece PlayPiece {piece, point} = PiecePoint piece point
+getPiecePoint :: PlayPiece -> PiecePoint
+getPiecePoint PlayPiece {piece, point} = PiecePoint piece point
 
 -- | Get the word spelled out by the pieces in a list of play pieces.
 playPiecesToWord :: [PlayPiece] -> String

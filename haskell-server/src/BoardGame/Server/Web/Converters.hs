@@ -50,4 +50,4 @@ gameToStartGameResponse Game {gameBase, board, trays, pieceProvider} =
        GameParams {dimension, languageCode} = gameParams
        pieceProviderType = PieceProvider.pieceProviderType pieceProvider
        Tray {capacity, pieces = trayPieces} = trays !! Player.userIndex
-   in StartGameResponse gameId gameParams (Board.getGridPieces board) trayPieces
+   in StartGameResponse gameId gameParams (Board.getPiecePoints board) trayPieces

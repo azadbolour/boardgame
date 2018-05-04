@@ -219,23 +219,23 @@ checkPlayPositionsOccupied Game {board} playPieces =
       maybeFreePlayPiece = find (not . Board.pointHasValue board . PlayPiece.point) boardPlayPieces
   in case maybeFreePlayPiece of
      Nothing -> return playPieces
-     Just missingPlayPiece -> throwError $ MissingBoardPlayPieceError $ PlayPiece.getGridPiece missingPlayPiece
+     Just missingPlayPiece -> throwError $ MissingBoardPlayPieceError $ PlayPiece.getPiecePoint missingPlayPiece
 
 -- | Check that purported play pieces already on the board indicated on a play
 --   do exist on the board.
 checkPlayBoardPieces :: MonadError GameError m => Game -> [PlayPiece] -> m [PlayPiece]
 checkPlayBoardPieces Game {board} playPieces =
   let boardPlayPieces = filter (not . PlayPiece.moved) playPieces
-      gridPieces = PlayPiece.getGridPiece <$> boardPlayPieces
-      gridPieceMatchesBoard PiecePoint {piece, point} =
+      piecePoints = PlayPiece.getPiecePoint <$> boardPlayPieces
+      piecePointMatchesBoard PiecePoint {piece, point} =
         let maybePiece = Board.getPiece board point
         in case maybePiece of
            Nothing -> False
            Just boardPiece -> boardPiece == piece
-      maybeMismatch = find (not . gridPieceMatchesBoard) gridPieces
+      maybeMismatch = find (not . piecePointMatchesBoard) piecePoints
   in case maybeMismatch of
        Nothing -> return playPieces
-       Just gridPiece -> throwError $ UnmatchedBoardPlayPieceError gridPiece
+       Just piecePoint -> throwError $ UnmatchedBoardPlayPieceError piecePoint
 
 reflectPlayOnGame :: (MonadError GameError m, MonadIO m) =>
   Game -> PlayerType -> [PlayPiece] -> (Board -> (Board, [Point])) -> m (Game, [Piece], [Point])
@@ -244,7 +244,7 @@ reflectPlayOnGame game playerType playPieces deadPointFinder = do
   let Game {board, trays, playNumber, pieceProvider, numSuccessivePasses, scorePlay, scores, plays} = game
   _ <- if playerType == PlayerType.UserPlayer then validatePlayAgainstGame game playPieces else return playPieces
   let movedPlayPieces = filter PlayPiece.moved playPieces
-      movedPiecePoints = PlayPiece.getGridPiece <$> movedPlayPieces
+      movedPiecePoints = PlayPiece.getPiecePoint <$> movedPlayPieces
       b = Board.setPiecePoints board movedPiecePoints
       (b', deadPoints) = deadPointFinder b
       usedPieces = PiecePoint.piece <$> movedPiecePoints
@@ -268,7 +268,7 @@ doExchange :: (MonadError GameError m, MonadIO m) => Game -> PlayerType -> Int -
 doExchange (game @ Game {board, trays, pieceProvider, playNumber, numSuccessivePasses, scores, plays}) playerType trayPos = do
   let whichTray = Player.playerTypeIndex playerType
       tray @ Tray {pieces} = trays !! whichTray
-      piece = pieces !! trayPos
+      piece = pieces !! trayPos -- TODO. Defensive check.
       succPasses = numSuccessivePasses + 1
       playNumber' = playNumber + 1
       game' = game { numSuccessivePasses = succPasses, lastPlayScore = 0 , playNumber = playNumber'}

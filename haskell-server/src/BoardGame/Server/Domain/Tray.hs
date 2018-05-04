@@ -50,9 +50,6 @@ instance ToJSON Tray
 -- TODO. Validate capacity.
 --   if capacity <= 0 then throwError $ InvalidTrayCapacityError capacity
 
--- mkTray :: [Piece] -> Tray
--- mkTray pieces = Tray (length pieces) pieces
-
 mkTray :: (MonadError GameError m, MonadIO m) =>
   PieceProvider -> Int -> [Piece] -> m (Tray, PieceProvider)
 
@@ -64,9 +61,6 @@ mkTray pieceProvider capacity initPieces = do
 
 isEmpty :: Tray -> Bool
 isEmpty Tray { pieces } = null pieces
-
--- sumLetterWeights :: Tray -> Int
--- sumLetterWeights Tray { pieces } = sum $ Piece.worth <$> pieces
 
 -- | Replace pieces in tray.
 replacePieces :: Tray -> [Piece] -> [Piece] -> Tray
