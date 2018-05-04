@@ -27,9 +27,9 @@ import com.bolour.boardgame.scala.server.util.WordUtil.{DictWord, LetterCombo, N
   * the dictionary.
   *
   * The algorithm first groups the strips of the board by the "value"
-  * of a play on them. The value of a strip is supposed to be reflective of the
-  * expected added score by playing a word on that strip. So the
-  * algorithm checks for matches in decreasing order of strip value,
+  * of a play on them. The value of a strip is a positive integer
+  * that reflects the expected added score by playing a word on that strip.
+  * So the algorithm checks for matches in decreasing order of strip value,
   * stopping as soon as a match is found.
   *
   * The naive valuation used here initially simply uses the number of
@@ -108,13 +108,9 @@ trait StripMatcher {
     * values are less than or equal to a given value.
     */
   def bestMatchUpToValue(maxValue: StripValue): StripMatch = {
-    if (maxValue <= 1)
+    if (maxValue <= 0)
       return None
-    maxValue match {
-      case 2 => findMatchForValue(2) // TODO. Special-casing not needed.
-      case _ => findMatchForValue(maxValue) orElse
-        bestMatchUpToValue(maxValue - 1)
-    }
+    findMatchForValue(maxValue) orElse bestMatchUpToValue(maxValue - 1)
   }
 
   def findMatchForValue(value: StripValue): StripMatch = {

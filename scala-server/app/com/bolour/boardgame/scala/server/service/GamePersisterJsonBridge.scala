@@ -17,7 +17,7 @@ import scala.util.{Failure, Success, Try}
   * @param jsonPersister The specific lower-level JSON persister to use.
   * @param version The server version - in case JSON representations change over time.
   */
-class GamePersisterJsonImpl(jsonPersister: GameJsonPersister, version: Int) extends GamePersister {
+class GamePersisterJsonBridge(jsonPersister: GameJsonPersister, version: Int) extends GamePersister {
 
   override def migrate() = jsonPersister.migrate()
 

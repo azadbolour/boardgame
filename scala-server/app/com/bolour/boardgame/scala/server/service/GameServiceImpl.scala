@@ -85,7 +85,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   val defaultDb = config.getString(defaultDbPath)
   // val gameDao: GameDao = GameDaoSlick(defaultDb, config)
   // val persister: GamePersister = new GamePersisterJsonImpl(new GameJsonPersisterMemoryImpl(), Version.version)
-  val persister: GamePersister = new GamePersisterJsonImpl(GameJsonPersisterSlickImpl(defaultDb, config), Version.version)
+  val persister: GamePersister = new GamePersisterJsonBridge(GameJsonPersisterSlickImpl(defaultDb, config), Version.version)
 
   val seedPlayerName = "You"
   val seedPlayer = Player(stringId, seedPlayerName)
