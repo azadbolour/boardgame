@@ -11,7 +11,7 @@ The server uses the output of the packager to install the application (when
 the docker image is built) and to run the application (when the docker image is run).
 
 The packager and the server are independent of each other as docker images.
-So the packager uses a mapped volume to to output the package to the host
+So the packager uses a mapped volume to output the package to the host
 machine, and the server has to copy the package and install it in its build
 phase.
 

@@ -35,8 +35,6 @@
 - Change logging calls to debug and set up a run-debug to
   log at debug level.
 
-- Play should be disabled while earlier play is in progress.
-
 - Implement validations everywhere. 
 
 - Do we have to close a db in slick?
