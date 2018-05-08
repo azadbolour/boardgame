@@ -1,9 +1,17 @@
 #!/bin/sh -x
 
 #
-# Package a play application from the latest source and export to a 
-# well-known directory mapped to the host (this script is intended to be run
-# in a docker container for packaging the application).
+# Package a play application and copy it and the scripts used to install
+# and run it to a well-known 'package' directory. The name of the package 
+# directory is provided by the variable DEFAULT_PACKAGE_DIR defined in 
+# 'defaults.sh'.
+#
+# The contents of the package directory then constitute the distribution package 
+# for the Scala boardgame application.
+#
+# This script can be run in a docker container for packaging the application.
+# In that case, the well-known directory should be volume-mapped to the host
+# file system so that it can be used or distributed from the host.
 #
 
 #
@@ -32,7 +40,7 @@ sudo mkdir -p $PACKAGE_DIR
 cp -a target/universal/*.zip $PACKAGE_DIR
 
 # 
-# Copy startup scripts similarly.
+# Copy install and startup scripts similarly.
 #
 # TODO. Only copy needed scripts.
 #
