@@ -19,6 +19,54 @@ By convention the host directory /opt/data/boardgame/package (known as the
 PACKAGE_DIR) is used as the output of the packager and the input of the
 server build process.
 
+Commands
+
+Assume we are building version 0.9.5 of the server. 
+
+Make sure $WORKSPACE/scala-server/build.sbt and $WORKSPACE/web-ui/package.json
+have this version (to keep the source and the docker images versions consistent).
+
+Build the package docker image.
+
+    build-packager.sh azadbolour 0.9.5
+
+Run the package container. Outputs the distribution to /opt/data/boardgame/package/.
+
+    run-docker-packager.sh --tag 0.9.5
+
+Build the server docker image.
+
+    build-server.sh azadbolour 0.9.5 /opt/data/boardgame/package
+
+Test the server.
+
+    run-here.sh "$host:6597" 
+
+The port number is provided in the script $WORKSPACE/scala-server/run-server.sh. 
+For the purposes of this scenario consider it hard-coded to 6597. The host is
+the DNS host or IP address through which the game application is to be
+accessed. The game can then be accessed at:
+
+    $host:6597/boardgame 
+
+Push to Docker Hub.
+
+    docker push azadbolour/boardgame-scala-server:0.9.5
+
+Pull to the deployment machine.
+
+    docker pull azadbolour/boardgame-scala-server:0.9.5
+    
+Deploy.
+    
+    run-docker-server.sh --tag 0.9.5 --allowed-host "$host:6597"
+
+Deploy using a different port.
+
+    run-docker-server.sh --tag 0.9.5 --allowed-host "$host:9005" --http-port 9005
+
+Details
+
 In a docker build, the only files that may be copied into an image are files
 that are below the current working directory of the build in the host system.
 Therefore, in order to be able to copy from PACKAGE_DIR, the builder script 
