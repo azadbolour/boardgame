@@ -23,7 +23,7 @@
 #
 # Build the ui bundle and make sure resources are available in their required forms.
 #
-./pre-build.sh
+../pre-build.sh
 
 #
 # Copy over the ui bundle to the so it can be packaged with the play application.

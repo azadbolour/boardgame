@@ -14,17 +14,17 @@ if [ -z "${PACKAGE_DIR}" ]; then
 fi
 
 #
-# Sanity check the environment and the source tree.
+# Build the ui bundle and make sure resources are available in their required forms.
 #
-. ${WORKSPACE}/prepare.sh
+. ../pre-build.sh
 
-cd $WORKSPACE/web-ui \
-  && npm install \
-  && ./build-prod.sh
-
-cd $WORKSPACE/haskell-server
-stack build
+#
+# Copy over the ui bundle to the so it can be packaged with the play application.
+# 
 ./update-ui-bundle.sh
+
+stack build
+stack "test"
 
 PROG=.stack-work/install/x86_64-linux/lts-6.35/7.10.3/bin/boardgame-server
 
