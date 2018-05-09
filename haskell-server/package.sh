@@ -24,6 +24,8 @@ fi
 ./update-ui-bundle.sh
 
 stack build
+(cd haskell-server/test-data \
+  && cp sqlite-config.yml test-config.yml)
 stack "test"
 
 PROG=.stack-work/install/x86_64-linux/lts-6.35/7.10.3/bin/boardgame-server

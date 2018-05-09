@@ -7,13 +7,20 @@ The Process
 
   Clean up earlier build output.
 
-- build-prod.sh
+- cd haskell-server; package.sh
 
   Build and put the executable and needed files in /opt/data/boardgame/haskell/package/
 
-- build-boardgame-haskell-server.sh azadbolour 0.9.1 /opt/data/boardgame/haskell/package/
+- At this point, if needed, the distribution may be tested by:
 
-- docker ps -a | grep boardgame-haskell-server:0.9.1 | awk '{print $1}'
+  cd /opt/data/boardgame/haskell/package/
+  boardgame-server
+
+- build-boardgame-haskell-server.sh azadbolour 0.9.5 /opt/data/boardgame/haskell/package/
+
+  Build the server docker image.
+
+- docker ps -a | grep boardgame-haskell-server:0.9.5 | awk '{print $1}'
 
 - docker stop ...
 
@@ -23,7 +30,25 @@ The Process
 
   Clear out the output file.
 
-- run-docker-server.sh 0.9.1
+- run-docker-server.sh 0.9.5
 
 - tail -f nohup.out
+
+- docker push azadbolour/boardgame-scala-server:0.9.5
+
+- docker pull azadbolour/boardgame-scala-server:0.9.5
+
+
+Notes
+
+We do not currently use a docker container for building the server, because
+downloading the required libraries and compiling them is time-consuming.
+
+The following files are not tested and may need some tweaking when needed
+to do builds in docker. See the corresponding README for scala-server for
+details about using these.
+
+Dockerfile.boardgame-haskell-packager
+build-boardgame-haskell-packager.sh
+run-docker-packager.sh
 

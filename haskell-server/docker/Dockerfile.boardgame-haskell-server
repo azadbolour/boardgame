@@ -21,15 +21,21 @@ RUN mkdir -p $WORKSPACE \
 WORKDIR $WORKSPACE
 ENV PATH $PATH:.
 
-RUN echo "deb http://apt.postgresql.org/pub/repos/apt trusty-pgdg main" > /etc/apt/sources.list.d/pgdg.list
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN apt-get update
-RUN apt-get install -y postgresql-9.6 postgresql-client-9.6 postgresql-contrib-9.6 libpq-dev postgresql-server-dev-9.6 pgadmin3 libgmp10
+#
+# There is currently an issue with using postgres in the container.
+# It may be that it does comes up after the hskell server attempts to connect to it.
+# For now we use sqlite which is included in the base system.
+#
 
+# RUN echo "deb http://apt.postgresql.org/pub/repos/apt trusty-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+# RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+# RUN apt-get update
+# RUN apt-get install -y postgresql-9.6 postgresql-client-9.6 postgresql-contrib-9.6 libpq-dev postgresql-server-dev-9.6 pgadmin3 libgmp10
+# 
 #
 # Make sure the client-side postgres library needed by Haskell Persistent was installed.
 #
-RUN dpkg -L libpq-dev
+# RUN dpkg -L libpq-dev
 
 COPY * $WORKSPACE/
 COPY static/* $WORKSPACE/static/

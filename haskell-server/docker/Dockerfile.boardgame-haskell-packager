@@ -1,11 +1,14 @@
 #
-# NOTE. This docker file is not currently being used.
-# Instead we use ../package.sh to build the haskell server.
+# NOTE. This docker file is not currently being used, since installing
+# haskell libraries is time-consuming. 
 #
-# But the current file is retained as the documentation of how to 
-# set up the initial haskell development environment from scratch.
+# Instead to build teh haskell server, we use ../package.sh in a development environent 
+# (where haskell # libraries have already been downloaded and compiled).
 #
-# TODO. Upgrade this file and use ../package.sh.
+# The file is retained as the documentation of how to set up the initial haskell 
+# development environment from scratch, and for doing builds in a pristine environment.
+#
+# TODO. Test this file to make sure it works with the latest setup.
 #
 
 #
@@ -38,15 +41,17 @@ RUN echo $PATH
 #
 # Install postgres.
 #
-RUN echo "deb http://apt.postgresql.org/pub/repos/apt trusty-pgdg main" > /etc/apt/sources.list.d/pgdg.list
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN apt-get update
-RUN apt-get install -y postgresql-9.6 postgresql-client-9.6 postgresql-contrib-9.6 libpq-dev postgresql-server-dev-9.6 pgadmin3
+# Uncomment and make sure it works with postgres.
+#
+# RUN echo "deb http://apt.postgresql.org/pub/repos/apt trusty-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+# RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+# RUN apt-get update
+# RUN apt-get install -y postgresql-9.6 postgresql-client-9.6 postgresql-contrib-9.6 libpq-dev postgresql-server-dev-9.6 pgadmin3
 
 #
 # Make sure the client-side postgres library needed by Haskell Persistent was installed.
 #
-RUN dpkg -L libpq-dev
+# RUN dpkg -L libpq-dev
 
 #
 # Install node js version 7.
@@ -66,35 +71,23 @@ RUN curl -sSL https://get.haskellstack.org/ | sh
 #
 # Clone the repository.
 #
-RUN cd .. && git clone https://github.com/azadbolour/boardgame
+RUN cd .. \
+  && git clone https://github.com/azadbolour/boardgame
+  && cd boardgame \
+  && git checkout master
 
 #
 # Install the web-ui dependencies.
 #
-RUN cd web-ui && npm install -g eslint && npm install -g jsdoc
-RUN cd web-ui && npm install
-
-#
-# Bundle up the javascript.
-#
-RUN cd web-ui && ./build-prod.sh
+RUN cd web-ui \
+  && ./global-installs.sh
 
 #
 # Build the Haskell server.
 #
-RUN cd haskell-server && stack setup && stack build
+RUN cd haskell-server \
+    && stack setup 
 
-#
-# Run the test suite using the sqlite database.
-# Tests migrate the database and recreate the data they need.
-#
-RUN cd haskell-server/test-data && cp sqlite-config.yml test-config.yml
-RUN cd haskell-server && stack test
+WORKDIR $WORKSPACE/scala-server
 
-#
-# Copy the web-ui bundle to the Haskell server's static files directory.
-#
-RUN cd haskell-server && ./update-ui-bundle.sh
-
-
-
+ENTRYPOINT ["./package.sh"]
