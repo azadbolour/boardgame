@@ -1,7 +1,7 @@
 
 ## Dictionary Directorory for Word Game
 
-Each server program program recognizes a file named `<locale-code>-words.txt` in
+Each server program recognizes a file named `<locale-code>-words.txt` in
 its own 'dict' directory as the word list for the language designated by _locale-code_.
 However, these are generally symbolic links to the dictionaries in the 
 main 'dict' directory of the project, $WORKSPACE/dict.

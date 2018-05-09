@@ -1,7 +1,7 @@
 #!/bin/sh -x
 
 #
-# Build the docker image for the boardgame haskell server from from an aleady built
+# Build the docker image for the boardgame haskell server from an aleady built
 # distribution (see build-prod.sh).
 #
 

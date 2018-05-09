@@ -1,23 +1,27 @@
 #!/bin/sh -x
 
 #
-# Quick build assuming the project is already set up.
+# Build the server and copy the installation files to
+# to a package directory given in the argument (default
+# see below).
 #
 
 PACKAGE_DIR=$1
+DEFAULT_PACKAGE_DIR=/opt/data/boardgame/haskell/package
 
 if [ -z "${PACKAGE_DIR}" ]; then
-  PACKAGE_DIR=/opt/data/boardgame/haskell/package
+  PACKAGE_DIR=${DEFAULT_PACKAGE_DIR}
 fi
 
-if [ -z "${WORKSPACE}" ]; then
-  echo "WORKSPACE is not set; aborting"
-  exit 1
-fi
+#
+# Sanity check the environment and the source tree.
+#
+. ${WORKSPACE}/prepare.sh
 
-# git pull origin master
+cd $WORKSPACE/web-ui \
+  && npm install \
+  && ./build-prod.sh
 
-cd $WORKSPACE/web-ui && npm install && ./build-prod.sh
 cd $WORKSPACE/haskell-server
 stack build
 ./update-ui-bundle.sh

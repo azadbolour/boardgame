@@ -1,0 +1,26 @@
+#
+# Configuration parameters for the game server.
+#
+
+# Deployment environment. Dev, Test, Prod - case-sensitive.
+deployEnv: Dev
+
+# The port on which the server listens for API calls.
+serverPort: 6587
+
+# The database user.
+dbUser: postgres
+
+# The database password. TODO. Security for db password.
+dbPassword: postgres
+
+# Maximum number of active game.
+maxActiveGames: 100
+
+# Minutes after which game will be timed out.
+maxGameMinutes: 30
+
+# Path to the dictionary directory.
+# Defaults to the data directory of the Haskell application is used.
+# dictionaryDir:
+dictionaryDir: 'dict'

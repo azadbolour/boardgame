@@ -70,6 +70,18 @@ Utility libraries used by the Java sub-projects are hosted on _jCenter_
 configures that repository in its profiles. The source for these libraries 
 in open at my github (azadbolour).
 
+## Dictionaries
+
+Please refer to the README file in the dict/ directory. One issue to be
+aware of is that diectionaries are preprocessed to a list of _masked words_, 
+words with blank holes in them. Because masked words pre-processing is
+time-consuming, the masked words file is saved in git, but in zipped form 
+because it is too large for github. 
+
+At this time, unzipping this file for the first time, and maintaining it in
+case the dictionary is updated remains a manual step. Use the script
+dict/unzip-masked-words.sh.
+
 ## Working with the Client API Library
 
 The java-client sub-project uses a standard Maven pom project structure. See

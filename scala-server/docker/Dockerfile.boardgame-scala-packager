@@ -28,7 +28,10 @@ WORKDIR $WORKSPACE
 #
 # Clone the repository.
 #
-RUN cd .. && git clone https://github.com/azadbolour/boardgame && cd boardgame && git checkout dev
+RUN cd .. \
+    && git clone https://github.com/azadbolour/boardgame \
+    && cd boardgame \
+    && git checkout master
 
 #
 # Install the web-ui dependencies.
@@ -43,7 +46,6 @@ RUN cd web-ui \
 # The default working directory of the container is /!
 #
 WORKDIR $WORKSPACE/scala-server
-# RUN pwd && ls
 
-ENTRYPOINT ["./build-and-export-latest.sh"]
+ENTRYPOINT ["./package.sh"]
 

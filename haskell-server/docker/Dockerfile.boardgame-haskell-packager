@@ -1,0 +1,99 @@
+
+#
+# NOTE. This docker file is not currently being used.
+# Instead we use build-prod.sh to build the haskell server.
+#
+# But the current file is retained as the documentation of how to 
+# set up the initial haskell development environment from scratch.
+#
+
+#
+# Begin with ubuntu version 14.04.
+#
+FROM ubuntu:trusty
+RUN whoami
+RUN apt-get update
+
+#
+# Get basic utilities.
+#
+RUN apt-get install -y apt-utils wget curl zip unzip
+
+#
+# Install git.
+#
+RUN apt-get install -y git && which git
+
+#
+# Set up the base environment.
+#
+ENV WORKSPACE /home/me/dev/boardgame
+RUN mkdir -p $WORKSPACE
+WORKDIR $WORKSPACE
+RUN echo `pwd`
+ENV PATH $PATH:.
+RUN echo $PATH
+
+#
+# Install postgres.
+#
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt trusty-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+RUN apt-get update
+RUN apt-get install -y postgresql-9.6 postgresql-client-9.6 postgresql-contrib-9.6 libpq-dev postgresql-server-dev-9.6 pgadmin3
+
+#
+# Make sure the client-side postgres library needed by Haskell Persistent was installed.
+#
+RUN dpkg -L libpq-dev
+
+#
+# Install node js version 7.
+#
+RUN apt-get update
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
+# RUN curl -sL https://raw.githubusercontent.com/nodesource/distributions/master/deb/setup_7.x | bash -
+RUN apt-get update
+RUN apt-get install -y apt-utils
+RUN apt-get install -y nodejs
+
+#
+# Install the Haskell tool stack.
+#
+RUN curl -sSL https://get.haskellstack.org/ | sh
+
+#
+# Clone the repository.
+#
+RUN cd .. && git clone https://github.com/azadbolour/boardgame
+
+#
+# Install the web-ui dependencies.
+#
+RUN cd web-ui && npm install -g eslint && npm install -g jsdoc
+RUN cd web-ui && npm install
+
+#
+# Bundle up the javascript.
+#
+RUN cd web-ui && ./build-prod.sh
+
+#
+# Build the Haskell server.
+#
+RUN cd haskell-server && stack setup && stack build
+
+#
+# Run the test suite using the sqlite database.
+# Tests migrate the database and recreate the data they need.
+#
+RUN cd haskell-server/test-data && cp sqlite-config.yml test-config.yml
+RUN cd haskell-server && stack test
+
+#
+# Copy the web-ui bundle to the Haskell server's static files directory.
+#
+RUN cd haskell-server && ./update-ui-bundle.sh
+
+
+

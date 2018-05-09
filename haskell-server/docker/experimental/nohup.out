@@ -1,0 +1,191 @@
+Migrating: CREATE TABLE "player"("id" INTEGER PRIMARY KEY,"name" VARCHAR NOT NULL,CONSTRAINT "unique_name" UNIQUE ("name"))
+Migrating: CREATE TABLE "game"("id" INTEGER PRIMARY KEY,"game_uid" VARCHAR NOT NULL,"player" INTEGER NOT NULL REFERENCES "player","dimension" INTEGER NOT NULL,"tray_size" INTEGER NOT NULL,CONSTRAINT "unique_game_uid" UNIQUE ("game_uid"))
+Migrating: CREATE TABLE "play"("id" INTEGER PRIMARY KEY,"game" INTEGER NOT NULL REFERENCES "game","number" INTEGER NOT NULL,"turn" VARCHAR NOT NULL,"is_play" BOOLEAN NOT NULL,"details" VARCHAR NOT NULL)
+"Just \"config.yml\""
+"reading dictionary path dict/en-words.txt"
+"number of lines read 113864"
+"reading dictionary path dict/en-masked-words.txt"
+"number of lines read 10464197"
+[Debug#SQL] CREATE TABLE "player"("id" INTEGER PRIMARY KEY,"name" VARCHAR NOT NULL,CONSTRAINT "unique_name" UNIQUE ("name")); []
+[Debug#SQL] CREATE TABLE "game"("id" INTEGER PRIMARY KEY,"game_uid" VARCHAR NOT NULL,"player" INTEGER NOT NULL REFERENCES "player","dimension" INTEGER NOT NULL,"tray_size" INTEGER NOT NULL,CONSTRAINT "unique_game_uid" UNIQUE ("game_uid")); []
+[Debug#SQL] CREATE TABLE "play"("id" INTEGER PRIMARY KEY,"game" INTEGER NOT NULL REFERENCES "game","number" INTEGER NOT NULL,"turn" VARCHAR NOT NULL,"is_play" BOOLEAN NOT NULL,"details" VARCHAR NOT NULL); []
+[Debug#SQL] SELECT "player"."id", "player"."name"
+FROM "player"
+WHERE "player"."name" = ?
+; [PersistText "You"]
+[Debug#SQL] INSERT INTO "player"("name") VALUES(?); [PersistText "You"]
+[Debug#SQL] SELECT "id" FROM "player" WHERE _ROWID_=last_insert_rowid(); []
+"game server configuration ServerConfig {deployEnv = Dev, serverPort = 6587, maxActiveGames = 100, maxGameMinutes = 30, dictionaryDir = \"dict\", languageCodes = [\"en\"], dbConfig = DbConfig {dbmsType = Sqlite, dbHost = \"\", dbPort = 0, dbName = \"database/game-sqlite.db\", dbUser = \"\", dbPassword = \"\"}}"
+"running Warp server on port '6587' for env 'Dev'"
+[36mGET[0m /boardgame
+[37m  Params: [0m[("dimension","5")]
+[37m  Accept: [0mtext/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+[37m  Status: [0m[33m304 Not Modified[0m 0.000575s
+[36mGET[0m /boardgame/boardgame.bundle.js
+[37m  Accept: [0m*/*
+[37m  Status: [0m[32m200 OK[0m 0.000127s
+[Debug#SQL] SELECT "player"."id", "player"."name"
+FROM "player"
+WHERE "player"."name" = ?
+; [PersistText "You"]
+[Debug#SQL] INSERT INTO "game"("game_uid","player","dimension","tray_size") VALUES(?,?,?,?); [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963",PersistInt64 1,PersistInt64 5,PersistInt64 8]
+[Debug#SQL] SELECT "id" FROM "game" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/game
+[37m  Request Body: [0m{"gameParams":{"dimension":5,"trayCapacity":8,"languageCode":"","playerName":"You","pieceProviderType":"Random"},"initGridPieces":[],"initUserPieces":[],"initMachinePieces":[],"pointValues":[[2,1,4,1,2],[1,1,1,1,1],[4,1,3,1,4],[1,1,1,1,1],[2,1,4,1,2]]}
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.005459s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 1,PersistText "UserPlayer",PersistBool True,PersistText "{\"tag\":\"WordPlayDetails\",\"replacementPieces\":[{\"value\":\"T\",\"id\":\"18\"},{\"value\":\"T\",\"id\":\"17\"},{\"value\":\"O\",\"id\":\"16\"}],\"playPieces\":[{\"piece\":{\"value\":\"P\",\"id\":\"4\"},\"point\":{\"row\":0,\"col\":0},\"moved\":true},{\"piece\":{\"value\":\"E\",\"id\":\"1\"},\"point\":{\"row\":0,\"col\":1},\"moved\":true},{\"piece\":{\"value\":\"N\",\"id\":\"3\"},\"point\":{\"row\":0,\"col\":2},\"moved\":true}]}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/commit-play/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Request Body: [0m[{"piece":{"value":"P","id":"4"},"point":{"row":0,"col":0},"moved":true},{"piece":{"value":"E","id":"1"},"point":{"row":0,"col":1},"moved":true},{"piece":{"value":"N","id":"3"},"point":{"row":0,"col":2},"moved":true}]
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 3.09978s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 2,PersistText "MachinePlayer",PersistBool True,PersistText "{\"tag\":\"WordPlayDetails\",\"replacementPieces\":[{\"value\":\"O\",\"id\":\"22\"},{\"value\":\"E\",\"id\":\"21\"},{\"value\":\"A\",\"id\":\"20\"},{\"value\":\"D\",\"id\":\"19\"}],\"playPieces\":[{\"piece\":{\"value\":\"P\",\"id\":\"4\"},\"point\":{\"row\":0,\"col\":0},\"moved\":false},{\"piece\":{\"value\":\"H\",\"id\":\"13\"},\"point\":{\"row\":1,\"col\":0},\"moved\":true},{\"piece\":{\"value\":\"P\",\"id\":\"14\"},\"point\":{\"row\":2,\"col\":0},\"moved\":true},{\"piece\":{\"value\":\"H\",\"id\":\"9\"},\"point\":{\"row\":3,\"col\":0},\"moved\":true},{\"piece\":{\"value\":\"T\",\"id\":\"15\"},\"point\":{\"row\":4,\"col\":0},\"moved\":true}]}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/machine-play/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.545348s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 3,PersistText "UserPlayer",PersistBool True,PersistText "{\"tag\":\"WordPlayDetails\",\"replacementPieces\":[{\"value\":\"T\",\"id\":\"24\"},{\"value\":\"I\",\"id\":\"23\"}],\"playPieces\":[{\"piece\":{\"value\":\"T\",\"id\":\"15\"},\"point\":{\"row\":4,\"col\":0},\"moved\":false},{\"piece\":{\"value\":\"O\",\"id\":\"16\"},\"point\":{\"row\":4,\"col\":1},\"moved\":true},{\"piece\":{\"value\":\"P\",\"id\":\"0\"},\"point\":{\"row\":4,\"col\":2},\"moved\":true}]}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/commit-play/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Request Body: [0m[{"piece":{"value":"T","id":"15"},"point":{"row":4,"col":0},"moved":false},{"piece":{"value":"O","id":"16"},"point":{"row":4,"col":1},"moved":true},{"piece":{"value":"P","id":"0"},"point":{"row":4,"col":2},"moved":true}]
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.006449s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 4,PersistText "MachinePlayer",PersistBool True,PersistText "{\"tag\":\"WordPlayDetails\",\"replacementPieces\":[{\"value\":\"I\",\"id\":\"28\"},{\"value\":\"R\",\"id\":\"27\"},{\"value\":\"E\",\"id\":\"26\"},{\"value\":\"A\",\"id\":\"25\"}],\"playPieces\":[{\"piece\":{\"value\":\"P\",\"id\":\"14\"},\"point\":{\"row\":2,\"col\":0},\"moved\":false},{\"piece\":{\"value\":\"A\",\"id\":\"11\"},\"point\":{\"row\":2,\"col\":1},\"moved\":true},{\"piece\":{\"value\":\"N\",\"id\":\"12\"},\"point\":{\"row\":2,\"col\":2},\"moved\":true},{\"piece\":{\"value\":\"G\",\"id\":\"10\"},\"point\":{\"row\":2,\"col\":3},\"moved\":true},{\"piece\":{\"value\":\"A\",\"id\":\"20\"},\"point\":{\"row\":2,\"col\":4},\"moved\":true}]}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/machine-play/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.004075s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 5,PersistText "UserPlayer",PersistBool True,PersistText "{\"tag\":\"WordPlayDetails\",\"replacementPieces\":[{\"value\":\"P\",\"id\":\"31\"},{\"value\":\"E\",\"id\":\"30\"},{\"value\":\"G\",\"id\":\"29\"}],\"playPieces\":[{\"piece\":{\"value\":\"T\",\"id\":\"17\"},\"point\":{\"row\":0,\"col\":4},\"moved\":true},{\"piece\":{\"value\":\"H\",\"id\":\"6\"},\"point\":{\"row\":1,\"col\":4},\"moved\":true},{\"piece\":{\"value\":\"A\",\"id\":\"20\"},\"point\":{\"row\":2,\"col\":4},\"moved\":false},{\"piece\":{\"value\":\"T\",\"id\":\"24\"},\"point\":{\"row\":3,\"col\":4},\"moved\":true}]}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/commit-play/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Request Body: [0m[{"piece":{"value":"T","id":"17"},"point":{"row":0,"col":4},"moved":true},{"piece":{"value":"H","id":"6"},"point":{"row":1,"col":4},"moved":true},{"piece":{"value":"A","id":"20"},"point":{"row":2,"col":4},"moved":false},{"piece":{"value":"T","id":"24"},"point":{"row":3,"col":4},"moved":true}]
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.006152s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 6,PersistText "MachinePlayer",PersistBool True,PersistText "{\"tag\":\"WordPlayDetails\",\"replacementPieces\":[{\"value\":\"D\",\"id\":\"34\"},{\"value\":\"K\",\"id\":\"33\"},{\"value\":\"E\",\"id\":\"32\"}],\"playPieces\":[{\"piece\":{\"value\":\"O\",\"id\":\"22\"},\"point\":{\"row\":1,\"col\":3},\"moved\":true},{\"piece\":{\"value\":\"G\",\"id\":\"10\"},\"point\":{\"row\":2,\"col\":3},\"moved\":false},{\"piece\":{\"value\":\"E\",\"id\":\"21\"},\"point\":{\"row\":3,\"col\":3},\"moved\":true},{\"piece\":{\"value\":\"E\",\"id\":\"26\"},\"point\":{\"row\":4,\"col\":3},\"moved\":true}]}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/machine-play/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.003343s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 6,PersistText "UserPlayer",PersistBool False,PersistText "{\"replacementPiece\":{\"value\":\"H\",\"id\":\"35\"},\"swapPiece\":{\"value\":\"G\",\"id\":\"29\"},\"tag\":\"SwapPlayDetails\"}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/swap-piece/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Request Body: [0m{"value":"G","id":"29"}
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.003519s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 6,PersistText "MachinePlayer",PersistBool False,PersistText "{\"replacementPiece\":{\"value\":\"O\",\"id\":\"36\"},\"swapPiece\":{\"value\":\"M\",\"id\":\"8\"},\"tag\":\"SwapPlayDetails\"}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/machine-play/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.003753s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 6,PersistText "UserPlayer",PersistBool False,PersistText "{\"replacementPiece\":{\"value\":\"Y\",\"id\":\"37\"},\"swapPiece\":{\"value\":\"H\",\"id\":\"35\"},\"tag\":\"SwapPlayDetails\"}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/swap-piece/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Request Body: [0m{"value":"H","id":"35"}
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.00263s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 6,PersistText "MachinePlayer",PersistBool False,PersistText "{\"replacementPiece\":{\"value\":\"C\",\"id\":\"38\"},\"swapPiece\":{\"value\":\"O\",\"id\":\"36\"},\"tag\":\"SwapPlayDetails\"}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/machine-play/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.002516s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 6,PersistText "UserPlayer",PersistBool False,PersistText "{\"replacementPiece\":{\"value\":\"Y\",\"id\":\"39\"},\"swapPiece\":{\"value\":\"Y\",\"id\":\"37\"},\"tag\":\"SwapPlayDetails\"}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/swap-piece/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Request Body: [0m{"value":"Y","id":"37"}
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.002912s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 6,PersistText "MachinePlayer",PersistBool False,PersistText "{\"replacementPiece\":{\"value\":\"T\",\"id\":\"40\"},\"swapPiece\":{\"value\":\"C\",\"id\":\"38\"},\"tag\":\"SwapPlayDetails\"}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/machine-play/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.002618s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 6,PersistText "UserPlayer",PersistBool False,PersistText "{\"replacementPiece\":{\"value\":\"R\",\"id\":\"41\"},\"swapPiece\":{\"value\":\"Y\",\"id\":\"39\"},\"tag\":\"SwapPlayDetails\"}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/swap-piece/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Request Body: [0m{"value":"Y","id":"39"}
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.002921s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 6,PersistText "MachinePlayer",PersistBool False,PersistText "{\"replacementPiece\":{\"value\":\"I\",\"id\":\"42\"},\"swapPiece\":{\"value\":\"T\",\"id\":\"40\"},\"tag\":\"SwapPlayDetails\"}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/machine-play/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.002913s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 6,PersistText "UserPlayer",PersistBool False,PersistText "{\"replacementPiece\":{\"value\":\"B\",\"id\":\"43\"},\"swapPiece\":{\"value\":\"R\",\"id\":\"41\"},\"tag\":\"SwapPlayDetails\"}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/swap-piece/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Request Body: [0m{"value":"R","id":"41"}
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.003042s
+[Debug#SQL] SELECT "game"."id", "game"."game_uid", "game"."player", "game"."dimension", "game"."tray_size"
+FROM "game"
+WHERE "game"."game_uid" = ?
+; [PersistText "33a5af76-e334-4c4d-9312-1a2bddaa6963"]
+[Debug#SQL] INSERT INTO "play"("game","number","turn","is_play","details") VALUES(?,?,?,?,?); [PersistInt64 1,PersistInt64 6,PersistText "MachinePlayer",PersistBool False,PersistText "{\"replacementPiece\":{\"value\":\"O\",\"id\":\"44\"},\"swapPiece\":{\"value\":\"I\",\"id\":\"42\"},\"tag\":\"SwapPlayDetails\"}"]
+[Debug#SQL] SELECT "id" FROM "play" WHERE _ROWID_=last_insert_rowid(); []
+[33mPOST[0m /game/machine-play/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.002665s
+[33mPOST[0m /game/close-game/33a5af76-e334-4c4d-9312-1a2bddaa6963
+[37m  Accept: [0mapplication/json
+[37m  Status: [0m[32m200 OK[0m 0.000055s

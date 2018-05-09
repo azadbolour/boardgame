@@ -1,9 +1,9 @@
 #!/bin/sh -x
 
 #
-# Make sure needed resources are available in form required.
+# Sanity check the environment and the source tree.
 #
-./pre-build.sh
+. ../prepare.sh
 
 #
 # Must 'test' for resources in the conf directory to be copied to the classpath.

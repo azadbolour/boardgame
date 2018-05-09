@@ -65,8 +65,6 @@ COPY script/* $CONTAINER_PACKAGE_DIR/script/
 #
 WORKDIR $CONTAINER_PACKAGE_DIR/script
 ENV PATH $PATH:.
-# TODO. Remove.
-RUN pwd && ls
 
 RUN ./install.sh $CONTAINER_PACKAGE_DIR
 

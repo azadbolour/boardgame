@@ -1,13 +1,13 @@
 
 # There are unresolved issues with some of these aliases. Hence commented out.
 
-alias mk-packager="build-packager.sh azadbolour 0.9.1"
-alias run-packager="run-docker-packager.sh --tag 0.9.1"
+alias mk-packager="build-packager.sh azadbolour 0.9.5"
+alias run-packager="run-docker-packager.sh --tag 0.9.5"
 alias ps-packager="docker ps -a | grep boardgame-scala-packager"
 # alias rm-packager="docker ps -a | grep boardgame-scala-packager | awk '{print $1}' | xargs docker rm -f"
 # alias sh-packager="(did=$(ps-packager); if [ ! -z "$did" ]; then docker exec -it $did bash; fi)"
 
-alias mk-server="build-server.sh azadbolour 0.9.1 /opt/data/boardgame/package"
+alias mk-server="build-server.sh azadbolour 0.9.5 /opt/data/boardgame/package"
 alias run-server="./run-here.sh"
 alias ps-server="docker ps -a | grep boardgame-scala-server"
 # alias rm-server="docker ps -a | grep boardgame-scala-server | awk '{print $1}' | xargs docker rm -f"

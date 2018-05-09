@@ -13,8 +13,11 @@ RUN apt-get update \
   && apt-get install -y apt-utils wget curl zip unzip
 
 ENV WORKSPACE /home/me/dev/boardgame
-RUN mkdir -p $WORKSPACE && mkdir $WORKSPACE/static && mkdir $WORKSPACE/dict \
-  && mkdir $WORKSPACE/database && chmod 777 $WORKSPACE/database
+RUN mkdir -p $WORKSPACE \
+  && mkdir $WORKSPACE/static && mkdir $WORKSPACE/dict \
+  && mkdir $WORKSPACE/database \
+  && chmod 777 $WORKSPACE/database
+
 WORKDIR $WORKSPACE
 ENV PATH $PATH:.
 

@@ -1,8 +1,10 @@
 #!/bin/sh -x
 
 #
-# Install the board game package to /usr/local/boardgame.
-# This script is called to install the board game in docker container.
+# Install the board game package to the default installation directory: 
+# /usr/local/boardgame.
+#
+# Used to install the board game in docker container.
 #
 
 #

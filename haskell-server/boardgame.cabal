@@ -1,5 +1,5 @@
 name:           boardgame
-version:        0.9.1
+version:        0.9.5
 build-type:     Simple
 cabal-version:  >= 1.10
 data-files:     data/*.txt

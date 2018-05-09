@@ -5,8 +5,4 @@
 #
 . ../prepare.sh
 
-#
-# Run scala server on given port.
-#
-
-sbt "run 6587"
+stack build
