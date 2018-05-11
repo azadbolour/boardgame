@@ -77,6 +77,15 @@
 
 ## Technical Debt
 
+- Remove code duplication in the Java client library - common objects
+  in the Scala library used in the API are duplicated in the Java
+  client library because that library was built to access the Haskell
+  server before the Scala server was implemented. At this time, Java clients
+  should just use the common objects from the scala library. Need to refactor 
+  the Scala code to a multi-project source and move teh common objects used in
+  the API to a common sub-project. Then use the commaon package for the Java
+  API.
+
 - Write low-level tests for persistence of games. Including duplicate
   key checks.
 
