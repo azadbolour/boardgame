@@ -32,7 +32,8 @@ object GameExceptions {
   }
 
   case class InvalidCrosswordsException(languageCode: String, crosswords: List[String]) extends GameException() {
-    override def getMessage: String = s"crosswords '${crosswords}' not found in the dictionary"
+    private val sep = ", "
+    override def getMessage: String = s"crosswords [${crosswords.mkString(sep)}] not found in the dictionary"
   }
 
   case class UnsupportedLanguageException(languageCode: String) extends GameException {
