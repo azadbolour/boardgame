@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface IGameClientApi {
 
-    void addPlayer(Player player);
+    void addPlayer(PlayerDto player);
 
     StartGameResponse startGame(StartGameRequest request);
 

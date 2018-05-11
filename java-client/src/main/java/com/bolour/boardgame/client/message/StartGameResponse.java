@@ -18,19 +18,19 @@ public class StartGameResponse {
 
     public final String gameId;
     public final GameParams gameParams;
-    public final List<PiecePoint> gridPieces;
+    public final List<PiecePoint> boardPiecePoints;
     public final List<Piece> trayPieces;
 
     @JsonCreator
     public StartGameResponse(
       @JsonProperty("gameId") String gameId,
       @JsonProperty("gameParams") GameParams gameParams,
-      @JsonProperty("gridPieces") List<PiecePoint> gridPieces,
+      @JsonProperty("boardPiecePoints") List<PiecePoint> boardPiecePoints,
       @JsonProperty("trayPieces") List<Piece> trayPieces
     ) {
         this.gameId = gameId;
         this.gameParams = gameParams;
-        this.gridPieces = gridPieces;
+        this.boardPiecePoints = boardPiecePoints;
         this.trayPieces = trayPieces;
     }
     

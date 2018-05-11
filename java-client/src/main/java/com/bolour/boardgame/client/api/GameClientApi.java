@@ -12,10 +12,8 @@ import com.bolour.util.rest.BasicCredentials;
 import com.bolour.util.rest.RuntimeRestClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -39,9 +37,9 @@ public class GameClientApi implements IGameClientApi {
     }
 
     @Override
-    public void addPlayer(Player player) {
+    public void addPlayer(PlayerDto player) {
         HttpHeaders headers = createJsonPostHeaders();
-        HttpEntity<Player> requestEntity = new HttpEntity(player, headers);
+        HttpEntity<PlayerDto> requestEntity = new HttpEntity(player, headers);
         ResponseEntity<Void> responseEntity;
 
         String addPlayerUrl = baseUrl + "game/player";
@@ -61,7 +59,7 @@ public class GameClientApi implements IGameClientApi {
         HttpHeaders headers = createJsonPostHeaders();
         // Note. The API needs a tuple, which in Java is an array of objects.
         // Object[] tuplePayload = new Object[] {gameParams, initGridPieces, initUserTray, initMachineTray};
-        HttpEntity<Player> requestEntity = new HttpEntity(request, headers);
+        HttpEntity<PlayerDto> requestEntity = new HttpEntity(request, headers);
         ResponseEntity<StartGameResponse> responseEntity;
 
         String startGameUrl = baseUrl + "game/game";

@@ -20,10 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -53,7 +51,7 @@ public class BasicGameClientTest {
         IGameClientApi client = new GameClientApi(baseUrl, credentials);
 
         String name = UUID.randomUUID().toString().replace("-", "dash");
-        Player player = new Player(name);
+        PlayerDto player = new PlayerDto(name);
         client.addPlayer(player);
 
         int dimension = 15;
@@ -65,7 +63,8 @@ public class BasicGameClientTest {
         // TODO. PieceProviderType enum.
         GameParams gameParams = new GameParams(dimension, numTrayPieces, "en", name, "Random");
         List<List<Integer>> pointValues = mkPointValues(dimension);
-        StartGameRequest startRequest = new StartGameRequest(gameParams, EMPTY_LIST, EMPTY_LIST, EMPTY_LIST, pointValues);
+        InitPieces initPieces = new InitPieces(EMPTY_LIST, EMPTY_LIST, EMPTY_LIST);
+        StartGameRequest startRequest = new StartGameRequest(gameParams, initPieces, pointValues);
         StartGameResponse startResponse = client.startGame(startRequest);
 
         String gameId = startResponse.gameId;

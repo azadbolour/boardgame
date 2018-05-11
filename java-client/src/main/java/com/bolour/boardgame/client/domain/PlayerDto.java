@@ -9,12 +9,12 @@ package com.bolour.boardgame.client.domain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Player {
+public class PlayerDto {
 
     public final String name;
 
     @JsonCreator
-    public Player(
+    public PlayerDto(
       @JsonProperty("name")String name
     ) {
         this.name = name;

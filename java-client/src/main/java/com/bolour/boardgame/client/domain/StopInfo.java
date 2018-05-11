@@ -14,11 +14,14 @@ import java.util.List;
 
 class StopInfo {
     int successivePasses;
+    boolean filledBoard;
 
     @JsonCreator
     public StopInfo(
-      @JsonProperty("successivePasses") int successivePasses
+      @JsonProperty("successivePasses") int successivePasses,
+      @JsonProperty("filledBoard") boolean filledBoard
     ) {
         this.successivePasses = successivePasses;
+        this.filledBoard = filledBoard;
     }
 }
