@@ -222,7 +222,7 @@
   to uniquely name javascript bundles by using hashes, and generate the index.html 
   page to use the unique name by using a template for that page.
   
-  https://medium.com/@tomaskoutsky/hey-webpack-can-you-bust-my-cache-21350f95122t
+  https://medium.com/@tomaskoutsky/hey-webpack-can-you-bust-my-cache-21350f951220
   
   See the following for using a standalone index.html file in play:
 
