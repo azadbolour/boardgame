@@ -9,10 +9,9 @@ package com.bolour.boardgame.benchmark;
 import com.bolour.benchmark.*;
 import com.bolour.boardgame.client.api.GameClientApi;
 import com.bolour.boardgame.client.api.IGameClientApi;
-import com.bolour.boardgame.client.domain.Game;
 import com.bolour.boardgame.client.domain.GameParams;
+import com.bolour.boardgame.client.domain.InitPieces;
 import com.bolour.boardgame.client.domain.Piece;
-import com.bolour.boardgame.client.domain.PlayPiece;
 import com.bolour.boardgame.client.message.MachinePlayResponse;
 import com.bolour.boardgame.client.message.StartGameRequest;
 import com.bolour.boardgame.client.message.StartGameResponse;
@@ -90,8 +89,9 @@ public class PlayerPersona extends AbstractBenchmarkPersona {
 
     private BenchmarkStateTransition doStart(InitialState initialState) {
         int dimension = DEFAULT_GAME_PARAMS.dimension;
+        InitPieces initPieces = new InitPieces(EMPTY_LIST, EMPTY_LIST, EMPTY_LIST);
         List<List<Integer>> pointValues = mkPointValues(dimension);
-        StartGameRequest startRequest = new StartGameRequest(DEFAULT_GAME_PARAMS, EMPTY_LIST, EMPTY_LIST, EMPTY_LIST, pointValues);
+        StartGameRequest startRequest = new StartGameRequest(DEFAULT_GAME_PARAMS, initPieces, pointValues);
         StartGameResponse startResponse = client.startGame(startRequest);
         BaseState runningState = new RunningState(startResponse.gameId, 0);
         return new BenchmarkStateTransition(initialState, runningState, mkInteraction(START_METHOD));

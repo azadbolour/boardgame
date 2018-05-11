@@ -4,7 +4,7 @@
 
     <groupId>com.bolour.boardgame</groupId>
     <artifactId>java-client</artifactId>
-    <version>0.9.1</version>
+    <version>0.9.5</version>
     <packaging>jar</packaging>
 
     <name>Java Client API for Board Game</name>

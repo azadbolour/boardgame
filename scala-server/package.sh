@@ -44,6 +44,7 @@ sbt clean compile "test" dist
 #
 PACKAGE_DIR=$DEFAULT_PACKAGE_DIR
 sudo mkdir -p $PACKAGE_DIR
+sudo chmod 777 $PACKAGE_DIR
 cp -a target/universal/*.zip $PACKAGE_DIR
 
 # 
@@ -53,5 +54,5 @@ SCRIPT_DIR=$PACKAGE_DIR/script
 mkdir -p $SCRIPT_DIR
 cp -a install.sh run-server.sh get-dynamic-params.sh defaults.sh $SCRIPT_DIR
 
-chmod -R 777 $PACKAGE_DIR
+sudo chmod -R 777 $PACKAGE_DIR
 
