@@ -46,7 +46,9 @@ type GameApi =
   :<|> "game" :> "close-game" :> Capture "gameId" String :> Post '[JSON] GameSummary
 
 -- Note - In later servant versions this has changed - just use Raw.
-type GameApi' = GameApi :<|> "boardgame" :> Raw
+type GameApi' =      GameApi
+                :<|> "boardgame" :> Raw -- for index.html
+                :<|> "static" :> Raw -- for js bundle
 
 -- TODO. suspendGame, resumeGame.
 -- Note Capture means it is an element of the path.

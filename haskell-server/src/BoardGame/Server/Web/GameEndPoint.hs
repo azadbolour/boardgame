@@ -100,6 +100,7 @@ mkServer env =
 mkServer' :: GameEnv -> Servant.Server GameApi'
 mkServer' env = mkServer env
                :<|> ServantStatic.serveDirectory "static"
+               :<|> ServantStatic.serveDirectory "static"
 
 -- | Return type of api handlers required by Servant.
 type ExceptServant result = ExceptT Servant.ServantErr IO result
