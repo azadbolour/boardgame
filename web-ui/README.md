@@ -81,22 +81,14 @@ the application. Following are the configuration parameters.
 - square-pixels - The length in pixel of the side of a square in teh grid and
   and in the tray. Valid range: [15..60]. Default 33.
 
-## Running against the Game Server in Development Mode
-
-First start the game server (see ../haskell-server/README.md).
-
-Examples:
-
-  - *http://localhost:3000?env-type=dev*  run against a game server listening on the default URL.
-  - *http://localhost:3000?env-type=dev&game-server-url=http%3A%2F%2Flocalhost%3A8888*  
-    run against a game server listening on the port 8888
-
-## Running in Production Mode
+## Building the Production Bundle
 
 - Build the production version of the React UI.
 
     bundle-prod.sh
 
+  The production build uses the webpack configuration file webpack.prod.config.js.
+  
   The production version will be found under the _dist_ directory.
 
   Note - bundle-prod.sh invokes the _bundle-prod_ script definition defined in
@@ -104,17 +96,30 @@ Examples:
   using a production configuration to package the game application
   together with all its dependencies into a single javascript bundle.
   More details on Webpack below.
+  
+### Cache-Busting
 
-- Copy the produced bundle to the _static_ directory of the haskell server:
+To make sure that browsers obtain the latest version of the boardgame's 
+javascript bundle, the webpack standard method for adding a hash value to the 
+name of the bundle is used. By using this method, the name of the bundle 
+is set to `boardgame.bundle.[chunkhash].js` to add a hash of the contents of 
+the file to the name, and the index.html file is generated
+by using webpack's html-webpack-plugin to include a script tag 
+including the hash-augmented bundle name. Thus, when the contents of the 
+bundle change, the bundle gets a new name. The browser has to get the new 
+index.html file, will not find the new bundle name in its cache, and has to 
+download it.
 
-  `
-  cd ../haskell-server
-  update-ui-bundle.sh
-  `
+Of course, it has to be arranged that the servers use the generated 
+index.html file.
 
-- Then bring up the haskell server and point your browser to:
+## Running against the Game Server in Development Mode
 
-  http://localhost:6587/boardgame
+Examples:
+
+  - *http://localhost:3000?env-type=dev*  run against a game server listening on the default URL.
+  - *http://localhost:3000?env-type=dev&game-server-url=http%3A%2F%2Flocalhost%3A8888*  
+    run against a game server listening on the port 8888
 
 ### About the Webpack Development Server 
 
@@ -127,7 +132,7 @@ to the browser involves:
 
 2. A client API layer for the Webpack Development Server that is provided 
    to the browser and mediates requests for Javascript and other resources,
-   routing them through the Webpack Dveleopment Server to get the latest 
+   routing them through the Webpack Development Server to get the latest 
    copies of resources without restarting the application.
 
 Generally when using Node, various development commands are specified in Node's

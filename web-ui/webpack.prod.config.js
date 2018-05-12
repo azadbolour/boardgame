@@ -14,7 +14,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist/static'),
     filename: 'boardgame.bundle.[chunkhash].js',
     publicPath: '/static/',
-    sourceMapFilename: 'boardgame.js.map'
+    sourceMapFilename: 'boardgame.[chunkhash].js.map'
   },
   plugins: [
     new webpack.DefinePlugin({
