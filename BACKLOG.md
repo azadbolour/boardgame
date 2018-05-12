@@ -84,7 +84,10 @@
 ## Technical Debt
 
 - Upgrade web-ui project to the latest version of webpack (4.8.2 as of May
-  2018).
+  2018). The cache-busting setup will need to change to conform to the 
+  later version (in particular to separate out the manifest and vendor
+  code into their own bundles that would be separately versioned with 
+  their own hashes). See https://webpack.js.org/guides/caching/.
 
 - Remove code duplication in the Java client library - common objects
   in the Scala library used in the API are duplicated in the Java
@@ -227,20 +230,6 @@
 - CICD - Build statically linked haskell server to reduce the size of the 
   docker container. Build with Nix if possible for a better experience.
 
-- Javascript bundle cache busting. A good blog on how to use webpack plugins 
-  to uniquely name javascript bundles by using hashes, and generate the index.html 
-  page to use the unique name by using a template for that page.
-  
-  https://medium.com/@tomaskoutsky/hey-webpack-can-you-bust-my-cache-21350f951220
-  
-  See the following for using a standalone index.html file in play:
-
-  https://stackoverflow.com/questions/11126678/how-can-i-render-a-simple-html-page-using-play-framework
-
-  Will have to set up a route like this:
-  
-  GET / controllers.Assets.at(path="/public/html", file="index.html")
- 
 ## Development Nice-to-Haves
 
 - Use NIX to build the Haskell server. Better solution than using docker.
