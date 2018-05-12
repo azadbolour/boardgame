@@ -545,29 +545,31 @@
 
 - Setup of static content. 
 
-    -- The location of the web ui bundle is public/javascripts. To get public 
-       assets such as the bundle by using the built-in assets controller, added
-       the following route to the routes file:
+  The basic idea is to house static assets under the top-level public directory
+  of the project, and then in the routes file that the public directory and 
+  its descendants as needed to paths used in the URL.
 
-       `GET /assets/*file controllers.Assets.versioned(path="/public", file: Asset)`
+Here is how the paths are currently mapped in teh routes file:
 
-    -- Created a script update-ui-bundle.sh to copy the ui bundle built by the
-       we ui project over to public/javascscript.
+`
+GET     /assets/*file  controllers.Assets.versioned(path="/public", file: Asset)
+GET     /static/*file  controllers.Assets.versioned(path="/public/static", file: Asset)
+`
+So assets in the project directory public become available under URL path /assets/, 
+and assets in the project directory public/static become available under URL path
+/static/.
 
-    -- Created an index view the Play way by using a main view for the
-       surrounding html.
-       
-       The index view has an empty div called 'root' which is where React
-       renders its components. The index page just runs the bundle as a script:
+We then put the javascript bundle under public/static, and reference it in the
+index.html file by the path: /static/boardgame.bundle.js.
 
-      `<script src="@routes.Assets.versioned("javascripts/boardgame.bundle.js")" type="text/javascript"></script>`
+Note that our index.html file is managed by the UI project, and needs to be
+reusable for any server project (including our current scala and haskell
+servers). The path to the bundle is standardized to /static/boardgame.bundle.js
+for historical reasons.
 
-    -- Created a trivial IndexController to get the index page.
-
-    -- In order to access the application from http://localhost:6587/boardgame
-       added the following route to the routes file:
-
-       `GET /boardgame controllers.IndexController.index`
+A script update-ui-bundle.sh is used to copy the index.html and the ui bundle built by the
+web ui project over to the public area of the scala project for packaging into
+the Play application.
 
 - When doing development by using npm, the javascript comes from the npm server,
   which is by convention at localhost:3000. Since the javascript is comning from 

@@ -36,6 +36,12 @@
 
 ## User Suggestions
 
+- Moving a letter from tray to over another uncommitted letter should move the 
+  existing uncommitted letter back to the tray and replace it.
+
+- Provide a keyboard shortcut to revert a single played but uncommitted tile
+  back to the tray.
+
 - Provide a 'vowels' option: if checked the tray is guaranteed to have at least 
   one vowel.
 

@@ -5,6 +5,7 @@ GET     /boardgame                  controllers.IndexController.index
 # Map static resources from the /public folder to the /assets URL path
 # TODO. Fix depecated versioned.
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /static/*file               controllers.Assets.versioned(path="/public/static", file: Asset)
 
 GET     /game/hand-shake            controllers.GameController.handShake
 POST    /game/player                controllers.GameController.addPlayer
