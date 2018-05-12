@@ -8,7 +8,10 @@ dest="${WORKSPACE}/scala-server/public"
 
 mkdir -p ${dest}/static/
 
-# Copy the bundle.
+# Remove previous versions of the bundle.
+rm ${dest}/static/*
+
+# Copy the latest bundle.
 cp ${source}/static/* ${dest}/static/
 
 # Copy index.html.

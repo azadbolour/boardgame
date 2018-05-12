@@ -1,5 +1,6 @@
 var path = require('path');
 var webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 // TODO. Use source maps with production version.
 
@@ -11,7 +12,7 @@ module.exports = {
   ],
   output: {
     path: path.resolve(__dirname, 'dist/static'),
-    filename: 'boardgame.bundle.js',
+    filename: 'boardgame.bundle.[chunkhash].js',
     publicPath: '/static/',
     sourceMapFilename: 'boardgame.js.map'
   },
@@ -34,6 +35,10 @@ module.exports = {
       },
       comments: false,
       sourceMap: true
+    }),
+    new HtmlWebpackPlugin({
+      template: 'index.template.html',
+      filename: '../index.html'
     })
   ]
   ,

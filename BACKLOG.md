@@ -83,6 +83,9 @@
 
 ## Technical Debt
 
+- Upgrade web-ui project to the latest version of webpack (4.8.2 as of May
+  2018).
+
 - Remove code duplication in the Java client library - common objects
   in the Scala library used in the API are duplicated in the Java
   client library because that library was built to access the Haskell
