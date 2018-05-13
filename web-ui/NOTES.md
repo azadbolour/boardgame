@@ -1,4 +1,8 @@
 
+- To upgrade a node package remove it from package.json dependencies and:
+
+  npm install --save-dev package-name
+
 - Useful links for touch vs mouse:
 
     https://github.com/react-dnd/react-dnd/issues/743 - windows 10 firefox issue
@@ -133,7 +137,7 @@
   promise.
 
   One thing that is confusing is that the promise api confounds
-  promises with values. Automatic warpping and unwrapping 
+  promises with values. Automatic wrapping and unwrapping 
   in promises reduces code bulk, but obsures semantics.
 
   Here is an example from http://www.datchley.name/promise-patterns-anti-patterns/:
@@ -173,7 +177,6 @@
   }
   
   pseries(fnlist);  
-
 
 - Problem trying to solve - make two async calls in succession.
   Each can be rejected or can return a !OK status but not rejected.
