@@ -30,15 +30,41 @@ Build the package docker image.
 
     build-packager.sh azadbolour 0.9.5
 
+Clear out the package directory:
+
+    rm -rf /opt/data/boardgame/package
+
 Run the package container. Outputs the distribution to /opt/data/boardgame/package/.
 
     run-docker-packager.sh --tag 0.9.5
+
+To see output:
+
+    tail -f nohup.out
+
+Wait for it to exit. To see its status:
+
+    docker ps -a
+
+Check that the distribution files were produced:
+
+    ls -R /opt/data/boardgame/package
+
+        /opt/data/boardgame/package:
+        scala-server-0.9.5.zip  script
+
+        /opt/data/boardgame/package/script:
+        defaults.sh  get-dynamic-params.sh  install.sh  run-server.sh
 
 Build the server docker image.
 
     build-server.sh azadbolour 0.9.5 /opt/data/boardgame/package
 
-Test the server.
+Check that the server docker image was produced just now:
+
+    docker images | grep azadbolour/boardgame-scala-server | grep 0.9.5
+
+Test the server through a test container.
 
     run-here.sh "$host:6597" 
 
@@ -48,6 +74,19 @@ the DNS host or IP address through which the game application is to be
 accessed. The game can then be accessed at:
 
     $host:6597/boardgame 
+
+Go into the test container.
+
+    docker exec -it $containerid bash
+
+Check installation directory inside the container.
+
+    ls -lt /usr/local/boardgame/boardgame
+
+Remove the test container.
+
+    docker stop $containerid
+    docker rm $containerid
 
 Push to Docker Hub.
 
