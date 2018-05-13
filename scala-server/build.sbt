@@ -1,8 +1,14 @@
 name := "scala-server"
- 
+organization := "com.bolour.boardgame.scala"
 version := "0.9.5"
-      
-lazy val `scala-server` = (project in file(".")).enablePlugins(PlayScala)
+publishMavenStyle := true
+publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
+
+lazy val scalautil = project
+
+lazy val `scala-server` = (project in file("."))
+  .enablePlugins(PlayScala)
+    .dependsOn(scalautil)
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
       
