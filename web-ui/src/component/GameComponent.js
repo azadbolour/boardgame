@@ -113,7 +113,7 @@ const tooltipStyle = function(visible) {
 
 const wordListStyle = {
   overflow: 'auto',
-  maxHeight: 100,
+  maxHeight: 200,
   borderStyle: 'solid',
   borderWidth: '3px',
   borderColor: 'DarkGrey',
@@ -242,7 +242,7 @@ class GameComponent extends React.Component {
 
   startAttrs = {
     name: START,
-    label: "Start Game",
+    label: "Start",
     toolTip: "start a new game",
     action: () => this.startGame()
   };

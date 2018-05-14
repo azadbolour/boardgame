@@ -49,6 +49,8 @@
   the board it becomes decidable whether the losing side can possibly catch up. 
   If the user is on the losing side, an option may be provided to resign.
 
+- Reduce the size of the swap bin, and put it adjacent to the tray.
+
 ## Known Issues
 
 - Security. CORS. Generally cross origin requests are disallowed. 
