@@ -12,11 +12,16 @@ import com.bolour.plane.scala.domain.Axis.Axis
 
 /**
   * A grid that has black slots meaning disabled/inactive, and white slots
-  * that may either contain a value of be empty.
-  * A black slot cannot be used at all. An empty slot may be filled at a later time.
+  * that may either contain a value or be empty. A black slot cannot be used at all.
+  * An empty slot may be filled at a later time.
   *
   * The slots are represented by a BlackWhite data structure having a Black case,
-  * and a White case containing an Option that represents the value (or lack of a value).
+  * and a White case containing an Option that represents the value (or lack thereof).
+  *
+  * It is convenient to augment a value contained at a grid point, by the location
+  * of that grid point. Hence if T is type of value to be represented in the grid,
+  * the content of the corresponding BlackWhiteGrid point would be a BlackWhitePoint[T],
+  * which include a T value and a Point value.
   *
   * @param grid Lower-level plain grid.
   * @tparam T The type of values of cells when they exist.

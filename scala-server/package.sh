@@ -33,7 +33,26 @@
 #
 # Build and package the play application.
 #
-sbt clean compile "test" dist
+sbt <<EOF
+project scalautil
+clean 
+compile 
+test 
+project plane
+clean 
+compile 
+test 
+project boardgamecommon
+clean 
+compile 
+test 
+project scala-server
+clean 
+compile 
+test 
+dist
+exit
+EOF
 
 #
 # Copy the bundle to the default package directory.

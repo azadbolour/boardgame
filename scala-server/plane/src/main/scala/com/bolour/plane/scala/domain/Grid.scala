@@ -8,6 +8,12 @@ package com.bolour.plane.scala.domain
 import org.slf4j.LoggerFactory
 import com.bolour.plane.scala.domain.Axis.Axis
 
+/**
+  * A 2-dimensional grid of values.
+  *
+  * @param cells
+  * @tparam T
+  */
 case class Grid[T](cells: List[List[T]]) {
 
   val logger = LoggerFactory.getLogger(this.getClass)
