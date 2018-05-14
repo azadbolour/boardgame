@@ -508,6 +508,10 @@
   ==> Summary
   🍺  /usr/local/Cellar/sbt/1.0.2: 482 files, 61.0MB, built in 45 seconds
 
+- In a multi-project sbt setup, once in sbt at the root level, you can switch 
+  to specific projects by doing `project nameofchild`. Then you can just do 
+  compile, test, publish on just that project.
+
 ## Play
 
 - To create timer tasks see:
