@@ -8,14 +8,14 @@ package com.bolour.boardgame.scala.server.service
 
 import spray.json._
 import com.bolour.boardgame.scala.common.domain.PlayerType.UserPlayer
-import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.Player
-import com.bolour.plane.scala.domain.Point
 import com.bolour.util.scala.server.BasicServerUtil.stringId
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
 import com.bolour.boardgame.scala.server.service.json.CaseClassFormats._
+import com.bolour.boardgame.scala.common.domain._
+import com.bolour.plane.scala.domain.Point
 
 class GameDataTest extends FlatSpec with Matchers {
 

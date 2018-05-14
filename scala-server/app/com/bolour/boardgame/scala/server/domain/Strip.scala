@@ -9,8 +9,8 @@ import com.bolour.boardgame.scala.server.util.WordUtil
 import com.bolour.plane.scala.domain.Axis._
 import com.bolour.plane.scala.domain.Axis.Axis
 import com.bolour.boardgame.scala.server.util.WordUtil._
-import com.bolour.plane.scala.domain.{Axis, Point}
 import com.bolour.util.scala.common.BlackWhite
+import com.bolour.plane.scala.domain.{Axis, Point}
 
 /**
   * A strip of the board - a horizontal or vertical line segment.

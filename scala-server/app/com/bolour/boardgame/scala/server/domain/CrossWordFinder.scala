@@ -8,8 +8,8 @@ package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.util.scala.common.CommonUtil
 import com.bolour.plane.scala.domain.Axis.Axis
-import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.util.WordUtil
+import com.bolour.boardgame.scala.common.domain.{PiecePoint, PlayPiece, PlayPieceObj}
 import com.bolour.plane.scala.domain.{Axis, Point}
 
 class CrossWordFinder(board: Board) {

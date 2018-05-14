@@ -7,12 +7,12 @@ package controllers
 
 import javax.inject._
 
-import com.bolour.boardgame.scala.common.domain.{Piece, PlayPiece}
 import controllers.GameApiJsonSupport._
 import controllers.GameDtoConverters._
 import com.bolour.boardgame.scala.common.message._
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
 import com.bolour.boardgame.scala.server.service.GameService
+import com.bolour.boardgame.scala.common.domain.{Piece, PlayPiece}
 import org.slf4j.LoggerFactory
 import play.api.mvc._
 

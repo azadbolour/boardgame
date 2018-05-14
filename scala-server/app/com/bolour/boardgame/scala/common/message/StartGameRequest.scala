@@ -5,7 +5,7 @@
  */
 package com.bolour.boardgame.scala.common.message
 
-import com.bolour.boardgame.scala.common.domain.{GameParams, InitPieces, Piece, PiecePoint}
+import com.bolour.boardgame.scala.common.domain.{GameParams, InitPieces}
 
 /**
   * API request to start a game.

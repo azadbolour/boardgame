@@ -5,8 +5,8 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.boardgame.scala.common.domain.Piece
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
+import com.bolour.boardgame.scala.common.domain.Piece
 
 import scala.util.{Failure, Success, Try}
 

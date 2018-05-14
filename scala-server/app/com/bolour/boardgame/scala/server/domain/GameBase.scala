@@ -10,8 +10,8 @@ import java.time.Instant
 import com.bolour.boardgame.scala.common.domain.PieceProviderType.PieceProviderType
 import com.bolour.util.scala.common.CommonUtil.ID
 import com.bolour.util.scala.server.BasicServerUtil.stringId
-import com.bolour.boardgame.scala.common.domain.{GameParams, InitPieces, Piece, PiecePoint}
 import com.bolour.boardgame.scala.server.util.WordUtil.english
+import com.bolour.boardgame.scala.common.domain.{GameParams, InitPieces}
 
 /**
   * Properties of a game that are conceptually immutable once set.

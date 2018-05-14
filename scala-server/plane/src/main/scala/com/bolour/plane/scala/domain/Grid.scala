@@ -5,8 +5,8 @@
  */
 package com.bolour.plane.scala.domain
 
-import com.bolour.plane.scala.domain.Axis.Axis
 import org.slf4j.LoggerFactory
+import com.bolour.plane.scala.domain.Axis.Axis
 
 case class Grid[T](cells: List[List[T]]) {
 

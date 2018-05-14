@@ -6,9 +6,7 @@
 package controllers
 
 import com.bolour.util.scala.server.BasicServerUtil.stringId
-import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.message._
-import com.bolour.boardgame.scala.server.domain.Scorer.Score
 
 import scala.concurrent.Future
 import com.typesafe.config.ConfigFactory
@@ -18,6 +16,7 @@ import org.scalatestplus.play._
 import play.api.test._
 import play.api.test.Helpers._
 import com.bolour.boardgame.scala.server.service.GameServiceImpl
+import com.bolour.boardgame.scala.common.domain._
 import com.bolour.plane.scala.domain.Point
 import controllers.GameApiJsonSupport._
 import org.slf4j.LoggerFactory

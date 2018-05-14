@@ -7,7 +7,7 @@ package com.bolour.boardgame.scala.server.domain
 
 import org.slf4j.LoggerFactory
 import org.scalatest.{FlatSpec, Matchers}
-import com.bolour.boardgame.scala.common.domain.{PiecePoint, Piece}
+import com.bolour.boardgame.scala.common.domain.{Piece, PiecePoint}
 import com.bolour.plane.scala.domain.Point
 
 class BoardSpec extends FlatSpec with Matchers {

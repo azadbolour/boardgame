@@ -6,11 +6,11 @@
 package com.bolour.boardgame.scala.server.domain
 
 import com.bolour.plane.scala.domain.Axis.Axis
-import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions.InternalGameException
-import com.bolour.plane.scala.domain._
 import com.bolour.util.scala.common.CommonUtil.inverseMultiValuedMapping
 import com.bolour.util.scala.common.{Black, BlackWhite, White}
+import com.bolour.boardgame.scala.common.domain.{Piece, PiecePoint, PlayPiece}
+import com.bolour.plane.scala.domain._
 
 /**
   * The game board.

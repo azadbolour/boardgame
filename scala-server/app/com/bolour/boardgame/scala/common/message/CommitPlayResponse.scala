@@ -5,7 +5,7 @@
  */
 package com.bolour.boardgame.scala.common.message
 
-import com.bolour.boardgame.scala.common.domain._
+import com.bolour.boardgame.scala.common.domain.{GameMiniState, Piece}
 import com.bolour.plane.scala.domain.Point
 
 /**

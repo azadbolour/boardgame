@@ -5,15 +5,14 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
+import com.bolour.boardgame.scala.common.domain.{Piece, PlayPiece}
+import com.bolour.plane.scala.domain.{Axis, Point}
 import org.slf4j.LoggerFactory
 
 import scala.collection.immutable.Nil
 import scala.collection.mutable
-// import com.bolour.boardgame.scala.common.domain.Piece.isBlank
-import com.bolour.boardgame.scala.common.domain._
 import com.bolour.language.scala.domain.WordDictionary
 import com.bolour.plane.scala.domain.Axis.Axis
-import com.bolour.plane.scala.domain.{Axis, Point}
 import com.bolour.boardgame.scala.server.util.WordUtil
 import com.bolour.boardgame.scala.server.util.WordUtil.{DictWord, LetterCombo, NumBlanks}
 

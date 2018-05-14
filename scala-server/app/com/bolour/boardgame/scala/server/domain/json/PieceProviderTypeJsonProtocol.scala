@@ -1,8 +1,8 @@
 package com.bolour.boardgame.scala.server.domain.json
 
+import com.bolour.boardgame.scala.server.domain.json.JsonUtil._
 import com.bolour.boardgame.scala.common.domain.PieceProviderType
 import com.bolour.boardgame.scala.common.domain.PieceProviderType.PieceProviderType
-import com.bolour.boardgame.scala.server.domain.json.JsonUtil._
 import org.slf4j.LoggerFactory
 import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat, deserializationError}
 

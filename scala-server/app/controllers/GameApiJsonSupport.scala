@@ -6,9 +6,9 @@
 package controllers
 
 import com.bolour.boardgame.scala.common.domain.PieceProviderType._
-import com.bolour.boardgame.scala.common.domain._
 import play.api.libs.json.Json.{reads, writes}
 import com.bolour.boardgame.scala.common.message._
+import com.bolour.boardgame.scala.common.domain.{PieceProviderType, _}
 import com.bolour.plane.scala.domain.Point
 import play.api.libs.json._
 

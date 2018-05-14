@@ -1,8 +1,8 @@
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.plane.scala.domain.Point
 import com.bolour.boardgame.scala.common.domain.{Piece, PlayPiece}
 import com.bolour.boardgame.scala.common.domain.PlayerType._
+import com.bolour.plane.scala.domain.Point
 
 /**
   * Representation of a play in the game - a word play or a swap play.

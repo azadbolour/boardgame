@@ -6,8 +6,8 @@
 
 package com.bolour.plane.scala.domain
 
-import com.bolour.plane.scala.domain.Axis.Axis
 import com.bolour.util.scala.common.{Black, BlackWhite, White}
+import com.bolour.plane.scala.domain.Axis.Axis
 
 
 /**

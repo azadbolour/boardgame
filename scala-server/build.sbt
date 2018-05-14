@@ -6,9 +6,18 @@ publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.
 
 lazy val scalautil = project
 
+lazy val plane = (project in file("plane"))
+    .dependsOn(scalautil)
+
+lazy val boardgamecommon = (project in file("boardgamecommon"))
+    .dependsOn(scalautil)
+    .dependsOn(plane)
+
 lazy val `scala-server` = (project in file("."))
   .enablePlugins(PlayScala)
     .dependsOn(scalautil)
+    .dependsOn(plane)
+    .dependsOn(boardgamecommon)
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
       

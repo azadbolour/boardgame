@@ -2,8 +2,6 @@ package com.bolour.boardgame.scala.server.domain.json
 
 import org.slf4j.LoggerFactory
 import spray.json._
-
-import com.bolour.boardgame.scala.common.domain.{Piece, PlayPiece}
 import com.bolour.boardgame.scala.common.domain.PlayerType.MachinePlayer
 import org.scalatest.{FlatSpec, Matchers}
 import com.bolour.boardgame.scala.server.domain._
@@ -11,6 +9,7 @@ import com.bolour.boardgame.scala.server.domain.json.CaseClassFormats._
 import com.bolour.boardgame.scala.server.domain.json.PlayTypeJsonProtocol.PlayTypeFormat
 import com.bolour.boardgame.scala.server.domain.json.PlayerTypeJsonProtocol.PlayerTypeFormat
 import com.bolour.boardgame.scala.server.domain.json.PlayJsonProtocol.PlayJsonFormat
+import com.bolour.boardgame.scala.common.domain.{Piece, PlayPiece}
 import com.bolour.plane.scala.domain.Point
 class PlayJsonSpec extends FlatSpec with Matchers {
 

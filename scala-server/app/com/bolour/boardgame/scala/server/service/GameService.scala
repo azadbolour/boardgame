@@ -6,9 +6,8 @@
 package com.bolour.boardgame.scala.server.service
 
 import com.bolour.util.scala.common.CommonUtil.ID
+import com.bolour.boardgame.scala.server.domain.{Game, Player}
 import com.bolour.boardgame.scala.common.domain._
-import com.bolour.boardgame.scala.server.domain.Scorer.Score
-import com.bolour.boardgame.scala.server.domain.{GameBase, Game, Player}
 import com.bolour.plane.scala.domain.Point
 
 import scala.util.Try

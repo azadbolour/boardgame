@@ -1,10 +1,10 @@
 package com.bolour.boardgame.scala.server.service.json
 
-import com.bolour.boardgame.scala.common.domain.{Piece, PiecePoint, PlayPiece}
 import com.bolour.boardgame.scala.server.domain._
 import com.bolour.boardgame.scala.server.service.GameData
-import com.bolour.plane.scala.domain.Point
 import com.bolour.util.scala.common.VersionStamped
+import com.bolour.boardgame.scala.common.domain.PiecePoint
+import com.bolour.plane.scala.domain.Point
 import spray.json._
 
 object CaseClassFormats extends DefaultJsonProtocol {

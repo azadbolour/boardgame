@@ -5,8 +5,9 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
-import scala.util.{Success, Try}
 import com.bolour.boardgame.scala.common.domain.Piece
+
+import scala.util.{Success, Try}
 
 /**
   * Factory for generating new pieces as pieces are consumed in plays.

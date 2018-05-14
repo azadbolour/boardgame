@@ -9,7 +9,6 @@ package controllers
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsString, JsSuccess, Json}
-import com.bolour.boardgame.scala.common.domain.PieceProviderType
 import com.bolour.boardgame.scala.common.domain.PieceProviderType.PieceProviderType
 import controllers.GameApiJsonSupport._
 

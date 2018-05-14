@@ -5,10 +5,10 @@
  */
 package com.bolour.boardgame.scala.server.domain
 
-import com.bolour.boardgame.scala.common.domain._
 import com.bolour.boardgame.scala.common.domain.PlayerType._
 import com.bolour.boardgame.scala.server.domain.GameExceptions.{InvalidCrosswordsException, MalformedPlayException}
 import com.bolour.language.scala.domain.WordDictionary
+import com.bolour.boardgame.scala.common.domain.{PlayerType, _}
 import com.bolour.plane.scala.domain.Point
 import org.slf4j.LoggerFactory
 

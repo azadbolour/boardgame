@@ -5,13 +5,12 @@
  */
 package controllers
 
-import com.bolour.util.scala.server.BasicServerUtil.{stringId}
-
-import com.bolour.boardgame.scala.common.domain.{GameParams}
+import com.bolour.util.scala.server.BasicServerUtil.stringId
 import com.bolour.boardgame.scala.common.domain.PlayerType._
 import com.bolour.boardgame.scala.common.message._
 import com.bolour.boardgame.scala.server.domain._
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
+import com.bolour.boardgame.scala.common.domain.GameParams
 
 object GameDtoConverters {
 
