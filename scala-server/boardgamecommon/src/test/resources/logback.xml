@@ -1,0 +1,51 @@
+<configuration>
+
+  <property name="defaultLogDir" value="./logs/boardgame" />
+  <property name="logDir" value="${LOG_DIR:-${defaultLogDir}}" />
+  <property name="fileStem" value="boardgame" />
+  <property name="logFile" value="${logDir}/${fileStem}.log" />
+  <property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSSZ} [%thread] %-5level %logger{10} [%file:%line] - %msg%n%xException" />
+
+  <!-- Change filter level to DEBUG to get slick and other logger output -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+    <encoder>
+      <pattern>${pattern}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="ROLLING_FILE"
+            class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+    <file>${logFile}</file>
+    <encoder>
+      <pattern>${pattern}</pattern>
+    </encoder>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <!-- Daily. -->
+      <fileNamePattern>${logDir}/${fileStem}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <maxFileSize>10MB</maxFileSize>
+    </rollingPolicy>
+  </appender>
+
+  <logger name="ch.qos.logback" level="WARN" >
+    <appender-ref ref="ROLLING_FILE" />
+    <appender-ref ref="STDOUT" />
+  </logger>
+
+  <logger name="com.bolour" level="DEBUG" additivity="false">
+    <appender-ref ref="ROLLING_FILE" />
+    <appender-ref ref="STDOUT" />
+  </logger>
+
+  <root level="INFO">
+    <appender-ref ref="ROLLING_FILE" />
+    <appender-ref ref="STDOUT" />
+  </root>
+
+</configuration>
