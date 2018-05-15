@@ -34,6 +34,9 @@
   And a second click is needed to actually press the button. Check again
   and improve user experience if possible.
 
+- Identify an initially empty word list by initial item 'words played',
+  which is replaced by the first played word.
+
 ## User Suggestions
 
 - Moving a letter from tray to over another uncommitted letter should move the 
@@ -84,6 +87,9 @@
   kill of undefined."
 
 ## Technical Debt
+
+- Separate out the scala server and language packages into their own 
+  sub-projects.
 
 - Upgrade web-ui project to the latest version of webpack (4.8.2 as of May
   2018). The cache-busting setup will need to change to conform to the 

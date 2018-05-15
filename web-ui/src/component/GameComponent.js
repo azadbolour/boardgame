@@ -113,6 +113,7 @@ const tooltipStyle = function(visible) {
 
 const wordListStyle = {
   overflow: 'auto',
+  minHeight: 25,
   maxHeight: 200,
   borderStyle: 'solid',
   borderWidth: '3px',
