@@ -34,6 +34,12 @@ Clear out the package directory:
 
     rm -rf /opt/data/boardgame/package
 
+Remove any existing packager container.
+
+    docker ps -a
+    docker stop ...
+    docker rm ...
+
 Run the package container. Outputs the distribution to /opt/data/boardgame/package/.
 
     run-docker-packager.sh --tag 0.9.5
@@ -90,6 +96,7 @@ Remove the test container.
 
 Push to Docker Hub.
 
+    docker login --username=...
     docker push azadbolour/boardgame-scala-server:0.9.5
 
 Pull to the deployment machine.
