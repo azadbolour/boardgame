@@ -21,12 +21,11 @@ Currently we only have an English dictionary:
     
       `egrep "^[a-zA-Z]+$" file 
 
-
 To experiment with different dictionaries, symbolically link 
 `<server-dir>/dict/<local-code>-words.txt` to your own word file.
 
 For example, to use the English spell checker dictionary on unix-based platforms
-for the scala-server, link as follows: 
+for the scala server, link as follows: 
 
     `ln -s /usr/share/dict/words $WORKSPACE/scala-server/dict/en-words.txt`
 
@@ -39,13 +38,12 @@ of the board's strips. The default value of N is 3. The preprocessed version
 of the dictionary is called `<locale-code>-masked-words.txt`. See the 
 script `preprocess-masked-words.sh` in each server project. 
 
-Ideally, the dictionary would be preprocessed on each deployment.
-But preprocessing takes too long and would hamper quick turaround in 
-the development process. Therefore, we keep the zipped version of the 
-default masked words file in git and unzip it in deployment. The 
-default masked words file itself is too large for github.
+Ideally, the dictionary would be preprocessed on each deployment.  But
+preprocessing takes too long and would hamper quick turaround in the development
+process. Therefore, we keep the zipped version of the default masked words file
+in git and unzip it in deployment. The default masked words file itself is too
+large for github.
 
-What this means that whenever the dictionary is 
-modified, the default masked words file must be recomputed 
-and its zipped version added to git. This has not been automated 
-as yet as part of the build process. TBD.
+What this means is that whenever the dictionary is modified, the default masked
+words file must be recomputed and its zipped version added to git. This has not
+been automated as yet as part of the build process. TBD.

@@ -7,18 +7,14 @@
 - User registration. Currently there are no registered users. Just a built-in
   one called _You_. Use a microservice and if affordable, and external service.
 
-- Button to end the game at any time.
-
-- If the board is completely full, end the game automatically.
-
 - Add dictionaries for other languages to the system. Allow user to 
   choose the game's language.
 
 - Provide user preference page. Include user's preferred language.
 
-- Disable play and show hourglass while an action is happening.
+- Button to end the game at any time.
 
-- Improve error reporting in the UI from Scala server.
+- Disable play and show hourglass while an action is happening.
 
 - Some two-letter words in the dictionary don't mean anything to me.
   Clean up two-letter words, and perhaps add in common abbreviations.
@@ -34,15 +30,16 @@
   And a second click is needed to actually press the button. Check again
   and improve user experience if possible.
 
-- Identify an initially empty word list by initial item 'words played',
+- Identify an initially empty word list by an initial item 'words played',
   which is replaced by the first played word.
 
 ## User Suggestions
 
-- Moving a letter from tray to over another uncommitted letter should move the 
-  existing uncommitted letter back to the tray and replace it.
+- Should be able to drop a letter on on a board square containing an as-yet-uncommitted 
+  letter. In this case, the existing as-yet-uncommitted letter would be moved
+  back to tray.
 
-- Provide a keyboard shortcut to revert a single played but uncommitted tile
+- Provide a keyboard shortcut to move a single played but uncommitted tile
   back to the tray.
 
 - Provide a 'vowels' option: if checked the tray is guaranteed to have at least 
@@ -59,8 +56,8 @@
 - Security. CORS. Generally cross origin requests are disallowed. 
 
   But in doing web development, we use the webpack server at localhost:3000 for
-  the Javascript and access the Servant server.  We are able to do the latter,
-  but not in a verifiably secure manner yet.  manner yet.
+  the Javascript and access the Servant server. We are able to do the latter,
+  but not in a verifiably secure manner yet.  
 
   Adding "http://localhost:3000" to 'Access-Control-Allow-Origin' in the server
   has not worked for me.
@@ -89,17 +86,17 @@
 ## Technical Debt
 
 - Separate out the scala server and language packages into their own 
-  sub-projects.
+  scala sub-projects.
 
-- Upgrade web-ui project to the latest version of webpack (4.8.2 as of May
+- Upgrade the web-ui project to the latest version of webpack (4.8.2 as of May
   2018). The cache-busting setup will need to change to conform to the 
   later version (in particular to separate out the manifest and vendor
   code into their own bundles that would be separately versioned with 
   their own hashes). See https://webpack.js.org/guides/caching/.
 
-- Remove code duplication in the Java client library - common objects
+- Remove code duplication in the Java client library. Common objects
   in the Scala library used in the API are duplicated in the Java
-  client library because that library was built to access the Haskell
+  client library, because that library was built to access the Haskell
   server before the Scala server was implemented. At this time, Java clients
   should just use the common objects from the scala library. 
 
@@ -117,14 +114,13 @@
 - Test scala against a real database.
 
 - Currently storage of games in the database is not in focus. 
-  Restoration of games from teh database remains to be implemented.
+  Restoration of games from the database remains to be implemented.
 
-- Add error boundary for React.
+- Add error boundary for React at the top level.
 
-- The game cache should go under the persistence layer.
-  An LRU cache would be simplest. The current cache is used as a list
-  of live games. Just keep a list of live game ids only so abandoned games
-  can be detected and harvested.
+- The game cache should go under the persistence layer. An LRU cache would be
+  simplest. The current cache is used as a list of live games. Just keep a list
+  of live game ids only so that abandoned games can be detected and harvested.
 
     https://twitter.github.io/util/docs/com/twitter/util/LruMap.html
 
@@ -133,28 +129,19 @@
 
 - Validate a piece placed on the baord - must be upper case alpha.
 
-- Deploy to the AWS ECS - elastic container service. Use Fargate for 
-  pay-as-you-go. 
+- Blue-green deployment for the application.
 
-- Implement the database layer on Amazon DynamoDB and connect from 
-  the Fargate container. Reasonably-priced peristent store. Store entire 
-  games in a JSON string. Users. Ownership of games by users.
-  Haskell bindings for Amazon services: amazonka.
-
-- Use docker compose to seamlessly upgrade the application.
+  Use docker compose to seamlessly upgrade the application.
   
   https://docs.docker.com/compose/gettingstarted/#step-4-build-and-run-your-app-with-compose
   https://docs.docker.com/compose/compose-file/#environment
 
-- Blue-green deployment for the application.
+- Getting stack traces on errors in Haskell requires profiling.  Profiling may
+  have something like 30% space overhead and some (unknown) performance
+  overhead. But locating errors occurring in production is not optional!
 
-- Getting stack traces on errors in Haskell requires profiling.
-  Profiling may have something like 30% space overhead and some
-  (unknown) performance overhead. But locating errors occurring 
-  in production is not optional!
-
-  So production code should be compiled with profiling.
-  Just understand the memory and performance differences for this application.
+  So production code should be compiled with profiling. Just understand the
+  memory and performance differences for this application.
 
 - Validate all API input arguments. In particular, pointValues is currently 
   not validated in the start game API call.
@@ -197,23 +184,19 @@
 
 - Webpack warnings, e.g., for node-fetch - can they be fixed?
 
-- Add population of seed data to the docker file.
+- Clean up database migration code.
 
-- Not sure to what extent Persistent migration can be trusted to do the right
-  thing. Hence not migrating at every startup of the server. But we should
-  either via Persistent migration or separate scripts or both.
-
-- In production mode need to have obscure postgres user/password. Best practices for security
-  to postgres in production mode? Needs to be set in the production deployment
-  script. Best practices for password protection. Make sure postgres port is 
-  closed to the outside. For now we are just using sqlite.
+- In production mode need to have obscure postgres user/password. Best practices
+  for security to postgres in production mode? Needs to be set in the production
+  deployment script. Best practices for password protection. Make sure
+  postgres port is closed to the outside. For now we are just using sqlite.
 
 - Logging - debug versus info in all projects.
 
 - Clean up tests.
 
-- Try to get an exception from persistence. Then translate it and all such exceptions.
-  Create a test for it and check if the exception is caught.
+- Try to get an exception from Haskell Persistence. Then translate it and all
+  such exceptions. Create a test for it and check if the exception is caught.
 
 - Use a config parameter for the stale game harvester interval. Add it to run.sh.
 
@@ -222,17 +205,12 @@
 
 - Test for cache full.
 
-- Check that all possible javascript exceptions are handled at 
-  the highest level - use React top-level handler for components.
-
 - Performance of large databases. Indexing. 
 
 - Use JSHint for Javascript code.
 
 - Was unable to upgrade to GHC 8.0.1 or versions of Servant higher than 0.6.1 - 
   versioning issues with the rest of the dependencies. Upgrade when possible.
-
-- Add top-level script to build all dependent projects.
 
 - CICD. Integrate with TravisCI on github. Free for open source.
 

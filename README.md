@@ -3,7 +3,7 @@
 
 ## Versions
 
-Version 0.9.1 beta.
+Version 0.9.5 beta.
 
 ## The Board Game
 
@@ -14,7 +14,7 @@ See the [project web site](http://www.bolour.com/boardgame/index.html).
 
 ## Scope
 
-This project is intended as an test bed for the development and deployment
+This project is intended as a test bed for the development and deployment
 of production quality applications by using different programming languages,
 their ecosystems, and devops tools.
 
@@ -24,14 +24,14 @@ one in Scala, and one client implementation, in Javascript using the React
 framework.
 
 For a simple representation of the API, see the Haskell module 
-BoardGame.Common.GameApi in teh haskell-server hierarchy.
+BoardGame.Common.GameApi in the haskell-server hierarchy.
 
 The first implementation is being developed on the MAC OS/X 10.9+, deployed on
 a Linux Amazon EC2 instance, and accessed through modern browsers.
 
 ## Sub-Projects
 
-- haskell-server - The game server in Haskell. Exposes a game API through HTTP.
+- haskell-server - The game server in Haskell. 
 
 - scala-server - The game server in Scala.
 
@@ -39,15 +39,15 @@ a Linux Amazon EC2 instance, and accessed through modern browsers.
 
 - java-client - A client-side library for accessing the API in Java clients.
 
-- benchmark - A game server benchmark (in Java) simulating concurrent game sessions.
+- benchmark - A benchmark (in Java) simulating concurrent game sessions.
 
 ## Getting Started in Development
 
 The steps needed to set up the development and deployment environments for the 
-application are scripted in the Dockerfiles used for deployment in the _docker_
-directories of haskell-server and scala-server. 
+application are scripted in the Dockerfiles used for packaging and deployment of
+the application in the _docker_ directories of haskell-server and scala-server. 
 
-To get started with development follow the same steps listed in the Dockerfiles
+To get started with development, follow the same steps listed in the Dockerfiles
 on your development machine. You may start by consulting the README.md file in
 the docker directory, and then reviewing the Dockerfiles there.
 
@@ -68,13 +68,13 @@ After cloning the repository:
 Utility libraries used by the Java sub-projects are hosted on _jCenter_ 
 (https://jcenter.bintray.com). Make sure your maven settings.xml in $HOME/.m2 
 configures that repository in its profiles. The source for these libraries 
-in open at my github (azadbolour).
+is open at my github (azadbolour).
 
 ## Dictionaries
 
 Please refer to the README file in the dict/ directory. One issue to be
 aware of is that diectionaries are preprocessed to a list of _masked words_, 
-words with blank holes in them. Because masked words pre-processing is
+words with blank holes in them. Because masked word pre-processing is
 time-consuming, the masked words file is saved in git, but in zipped form 
 because it is too large for github. 
 
