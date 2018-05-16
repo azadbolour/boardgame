@@ -31,7 +31,6 @@ let settableParameters = {
   'dimension': 'int',
   'tray-capacity': 'int',
   'square-pixels': 'int',
-  'starting-player': 'string',
   'preferred-input-device': 'string',
   'starting-player': 'string'
 };
