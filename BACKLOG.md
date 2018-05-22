@@ -4,6 +4,9 @@
 
 ## System Improvements
 
+- Add EULA. An initial footnore stating no warrantees should be sufficient for
+  now.
+
 - User registration. Currently there are no registered users. Just a built-in
   one called _You_. Use a microservice and if affordable, and external service.
 
@@ -32,6 +35,12 @@
 
 - Identify an initially empty word list by an initial item 'words played',
   which is replaced by the first played word.
+
+- Ability to pause and resume a game. Timed-out games would be purged from 
+  the database only if they are not resumed within a n days. A resumed and
+  active game should not be resumable from another session. Ganes are either
+  inactive or "owned" by a given session. Can provide a unique "owner token"
+  to the client of the active game.
 
 ## User Suggestions
 
