@@ -22,7 +22,7 @@ Showcasing Scala and Haskell game servers and a React drag and drop web UI.
 Version 0.9.5 beta for modern browsers.
 
 <p>
-<a href="http://oceanpark.com:6597/boardgame">Check it out!</a>
+<a href="http://oceanpark.com:6597/boardgame?dimension=11&tray-capacity=7">Check it out!</a>
 
 <p>
 Drag and drop letters to form a word connected to an existing board letter
@@ -63,8 +63,8 @@ letters in the English lexicon
 There is no notion of a container of letters getting depleted.
 
 <li>
-When no play is possible, a single letter is swapped for another.
-A game ends upon 10 consecutive no-plays [swaps]. 
+When no board play is possible, a single letter is swapped for another (by dropping it onto the
+swap bin). A game ends upon 10 consecutive no-plays [swaps]. 
 
 <li>
 Games have a time limit of 1 hour. Longer games are considered 
@@ -94,8 +94,7 @@ between 5 and 25 inclusive.
 
 <p>
 The game's letter tray capacity is configurable through the URL query
-parameter <em>tray-capacity</em> (in the range [3 .. 15],
-default 8).
+parameter <em>tray-capacity</em> (in the range [3 .. 15]).
 
 <h4>Issues</h4>
 
