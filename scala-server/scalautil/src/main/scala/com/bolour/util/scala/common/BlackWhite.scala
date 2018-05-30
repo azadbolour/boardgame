@@ -18,7 +18,7 @@ sealed abstract class BlackWhite[T] {
   def hasValue: Boolean
   def fromWhite: Option[T]
   def map[R](f: T => R): BlackWhite[R]
-  def toValueWithDefaults(blackDefault: Char, whiteDefault: Char): Char
+  def toValueWithDefaults(blackDefault: T, whiteDefault: T): T
 }
 
 /**
@@ -31,7 +31,7 @@ case class Black[T]() extends BlackWhite[T] {
   override def hasValue = false
   override def fromWhite = None
   override def map[R](f: T => R) = Black[R]
-  def toValueWithDefaults(blackDefault: Char, whiteDefault: Char) = blackDefault
+  def toValueWithDefaults(blackDefault: T, whiteDefault: T) = blackDefault
 }
 
 /**
@@ -44,18 +44,11 @@ case class White[T](value: Option[T]) extends BlackWhite[T] {
   override def isEmpty = value.isEmpty
   override def hasValue = value.isDefined
   override def fromWhite = value
-  override def map[R](f: T => R) =
-    value match {
-      case None => White(None)
-      case Some(value) => White(Some(f(value)))
-    }
-  def toValueWithDefaults(blackDefault: Char, whiteDefault: Char) = whiteDefault
-
+  override def map[R](f: T => R) = White(value map f)
+  def toValueWithDefaults(blackDefault: T, whiteDefault: T) = whiteDefault
 }
 
 object BlackWhite {
-
   def fromWhites[T](line: List[BlackWhite[T]], begin: Int, end: Int): List[Option[T]] =
-    (begin to end).toList map { i => line(i).fromWhite}
-
+    (begin to end).toList map { i => line(i).fromWhite }
 }
