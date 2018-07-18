@@ -261,3 +261,35 @@
 
   Then you can read files from there, e.g., rootDir/data/some.txt.
 
+## Extensions
+
+- NamedFieldPuns - Pattern match via: Constructor {field1, field2, ... }
+  The variables field1, field2, ... are assigned the corresponding fields.
+  Obviates the need for explicit association of variables to fields when
+  they have the same name.
+
+- DisambiguateRecordFields - The fields in a pattern match do not have to be
+  qualified, even if they come from a qualified import, as long as the
+  constructor used in the pattern match in qualified.
+
+- QuasiQuotes - Allow quasi-quote macros.
+
+- DeriveGenerics - Allow the compiler to derive instances of Generic
+  for data types. Generic provides encoding and decoding functions to a generic 
+  representation of data structures, basically a generalization of HList to 
+  any data structure.
+
+- RecordWildCards - Allows use of ellipses '..' to represent record fields
+  implicitly. Constructor { a = 1, ..} - .. implicitly brings other fields
+  into scope.
+
+- FlexibleContexts - Allow more general contexts in a class definition - 
+  the parameters of a super-class [aka context class] can be terms rather
+  than just type variables.
+
+- GeneralizedNewtypeDeriving - Allows instances definitions for a data type 
+  T to be inherited by a newtype based on T. So if T is an instance of class
+  C, the newtype can just derive C, and inherit T's dictionary for C's
+  functions.
+
+

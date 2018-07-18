@@ -19,9 +19,9 @@ import com.bolour.plane.scala.domain.Axis.Axis
   * and a White case containing an Option that represents the value (or lack thereof).
   *
   * It is convenient to augment a value contained at a grid point, by the location
-  * of that grid point. Hence if T is type of value to be represented in the grid,
+  * of that grid point. Hence if T is the type of value to be represented in the grid,
   * the content of the corresponding BlackWhiteGrid point would be a BlackWhitePoint[T],
-  * which include a T value and a Point value.
+  * which includes a T value and a Point value.
   *
   * @param grid Lower-level plain grid.
   * @tparam T The type of values of cells when they exist.
@@ -33,6 +33,8 @@ case class BlackWhiteGrid[T](grid: Grid[BlackWhitePoint[T]]) {
   def rows: List2D[BlackWhitePoint[T]] = grid.rows
   def columns: List2D[BlackWhitePoint[T]] = grid.columns
 
+  // TODO. A better name would be mapValues.
+  // Map should take T -> R and return another BlackWhiteGrid.
   def map[R](f: BlackWhite[T] => R): List2D[R] = {
     def rowMapper(row: List[BlackWhitePoint[T]]): List[R] =
       row map { case BlackWhitePoint(bw, _) => f(bw)}
