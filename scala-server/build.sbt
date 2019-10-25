@@ -1,6 +1,6 @@
 name := "scala-server"
 organization := "com.bolour.boardgame.scala"
-version := "0.9.5"
+version := "0.9.6"
 publishMavenStyle := true
 publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
 
@@ -23,7 +23,6 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
       
 resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
       
-// scalaVersion := "2.12.2"
 scalaVersion := "2.12.10"
 
 val akkaVersion = "2.5.6"
@@ -31,12 +30,12 @@ dependencyOverrides ++= Seq( // Seq for SBT 1.0.x
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
   "com.typesafe.akka" %% "akka-stream" % akkaVersion,
   "com.google.guava" % "guava" % "22.0",
-  "org.slf4j" % "slf4j-api" % "1.7.25"
+  "org.slf4j" % "slf4j-api" % "1.7.28"
 )
 
 libraryDependencies ++= Seq( jdbc , ehcache , ws , guice )
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "test"
-libraryDependencies += "com.typesafe.slick" %% "slick" % "3.2.1"
+libraryDependencies += "com.typesafe.slick" %% "slick" % "3.3.2"
 libraryDependencies += "com.h2database" % "h2" % "1.4.185"
 libraryDependencies += "io.spray" %%  "spray-json" % "1.3.3"
 
