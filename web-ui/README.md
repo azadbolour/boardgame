@@ -18,10 +18,10 @@ the equivalent steps for other platforms.
 
 In particular, for the MAC, the first step is install node:
 
-`
-  brew update
-  brew install node
-`
+  `brew update`
+  
+  `brew install node`
+
 
 Installs both node and npm.
 
