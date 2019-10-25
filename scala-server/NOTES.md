@@ -99,6 +99,11 @@
 
 ## Scala
 
+- to - exclude bound, until - include bound
+
+- collect - map for partial functions - only map on elements for which partial
+  function is defined
+
 - Recommended to use sealed abstract class withe case objects
   for enumerations, rather than Scala enumerarions.
 
@@ -125,6 +130,11 @@
   You can't pattern match directly on function parameter. Use the above syntax
   instead.
 
+- case other or _ if not neded
+
+- can also pattern match on non-case class if it's companion object has an 
+  unapply method to deconstruct an object and get back the constructor arguments
+
 - https://docs.scala-lang.org/tour/pattern-matching.html - good writeup
 
 - Good replacement for Scala Source for IO. Seems like Source is 
@@ -147,7 +157,7 @@
   res1: List[Int] = List(0)
 
 - Future errors - onComplete takes a callback: Try[T] => U (U is an arbitrary
-  type). But you are not going to get the result of teh callback. So U might as 
+  type). But you are not going to get the result of the callback. So U might as 
   well be Unit, unless the callback is also used for other purposes.
 
   recover and recoverWith allow you to provide a default value in case of
@@ -319,7 +329,7 @@
   you can pass a function that has a parameter by doing 
   
         f((x: Int) => expression(x))
-        the formal ars will be f(func: (x: Int) => SomeType)
+        the formal args will be f(func: (x: Int) => SomeType)
 
   But if the function takes no parameters, you can abbreviate this to
 
@@ -328,7 +338,7 @@
   Then in the body using { func } means apply the function.
 
   The nice thing is that there is an abbreviation for the actual parameter
-  in the body of teh caller. Just as in the formal parameter definition
+  in the body of the caller. Just as in the formal parameter definition
   you don't need to include () for the argument, in the actual parameter
   too you don't. In the caller you can just do:
 
@@ -345,6 +355,25 @@
   What if you are defining a function (not a method - def is always a method)
   that takes a no-arg function. Will call-by-name extend to that as well?
   TODO. Create examples.
+
+  From the docs:
+
+  def whileLoop(condition: => Boolean)(body: => Unit): Unit =
+    if (condition) {
+          body
+          whileLoop(condition)(body)
+    }
+
+- Note that call by name parameters are a totally different animal from 
+  0-argument function parameters. Even though internally the call by name 
+  parameter gets translated into a 0-argument function that is called
+  when used in the body of the callee, in the surface language there 
+  are subtle differences between the two. 
+
+  If you are passing blocks, just use call by name. The only time when 
+  you need to pass a surface 0-argument function, is if it is already defined,
+  not an anonymous block. In that case, make sure you use f() in the
+  callee to call it. Just f means the function itself in this case.
 
 - In tests the application.conf in test resources is the first one on classpath,
   and only it gets used.

@@ -190,5 +190,5 @@ thread.
 Treat Persistence (upper-case 'P') row ids as the private fields of the
 representation of objects in the database. They are used to related records in
 the database.  Higher levels of the application should have their own
-application-level unique ids for set of objects. Higher level code should be be
+application-level unique ids for set of objects. Higher level code should not be
 dependent on the implementation details of persistence (lower-case 'p').
