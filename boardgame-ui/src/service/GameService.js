@@ -9,10 +9,10 @@
  */
 
 import {apiSelector} from '../api/ApiUtil';
-import {GameConverter, PieceConverter, PlayConverter, GameParamsConverter} from './../api/Converters';
+import {GameConverter, PieceConverter, GameParamsConverter} from './../api/Converters';
 // import Play from "../domain/Play";
-import {stringify} from "../util/Logger";
-import * as PointValue from '../domain/PointValue';
+// import {stringify} from "../util/Logger";
+// import * as PointValue from '../domain/PointValue';
 
 import {convertResponse} from "../util/MiscUtil";
 import {PlayPieceConverter} from "../api/Converters";

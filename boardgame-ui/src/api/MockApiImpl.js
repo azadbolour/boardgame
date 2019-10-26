@@ -28,7 +28,7 @@ class MockApiImpl {
     this.gameId = gameId;
     this.center = Math.floor(gameParams.dimension / 2);;
 
-    let {boardPiecePoints, userPieces, machinePieces} = initPieces;
+    let {/* boardPiecePoints, */ userPieces, machinePieces} = initPieces;
 
     // TODO. Streamline tray initialization.
     const additionalTrayPieces = this.getPieces(gameParams.trayCapacity - userPieces.length);
@@ -165,7 +165,8 @@ class MockApiImpl {
   }
 
   getPieces(numPieces) {
-    let pieces = new Array;
+    // let pieces = new Array;
+    let pieces = [];
     for (let i = 0; i < numPieces; i++)
       pieces.push(this.getPiece());
     return pieces;
@@ -209,7 +210,7 @@ class MockApiImpl {
   }
 
   reflectMovesOnGame(movedPlayPieces) {
-    let it = this;
+    // let it = this;
     movedPlayPieces.forEach(playPiece =>
       this.gameDto.boardPiecePoints.push({piece: playPiece.piece, point: playPiece.point})
     );

@@ -6,10 +6,8 @@
 
 /** @module Game */
 
-import detectIt from 'detect-it';
-const DragDropContext = require('react-dnd').DragDropContext;
+// import detectIt from 'detect-it';
 import PropTypes from 'prop-types';
-const HTML5Backend = require('react-dnd-html5-backend');
 import { default as TouchBackend } from 'react-dnd-touch-backend';
 import React from 'react';
 import ReactList from 'react-list';
@@ -18,12 +16,13 @@ import TrayComponent from './TrayComponent';
 import BoardComponent from './BoardComponent';
 import SwapBinComponent from './SwapBinComponent';
 import actions from '../event/GameActions';
-import {stringify} from "../util/Logger";
+// import {stringify} from "../util/Logger";
 import * as Style from "../util/StyleUtil";
 import * as BrowserUtil from "../util/BrowserUtil";
 import AppParams from '../util/AppParams';
 import GameParams from '../domain/GameParams';
-
+const DragDropContext = require('react-dnd').DragDropContext;
+const HTML5Backend = require('react-dnd-html5-backend');
 
 function buttonStyle(enabled) {
   let color = enabled ? 'Chocolate' : Style.disabledColor;
@@ -345,7 +344,7 @@ class GameComponent extends React.Component {
     />;
 
     return (
-      <div style={{display: 'flex', flexDirection: 'column', display: 'inline-block'}}>
+      <div style={{display: 'flex', flexDirection: 'column'}}>
 
         <div style={{border: '1px solid GoldenRod', padding: '10px', display: 'inline-block'}}>
 

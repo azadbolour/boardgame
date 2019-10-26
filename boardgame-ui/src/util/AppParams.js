@@ -8,6 +8,8 @@
  * @module AppParams.
  */
 
+import {stringify} from "./Logger";
+
 // TODO. Move to MiscUtil.
 
 function getEnv(varName, defaultValue) {

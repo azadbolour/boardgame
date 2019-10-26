@@ -8,10 +8,10 @@
  * @module GameParams.
  */
 
-const validUrl = require('valid-url');
 import AppParams from '../util/AppParams';
 import {stringify} from "../util/Logger";
 import {coinToss} from "../util/MiscUtil";
+const validUrl = require('valid-url');
 
 // TODO. Need to export API types.
 // TODO. env type, api type, user, password need to go to Util package -

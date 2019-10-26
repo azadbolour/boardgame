@@ -6,7 +6,7 @@
 
 
 
-import {stringify} from "../util/Logger";
+// import {stringify} from "../util/Logger";
 
 import {NO_PIECE} from "../domain/Piece";
 import {checkArray, checkArrayIndex, checkCapacityOverflow} from "../util/MiscUtil";

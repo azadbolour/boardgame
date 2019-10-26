@@ -5,7 +5,7 @@
  */
 
 
-import {stringify} from "../util/Logger";
+// import {stringify} from "../util/Logger";
 import {range} from "../util/MiscUtil";
 import {mkBarePlayPiece, mkCommittedPlayPiece, findFilledSegmentBoundary, mkDeadPlayPiece} from './PlayPiece';
 import * as Piece from './Piece';
@@ -24,17 +24,21 @@ export const mkBoard = function(matrix) {
 
   let _matrix = matrix;
   let _dimension = matrix.dimension;
-  let _center = parseInt(_dimension/2);
+  // let _center = parseInt(_dimension/2);
 
+  /*
   const inBounds = function(index) {
     return index >= 0 && index < _dimension;
   };
+  */
 
+  /*
   const sum = function(array) {
     return array.reduce(function(sum, element) {
       return sum + element;
     }, 0);
   };
+  */
 
   // const centerPoint = mkPoint(_center, _center);
 

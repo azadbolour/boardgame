@@ -9,11 +9,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import BoardSquareComponent from './BoardSquareComponent';
 import PieceComponent from './PieceComponent';
-import * as Piece from '../domain/Piece';
+// import * as Piece from '../domain/Piece';
 import {mkPoint} from '../domain/Point';
 import * as Point from '../domain/Point';
-import logger from "../util/Logger";
-import {stringify} from "../util/Logger";
+// import logger from "../util/Logger";
+// import {stringify} from "../util/Logger";
 
 /**
  * A style that includes the board's overall
@@ -122,7 +122,7 @@ class BoardComponent extends React.Component {
     let justFilledByMachine = this.props.pointsMovedInMachinePlay.some(p => Point.eq(p, point));
     let enabled = this.props.enabled;
     let pointValue = this.props.pointValues.getElement(point);
-    let center = Math.floor(dimension/20);
+    // let center = Math.floor(dimension/20);
     // let isCenterPoint = row === center && col === center;
     let squarePiece = this.props.board.rows()[row][col].piece;
 

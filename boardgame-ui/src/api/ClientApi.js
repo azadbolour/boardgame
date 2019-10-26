@@ -7,7 +7,7 @@
 /** @module ClientApi */
 
 import {StartGameRequestConverter} from "./Converters";
-const basic = require('basic-authorization-header');
+// const basic = require('basic-authorization-header');
 const fetch = require('node-fetch');
 
 // TODO. Logging for requests and responses.

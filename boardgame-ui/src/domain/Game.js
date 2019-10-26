@@ -7,10 +7,10 @@
 
 import {stringify} from "../util/Logger";
 import * as Board from './Board';
-import * as Point from './Point';
+// import * as Point from './Point';
 import * as Tray from './Tray';
 import * as PlayPiece from './PlayPiece';
-import {mkMovePlayPiece, mkCommittedPlayPiece} from './PlayPiece';
+import {mkMovePlayPiece} from './PlayPiece';
 // import {mkMultiplierGrid} from "./ScoreMultiplier";
 import * as PointValue from './PointValue';
 
@@ -129,7 +129,7 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
     },
 
     applyBoardMove: function(move) {
-      const { piece, point } = move;
+      const { piece } = move;
       // let sourcePoint = _board.findPiece(piece);
       let $game = this.revertMove(piece);
       return $game.applyTrayMove(move);
@@ -160,7 +160,7 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
 
     commitUserMoves: function(playScore, replacementPieces, deadPoints) {
       let $tray = _tray.addPieces(replacementPieces);
-      let playedPieces = this.getUserMovePlayPieces().map(playPiece => playPiece.piece);
+      // let playedPieces = this.getUserMovePlayPieces().map(playPiece => playPiece.piece);
       // let $score = updateScore(USER_INDEX, playedPieces);
       let $score = updateScore(USER_INDEX, playScore);
       let $board = _board.commitUserMoves();

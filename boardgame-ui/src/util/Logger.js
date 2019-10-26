@@ -54,8 +54,10 @@ const logger = {
         message += stringify(arg);
       else if (arg.length === 0 || typeof(arg[0]) !== "object")
         message += stringify(arg);
-      else // array of objects
-        arg.forEach(el => {message += stringify(el)});
+      else { // array of objects
+        // arg.forEach(el => {message += stringify(el)});
+        message = arg.map(stringify).join(' ')
+      }
     }
     console.log(message);
   }

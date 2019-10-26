@@ -14,7 +14,7 @@
  * on the wire, or objects supporting those that go on the wire.
  */
 import MockApiImpl from './MockApiImpl';
-import {stringify} from "../util/Logger";
+// import {stringify} from "../util/Logger";
 
 const promise = function(json) {
   return new Promise(function(resolve, reject) {

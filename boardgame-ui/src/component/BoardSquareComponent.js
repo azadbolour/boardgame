@@ -8,16 +8,16 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-const ItemTypes = require('./DragDropTypes').ItemTypes;
-const DropTarget = require('react-dnd').DropTarget;
 import SquareComponent from './SquareComponent';
 import actions from '../event/GameActions';
 import * as Piece from '../domain/Piece';
 import {mkPiece} from '../domain/Piece';
-import {mkPoint} from '../domain/Point';
+// import {mkPoint} from '../domain/Point';
 import {mkPiecePoint} from '../domain/PiecePoint';
-import {stringify} from "../util/Logger";
+// import {stringify} from "../util/Logger";
 import {pieceIsDead} from "../domain/Piece";
+const ItemTypes = require('./DragDropTypes').ItemTypes;
+const DropTarget = require('react-dnd').DropTarget;
 
 /**
  * Color coding style for move destinations (drop targets of the the piece being dragged).
@@ -300,7 +300,7 @@ class BoardSquareComponent extends React.Component {
       backgroundColor = "Gainsboro";
     let color = 'FireBrick';
     // let color = 'Tomato';
-    let isCenterPoint = this.props.isCenterPoint;
+    // let isCenterPoint = this.props.isCenterPoint;
     let enabled = this.props.enabled;
 
     return connectDropTarget(

@@ -8,12 +8,12 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+// import logger from "../util/Logger";
+// import {stringify} from "../util/Logger";
+// import * as Piece from "../domain/Piece";
+import {isDead} from "../domain/Piece";
 const ItemTypes = require('./DragDropTypes').ItemTypes;
 const DragSource = require('react-dnd').DragSource;
-import logger from "../util/Logger";
-import {stringify} from "../util/Logger";
-import * as Piece from "../domain/Piece";
-import {isDead} from "../domain/Piece";
 
 const letterStyle = {
   fontSize: 15,

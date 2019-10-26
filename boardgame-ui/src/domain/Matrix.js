@@ -5,9 +5,9 @@
  */
 
 
-import {zipWith, checkArray, checkArrayIndex, checkCapacityOverflow} from "../util/MiscUtil";
-import {stringify} from "../util/Logger";
-import {mkPoint} from "./Point";
+import {zipWith, checkArray, checkArrayIndex} from "../util/MiscUtil";
+// import {stringify} from "../util/Logger";
+// import {mkPoint} from "./Point";
 
 // We only need matrices with the same number of rows and cols.
 export const mkMatrixFromCoordinates = function(dimension, coordinatesToCellValue) {

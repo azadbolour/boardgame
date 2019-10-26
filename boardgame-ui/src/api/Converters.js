@@ -5,13 +5,13 @@
  */
 
 
-import {stringify} from "../util/Logger";
+// import {stringify} from "../util/Logger";
 import {mkGame} from "../domain/Game";
-import {mkBoard, mkEmptyBoard} from "../domain/Board";
+import {mkEmptyBoard} from "../domain/Board";
 import {mkTray} from "../domain/Tray";
 import {mkPiece} from "../domain/Piece";
 import {mkPoint} from "../domain/Point";
-import {mkPiecePoint} from "../domain/PiecePoint";
+// import {mkPiecePoint} from "../domain/PiecePoint";
 import {mkCommittedPlayPiece, mkPlayPiece} from "../domain/PlayPiece";
 
 // TODO. Conversion of class object to json - use JSON.stringify in simple cases.

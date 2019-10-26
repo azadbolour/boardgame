@@ -8,14 +8,13 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-const ItemTypes = require('./DragDropTypes').ItemTypes;
-const DropTarget = require('react-dnd').DropTarget;
 import {mkPiece} from '../domain/Piece';
 import SquareComponent from './SquareComponent';
 import actions from '../event/GameActions';
-import {stringify} from "../util/Logger";
+// import {stringify} from "../util/Logger";
 import * as Style from "../util/StyleUtil";
-
+const ItemTypes = require('./DragDropTypes').ItemTypes;
+const DropTarget = require('react-dnd').DropTarget;
 const pix=75;
 const pixels= pix + 'px';
 

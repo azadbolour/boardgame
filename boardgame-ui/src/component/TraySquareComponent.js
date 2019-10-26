@@ -8,11 +8,11 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-const ItemTypes = require('./DragDropTypes').ItemTypes;
-const DropTarget = require('react-dnd').DropTarget;
 import Square from './SquareComponent';
 import {mkPiece} from '../domain/Piece';
 import actions from '../event/GameActions';
+const ItemTypes = require('./DragDropTypes').ItemTypes;
+const DropTarget = require('react-dnd').DropTarget;
 
 // TODO. Duplicated in BoardSquareComponent. DRY.
 function colorCodedLegalMoveStyle(pixels, colorCoding) {

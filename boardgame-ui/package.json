@@ -6,10 +6,15 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-scripts": "3.2.0",
+    "react-list": "*",
+    "react-dnd": "^2.5.4",
+    "react-dnd-html5-backend": "^2.2.0",
+    "react-dnd-touch-backend": "^0.3.20",
     "valid-url": "*",
     "basic-authorization-header": "^0.2.7",
     "flux": "^3.1.2",
-    "node-fetch": "*"
+    "node-fetch": "*",
+    "detect-it": "*"
   },
   "scripts": {
     "start": "react-scripts start",
