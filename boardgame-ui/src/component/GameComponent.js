@@ -348,45 +348,47 @@ class GameComponent extends React.Component {
 
         <div style={{border: '1px solid GoldenRod', padding: '10px', display: 'inline-block'}}>
 
-        <div style={{display: 'flex', flexDirection: 'row'}}>
-          <div style={navbarStyle}>
-            {startButton} <pre></pre>
-            {commitButton} <pre></pre>
-            {revertButton}
-            <pre>  </pre>
-            <div style={{padding: '15px'}}>
-              {this.renderScore(userName, userScore)}
-              {this.renderScore("Bot", machineScore)}
-            </div>
-          </div> <pre>  </pre>
-          <div style={{display: 'flex', flexDirection: 'column'}}>
-            {trayComponent} <pre></pre>
-            {boardComponent}
-          </div> <pre>  </pre>
-          <div style={{display: 'flex', flexDirection: 'column'}}>
-            <div style={paddingStyle}>
-              <SwapBinComponent isTrayPiece={isTrayPiece} enabled={running} />
-            </div>
-            <pre> </pre>
-            <div>
-              <div style={wordListStyle}>
-                <ReactList
-                  ref={c => this.wordReactListComponent = c}
-                  itemRenderer={ (index, key) => this.renderWord(index, key) }
-                  length={this.props.auxGameData.wordsPlayed.length}
-                  type='uniform'
-                />
+          <div style={{display: 'flex', flexDirection: 'row'}}>
+            <div style={navbarStyle}>
+              {startButton} <pre></pre>
+              {commitButton} <pre></pre>
+              {revertButton}
+              <pre>  </pre>
+              <div style={{padding: '15px'}}>
+                {this.renderScore(userName, userScore)}
+                {this.renderScore("Bot", machineScore)}
+              </div>
+            </div> <pre>  </pre>
+            <div style={{display: 'flex', flexDirection: 'column'}}>
+              {trayComponent} <pre></pre>
+              {boardComponent}
+            </div> <pre>  </pre>
+            <div style={{display: 'flex', flexDirection: 'column'}}>
+              <div style={paddingStyle}>
+                <SwapBinComponent isTrayPiece={isTrayPiece} enabled={running} />
+              </div>
+              <pre> </pre>
+              <div>
+                <div style={wordListStyle}>
+                  <ReactList
+                    ref={c => this.wordReactListComponent = c}
+                    itemRenderer={ (index, key) => this.renderWord(index, key) }
+                    length={this.props.auxGameData.wordsPlayed.length}
+                    type='uniform'
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div style={statusStyle}>
-          {status}
-        </div>
 
-        <div style={{padding: '10px'}}>
-          <label style={lightMessageStyle(displayDeviceMessage)}>{deviceMessage}</label>
-        </div>
+          <div style={statusStyle}>
+            {status}
+          </div>
+          
+
+          <div style={{padding: '10px'}}>
+            <label style={lightMessageStyle(displayDeviceMessage)}>{deviceMessage}</label>
+          </div>
 
         </div>
 

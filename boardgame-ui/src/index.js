@@ -17,6 +17,7 @@ import {mkGameEventHandler} from './event/GameEventHandler';
 import {gameDispatcher} from './event/GameDispatcher';
 import {mkEmptyGame} from './domain/Game';
 import {emptyAuxGameData} from './domain/AuxGameData';
+import {stringify} from "./util/Logger";
 
 let params = queryParams(window.location);
 
@@ -178,6 +179,12 @@ gameEventHandler.registerChangeObserver(gameChangeObserver);
 
 console.log(`game params: ${JSON.stringify(gameParams)}`);
 
+const stringifyStatus = function(status) {
+  // TODO. Ugly hack for empty object. Clean up. Simple tests did not work!
+  let s = stringify(status);
+  return (s === "{}") ? "" : s;
+};
+
 const doHandShake = function(service, handler) {
   service.handShake().then(response => {
     if (response.ok) {
@@ -186,11 +193,11 @@ const doHandShake = function(service, handler) {
     }
     else {
       serverType = UNKNOWN_SERVER_TYPE;
-      handler(JSON.stringify(response.json));
+      handler(stringifyStatus(response.json));
     }
   }).catch(reason => {
       serverType = UNKNOWN_SERVER_TYPE;
-      handler(reason);
+      handler(stringifyStatus(reason));
     }
   )
 };
