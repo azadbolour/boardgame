@@ -21,8 +21,12 @@ import * as Style from "../util/StyleUtil";
 import * as BrowserUtil from "../util/BrowserUtil";
 import AppParams from '../util/AppParams';
 import GameParams from '../domain/GameParams';
-const DragDropContext = require('react-dnd').DragDropContext;
-const HTML5Backend = require('react-dnd-html5-backend');
+import { DndProvider } from 'react-dnd'
+import HTML5Backend from 'react-dnd-html5-backend'
+// const DragDropContext = require('react-dnd').DragDropContext;
+// const HTML5Backend = require('react-dnd-html5-backend');
+
+
 
 function buttonStyle(enabled) {
   let color = enabled ? 'Chocolate' : Style.disabledColor;
@@ -139,6 +143,7 @@ const REVERT = "revert";
 let {device, message: deviceSelectionMessage} = BrowserUtil.inputDeviceInfo();
 let deviceMessage = [`input device: ${device}`, deviceSelectionMessage].filter(s => s).join(', ');
 let displayDeviceMessage = true;
+const dndBackend = device === AppParams.TOUCH_INPUT ? TouchBackend : HTML5Backend;
 
 /**
  * The entire game UI component including the board and game buttons.
@@ -344,6 +349,7 @@ class GameComponent extends React.Component {
     />;
 
     return (
+      <DndProvider backend={dndBackend}>
       <div style={{display: 'flex', flexDirection: 'column'}}>
 
         <div style={{border: '1px solid GoldenRod', padding: '10px', display: 'inline-block'}}>
@@ -384,7 +390,7 @@ class GameComponent extends React.Component {
           <div style={statusStyle}>
             {status}
           </div>
-          
+
 
           <div style={{padding: '10px'}}>
             <label style={lightMessageStyle(displayDeviceMessage)}>{deviceMessage}</label>
@@ -399,9 +405,10 @@ class GameComponent extends React.Component {
           <label style={lightMessageStyle(true)}>{productInfo}</label>
         </div>
       </div>
+      </DndProvider>
     )
   }
 }
 
-const dndBackend = device === AppParams.TOUCH_INPUT ? TouchBackend : HTML5Backend;
-export default DragDropContext(dndBackend)(GameComponent);
+// export default DragDropContext(dndBackend)(GameComponent);
+export default GameComponent
