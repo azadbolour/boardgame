@@ -13,11 +13,12 @@ dest="${WORKSPACE}/scala-server/public"
 
 mkdir -p ${dest}/static/
 
-# Remove previous versions of the bundle.
+# Remove previous versions of the javascript files.
 rm -f ${dest}/static/*
 
-# Copy the latest bundle.
-cp ${source}/static/* ${dest}/static/
+# Remove other files copied from the UI build.
+-rm ${dest}/*
 
-# Copy index.html.
-cp ${source}/index.html ${dest}
+# Copy the latest build.
+cp -a ${source}/* ${dest}
+

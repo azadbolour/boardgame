@@ -37,10 +37,6 @@ add the needed dependencies to package.json.
 
 See the generated package.json file for the available npm commands.
 
-To build:
-
-  `npm run build`
-
 ## Development Server
 
 For development purposes: Start a webpack development server to serve the
@@ -90,35 +86,14 @@ the application. Following are the configuration parameters.
 
 ## Building the Production Bundle
 
-- Build the production version of the React UI.
+  `npm run build`
 
-    bundle-prod.sh
+This is scripted in `build.sh`.
 
-  The production build uses the webpack configuration file webpack.prod.config.js.
+To run a node server using the built app:
+
+\`npm config get prefix\`/bin/serve -s build
   
-  The production version will be found under the _dist_ directory.
-
-  Note - bundle-prod.sh invokes the _bundle-prod_ script definition defined in
-  the project's package.json. That script definition runs Webpack 
-  using a production configuration to package the game application
-  together with all its dependencies into a single javascript bundle.
-  More details on Webpack below.
-  
-### Cache-Busting
-
-To make sure that browsers obtain the latest version of the boardgame's 
-javascript bundle, the webpack standard method for adding a hash value to the 
-name of the bundle is used. By using this method, the name of the bundle 
-is set to `boardgame.bundle.[chunkhash].js` to add a hash of the contents of 
-the file to the name, and the index.html file is generated
-by using webpack's html-webpack-plugin to include a script tag 
-including the hash-augmented bundle name. Thus, when the contents of the 
-bundle change, the bundle gets a new name. The browser has to get the new 
-index.html file, will not find the new bundle name in its cache, and has to 
-download it.
-
-Of course, it has to be arranged that the servers use the generated 
-index.html file.
 
 ## Running against the Game Server in Development Mode
 
@@ -127,73 +102,6 @@ Examples:
   - *http://localhost:3000?env-type=dev*  run against a game server listening on the default URL.
   - *http://localhost:3000?env-type=dev&game-server-url=http%3A%2F%2Flocalhost%3A8888*  
     run against a game server listening on the port 8888
-
-### About the Webpack Development Server 
-
-In development, the machinery used to provide the application's Javascript and other assets
-to the browser involves:
-
-1. A server (provided by Webpack), called the _Webpack Development
-   Server_ that watches for changes to source files. This server 
-   is specified in the file _server.js_.
-
-2. A client API layer for the Webpack Development Server that is provided 
-   to the browser and mediates requests for Javascript and other resources,
-   routing them through the Webpack Development Server to get the latest 
-   copies of resources without restarting the application.
-
-Generally when using Node, various development commands are specified in Node's
-_package.json_ file. In particular, starting the webpack development server is
-encoded in our package.json, as:
-
-`
-  "scripts": {
-    "start": "node server.js"
-`
-
-The command `npm start` then reads this specification and runs the Node
-command starting the server.
-
-A better name for 'server.js' might have been _run-webpack-dev-server.js_.
-
-Note that server.js imports webpack and webpack-dev-server, both specified
-as the development dependencies in the project's package.json file.
-
-The file _webpack.config.js_ includes information about the files needed by the
-web application, and about how these files are to be processed before they get
-served up by webpack in development mode. The _entry_ list in that file provides
-the roots of the dependencies of the web application. In particular, one
-dependency of the web application is the webpack-dev-server's client access
-layer which allows the web application to obtain the latest versions of 
-the application files. This is the entry:
-
-`'webpack-dev-server/client?http://localhost:3000'`
-
-in the webpack.config.js file. The other entry in that file is the the index.js
-file, the actual entry point to the web application.
-
-Note that in order to build a React application we are using an older version 
-of Webpack (2.x). Trying to use the latest Webbpack (version 3.4.1) led to version 
-dependency hell with other packages, and was abandoned. 
-
-Note, however, that at this time (July 2017) all the official React samples I
-have seem use Webpack 1.x. We moved to 2.x in order to be able to easily use the
-webpack plugins for minification and uglification in production. Did not see
-how (if?) one can use these plugins with webpack 1.x.
-
-Note also, that the standard for package management for React has now moved on
-to use Yarn. But this project has not taken that leap yet.
-
-Note that calling 'webpack' without any parameters uses the default
-_webpack.config.js_ and creates a bundle that is dependent on the webpack
-development server.  By contrast the build script runs webpack by giving it the
-configuration file _webpack.prod.config.js_ which is independent of the webpack
-development server.
-
-Note. For convenience in testing the production version, the file _myindex.html_
-in the this directory (web-ui) is set up to use the production bundle under the
-_dist_ directory. Simply point your browser to myindex.html to test the production
-version.
 
 ## React Drag and Drop Notes
 

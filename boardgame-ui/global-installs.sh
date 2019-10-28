@@ -4,6 +4,7 @@
 
 npm install -g eslint 
 npm install -g jsdoc
+npm install -g serve      # Node server for testing the production build.
 
 # Allow automatic merge of package-lock.json to avoid build failures
 # when npm updates this file.

@@ -10,5 +10,5 @@
 #
 (cd ${WORKSPACE}/web-ui \
   && npm install \
-  && ./bundle-prod.sh)
+  && ./build.sh)
 
