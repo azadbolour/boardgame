@@ -11,17 +11,9 @@ and the rest of the React DND documentation for orientation.
 
 ## Getting Started
 
-The steps required to install all the dependencies of the web-ui sub-project 
-are scripted in the Dockerfiles in _docker_ directory of the server
-sub-projects. These steps are for Ubuntu Linux. But you can follow 
-the equivalent steps for other platforms. 
-
-In particular, for the MAC, the first step is install node:
-
   `brew update`
   
   `brew install node`
-
 
 Installs both node and npm.
 
@@ -33,6 +25,22 @@ automatically. See
 
   https://github.com/npm/npm/blob/latest/doc/files/npm-package-locks.md#resolving-lockfile-conflicts
 
+I used create-react-app to create the the empty boardgame-ui project,
+ignored the generated source files and added my own sources. Then 
+add the needed dependencies to package.json.
+
+  `npx create-react-app boardgame-ui --use-npm`
+
+  `npm install`
+  
+  `npm start`
+
+See the generated package.json file for the available npm commands.
+
+To build:
+
+  `npm run build`
+
 ## Development Server
 
 For development purposes: Start a webpack development server to serve the
@@ -42,8 +50,7 @@ application with hot replacement of files:
 
 It should output: `Listening at http://localhost:3000/` and then start the
 transpilation of the React JSX code by using the Webpack Javascript bundler.
-Wait for the compilation to finish. It may take a few seconds.  Also ignore the
-warning for the moment. This is a known issue.
+Wait for the compilation to finish. It may take a few seconds.  
 
 For work on the UI only (using a mock API in the browser), point your browser to
 the above URL:
@@ -226,11 +233,11 @@ called _collect_ in each case. However, I have used the names
 _injectedDragSourceProperties_ and _injectedDropTargetProperties_ to remind
 myself about what these functions do. These functions return Javascript objects
 that includes the properties to be injected into the corresponding drag sources
-or drop targes.
+or drop targets.
 
 One of the injected properties is a rendering wrapper provided by the framework
 that must be used to wrap the component's JSX XML specification. It is called
-respectively _connetDragSource_ and _connectDropTraget_. 
+respectively _connectDragSource_ and _connectDropTarget_. 
 
 For the drag source, another required property to inject is _isDragging_, again
 provided by the framework.
@@ -242,4 +249,17 @@ calls the canDrop function of the dropper object, if it exists.
 For sample code see the source files `PieceComponent.js` for drag source, and
 `BoardSquareComponent.js` for drop target.
 
+### Note on upgrade to react-dnd 9.4. Oct 2019.
+
+The react-dnd tutorial now uses an API that relies on React hooks, 
+a new feature. This feature only works with components that are functions. 
+
+Our components are classes. So unless we do a major refactor to convert 
+our components to functions, we cannot use the methods described in the latest version of the tutorial. 
+It is recommended that hooks only be used for new development. So we will not destabilize our UI by 
+doing a major refactor for now.
+
+It is unclear whether the old way of using component decorators for drag and drop 
+is now legacy. That is because the examples have two versions, a decorator version and a hook version. 
+So it seems safe to assume that the decorator version is not deprecated.
 

@@ -1,4 +1,15 @@
 
+- Info about npm packages:
+
+    npm view package-name 
+      gives information about latest version and dependencies
+
+    npm show react-dnd@* version
+      gets all the versions
+
+    npm show react-dnd version
+      gets latest version
+
 - To upgrade a node package remove it from package.json dependencies and:
 
   npm install --save-dev package-name
@@ -89,19 +100,12 @@
 
   https://github.com/react-dnd/react-dnd/issues/186
 
-- https://react-dnd.github.io/react-dnd/examples-dustbin-single-target.html
-
-  return (
-      <DragDropContextProvider backend={HTML5Backend}>
-
 - https://github.com/facebook/jest/tree/master/examples/react
   https://facebook.github.io/jest/docs/tutorial-react.html
   https://facebook.github.io/jest/docs/getting-started.html
   https://facebook.github.io/jest/docs/api.html
   https://github.com/facebook/jest/blob/master/examples/snapshot/__tests__/Link.react-test.js
   https://facebook.github.io/jest/docs/expect.html
-
-- console.log(`move: ${JSON.stringify(move)}`);
 
 - https://developers.google.com/web/fundamentals/getting-started/primers/promises
 
@@ -194,10 +198,6 @@
             </div>
             */}
 
-- React documentation:
-
-    https://facebook.github.io/react/docs/hello-world.html
-
 - If you need something to change in the UI without explicit re-rendering,
   you need to change the state of the component, and have the UI element's
   look depend on the state. For example, you can define a state variable 
@@ -215,11 +215,6 @@
   from component if you need state or lifecycle support.
   
   https://medium.com/@dan_abramov/how-to-use-classes-and-sleep-at-night-9af8de78ccb4
-
-  I am using the older createClass style. For now will not change to use classes.
-  As this area of React seems to be in a state of flux and classes 
-  are not looked upon all that favorably in much of the javascript 
-  community (circa mid 2017).
 
   You might try to change to stateless functional components where
   possible however.
