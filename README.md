@@ -71,6 +71,15 @@ Utility libraries used by the Java sub-projects are hosted on _jCenter_
 configures that repository in its profiles. The source for these libraries 
 is open at my github (azadbolour).
 
+## Manual Testing
+
+* Build and bring up the desired backend, for example: `cd scala-server; build.sh; run.sh`.
+
+* Build and bring up the production version of the UI locally: `cd boardgame-ui; build.sh; run.sh`
+
+* Bring up `http://localhost:5000?env-type=dev`. Connects to the local UI server
+  and instructs it to use the default development backend started earlier.
+
 ## Dictionaries
 
 Please refer to the README file in the dict/ directory. One issue to be
