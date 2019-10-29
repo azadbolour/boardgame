@@ -4,7 +4,7 @@ import Control.Monad.Except (runExceptT)
 
 import Network.HTTP.Client (Manager, newManager, defaultManagerSettings)
 import Servant.Client
-import Servant.Common.BaseUrl()
+-- import Servant.Common.BaseUrl()
 
 import BoardGame.Common.Domain.PlayerDto (PlayerDto(PlayerDto))
 import BoardGame.Common.Domain.Piece (Piece)
@@ -32,7 +32,8 @@ main :: IO ()
 main = do
   let baseUrl = BaseUrl Http "localhost" 6587 ""
   manager <- mkManager
-  eitherMaybeUnit <- runExceptT (Client.addPlayer player manager baseUrl)
+  -- eitherMaybeUnit <- runExceptT (Client.addPlayer player manager baseUrl)
+  eitherMaybeUnit <- runClientM (Client.addPlayer player) (mkClientEnv manager baseUrl)
   print $ show eitherMaybeUnit
 
   -- Ideally should get pieces from the server - since the server is the owner of the tile sack.
@@ -42,7 +43,7 @@ main = do
       mPieces = [mkPiece 'S' 4, mkPiece 'E' 5, mkPiece 'Z' 6] -- Allow the word 'SET' across.
       initPieces = InitPieces [] uPieces mPieces
 
-  eitherGameDto <- runExceptT (Client.startGame (StartGameRequest gameParams initPieces []) manager baseUrl)
+  eitherGameDto <- runClientM (Client.startGame (StartGameRequest gameParams initPieces [])) (mkClientEnv manager baseUrl)
   print $ show eitherGameDto
   print ""
 

@@ -13,7 +13,7 @@ library
     , containers
     , vector
     , random
-    , servant == 0.6.*
+    , servant
     , servant-server
     , servant-client
     , transformers
@@ -41,7 +41,7 @@ library
     , network
     , case-insensitive
     , uuid
-    , logging-effect >= 1.1
+    , logging-effect
     , time
     , enclosed-exceptions
     , deepseq

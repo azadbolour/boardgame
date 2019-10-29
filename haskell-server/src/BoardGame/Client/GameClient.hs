@@ -21,11 +21,11 @@ module BoardGame.Client.GameClient (
   )
   where
 
-import Network.HTTP.Client (Manager)
+-- (Manager)
+import Network.HTTP.Client (newManager, defaultManagerSettings)
 import Servant.API ((:<|>)(..))
-import Servant.Client (BaseUrl, client)
-import Servant.Common.Req (ClientM)
-
+import Servant.Client (BaseUrl, client, ClientM)
+-- import Servant.Common.Req (ClientM)
 import BoardGame.Common.Domain.GameParams
 import qualified BoardGame.Common.GameApi as GameApi
 import BoardGame.Common.Domain.PlayPiece (PlayPiece)
@@ -39,13 +39,13 @@ import BoardGame.Common.Message.CommitPlayResponse
 import BoardGame.Common.Message.MachinePlayResponse
 import BoardGame.Common.Domain.GameSummary (GameSummary)
 
-handShake :: Manager -> BaseUrl -> ClientM HandShakeResponse
-addPlayer :: PlayerDto -> Manager -> BaseUrl -> ClientM ()
-startGame :: StartGameRequest -> Manager -> BaseUrl -> ClientM StartGameResponse
-commitPlay :: String -> [PlayPiece] -> Manager -> BaseUrl -> ClientM CommitPlayResponse
-machinePlay :: String -> Manager -> BaseUrl -> ClientM MachinePlayResponse
-swapPiece :: String -> Piece -> Manager -> BaseUrl -> ClientM SwapPieceResponse
-closeGame :: String -> Manager -> BaseUrl -> ClientM GameSummary
+handShake :: ClientM HandShakeResponse
+addPlayer :: PlayerDto -> ClientM ()
+startGame :: StartGameRequest -> ClientM StartGameResponse
+commitPlay :: String -> [PlayPiece] -> ClientM CommitPlayResponse
+machinePlay :: String -> ClientM MachinePlayResponse
+swapPiece :: String -> Piece -> ClientM SwapPieceResponse
+closeGame :: String -> ClientM GameSummary
 
 handShake
   :<|> addPlayer
@@ -53,7 +53,8 @@ handShake
   :<|> commitPlay
   :<|> machinePlay
   :<|> swapPiece
-  :<|> closeGame = client GameApi.gameApi
+  :<|> closeGame
+  = client GameApi.gameApi
 
 -- Note. In Servant 6.1 we have:
 --   type ClientM = ExceptT ServantError IO

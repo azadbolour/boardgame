@@ -51,6 +51,7 @@ import Control.DeepSeq (NFData)
 
 import Network.Wai (Application)
 import Servant ((:<|>)(..))
+import Servant (Handler(..))
 
 import qualified Servant.Server as Servant
 import qualified Servant.Utils.StaticFiles as ServantStatic
@@ -103,7 +104,8 @@ mkServer' env = mkServer env
                :<|> ServantStatic.serveDirectory "static"
 
 -- | Return type of api handlers required by Servant.
-type ExceptServant result = ExceptT Servant.ServantErr IO result
+type ExceptServant result = ExceptT Servant.ServerError IO result
+-- type ExceptServant result = ExceptT Servant.ServantErr IO result
 
 -- | Convert a game application ExceptT to a Servant ExceptT as
 --   required by the game Servant API.
@@ -115,11 +117,11 @@ exceptTAdapter gameExceptT = withExceptT gameErrorToServantErr gameExceptT
 --   Servant require API handlers that return ServantErr.
 --   This function converts a GameError returned by service calls
 --   to a ServantErr required by Servant.
-gameErrorToServantErr :: GameError -> Servant.ServantErr
+gameErrorToServantErr :: GameError -> Servant.ServerError
 -- Using 422 response code (unprocessable entity) for all errors. May want to distinguish later.
 -- TODO. Use function GameError.gameErrorMessage so error messages can be specialized.
 -- Default would be encode.
-gameErrorToServantErr gameError = debug (show gameError) $ Servant.ServantErr
+gameErrorToServantErr gameError = debug (show gameError) $ Servant.ServerError
     422 -- errHTTPCode
     "Unprocessable entity." -- errReasonPhrase
     -- (BS.pack $ show gameError) -- errBody
@@ -151,14 +153,15 @@ handShakeResponse :: HandShakeResponse
 handShakeResponse = HandShakeResponse serverType apiVersion
 
 -- | API handler for initial handshake.
-handShakeHandler :: GameEnv -> ExceptServant HandShakeResponse
+-- handShakeHandler :: GameEnv -> ExceptServant HandShakeResponse
+handShakeHandler :: GameEnv -> Handler HandShakeResponse
 handShakeHandler env =
-  gameTransformerStackHandler env $ return handShakeResponse
+  Handler $ gameTransformerStackHandler env $ return handShakeResponse
 
 -- | API handler to register a new player.
-addPlayerHandler :: GameEnv -> PlayerDto -> ExceptServant ()
+addPlayerHandler :: GameEnv -> PlayerDto -> Handler ()
 addPlayerHandler env PlayerDto {name} =
-  gameTransformerStackHandler env $ do -- GameTransformerStack
+  Handler $ gameTransformerStackHandler env $ do -- GameTransformerStack
     result <- GameService.addPlayerService name
     -- logMessage (show result) -- TODO. Could not prettify it. Looks awful.
     return result
@@ -166,9 +169,9 @@ addPlayerHandler env PlayerDto {name} =
 -- gameTransformerStackHandler env $ GameService.addPlayerService player
 
 -- | API handler to create and start a new game.
-startGameHandler :: GameEnv -> StartGameRequest -> ExceptServant StartGameResponse
+startGameHandler :: GameEnv -> StartGameRequest -> Handler StartGameResponse
 startGameHandler env (StartGameRequest{gameParams, initPieces, pointValues}) =
-  gameTransformerStackHandler env $ do -- GameTransformerStack
+  Handler $ gameTransformerStackHandler env $ do -- GameTransformerStack
     response <- startGameServiceWrapper gameParams initPieces pointValues
     -- logMessage (show gameDto) -- TODO. Could not prettify it - tried groom and pretty-show. No good.
     return response
@@ -183,28 +186,29 @@ startGameServiceWrapper params initPieces pointValues = do
   return $ gameToStartGameResponse game
 
 -- | API handler to commit a new play by the player side of the game.
-commitPlayHandler :: GameEnv -> String -> [PlayPiece] -> ExceptServant CommitPlayResponse
-commitPlayHandler env gameId playPieces = gameTransformerStackHandler env $
-  tupleToCommitPlayResponse <$> GameService.commitPlayService gameId playPieces
+commitPlayHandler :: GameEnv -> String -> [PlayPiece] -> Handler CommitPlayResponse
+commitPlayHandler env gameId playPieces =
+  Handler $ gameTransformerStackHandler env $
+    tupleToCommitPlayResponse <$> GameService.commitPlayService gameId playPieces
 
 -- | API handler to make a machine play.
-machinePlayHandler :: GameEnv -> String -> ExceptServant MachinePlayResponse
-machinePlayHandler env gameId = gameTransformerStackHandler env $
+machinePlayHandler :: GameEnv -> String -> Handler MachinePlayResponse
+machinePlayHandler env gameId = Handler $ gameTransformerStackHandler env $
   tupleToMachinePlayResponse <$> GameService.machinePlayService gameId
 
 -- | API handler to swap a piece.
-swapPieceHandler :: GameEnv -> String -> Piece -> ExceptServant SwapPieceResponse
-swapPieceHandler env gameId piece = gameTransformerStackHandler env $
+swapPieceHandler :: GameEnv -> String -> Piece -> Handler SwapPieceResponse
+swapPieceHandler env gameId piece = Handler $ gameTransformerStackHandler env $
   tupleToSwapPieceResponse <$> GameService.swapPieceService gameId piece
 
-closeGameHandler :: GameEnv -> String -> ExceptServant GameSummary
-closeGameHandler env gameId = gameTransformerStackHandler env $ GameService.closeGameService gameId
+closeGameHandler :: GameEnv -> String -> Handler GameSummary
+closeGameHandler env gameId = Handler $ gameTransformerStackHandler env $ GameService.closeGameService gameId
 
 -- | Convert an unknown exception that may be thrown by the Haskell
 --   runtime or by lower-level libraries to a Servant error, as
 --   needed by Servant API handlers.
-exceptionToServantErr :: Exc.SomeException -> Servant.ServantErr
-exceptionToServantErr exception = Servant.ServantErr
+exceptionToServantErr :: Exc.SomeException -> Servant.ServerError
+exceptionToServantErr exception = Servant.ServerError
     500 -- errHTTPCode
     "Internal server error." -- errReasonPhrase
     (BS.pack $ show exception) -- errBody
@@ -215,7 +219,7 @@ exceptionToServantErr exception = Servant.ServantErr
 --  can be embedded in an ExceptT ServantErr IO as required
 --  by Servant. But how/where do you catch it. Catch is only for
 --  the IO monad.
-catchallHandler :: Exc.SomeException -> IO (Either Servant.ServantErr result)
+catchallHandler :: Exc.SomeException -> IO (Either Servant.ServerError result)
 catchallHandler exception = do
   print exception -- TODO. Should log rather than print.
   return (Left $ exceptionToServantErr exception)

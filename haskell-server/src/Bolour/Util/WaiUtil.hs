@@ -4,7 +4,10 @@
 --   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
 --
 
-module Bolour.Util.WaiUtil (
+module Bolour.Util.WaiUtil
+  where
+{-
+ (
     startWaiApp
   , endWaiApp
   , openTestSocket
@@ -54,5 +57,5 @@ openTestSocket host = do
   port <- Socket.socketPort s
   return (fromIntegral port, s)
 
-
+-}
 

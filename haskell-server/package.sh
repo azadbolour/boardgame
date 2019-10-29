@@ -1,5 +1,8 @@
 #!/bin/sh -x
 
+# IMPORTANT. TODO. Remove all UI dependencies from this script.
+# UI content is to be served indepdently of the backend server.
+
 #
 # Build the server and copy the installation files to
 # to a package directory given in the argument (default

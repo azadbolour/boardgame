@@ -1,5 +1,7 @@
 #!/bin/sh -x
 
+# IMPORTANT. TODO. This script to be made independent of UI content.
+
 #
 # Package a play application and copy it and the scripts used to install
 # and run it to a well-known 'package' directory. The name of the package 
@@ -19,6 +21,9 @@
 # import DEFAULT_PACKAGE_DIR
 #
 . ./defaults.sh
+
+# TODO. Remove the UI content copies from this script.
+# UI content to be provided independently.
 
 #
 # Build the ui bundle and make sure resources are available in their required forms.

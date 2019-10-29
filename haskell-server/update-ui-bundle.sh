@@ -1,5 +1,8 @@
 #!/bin/sh -x 
 
+# IMPORTANT. Obsolete. This script no longer needed.
+# UI content to be served independently of the backend server.
+
 # Copy UI resources from the web-ui distribution directory
 # to the haskell server's static directory to make them available as Servant assets.
 
