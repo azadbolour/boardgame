@@ -18,13 +18,15 @@ fi
 
 #
 # Build the ui bundle and make sure resources are available in their required forms.
+# UI bundle deployed separately.
 #
-. ../pre-build.sh
+# . ../pre-build.sh
 
 #
 # Copy over the ui bundle to the so it can be packaged with the play application.
+# Ui bundle deployed separately.
 # 
-./update-ui-bundle.sh
+# ./update-ui-bundle.sh
 
 stack build
 (cd haskell-server/test-data \
@@ -36,7 +38,7 @@ PROG=.stack-work/install/x86_64-linux/lts-6.35/7.10.3/bin/boardgame-server
 mkdir -p $PACKAGE_DIR
 
 cp $PROG $PACKAGE_DIR
-cp -a static $PACKAGE_DIR
+# cp -a static $PACKAGE_DIR # UI bundle deployed separately.
 cp -aL dict $PACKAGE_DIR
 cp "test-data/sqlite-config.yml" $PACKAGE_DIR/config.yml
 

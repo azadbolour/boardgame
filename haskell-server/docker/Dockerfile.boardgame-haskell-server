@@ -14,7 +14,7 @@ RUN apt-get update \
 
 ENV WORKSPACE /home/me/dev/boardgame
 RUN mkdir -p $WORKSPACE \
-  && mkdir $WORKSPACE/static && mkdir $WORKSPACE/dict \
+  && mkdir $WORKSPACE/dict \
   && mkdir $WORKSPACE/database \
   && chmod 777 $WORKSPACE/database
 
@@ -38,7 +38,7 @@ ENV PATH $PATH:.
 # RUN dpkg -L libpq-dev
 
 COPY * $WORKSPACE/
-COPY static/* $WORKSPACE/static/
+# COPY static/* $WORKSPACE/static/ # UI bundle deployed separately.
 COPY dict/* $WORKSPACE/dict/
 
 ENTRYPOINT ["./boardgame-server", "config.yml"]

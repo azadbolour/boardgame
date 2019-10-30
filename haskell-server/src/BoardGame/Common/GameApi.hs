@@ -17,8 +17,6 @@ See http://haskell-servant.readthedocs.io/en/stable/tutorial/Server.html
 module BoardGame.Common.GameApi (
     GameApi
   , gameApi
-  , GameApi'
-  , gameApi'
 )
 where
 
@@ -46,9 +44,12 @@ type GameApi =
   :<|> "game" :> "close-game" :> Capture "gameId" String :> Post '[JSON] GameSummary
 
 -- Note - In later servant versions this has changed - just use Raw.
+-- Using a separate deploy for the static UI content. So this is no longer needed.
+{-
 type GameApi' =      GameApi
                 :<|> "boardgame" :> Raw -- for index.html
                 :<|> "static" :> Raw -- for js bundle
+-}
 
 -- TODO. suspendGame, resumeGame.
 -- Note Capture means it is an element of the path.
@@ -59,7 +60,7 @@ type GameApi' =      GameApi
 gameApi :: Proxy GameApi
 gameApi = Proxy
 
-gameApi' :: Proxy GameApi'
-gameApi' = Proxy
+-- gameApi' :: Proxy GameApi'
+-- gameApi' = Proxy
 
 

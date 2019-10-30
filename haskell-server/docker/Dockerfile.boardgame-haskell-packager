@@ -55,13 +55,14 @@ RUN echo $PATH
 
 #
 # Install node js version 7.
+# UI bundle deployed separately.
 #
 RUN apt-get update
-RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
+# RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
 # RUN curl -sL https://raw.githubusercontent.com/nodesource/distributions/master/deb/setup_7.x | bash -
-RUN apt-get update
+# RUN apt-get update
 RUN apt-get install -y apt-utils
-RUN apt-get install -y nodejs
+# RUN apt-get install -y nodejs
 
 #
 # Install the Haskell tool stack.
@@ -78,9 +79,10 @@ RUN cd .. \
 
 #
 # Install the web-ui dependencies.
+# UI bundle deployed separately.
 #
-RUN cd web-ui \
-  && ./global-installs.sh
+# RUN cd web-ui \
+#  && ./global-installs.sh
 
 #
 # Build the Haskell server.

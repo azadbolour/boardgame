@@ -58,7 +58,7 @@ import qualified Servant.Utils.StaticFiles as ServantStatic
 
 import Bolour.Util.MiscUtil (debug)
 
-import BoardGame.Common.GameApi (GameApi, GameApi', gameApi')
+import BoardGame.Common.GameApi (GameApi, gameApi)
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.PlayerDto (PlayerDto, PlayerDto(PlayerDto))
 import qualified BoardGame.Common.Domain.PlayerDto as PlayerDto
@@ -83,7 +83,7 @@ import qualified BoardGame.Server.Service.GameService as GameService
 -- TODO. Simplify the api implementation by using the Servant 'enter' function.
 
 mkGameApp :: GameEnv -> IO Application
-mkGameApp env = return $ Servant.serve gameApi' $ mkServer' env
+mkGameApp env = return $ Servant.serve gameApi $ mkServer env
 
 -- | The application server factory for the game api - based on the game environment.
 mkServer :: GameEnv -> Servant.Server GameApi
@@ -98,10 +98,13 @@ mkServer env =
 
 -- Note - In later versions of Servant this has changed - use ServantStatic.serveDirectoryFileServer "static".
 -- Note also that the static handler has to be the last one in the list.
+-- UI bundle deployed separately. So this is no longer needed.
+{-
 mkServer' :: GameEnv -> Servant.Server GameApi'
 mkServer' env = mkServer env
                :<|> ServantStatic.serveDirectory "static"
                :<|> ServantStatic.serveDirectory "static"
+-}
 
 -- | Return type of api handlers required by Servant.
 type ExceptServant result = ExceptT Servant.ServerError IO result
