@@ -28,8 +28,8 @@ module BoardGame.Server.Service.GameService (
   )
   where
 
-import Data.Ord
-import Data.List
+-- import Data.Ord
+-- import Data.List
 import Data.Maybe (fromJust, isNothing)
 import Data.Time (getCurrentTime)
 import Data.Bool (bool)
@@ -43,7 +43,7 @@ import Control.Monad.Reader (MonadReader(..), asks, ask)
 import Control.Monad.Trans.Class (lift)
 
 import Bolour.Util.MiscUtil (isAlphaNumString)
-import Bolour.Util.Core (EntityId)
+-- import Bolour.Util.Core (EntityId)
 import qualified Bolour.Util.MiscUtil as Util
 import Bolour.Util.FrequencyDistribution (FrequencyDistribution(..))
 import qualified Bolour.Util.FrequencyDistribution as FrequencyDistribution
@@ -68,18 +68,18 @@ import BoardGame.Common.Domain.GameSummary (GameSummary)
 import BoardGame.Common.Domain.PlayPiece (PlayPiece, PlayPiece(PlayPiece))
 import qualified BoardGame.Common.Domain.PlayPiece as PlayPiece
 import BoardGame.Common.Domain.GameParams (GameParams, GameParams(..))
-import qualified BoardGame.Common.Domain.GameParams as GameParams
+-- import qualified BoardGame.Common.Domain.GameParams as GameParams
 
 import qualified BoardGame.Server.Domain.ServerVersion as ServerVersion
 import BoardGame.Server.Domain.Game (Game, Game(Game))
 import qualified BoardGame.Server.Domain.Game as Game
-import BoardGame.Server.Domain.GameBase (GameBase, GameBase(GameBase))
+-- import BoardGame.Server.Domain.GameBase (GameBase, GameBase(GameBase))
 import qualified BoardGame.Server.Domain.GameBase as GameBase
 import BoardGame.Common.Domain.InitPieces (InitPieces, InitPieces(InitPieces))
 import qualified BoardGame.Common.Domain.InitPieces as InitPieces
 
-import BoardGame.Server.Domain.GameBase (GameBase, GameBase(GameBase))
-import qualified BoardGame.Server.Domain.GameBase as GameBase
+import BoardGame.Server.Domain.GameBase (GameBase(GameBase))
+-- import qualified BoardGame.Server.Domain.GameBase as GameBase
 import BoardGame.Server.Domain.GameError (GameError(..))
 import BoardGame.Server.Domain.Tray (Tray(Tray))
 import qualified BoardGame.Server.Domain.Tray as Tray
@@ -94,7 +94,7 @@ import BoardGame.Server.Domain.ServerConfig as ServerConfig
 import qualified BoardGame.Server.Domain.StripMatcher as Matcher
 import qualified BoardGame.Server.Domain.Strip as Strip
 import BoardGame.Server.Domain.Strip (Strip, Strip(Strip))
-import BoardGame.Server.Domain.PieceProvider (PieceProvider(..), mkDefaultCyclicPieceProvider)
+import BoardGame.Server.Domain.PieceProvider (PieceProvider(..))
 import qualified BoardGame.Server.Service.GameLetterDistribution as GameLetterDistribution
 import BoardGame.Server.Service.GameData (GameData, GameData(GameData))
 import qualified BoardGame.Server.Service.GameData as GameData
@@ -103,7 +103,7 @@ import BoardGame.Server.Service.GamePersister (GamePersister, GamePersister(Game
 import qualified BoardGame.Server.Service.GamePersister as GamePersister
 import qualified BoardGame.Server.Service.GamePersisterJsonBridge as GamePersisterJsonBridge
 import qualified BoardGame.Server.Service.GameJsonSqlPersister as GameJsonSqlPersister
-import qualified BoardGame.Server.Service.GameJsonSqlPersister as GamePersister
+-- import qualified BoardGame.Server.Service.GameJsonSqlPersister as GamePersister
 
 mkPersister :: GameTransformerStack GamePersister
 mkPersister = do

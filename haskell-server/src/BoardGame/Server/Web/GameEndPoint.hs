@@ -43,7 +43,7 @@ module BoardGame.Server.Web.GameEndPoint (
 ) where
 
 import Data.ByteString.Lazy.Char8 as BS
-import Data.Aeson (encode)
+-- import Data.Aeson (encode)
 
 import qualified Control.Exception as Exc
 import Control.Monad.Except (ExceptT(..), withExceptT)
@@ -54,7 +54,7 @@ import Servant ((:<|>)(..))
 import Servant (Handler(..))
 
 import qualified Servant.Server as Servant
-import qualified Servant.Utils.StaticFiles as ServantStatic
+-- import qualified Servant.Utils.StaticFiles as ServantStatic
 
 import Bolour.Util.MiscUtil (debug)
 

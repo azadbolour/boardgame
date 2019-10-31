@@ -28,7 +28,7 @@ module BoardGame.Server.Service.GameJsonSqlPersister (
   , mkPersister
 ) where
 
-import Data.Maybe (listToMaybe, isJust, fromJust)
+import Data.Maybe (listToMaybe, isJust)
 
 import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
@@ -54,11 +54,11 @@ import Database.Esqueleto (
   )
 
 import Database.Persist.Sql (
-    ConnectionPool
-  , SqlPersistT
-  , SqlPersistM
+    -- ConnectionPool
+  -- , SqlPersistT
+  SqlPersistM
   , fromSqlKey
-  , runSqlPool
+  -- , runSqlPool
   )
 import qualified Database.Persist.Sql as PersistSql (update, (=.))
 

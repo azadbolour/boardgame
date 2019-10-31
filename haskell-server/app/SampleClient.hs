@@ -1,6 +1,6 @@
 module Main where
 
-import Control.Monad.Except (runExceptT)
+-- import Control.Monad.Except (runExceptT)
 
 import Network.HTTP.Client (Manager, newManager, defaultManagerSettings)
 import Servant.Client
@@ -10,11 +10,11 @@ import BoardGame.Common.Domain.PlayerDto (PlayerDto(PlayerDto))
 import BoardGame.Common.Domain.Piece (Piece)
 import BoardGame.Common.Domain.InitPieces (InitPieces(InitPieces))
 import qualified BoardGame.Common.Domain.Piece as Piece
-import Bolour.Plane.Domain.Point (Point(Point))
-import qualified Bolour.Plane.Domain.Point as Point
+-- import Bolour.Plane.Domain.Point (Point(Point))
+-- import qualified Bolour.Plane.Domain.Point as Point
 import BoardGame.Common.Domain.GameParams (GameParams(GameParams))
-import qualified BoardGame.Common.Domain.Piece as Piece
-import qualified BoardGame.Common.Domain.GameParams as GameParams
+-- import qualified BoardGame.Common.Domain.Piece as Piece
+-- import qualified BoardGame.Common.Domain.GameParams as GameParams
 import qualified BoardGame.Client.GameClient as Client
 import BoardGame.Common.Message.StartGameRequest (StartGameRequest(StartGameRequest))
 import qualified BoardGame.Common.Domain.PieceProviderType as PieceProviderType
