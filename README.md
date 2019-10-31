@@ -80,6 +80,18 @@ is open at my github (azadbolour).
 * Bring up `http://localhost:5000?env-type=dev`. Connects to the local UI server
   and instructs it to use the default development backend started earlier.
 
+## Deployment
+
+As of (11/1/2019) deployment scripts are being refactored to disentangle the 
+static UI content from the backend application servers. The UI application 
+is to be deployed independently to AWS CloudFront + S3. 
+
+The backend docker deployment files and associated scripts remain in a 
+state of flux and have not been tested.
+
+TODO. Test updated deployment procedure and update documentation as 
+appropriate.
+
 ## Dictionaries
 
 Please refer to the README file in the dict/ directory. One issue to be

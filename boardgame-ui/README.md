@@ -35,6 +35,11 @@ add the needed dependencies to package.json.
   
   `npm start`
 
+Documentation:
+
+    https://www.npmjs.com/package/react-scripts
+    https://create-react-app.dev/docs/getting-started/
+
 See the generated package.json file for the available npm commands.
 
 ## Development Server
@@ -89,6 +94,8 @@ the application. Following are the configuration parameters.
   `npm run build`
 
 This is scripted in `build.sh`.
+
+Creates production build in the build folder.
 
 To run a node server using the built app:
 

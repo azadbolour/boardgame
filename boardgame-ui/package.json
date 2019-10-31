@@ -1,6 +1,6 @@
 {
   "name": "boardgame-ui",
-  "version": "0.1.0",
+  "version": "0.9.6",
   "private": true,
   "dependencies": {
     "react": "^16.11.0",

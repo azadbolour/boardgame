@@ -1,4 +1,12 @@
 
+- Location of global installs for npm:
+
+    npm config get prefix
+
+  To change:
+
+    npm config edit
+
 - Info about npm packages:
 
     npm view package-name 
