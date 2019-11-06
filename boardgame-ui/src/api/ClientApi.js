@@ -13,15 +13,15 @@ const fetch = require('node-fetch');
 // TODO. Logging for requests and responses.
 
 class ClientApi {
-  constructor(gameServerUrl, userName, password) {
-    this.gameServerUrl = gameServerUrl;
+  constructor(serverUrl, userName, password) {
+    this.serverUrl = serverUrl;
     this.userName = userName;
     this.password = password;
   }
 
   handShake() {
     let request = restManager.mkGetRequest();
-    let promise = restManager.send(request, this.gameServerUrl, '/game/hand-shake');
+    let promise = restManager.send(request, this.serverUrl, '/game/hand-shake');
     return promise;
   }
 
@@ -29,7 +29,7 @@ class ClientApi {
     let startGameRequest = StartGameRequestConverter.toJson(gameParams, initPieces, pointValues);
     let body = JSON.stringify(startGameRequest);
     let request = restManager.mkPostRequest(body);
-    let promise = restManager.send(request, this.gameServerUrl, '/game/game');
+    let promise = restManager.send(request, this.serverUrl, '/game/game');
     return promise;
   }
 
@@ -37,21 +37,21 @@ class ClientApi {
     let body = JSON.stringify(playPieces);
     let request = restManager.mkPostRequest(body);
     let restPath = `/game/commit-play/${gameId}`;
-    let promise = restManager.send(request, this.gameServerUrl, restPath);
+    let promise = restManager.send(request, this.serverUrl, restPath);
     return promise;
   }
   
   getMachinePlay(gameId) {
     let init = restManager.mkEmptyPostRequest();
     let restPath = `/game/machine-play/${gameId}`;
-    let promise = restManager.send(init, this.gameServerUrl, restPath);
+    let promise = restManager.send(init, this.serverUrl, restPath);
     return promise;
   }
 
   closeGame(gameId) {
     let init = restManager.mkEmptyPostRequest();
     let restPath = `/game/close-game/${gameId}`;
-    let promise = restManager.send(init, this.gameServerUrl, restPath);
+    let promise = restManager.send(init, this.serverUrl, restPath);
     return promise;
   }
 
@@ -59,7 +59,7 @@ class ClientApi {
     let body = JSON.stringify(piece);
     let request = restManager.mkPostRequest(body);
     let requestPath = '/game/swap-piece/' + gameId;
-    let promise = restManager.send(request, this.gameServerUrl, requestPath);
+    let promise = restManager.send(request, this.serverUrl, requestPath);
     return promise;
   }
 }

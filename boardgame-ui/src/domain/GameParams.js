@@ -10,8 +10,9 @@
 
 import AppParams from '../util/AppParams';
 import {stringify} from "../util/Logger";
-import {coinToss} from "../util/MiscUtil";
-const validUrl = require('valid-url');
+import {gameConf} from "../Conf";
+import {coinToss, orElse} from "../util/MiscUtil";
+import {queryParamsToObject} from "../util/UrlUtil";
 
 // TODO. Need to export API types.
 // TODO. env type, api type, user, password need to go to Util package -
@@ -25,13 +26,11 @@ function getEnv(varName, defaultValue) {
 }
 
 class GameParams {
-  constructor(appParams, dimension, squarePixels, trayCapacity, apiType, gameServerUrl, pieceProviderType, startingPlayer) {
+  constructor(appParams, dimension, squarePixels, trayCapacity, pieceProviderType, startingPlayer) {
     this.appParams = appParams;
     this.dimension = dimension;
     this.squarePixels = squarePixels;
     this.trayCapacity = trayCapacity;
-    this.apiType = apiType;
-    this.gameServerUrl = gameServerUrl;
     this.pieceProviderType = pieceProviderType;
     this.startingPlayer = startingPlayer; // PlayerType
   }
@@ -51,21 +50,16 @@ class GameParams {
     machinePlayer: 'machine'
   };
 
+  static DIMENSION_PARAM = 'dimension';
+  static SQUARE_PIXELS_PARAM = 'square-pixels';
+  static TRAY_CAPACITY_PARAM = 'tray-capacity';
+  static STARTING_PLAYER_PARAM = 'starting-player';
+
   static PLAYER_TYPES = [GameParams.PlayerType.userPlayer, GameParams.PlayerType.machinePlayer];
-
-  // Environment variable names.
-
-  static ENV_API_TYPE = 'API_TYPE';
-  static ENV_GAME_SERVER_URL = 'GAME_SERVER_URL';
 
   static DEFAULT_DIMENSION = 5;
   static DEFAULT_SQUARE_PIXELS = 33;
   static DEFAULT_TRAY_SIZE = 5;
-  static MOCK_API_TYPE = 'mock';
-  static CLIENT_API_TYPE = 'client';
-  static API_TYPES = [GameParams.MOCK_API_TYPE, GameParams.CLIENT_API_TYPE];
-  static DEFAULT_API_TYPE = GameParams.MOCK_API_TYPE;
-  static DEFAULT_GAME_SERVER_URL = 'http://localhost:6587';
   static DEFAULT_PIECE_GENERATOR_TYPE = GameParams.PieceGeneratorType.cyclic;
 
   static MIN_DIMENSION = 5;
@@ -78,6 +72,8 @@ class GameParams {
   static MAX_TRAY_CAPACITY = 15;
 
   static validated = {valid: true};
+
+  // TODO. validateAppParams.
 
   static validateDimension(dim) {
     let inBounds = dim >= GameParams.MIN_DIMENSION && dim <= GameParams.MAX_DIMENSION;
@@ -115,16 +111,6 @@ class GameParams {
     return GameParams.validated;
   }
 
-  static validateApiType(apiType) {
-    let valid = GameParams.API_TYPES.includes(apiType);
-    if (!valid)
-      return {
-        valid: false,
-        message: `invalid api-type ${apiType} - valid values are ${stringify(GameParams.API_TYPES)}`
-      };
-    return GameParams.validated;
-  }
-
   static validateStartingPlayer(startingPlayer) {
     let valid = GameParams.PLAYER_TYPES.includes(startingPlayer);
     if (!valid)
@@ -135,50 +121,69 @@ class GameParams {
     return GameParams.validated;
   }
 
-  static validateGameServerUrl(url) {
-    // Note. isWebUri returns the uri if valid, undefined if not.
-    let valid = validUrl.isWebUri(url) !== undefined;
-    if (!valid)
-      return {
-        valid: false,
-        message: `invalid url ${url}`
-
-      };
-    return GameParams.validated;
-  }
-
   static UNDEFINED_STARTING_PLAYER = undefined;
 
-  static defaultParams() {
-    let get = getEnv;
+  static mkDefaultParams = function() {
     return new GameParams(
-      AppParams.defaultParams(),
-      GameParams.DEFAULT_DIMENSION,
-      GameParams.DEFAULT_SQUARE_PIXELS,
-      GameParams.DEFAULT_TRAY_SIZE,
-      get(GameParams.ENV_API_TYPE, GameParams.DEFAULT_API_TYPE),
-      get(GameParams.ENV_GAME_SERVER_URL, GameParams.DEFAULT_GAME_SERVER_URL),
+      AppParams.mkDefaultParams(),
+      orElse(gameConf[GameParams.DIMENSION_PARAM], GameParams.DEFAULT_DIMENSION),
+      orElse(gameConf[GameParams.SQUARE_PIXELS_PARAM], GameParams.DEFAULT_SQUARE_PIXELS),
+      orElse(gameConf[GameParams.DIMENSION_PARAM], GameParams.DEFAULT_TRAY_SIZE),
       GameParams.DEFAULT_PIECE_GENERATOR_TYPE,
       GameParams.UNDEFINED_STARTING_PLAYER
-    );
+    )
   };
 
-  static defaultClientParams() {
-    let clientParams = GameParams.defaultParams();
+  static mkDefaultClientParams = function() {
+    let clientParams = GameParams.mkDefaultParams();
     clientParams.appParams.envType = 'prod'; // TODO. Constant.
     clientParams.apiType = GameParams.CLIENT_API_TYPE;
     clientParams.dimension = 13;
     clientParams.trayCapacity = 8;
     clientParams.pieceProviderType = GameParams.PieceGeneratorType.random;
     return clientParams;
-  }
+  };
 
-  static defaultClientParamsSmall() {
-    let clientParams = GameParams.defaultClientParams();
+  static mkDefaultClientParamsSmall = function() {
+    let clientParams = GameParams.mkDefaultClientParams();
     clientParams.dimension = 5;
     clientParams.trayCapacity = 3;
     return clientParams;
+  };
+
+  static validateParam = function(name, value) {
+    switch (name) {
+      case GameParams.DIMENSION_PARAM:
+        return GameParams.validateDimension(value);
+      case GameParams.TRAY_CAPACITY_PARAM:
+        return GameParams.validateTrayCapacity(value);
+      case GameParams.SQUARE_PIXELS_PARAM:
+        return GameParams.validateSquarePixels(value);
+      case GameParams.STARTING_PLAYER_PARAM:
+        return GameParams.validateStartingPlayer(value);
+      default:
+        break;
+    }
+  };
+
+  static settableParameters = (function() {
+    let settables = {};
+    settables[GameParams.DIMENSION_PARAM] = 'int'; // TODO. Constant.
+    settables[GameParams.SQUARE_PIXELS_PARAM] = 'int';
+    settables[GameParams.TRAY_CAPACITY_PARAM] = 'int';
+    settables[GameParams.STARTING_PLAYER_PARAM] = 'string';
+  })();
+
+  static fromQueryParams = function(queryParams) {
+    let {extracted: appExtracted, errorState: appErrorState} = AppParams.fromQueryParams(queryParams);
+    let {extracted, errorState} = queryParamsToObject(queryParams,
+      GameParams.settableParameters, GameParams.validateParam, GameParams.mkDefaultParams);
+    errorState.addErrorState(appErrorState);
+    extracted.appParams = appExtracted;
+    return {extracted, errorState};
   }
+
+
 }
 
 export default GameParams;

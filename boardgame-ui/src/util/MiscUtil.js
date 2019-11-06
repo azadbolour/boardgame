@@ -56,6 +56,40 @@ export const convertResponse = function(response, data) {
   return newResponse;
 };
 
+export const mkErrorState = function() {
+  let _error = false;
+  let _status = "";
+  return {
+    get error() { return _error; },
+    get status() { return _status; },
+    addError: function (message) {
+      _status += _error ? "\n" : "";
+      _error = true;
+      _status += message;
+    },
+    addErrorState: function(errorState) {
+      if (errorState.error) {
+        this.addError(errorState.status)
+      }
+    }
+  }
+};
+
+export const toCamelCase = function(name) {
+  let camelName = name.replace(/(-)([a-z])/g, function(match, dash, initial, offset, string) { return initial.toUpperCase()});
+  return camelName;
+};
+
+export const getOrElse = function(object, field, defaultValue) {
+  const value = object[field];
+  return (value !== undefined) ? value : defaultValue;
+};
+
+export const orElse = function(value, defaultValue) {
+  return (value !== undefined) ? value : defaultValue;
+};
+
+
 
 
 

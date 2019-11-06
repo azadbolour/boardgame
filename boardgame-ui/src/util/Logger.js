@@ -18,6 +18,13 @@ export const stringify = function(value) {
   return `${JSON.stringify(value)}`;
 };
 
+export const stringifyNoBracesForEmpty = function(status) {
+  // TODO. Ugly hack for empty object. Clean up. Simple tests did not work!
+  let s = stringify(status);
+  return (s === "{}") ? "" : s;
+};
+
+
 const logger = {
   init: function(env) {
     this.env = env;

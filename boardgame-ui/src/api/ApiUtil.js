@@ -15,7 +15,7 @@ import ClientApi from './ClientApi';
 export const apiSelector = function(gameParams) {
   let userName = gameParams.appParams.userName;
   let password = gameParams.appParams.password;
-  let url = gameParams.gameServerUrl;
+  let url = gameParams.appParams.serverUrl;
   let mockApi = new MockApi(url, userName, password);
   let clientApi = new ClientApi(url, userName, password)
 
