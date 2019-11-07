@@ -5,7 +5,7 @@
  */
 
 
-import {stringify} from "../util/Logger";
+// import {stringify} from "../util/Logger";
 import {mkEmptyBoard} from '../domain/Board';
 import {mkPiece} from '../domain/Piece';
 import {mkPoint} from '../domain/Point';

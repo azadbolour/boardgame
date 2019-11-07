@@ -9,10 +9,8 @@
 import GameParams from "../domain/GameParams";
 import {mkPiece} from "../domain/Piece";
 import {mkPoint} from "../domain/Point";
-import * as Piece from "../domain/Piece";
 import * as PlayPiece from "../domain/PlayPiece";
-// import TestUtil from "./TestHelper"
-import {mkMovePlayPiece, mkCommittedPlayPiece} from "../domain/PlayPiece";
+import {mkMovePlayPiece} from "../domain/PlayPiece";
 import GameService from "../service/GameService"
 import {stringify} from "../util/Logger";
 import * as PointValue from '../domain/PointValue';
@@ -25,7 +23,7 @@ import {mkInitPieces} from '../domain/InitPieces'
 // Note. If done is not called within a timeout, the test fails.
 // That will happen in case of exceptions and reject.
 
-let gameParams = GameParams.defaultParams();
+let gameParams = GameParams.mkDefaultParams();
 let valueFactory = PointValue.mkValueFactory(gameParams.dimension);
 let pointValues = valueFactory.mkEmptyValueGrid();
 

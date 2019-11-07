@@ -11,7 +11,7 @@
 import AppParams from '../util/AppParams';
 import {stringify} from "../util/Logger";
 import {gameConf} from "../Conf";
-import {coinToss, orElse} from "../util/MiscUtil";
+import {coinToss, orElse, toCamelCase} from "../util/MiscUtil";
 import {queryParamsToObject} from "../util/UrlUtil";
 
 // TODO. Need to export API types.
@@ -55,6 +55,11 @@ class GameParams {
   static TRAY_CAPACITY_PARAM = 'tray-capacity';
   static STARTING_PLAYER_PARAM = 'starting-player';
 
+  static DIMENSION_FIELD = toCamelCase(GameParams.DIMENSION_PARAM);
+  static SQUARE_PIXELS_FIELD = toCamelCase(GameParams.SQUARE_PIXELS_PARAM);;
+  static TRAY_CAPACITY_FIELD = toCamelCase(GameParams.TRAY_CAPACITY_PARAM);;
+  static STARTING_PLAYER_FIELD = toCamelCase(GameParams.STARTING_PLAYER_PARAM);;
+
   static PLAYER_TYPES = [GameParams.PlayerType.userPlayer, GameParams.PlayerType.machinePlayer];
 
   static DEFAULT_DIMENSION = 5;
@@ -71,7 +76,8 @@ class GameParams {
   static MIN_TRAY_CAPACITY = 3;
   static MAX_TRAY_CAPACITY = 15;
 
-  static validated = {valid: true};
+  // TODO. Move to a ValidationUtil. Duplicated in AppParams.
+  static validated = AppParams.validated; // {valid: true};
 
   // TODO. validateAppParams.
 
@@ -126,9 +132,9 @@ class GameParams {
   static mkDefaultParams = function() {
     return new GameParams(
       AppParams.mkDefaultParams(),
-      orElse(gameConf[GameParams.DIMENSION_PARAM], GameParams.DEFAULT_DIMENSION),
-      orElse(gameConf[GameParams.SQUARE_PIXELS_PARAM], GameParams.DEFAULT_SQUARE_PIXELS),
-      orElse(gameConf[GameParams.DIMENSION_PARAM], GameParams.DEFAULT_TRAY_SIZE),
+      orElse(gameConf[GameParams.DIMENSION_FIELD], GameParams.DEFAULT_DIMENSION),
+      orElse(gameConf[GameParams.SQUARE_PIXELS_FIELD], GameParams.DEFAULT_SQUARE_PIXELS),
+      orElse(gameConf[GameParams.TRAY_CAPACITY_FIELD], GameParams.DEFAULT_TRAY_SIZE),
       GameParams.DEFAULT_PIECE_GENERATOR_TYPE,
       GameParams.UNDEFINED_STARTING_PLAYER
     )
@@ -172,6 +178,7 @@ class GameParams {
     settables[GameParams.SQUARE_PIXELS_PARAM] = 'int';
     settables[GameParams.TRAY_CAPACITY_PARAM] = 'int';
     settables[GameParams.STARTING_PLAYER_PARAM] = 'string';
+    return settables;
   })();
 
   static fromQueryParams = function(queryParams) {
@@ -182,8 +189,6 @@ class GameParams {
     extracted.appParams = appExtracted;
     return {extracted, errorState};
   }
-
-
 }
 
 export default GameParams;

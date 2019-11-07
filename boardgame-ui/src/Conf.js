@@ -5,12 +5,12 @@
 
 export const gameConf = {
   appParams: {
-    'env-type': 'dev',
-    'api-type': 'client',
-    'server-url': 'http://localhost:6587',
-    'input-device': 'mouse',
+    envType: 'dev',
+    apiType: 'client',
+    serverType: 'http://localhost:6587',
+    inputDevice: 'mouse',
   },
   'dimension': 13,
-  'square-pixels': 33,
-  'tray-capacity': 7
+  'squarePixels': 33,
+  'trayCapacity': 7
 };

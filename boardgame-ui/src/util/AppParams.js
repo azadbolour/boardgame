@@ -9,9 +9,8 @@
  */
 
 import {stringify} from "./Logger";
-import GameParams from "../domain/GameParams";
 import {queryParamsToObject} from "./UrlUtil";
-import {orElse} from "./MiscUtil";
+import {orElse, toCamelCase} from "./MiscUtil";
 import {gameConf} from "../Conf";
 const validUrl = require('valid-url');
 
@@ -39,10 +38,15 @@ class AppParams {
   static SERVER_URL_PARAM = 'server-url';
   static INPUT_DEVICE_PARAM = 'input-device';
 
+  static ENV_TYPE_FIELD = toCamelCase(AppParams.ENV_TYPE_PARAM);
+  static API_TYPE_FIELD = toCamelCase(AppParams.API_TYPE_PARAM);
+  static SERVER_URL_FIELD = toCamelCase(AppParams.SERVER_URL_PARAM);
+  static INPUT_DEVICE_FIELD = toCamelCase(AppParams.INPUT_DEVICE_PARAM);
+
   static MOCK_API_TYPE = 'mock';
   static CLIENT_API_TYPE = 'client';
-  static API_TYPES = [GameParams.MOCK_API_TYPE, GameParams.CLIENT_API_TYPE];
-  static DEFAULT_API_TYPE = GameParams.MOCK_API_TYPE;
+  static API_TYPES = [AppParams.MOCK_API_TYPE, AppParams.CLIENT_API_TYPE];
+  static DEFAULT_API_TYPE = AppParams.MOCK_API_TYPE;
   static DEFAULT_SERVER_URL = 'http://localhost:6587';
 
   static DEV_ENV_TYPE = 'dev';
@@ -60,6 +64,7 @@ class AppParams {
 
   static INPUT_DEVICES = [AppParams.MOUSE_INPUT, AppParams.TOUCH_INPUT];
 
+  // TODO. Move to a ValidationUtil.
   static validated = {valid: true};
 
   static validateEnvType(envType) {
@@ -77,9 +82,9 @@ class AppParams {
     if (!valid)
       return {
         valid: false,
-        message: `invalid api-type ${apiType} - valid values are ${stringify(GameParams.API_TYPES)}`
+        message: `invalid api-type ${apiType} - valid values are ${stringify(AppParams.API_TYPES)}`
       };
-    return GameParams.validated;
+    return AppParams.validated;
   }
 
   static validateServerUrl(url) {
@@ -91,7 +96,7 @@ class AppParams {
         message: `invalid url ${url}`
 
       };
-    return GameParams.validated;
+    return AppParams.validated;
   }
 
   static validatePreferredInputDevice(inputDevice) {
@@ -106,10 +111,10 @@ class AppParams {
 
   static mkDefaultParams() {
     return new AppParams(
-      orElse(gameConf.appParams[AppParams.ENV_TYPE_PARAM], AppParams.DEFAULT_ENV_TYPE),
-      orElse(gameConf.appParams[AppParams.API_TYPE_PARAM], AppParams.DEFAULT_API_TYPE),
-      orElse(gameConf.appParams[AppParams.SERVER_URL_PARAM], AppParams.DEFAULT_SERVER_URL),
-      orElse(gameConf.appParams[AppParams.INPUT_DEVICE_PARAM], AppParams.DEFAULT_INPUT_DEVICE)
+      orElse(gameConf.appParams[AppParams.ENV_TYPE_FIELD], AppParams.DEFAULT_ENV_TYPE),
+      orElse(gameConf.appParams[AppParams.API_TYPE_FIELD], AppParams.DEFAULT_API_TYPE),
+      orElse(gameConf.appParams[AppParams.SERVER_URL_FIELD], AppParams.DEFAULT_SERVER_URL),
+      orElse(gameConf.appParams[AppParams.INPUT_DEVICE_FIELD], AppParams.DEFAULT_INPUT_DEVICE)
     )
   }
 
@@ -118,7 +123,7 @@ class AppParams {
       case AppParams.ENV_TYPE_PARAM:
         return AppParams.validateEnvType(value);
       case AppParams.API_TYPE_PARAM:
-        return GameParams.validateApiType(value);
+        return AppParams.validateApiType(value);
      case AppParams.INPUT_DEVICE_PARAM:
         return AppParams.validatePreferredInputDevice(value);
       default:

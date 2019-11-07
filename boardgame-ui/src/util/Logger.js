@@ -10,7 +10,8 @@
 
 // TODO. Add logging for all major function.
 
-import AppParams from './AppParams';
+// TODO. Static initialization issue. Circular dependency. Fix.
+// import AppParams from './AppParams';
 
 // See AppParams for env types - dev, test, prod.
 
@@ -44,7 +45,7 @@ const logger = {
 
   debug: function(message) {
     switch(this.env) {
-      case AppParams.DEV_ENV_TYPE:
+      case 'dev': //AppParams.DEV_ENV_TYPE: TODO. Static initialization issue. Circular dependency.
         console.debug(message);
         break;
       default:

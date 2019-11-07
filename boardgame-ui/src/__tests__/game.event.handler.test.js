@@ -6,12 +6,12 @@
 
 'use strict';
 
-import {stringify} from "../util/Logger";
+// import {stringify} from "../util/Logger";
 
 import actions from '../event/GameActions';
 import GameParams from "../domain/GameParams";
 import {mkGameEventHandler} from '../event/GameEventHandler';
-import * as Piece from "../domain/Piece";
+// import * as Piece from "../domain/Piece";
 import {mkPoint} from "../domain/Point";
 import {mkPiecePoint} from "../domain/PiecePoint";
 import GameService from "../service/GameService"
@@ -21,7 +21,7 @@ import {gameDispatcher} from '../event/GameDispatcher';
 // TODO. to be fulfilled in a jest test. What is the model?
 
 test('generate events to exercise game transitions', done => {
-  let gameParams = GameParams.defaultParams();
+  let gameParams = GameParams.mkDefaultParams();
   let dimension = gameParams.dimension;
   let mid = Math.floor(dimension / 2);
   let gameService = new GameService(gameParams);

@@ -5,8 +5,8 @@
  */
 
 
-import {stringify} from "../util/Logger";
-import {mkBoard, mkEmptyBoard} from "../domain/Board";
+// import {stringify} from "../util/Logger";
+import {mkEmptyBoard} from "../domain/Board";
 import {mkPiecePoint} from "../domain/PiecePoint";
 import {mkPiece} from "../domain/Piece";
 import * as Piece from "../domain/Piece";
@@ -19,7 +19,7 @@ import GameParams from "../domain/GameParams";
 import * as PointValue from '../domain/PointValue';
 
 let mkDefaultGame = function(dimension) {
-  let gameParams = GameParams.defaultParams();
+  let gameParams = GameParams.mkDefaultParams();
   gameParams.dimension = dimension;
   let center = Math.floor(dimension/2);
   let board = mkEmptyBoard(dimension);

@@ -4,8 +4,8 @@
  *   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
 
-import AppParams from "./AppParams";
 import {mkErrorState, toCamelCase} from "./MiscUtil";
+import {stringify} from "./Logger";
 
 /** @module UrlUtil */
 
@@ -28,6 +28,8 @@ export const queryParams = function(location) {
   };
 
   let _params = getQueryParams(location);
+
+  console.log(`in queryParams method: ${stringify(_params)}`);
 
   return {
     /**
@@ -55,9 +57,14 @@ export const queryParamsToObject = function(queryParams, paramSpec, validator, m
   let errorState = mkErrorState();
   let extracted = mkDefaultParams();
 
+  console.log(`in queryParamsToObject: default object: ${stringify(extracted)}`);
+  console.log(`paramSpec: ${stringify(paramSpec)}`);
   for (let name in paramSpec) {
+    const fieldName = toCamelCase(name);
+    console.log(`name: ${name}`);
     if (!paramSpec.hasOwnProperty(name))
       continue;
+    console.log(`name: ${name}`);
     let value = queryParams.getParam(name);
     if (value === undefined)
       continue;
@@ -75,9 +82,12 @@ export const queryParamsToObject = function(queryParams, paramSpec, validator, m
       errorState.addError(message);
       continue;
     }
-    let property = toCamelCase(name);
-    extracted[property] = value;
+    // let property = toCamelCase(name);
+    console.log(`${stringify(name)} ... ${stringify(value)}`);
+    extracted[fieldName] = value;
   }
+
+  console.log(`returning from queryParamsToObject: extracted: ${stringify(extracted)}, errorState: ${stringify(errorState)}`);
 
   return {
     extracted,
