@@ -5,7 +5,7 @@
  */
 
 
-import GameParams from '../domain/GameParams';
+import AppParams from '../util/AppParams';
 import MockApi from './MockApi';
 import ClientApi from './ClientApi';
 
@@ -13,16 +13,17 @@ import ClientApi from './ClientApi';
  * Select the api implementation to use for a game - mock or game server client.
  */
 export const apiSelector = function(gameParams) {
+  // TODO. Remove user name and password.
   let userName = gameParams.appParams.userName;
   let password = gameParams.appParams.password;
   let url = gameParams.appParams.serverUrl;
   let mockApi = new MockApi(url, userName, password);
-  let clientApi = new ClientApi(url, userName, password)
+  let clientApi = new ClientApi(url, userName, password);
 
-  switch (gameParams.apiType) {
-    case GameParams.MOCK_API_TYPE:
+  switch (gameParams.appParams.apiType) {
+    case AppParams.MOCK_API_TYPE:
       return mockApi;
-    case GameParams.CLIENT_API_TYPE:
+    case AppParams.CLIENT_API_TYPE:
       return clientApi;
     default:
       return mockApi;

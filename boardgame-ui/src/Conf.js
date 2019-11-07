@@ -7,7 +7,7 @@ export const gameConf = {
   appParams: {
     envType: 'dev',
     apiType: 'client',
-    serverType: 'http://localhost:6587',
+    serverUrl: 'http://localhost:6587',
     inputDevice: 'mouse',
   },
   'dimension': 13,

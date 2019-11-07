@@ -24,11 +24,12 @@ function getEnv(varName, defaultValue) {
 // TODO. User name and password not provided in the URL. Obtained by identity service. Remove from here.
 
 class AppParams {
-  constructor(envType, apiType, serverUrl, inputDevice) {
+  constructor(envType, apiType, serverUrl, inputDevice, userName) {
     this.envType = envType;
     this.apiType = apiType;
     this.serverUrl = serverUrl;
     this.inputDevice = inputDevice;
+    this.userName = userName;
   }
 
   // Names of parameters settable in the URL for testing.
@@ -114,7 +115,8 @@ class AppParams {
       orElse(gameConf.appParams[AppParams.ENV_TYPE_FIELD], AppParams.DEFAULT_ENV_TYPE),
       orElse(gameConf.appParams[AppParams.API_TYPE_FIELD], AppParams.DEFAULT_API_TYPE),
       orElse(gameConf.appParams[AppParams.SERVER_URL_FIELD], AppParams.DEFAULT_SERVER_URL),
-      orElse(gameConf.appParams[AppParams.INPUT_DEVICE_FIELD], AppParams.DEFAULT_INPUT_DEVICE)
+      orElse(gameConf.appParams[AppParams.INPUT_DEVICE_FIELD], AppParams.DEFAULT_INPUT_DEVICE),
+      AppParams.DEFAULT_USER_NAME
     )
   }
 

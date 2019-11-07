@@ -70,7 +70,7 @@ class GameParams {
   static MIN_DIMENSION = 5;
   static MAX_DIMENSION = 25;
 
-  static MIN_SQUARE_PIXELS = 20;
+  static MIN_SQUARE_PIXELS = 28;
   static MAX_SQUARE_PIXELS = 60;
 
   static MIN_TRAY_CAPACITY = 3;
