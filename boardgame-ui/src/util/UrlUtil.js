@@ -57,14 +57,9 @@ export const queryParamsToObject = function(queryParams, paramSpec, validator, m
   let errorState = mkErrorState();
   let extracted = mkDefaultParams();
 
-  console.log(`in queryParamsToObject: default object: ${stringify(extracted)}`);
-  console.log(`paramSpec: ${stringify(paramSpec)}`);
   for (let name in paramSpec) {
-    const fieldName = toCamelCase(name);
-    console.log(`name: ${name}`);
     if (!paramSpec.hasOwnProperty(name))
       continue;
-    console.log(`name: ${name}`);
     let value = queryParams.getParam(name);
     if (value === undefined)
       continue;
@@ -82,12 +77,9 @@ export const queryParamsToObject = function(queryParams, paramSpec, validator, m
       errorState.addError(message);
       continue;
     }
-    // let property = toCamelCase(name);
-    console.log(`${stringify(name)} ... ${stringify(value)}`);
+    let fieldName = toCamelCase(name);
     extracted[fieldName] = value;
   }
-
-  console.log(`returning from queryParamsToObject: extracted: ${stringify(extracted)}, errorState: ${stringify(errorState)}`);
 
   return {
     extracted,
