@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 import { default as TouchBackend } from 'react-dnd-touch-backend';
 import React from 'react';
 import ReactList from 'react-list';
+import {connect} from 'react-redux';
 import * as Game from '../domain/Game';
 import TrayComponent from './TrayComponent';
 import BoardComponent from './BoardComponent';
@@ -410,5 +411,9 @@ class GameComponent extends React.Component {
   }
 }
 
+const mapStateToProps = (state) => ({
+  game: state.game
+});
+
 // export default DragDropContext(dndBackend)(GameComponent);
-export default GameComponent
+export default connect(mapStateToProps)(GameComponent)
