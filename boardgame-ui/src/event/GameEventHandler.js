@@ -57,18 +57,18 @@ export const mkGameEventHandler = function(gameService) {
 
   const unrecoverableErrorMessage = "we are sorry - the system encountered an unrecoverable error - and had to stop the game - ";
 
-  const registerChangeObserver = function(observer) {
-    // Yes - function references can be compared as references.
-    if (!_changeObservers.find((obs) => (obs === observer)))
-      _changeObservers.push(observer);
-  };
-
-  const unregisterChangeObserver = function(observer) {
-    let index = _changeObservers.findIndex((obs) => (obs === observer));
-    if (index === -1)
-      return;
-    _changeObservers.splice(index, 1);
-  };
+  // const registerChangeObserver = function(observer) {
+  //   // Yes - function references can be compared as references.
+  //   if (!_changeObservers.find((obs) => (obs === observer)))
+  //     _changeObservers.push(observer);
+  // };
+  //
+  // const unregisterChangeObserver = function(observer) {
+  //   let index = _changeObservers.findIndex((obs) => (obs === observer));
+  //   if (index === -1)
+  //     return;
+  //   _changeObservers.splice(index, 1);
+  // };
 
   /**
    * For now we will not distinguish between different changes.
@@ -76,13 +76,15 @@ export const mkGameEventHandler = function(gameService) {
    * without any parameters. We do distinguish between stages of
    * a change - for async changes.
    */
-  const emitChange = function(changeStage) {
-    _changeObservers.forEach(
-      function (observer) {
-        observer(changeStage, _game, _status, _auxGameData);
-      }
-    );
-  };
+    // Done by Redux.
+
+  // const emitChange = function(changeStage) {
+  //   _changeObservers.forEach(
+  //     function (observer) {
+  //       observer(changeStage, _game, _status, _auxGameData);
+  //     }
+  //   );
+  // };
 
   const systemResponseType = function(response) {
     let responseType = ActionStages.CHANGE_SUCCESS;
@@ -96,7 +98,8 @@ export const mkGameEventHandler = function(gameService) {
 
   const killGame = function(message) {
     _game = _game.kill();
-    _status = unrecoverableErrorMessage + message;
+    _status = unrecoverableErrorMessage + stringify(message);
+    return Promise.resolve({}); // Consistent response.
   };
 
   const revertParamsToDefault = function(gameParams) {
@@ -134,18 +137,33 @@ export const mkGameEventHandler = function(gameService) {
 
   let handler = {
     get game() { return _game; },
+    get status() { return _status; },
+    get auxGameData() { return _auxGameData; },
+
+    mkReturnResponse: function() {
+      return {
+        game: this.game,
+        auxGameData: this.auxGameData,
+        userMessage: this.status,
+      }
+    },
 
     handleStart: function(gameParams) {
       console.log(`handle start - ${stringify(gameParams)}`);
       let handler = this;
-      handler.handleStartInternal(gameParams).then(response => {
+      const promised = handler.handleStartInternal(gameParams).then(response => {
         if (!response.ok)
           return response;
         if (machineStarts(gameParams))
           return handler.handleMachinePlayInternal();
       }).catch(reason => {
-        killGame(reason);
-        emitChange(ActionStages.CHANGE_FAILURE);
+        return killGame(reason);
+        // emitChange(ActionStages.CHANGE_FAILURE);
+      });
+      promised.then(response => {
+        const result = handler.mkReturnResponse();
+        console.log(`handleStart - making the final promise - result: ${stringify(result)}`);
+        return result;
       });
     },
 
@@ -156,15 +174,17 @@ export const mkGameEventHandler = function(gameService) {
       let initPieces = mkInitPieces([], [], []);
       let promise = _gameService.start(initPieces, pointValues);
       let processedPromise = promise.then(response => {
+        console.log(`handleStartInternal - response: ${stringify(response)}`);
         if (response.ok) {
           _game = response.json;
+          console.log(`handleStartInternal - OK: - game: ${stringify(_game)}`);
           _status = machineStarts(gameParams) ? MACHINE_START_STATUS : USER_START_STATUS;
           _auxGameData = emptyAuxGameData();
         }
         else {
           blankOutGame(gameParams, errorText(response));
         }
-        emitChange(systemResponseType(response));
+        // emitChange(systemResponseType(response));
         return response;
       });
       return processedPromise;
@@ -174,14 +194,14 @@ export const mkGameEventHandler = function(gameService) {
       if (noGame()) { logNoGame(); return; }
       _game = _game.applyUserMove(move);
       _status = OK;
-      emitChange(ActionStages.CHANGE_SUCCESS);
+      // emitChange(ActionStages.CHANGE_SUCCESS);
     },
 
     handleRevertMove: function(piece) {
       if (noGame()) { logNoGame(); return; }
       _game = _game.revertMove(piece);
       _status = OK;
-      emitChange(ActionStages.CHANGE_SUCCESS);
+      // emitChange(ActionStages.CHANGE_SUCCESS);
     },
 
     /*
@@ -213,7 +233,7 @@ export const mkGameEventHandler = function(gameService) {
           status: 422,
           statusText: _status
         };
-        emitChange(systemResponseType(response));
+        // emitChange(systemResponseType(response));
         return Promise.resolve(response);
       }
 
@@ -225,7 +245,7 @@ export const mkGameEventHandler = function(gameService) {
           // _game = $game.setDeadPoints(deadPoints);
           _status = OK;
           _auxGameData.pushWordPlayed(playPiecesWord(committedPlayPieces), "You"); // TODO. Use player name.
-          emitChange(systemResponseType(response));
+          // emitChange(systemResponseType(response));
           return convertResponse(response, gameMiniState);
         }
         if (isUserError(response)) {
@@ -234,7 +254,7 @@ export const mkGameEventHandler = function(gameService) {
         else {
           killGame(errorText(response));
         }
-        emitChange(systemResponseType(response));
+        // emitChange(systemResponseType(response));
         return response;
       });
       return processedPromise;
@@ -257,12 +277,12 @@ export const mkGameEventHandler = function(gameService) {
           // _game = $game.setDeadPoints(deadPoints);
           _status = movedPiecePoints.length > 0 ? OK : "bot took a pass";
           _auxGameData.pushWordPlayed(playPiecesWord(playedPieces), "Bot"); // TODO. Constant.
-          emitChange(systemResponseType(response));
+          // emitChange(systemResponseType(response));
           return convertResponse(response, gameMiniState);
         }
 
         killGame(errorText(response));
-        emitChange(systemResponseType(response));
+        // emitChange(systemResponseType(response));
         return response;
       });
       return processedPromise;
@@ -293,7 +313,7 @@ export const mkGameEventHandler = function(gameService) {
         }
       }).catch(reason => {
         killGame(reason);
-        emitChange(ActionStages.CHANGE_FAILURE);
+        // emitChange(ActionStages.CHANGE_FAILURE);
       });
     },
 
@@ -323,7 +343,7 @@ export const mkGameEventHandler = function(gameService) {
         }
       }).catch(reason => {
         killGame(reason);
-        emitChange(ActionStages.CHANGE_FAILURE);
+        // emitChange(ActionStages.CHANGE_FAILURE);
       });
     },
 
@@ -332,7 +352,7 @@ export const mkGameEventHandler = function(gameService) {
 
       _game = _game.revertPlay();
       _status = OK;
-      emitChange(ActionStages.CHANGE_SUCCESS);
+      // emitChange(ActionStages.CHANGE_SUCCESS);
     },
 
     gameSummaryStatus: function(stopInfo) {
@@ -354,7 +374,7 @@ export const mkGameEventHandler = function(gameService) {
         else {
           killGame(errorText(response));
         }
-        emitChange(systemResponseType(response));
+        // emitChange(systemResponseType(response));
         return response;
       });
       return processedResponse;
@@ -369,27 +389,28 @@ export const mkGameEventHandler = function(gameService) {
           _game = _game.replaceTrayPiece(pc.id, piece);
           _status = OK;
           _auxGameData.pushWordPlayed("", "You");
-          emitChange(systemResponseType(response));
+          // emitChange(systemResponseType(response));
           return convertResponse(response, gameMiniState);
         }
         killGame(errorText(response));
-        emitChange(systemResponseType(response));
+        // emitChange(systemResponseType(response));
         return(response);
       }).catch(reason => {
         killGame(reason);
-        emitChange(ActionStages.CHANGE_FAILURE);
+        // emitChange(ActionStages.CHANGE_FAILURE);
       });
       return processedPromise;
     }
    };
 
-  let dispatchHandler = function(action) {
+  const dispatchHandler = function(action) {
     // if (_game !== undefined)
     //   _game.logGameState();
 
     switch (action.type) {
       case ActionTypes.START:
         let result = handler.handleStart(action.gameParams);
+        console.log(`game event handler after start - game: ${stringify(handler.game)}`);
         return result;
       case ActionTypes.MOVE:
         return handler.handleMove(action.move);
@@ -409,11 +430,20 @@ export const mkGameEventHandler = function(gameService) {
     }
   };
 
+  // const getHandlerState = function() {
+  //   return {
+  //     game: handler.game,
+  //     status: handler.status,
+  //     auxGameData: handler.auxGameData
+  //   }
+  // };
+
+  return dispatchHandler;
 
 
-  return {
-    dispatchHandler: dispatchHandler,
-    registerChangeObserver: registerChangeObserver,
-    unregisterChangeObserver: unregisterChangeObserver
-  }
+  // return {
+  //   dispatchHandler: dispatchHandler,
+  //   // registerChangeObserver: registerChangeObserver,
+  //   // unregisterChangeObserver: unregisterChangeObserver
+  // }
 };

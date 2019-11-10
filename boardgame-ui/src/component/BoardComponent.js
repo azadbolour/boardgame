@@ -12,6 +12,7 @@ import PieceComponent from './PieceComponent';
 // import * as Piece from '../domain/Piece';
 import {mkPoint} from '../domain/Point';
 import * as Point from '../domain/Point';
+import {connect} from "react-redux";
 // import logger from "../util/Logger";
 // import {stringify} from "../util/Logger";
 
@@ -79,7 +80,12 @@ class BoardComponent extends React.Component {
     /**
      * The board responds to interactions.
      */
-    enabled: PropTypes.bool.isRequired
+    enabled: PropTypes.bool.isRequired,
+
+    /**
+     * Redux dispatcher.
+     */
+    dispatch: PropTypes.func.isRequired
   };
 
   /**
@@ -165,4 +171,9 @@ class BoardComponent extends React.Component {
   }
 }
 
-export default BoardComponent;
+const mapStateToProps = (state) => ({
+  game: state.game
+});
+
+
+export default connect(mapStateToProps)(BoardComponent);

@@ -34,11 +34,18 @@ const rootEl = document.getElementById('root');
 const UNKNOWN_SERVER_TYPE = "unknown";
 let serverType = UNKNOWN_SERVER_TYPE;
 
+let gameService = new GameService(gameParams);
+
+const gameReducer = mkGameReducer(gameParams, gameService);
+const store = createStore(gameReducer);
+
+console.log(`index.js - store state: ${stringify(store.getState())}`);
+
 // TODO. Use App.
-const renderGame = function(game, status, auxGameData, changeStage) {
+const renderGame = function(status, auxGameData) {
   let gameSpec =
-    <Provider store={{store}}>
-      <GameComponent game={game} status={status} auxGameData={auxGameData} serverType={serverType}/>
+    <Provider store={store}>
+      <GameComponent status={status} auxGameData={auxGameData} serverType={serverType}/>
     </Provider>;
   ReactDOM.render(
     gameSpec,
@@ -46,20 +53,17 @@ const renderGame = function(game, status, auxGameData, changeStage) {
   );
 };
 
-const gameChangeObserver = function(changeStage, game, status, auxGameData) {
-  renderGame(game, status, auxGameData, changeStage);
-};
-
-let gameService = new GameService(gameParams);
-
-const gameReducer = mkGameReducer(gameParams, gameService);
-const store = createStore(gameReducer);
+// const gameChangeObserver = function(changeStage, game, status, auxGameData) {
+//   renderGame(game, status, auxGameData, changeStage);
+// };
+//
 
 let gameEventHandler = mkGameEventHandler(gameService);
 gameDispatcher.register(gameEventHandler.dispatchHandler);
 
-gameEventHandler.registerChangeObserver(gameChangeObserver);
+// gameEventHandler.registerChangeObserver(gameChangeObserver);
 
+// TODO. doHandShake be triggered by an action?
 const doHandShake = function(service, handler) {
   service.handShake().then(response => {
     if (response.ok) {
@@ -79,11 +83,11 @@ const doHandShake = function(service, handler) {
 
 const renderEmptyGame = function(status) {
   let emptyGame = mkEmptyGame(gameParams);
-  renderGame(emptyGame, status, emptyAuxGameData());
+  renderGame(status, emptyAuxGameData());
 };
 
 if (errorState.error)
-  renderEmptyGame(errorState.status);
+  renderGame(errorState.status);
 else
   doHandShake(gameService, renderEmptyGame);
 

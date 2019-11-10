@@ -43,7 +43,12 @@ class TrayComponent extends React.Component {
     pieces: PropTypes.array.isRequired,
     canMovePiece: PropTypes.func.isRequired,
     squarePixels: PropTypes.number.isRequired,
-    enabled: PropTypes.bool.isRequired
+    enabled: PropTypes.bool.isRequired,
+    /**
+     * Redux dispatcher.
+     */
+    dispatch: PropTypes.func.isRequired
+
   };
   
   /**
@@ -78,7 +83,9 @@ class TrayComponent extends React.Component {
           position={position}
           isTrayPiece={isTrayPiece}
           squarePixels={squarePixels}
-          enabled={enabled} >
+          enabled={enabled}
+          dispatch={this.props.dispatch}
+        >
           {this.renderPiece(position)}
         </TraySquareComponent>
       </div>

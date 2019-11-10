@@ -10,6 +10,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import SquareComponent from './SquareComponent';
 import actions from '../event/GameActions';
+import GameActionTypes from '../event/GameActionTypes';
 import * as Piece from '../domain/Piece';
 import {mkPiece} from '../domain/Piece';
 // import {mkPoint} from '../domain/Point';
@@ -154,7 +155,11 @@ const pieceDropper = {
     let piece = getMonitorPiece(monitor);
     let point = props.point;
     let move = mkPiecePoint(piece, point);
-    actions.move(move);
+    // actions.move(move);
+    props.dispatch({
+      type: GameActionTypes.MOVE,
+      move: move
+    });
   }
 };
 
@@ -268,6 +273,11 @@ class BoardSquareComponent extends React.Component {
      * Responds to user interactions.
      */
     enabled: PropTypes.bool.isRequired,
+
+    /**
+     * Redux dispatcher.
+     */
+    dispatch: PropTypes.func.isRequired
 
     // Note connectDropTarget is also injected.
   };

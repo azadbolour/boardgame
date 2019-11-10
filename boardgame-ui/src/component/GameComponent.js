@@ -17,13 +17,15 @@ import TrayComponent from './TrayComponent';
 import BoardComponent from './BoardComponent';
 import SwapBinComponent from './SwapBinComponent';
 import actions from '../event/GameActions';
-// import {stringify} from "../util/Logger";
+import {stringify} from "../util/Logger";
 import * as Style from "../util/StyleUtil";
 import * as BrowserUtil from "../util/BrowserUtil";
 import AppParams from '../util/AppParams';
 import GameParams from '../domain/GameParams';
 import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
+import {gameDispatcher} from "../event/GameDispatcher";
+import GameActionTypes from "../event/GameActionTypes";
 // const DragDropContext = require('react-dnd').DragDropContext;
 // const HTML5Backend = require('react-dnd-html5-backend');
 
@@ -163,12 +165,10 @@ class GameComponent extends React.Component {
   // }
 
   static propTypes = {
-    /**
-     * The contents of the grid. It is a 2-dimensional array of strings.
-     */
-    game: PropTypes.object.isRequired,
-    status: PropTypes.string,
-    auxGameData: PropTypes.object.isRequired,
+
+    // game: PropTypes.object.isRequired, // comes from Redux store.
+    // status: PropTypes.string,
+    // auxGameData: PropTypes.object.isRequired,
     serverType: PropTypes.string.isRequired
   };
 
@@ -190,11 +190,18 @@ class GameComponent extends React.Component {
   }
 
   commitPlay() {
-    actions.commitPlay();
+    // actions.commitPlay();
+    this.props.dispatch({
+      type: GameActionTypes.COMMIT_PLAY
+    });
+
   }
 
   revertPlay() {
-    actions.revertPlay();
+    // actions.revertPlay();
+    this.props.dispatch({
+      type: GameActionTypes.REVERT_PLAY
+    });
   }
 
   /**
@@ -216,7 +223,12 @@ class GameComponent extends React.Component {
   startGame() {
     displayDeviceMessage = false;
     let newGameParams = this.getNewGameParams(this.props.game);
-    actions.start(newGameParams);
+    // actions.start(newGameParams);
+    this.props.dispatch({
+      type: GameActionTypes.START,
+      gameParams: newGameParams
+    });
+
   }
 
   renderWord(index, key) {
@@ -298,6 +310,7 @@ class GameComponent extends React.Component {
 
   render() {
     let game = this.props.game;
+    console.log(`BoardComponent.render - game: ${stringify(game)}`);
     let running = game.running();
     let hasUncommittedPieces = game.numPiecesInPlay() > 0;
     let canMovePiece = game.canMovePiece.bind(game);
@@ -336,7 +349,9 @@ class GameComponent extends React.Component {
       pieces={trayPieces}
       canMovePiece={canMovePiece}
       squarePixels={squarePixels}
-      enabled={running} />;
+      enabled={running}
+      dispatch={this.props.dispatch}
+    />;
 
     let boardComponent = <BoardComponent
       board={board}
@@ -347,6 +362,7 @@ class GameComponent extends React.Component {
       squarePixels={squarePixels}
       pointValues={pointValues}
       enabled={running}
+      dispatch={this.props.dispatch}
     />;
 
     return (
@@ -372,7 +388,11 @@ class GameComponent extends React.Component {
             </div> <pre>  </pre>
             <div style={{display: 'flex', flexDirection: 'column'}}>
               <div style={paddingStyle}>
-                <SwapBinComponent isTrayPiece={isTrayPiece} enabled={running} />
+                <SwapBinComponent
+                  isTrayPiece={isTrayPiece}
+                  enabled={running}
+                  dispatch={this.props.dispatch}
+                />
               </div>
               <pre> </pre>
               <div>
@@ -411,9 +431,14 @@ class GameComponent extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  game: state.game
-});
+const mapStateToProps = (state) => {
+  console.log(`GameComponent.mapStateToProps - state: ${stringify(state)}`)
+  return {
+    game: state.game,
+    auxGameData: state.auxGameData,
+    status: state.userMessage
+  };
+};
 
 // export default DragDropContext(dndBackend)(GameComponent);
 export default connect(mapStateToProps)(GameComponent)
