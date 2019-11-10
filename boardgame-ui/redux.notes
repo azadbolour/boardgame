@@ -1,0 +1,66 @@
+
+This branch includes an incomplete attempt at refactoring the game UI to use 
+redux instead of a home-brew change observer.
+
+The existing design pattern does not work because does not match best practices
+for state management using Redux for asynchronous actions.
+
+Basically, reducers expect synchronous actions. Best practices ar to have
+synchronous reducer actions for:
+
+    starting an asynchronous action
+    successfully completing it
+    erroring out of it
+
+To accomplish this requires components to call a refactored version of
+GameEventHandler directly, and have each method of the handler dispatch the
+above three actions to the reducer, changing state for each as appropriate.
+
+The current design pattern of calling dispatch directly from components and
+calling the GameEventHandler from the reducer is a remnant from legacy code and
+does not work.
+
+Using Redux as described above is an improvement on the current working 
+design (in the master branch). But it is not essential for making progress 
+on other aspects of the game. 
+
+Because the needed refactoring takes us over the currently allocated time box
+for converting the UI to use Redux, we decided to abandon that effort for now,
+and save its partial work in this branch for future reference. 
+
+Note that the current work in this branch is incomplete and inconsistent 
+even within some modules notably GameEventHandler and GameReducer.
+
+Check out the following modules before pursuing this track further:
+
+GameComponent - It is connected to the Redux store and passes down the dispatch
+method in as an explicit prop. I don't think there is a need to connect the
+other components to the Redux store, at least initially. This also reduces the
+chance of potential interference between the Redux wrapper and the drag and drop
+wrappers.
+
+GameReducer - Currently gets dispatches from components, and tries
+unsuccessfully to use the GameEventHandler to implement the calls,
+Tries to be clever and deal with promises, but that does not work.
+Change to use actual computed data and not promises (as expliened above).
+
+index.js - Defines the store and renders an empty game based on URL parameters.
+Wraps the game component inside a Redux Provider in order to pass the store 
+under the covers as a prop to the game component.
+
+GameEventHandler - This is where the real action of changing the game data
+structure and saving in the datanase occurs. A new version of it is needed 
+that is called directly by components and then dispatches actions based
+in various stages of an asynchronous call.
+
+MockApiImpl - Make sure it returns promises with data consistent with the
+client implementation.
+
+Links
+
+Simple explanation of redux:
+
+https://www.youtube.com/watch?v=sX3KeP7v7Kg
+
+The Redux documentation is pretty good. Just refresh your memory by browsing it.
+
