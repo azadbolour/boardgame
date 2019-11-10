@@ -11,7 +11,6 @@ import PropTypes from 'prop-types';
 import Square from './SquareComponent';
 import {mkPiece} from '../domain/Piece';
 import actions from '../event/GameActions';
-import GameActionTypes from "../event/GameActionTypes";
 const ItemTypes = require('./DragDropTypes').ItemTypes;
 const DropTarget = require('react-dnd').DropTarget;
 
@@ -60,11 +59,7 @@ const pieceDropper = {
     console.log("dropping");
     let draggedPiece = monitor.getItem();
     let piece = mkPiece(draggedPiece.value, draggedPiece.id);
-    // actions.revertMove(piece);
-    props.dispatch({
-      type: GameActionTypes.REVERT_MOVE,
-      piece: piece
-    });
+    actions.revertMove(piece);
   }
 };
 
@@ -102,13 +97,7 @@ class TraySquareComponent extends React.Component {
      */
     isOver: PropTypes.bool.isRequired,
 
-    canDrop: PropTypes.bool.isRequired,
-
-    /**
-     * Redux dispatcher.
-     */
-    dispatch: PropTypes.func.isRequired
-
+    canDrop: PropTypes.bool.isRequired
   };
 
   render() {

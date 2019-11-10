@@ -13,8 +13,6 @@ import SquareComponent from './SquareComponent';
 import actions from '../event/GameActions';
 // import {stringify} from "../util/Logger";
 import * as Style from "../util/StyleUtil";
-import {gameDispatcher} from "../event/GameDispatcher";
-import GameActionTypes from "../event/GameActionTypes";
 const ItemTypes = require('./DragDropTypes').ItemTypes;
 const DropTarget = require('react-dnd').DropTarget;
 const pix=75;
@@ -66,12 +64,7 @@ const pieceDropper = {
 
   drop: function (props, monitor) {
     let piece = getMonitorPiece(monitor);
-    // actions.swap(piece);
-    props.dispatch({
-      type: GameActionTypes.SWAP,
-      piece: piece
-    });
-
+    actions.swap(piece);
   }
 };
 
@@ -100,12 +93,7 @@ class SwapBinComponent extends React.Component {
      */
     isOver: PropTypes.bool.isRequired,
 
-    canDrop: PropTypes.bool.isRequired,
-
-    /**
-     * Redux dispatcher.
-     */
-    dispatch: PropTypes.func.isRequired
+    canDrop: PropTypes.bool.isRequired
 
     // Note connectDropTarget is also injected.
   };
