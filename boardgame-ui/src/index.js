@@ -8,11 +8,8 @@
    Without it the board is not displayed! Why? */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {createStore} from 'redux';
-import {Provider} from 'react-redux'
 import GameComponent from './component/GameComponent';
 import {queryParams} from './util/UrlUtil';
-import {mkGameReducer} from "./event/GameReducer";
 
 import GameParams from './domain/GameParams';
 import GameService from "./service/GameService"
@@ -34,12 +31,8 @@ const rootEl = document.getElementById('root');
 const UNKNOWN_SERVER_TYPE = "unknown";
 let serverType = UNKNOWN_SERVER_TYPE;
 
-// TODO. Use App.
 const renderGame = function(game, status, auxGameData, changeStage) {
-  let gameSpec =
-    <Provider store={{store}}>
-      <GameComponent game={game} status={status} auxGameData={auxGameData} serverType={serverType}/>
-    </Provider>;
+  let gameSpec = <GameComponent game={game} status={status} auxGameData={auxGameData} serverType={serverType}/>;
   ReactDOM.render(
     gameSpec,
     rootEl
@@ -51,10 +44,6 @@ const gameChangeObserver = function(changeStage, game, status, auxGameData) {
 };
 
 let gameService = new GameService(gameParams);
-
-const gameReducer = mkGameReducer(gameParams, gameService);
-const store = createStore(gameReducer);
-
 let gameEventHandler = mkGameEventHandler(gameService);
 gameDispatcher.register(gameEventHandler.dispatchHandler);
 
