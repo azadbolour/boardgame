@@ -55,7 +55,6 @@ export const mkGameReducer = function(gameParams, gameService) {
             action: action
           }
         });
-        return state;
         break;
       default:
         return state;

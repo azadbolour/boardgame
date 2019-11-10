@@ -160,7 +160,7 @@ export const mkGameEventHandler = function(gameService) {
         return killGame(reason);
         // emitChange(ActionStages.CHANGE_FAILURE);
       });
-      return promised.then(response => {
+      promised.then(response => {
         const result = handler.mkReturnResponse();
         console.log(`handleStart - making the final promise - result: ${stringify(result)}`);
         return result;
@@ -410,7 +410,7 @@ export const mkGameEventHandler = function(gameService) {
     switch (action.type) {
       case ActionTypes.START:
         let result = handler.handleStart(action.gameParams);
-        console.log(`game event handler after start - result: ${stringify(result)}`);
+        console.log(`game event handler after start - game: ${stringify(handler.game)}`);
         return result;
       case ActionTypes.MOVE:
         return handler.handleMove(action.move);
