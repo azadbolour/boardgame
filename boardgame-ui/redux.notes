@@ -64,3 +64,18 @@ https://www.youtube.com/watch?v=sX3KeP7v7Kg
 
 The Redux documentation is pretty good. Just refresh your memory by browsing it.
 
+Main Value Added
+
+Redux takes care of subscriptions.
+
+Redux causes implicit rerendering upon state changes.
+
+The state is managed in one place (though best practice is split the state
+into clean objects).
+
+The wrapping of children with Providers and wrapping of components with connect
+ust complicates the code as opposed to just passing down that state.
+
+Also there is some uncertainty in my mind about whether multiple wrappers will
+play nice with each other (one for DND and one for Redux).
+ 
