@@ -142,7 +142,9 @@ class BoardComponent extends React.Component {
           isLegalMove={isLegalMove}
           squarePixels={squarePixels}
           pointValue={pointValue}
-          enabled={enabled}>
+          enabled={enabled}
+          dispatch={this.props.dispatch}
+        >
             {this.renderPiece(point)}
         </BoardSquareComponent>
       </div>
