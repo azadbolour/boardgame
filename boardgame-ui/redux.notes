@@ -2,6 +2,11 @@
 This branch includes an incomplete attempt at refactoring the game UI to use 
 redux instead of a home-brew change observer.
 
+To see all the changes for Redux so far diff with the last commit before 
+we started conversion to redux: 
+
+    e2575dc35b17e6f3e295a9d0009b685fa809503d
+
 The existing design pattern does not work because does not match best practices
 for state management using Redux for asynchronous actions.
 
