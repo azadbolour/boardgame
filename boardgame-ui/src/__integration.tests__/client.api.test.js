@@ -65,7 +65,7 @@ test('start game and make user and machine plays', () => {
     let moves = PlayPiece.movedPiecePoints(playedPieces);
     expect(moves.length).toBeGreaterThan(1);
     expect(gameMiniState.lastPlayScore).toBeGreaterThan(0);
-    return gameService.closeGame(game.gameId);
+    return gameService.gameCloserHelper(game.gameId);
   }).then(response => {
     let unitResponse = response.json;
     console.log(`end json response: ${stringify(unitResponse)}`)

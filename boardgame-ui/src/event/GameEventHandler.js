@@ -344,7 +344,7 @@ export const mkGameEventHandler = function(gameService) {
 
     handleCloseInternal: function () {
       if (noGame()) { logNoGame(); return; }
-      let promise = _gameService.closeGame(_game.gameId);
+      let promise = _gameService.gameCloserHelper(_game.gameId);
       let processedResponse = promise.then(response => {
         if (response.ok) {
           let {stopInfo} = response.json;

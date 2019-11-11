@@ -10,6 +10,7 @@
 export const mkAuxGameData = function(wordsPlayed) {
   let _wordsPlayed = wordsPlayed;
 
+
   return {
     get wordsPlayed() { return _wordsPlayed; },
 
@@ -18,12 +19,13 @@ export const mkAuxGameData = function(wordsPlayed) {
         word: word,
         playerName: playerName
       };
-      _wordsPlayed.push(wordPlayed);
+      // _wordsPlayed.push(wordPlayed);
+      return [..._wordsPlayed, wordPlayed];
     },
 
-    resetWordsPlayed() {
-      _wordsPlayed = [];
-    }
+    // resetWordsPlayed() {
+    //   _wordsPlayed = [];
+    // }
   }
 };
 
