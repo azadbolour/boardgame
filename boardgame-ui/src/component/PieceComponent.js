@@ -127,6 +127,7 @@ class PieceComponent extends React.Component {
       return connectDragSource(theDiv);
     else
       return connectDragPreview(connectDragSource(theDiv));
+      // return connectDragPreview(theDiv);
   }
 }
 
