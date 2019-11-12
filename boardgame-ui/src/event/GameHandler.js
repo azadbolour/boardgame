@@ -153,7 +153,7 @@ export const mkGameHandler = function(gameService) {
   };
 
   const commitDataToGameState = function(data, actionType) {
-    mkGameState(data.game, data.auxGameData, data.opStatus, actionType);
+    return mkGameState(data.game, data.auxGameData, data.opStatus, actionType);
   };
 
   const machinePlayDataToGameState = function(data, actionType) {
@@ -230,31 +230,33 @@ export const mkGameHandler = function(gameService) {
       let handler = this;
       handler.commitPlayInternal(game, auxGameData).then(commitData => {
 
-        if (!commitData.ok) {
-          let gameState = commitDataToGameState(commitData.game, NewActionTypes.COMMIT_PLAY_FAILURE);
-          emitChange(gameState);
-        }
-
         const resultActionType = function(ok) {
           return ok ? NewActionTypes.COMMIT_PLAY_SUCCESS : NewActionTypes.COMMIT_PLAY_FAILURE;
         };
 
+        let commitGameState = commitDataToGameState(commitData, resultActionType(commitData.ok));
+        console.log(`GameHandler - commitGameState: ${stringify(commitGameState)}`);
+        emitChange(commitGameState);
+
+        if (!commitData.ok)
+          return commitGameState;
+
         const {gameMiniState} = commitData;
         const {noMorePlays} = gameMiniState;
+        const {game: committedGame, auxGameData: committedAuxGameData} = commitGameState;
 
         if (noMorePlays)
-          // TODO. Check that auxGameData is up-to-date.
-          handler.gameCloserHelper(game, auxGameData, resultActionType).then(
-            gameState => emitChange(gameState)
+          return handler.gameCloserHelper(committedGame, committedAuxGameData, resultActionType).then(
+            closeGameState => emitChange(closeGameState)
           );
         else
-          return handler.machinePlayInternal(game, auxGameData).then(machinePlayData => {
+          return handler.machinePlayInternal(committedGame, committedAuxGameData).then(machinePlayData => {
             handler.completeMachinePlay(machinePlayData, resultActionType).then(
-              gameState => emitChange(gameState)
+              machineGameState => emitChange(machineGameState)
             )
           });
       }).catch(reason => {
-        const failureState = blankOutGame(game.gameParams, stringify(reason), NewActionTypes.COMMIT_FAILURE);
+        const failureState = blankOutGame(game.gameParams, stringify(reason), NewActionTypes.COMMIT_PLAY_FAILURE);
         emitChange(failureState);
       });
     },
@@ -434,7 +436,7 @@ export const mkGameHandler = function(gameService) {
         if (!shouldClose)
           return defaultPromise;
         else
-          handler.gameCloserHelper(gameState.game, gameState.auxGameData, resultActionType).then(
+          return handler.gameCloserHelper(gameState.game, gameState.auxGameData, resultActionType).then(
             gameState => {
               return gameState
             }
@@ -482,7 +484,6 @@ export const mkGameHandler = function(gameService) {
       return handler.handleCloseInternal(game).then(
         closeData => {
           return closeDataToGameState(closeData, auxGameData, resultActionType);
-          // emitChange(gameState);
         }
       );
     },
