@@ -8,9 +8,6 @@
 // TODO. Change notes about handling promises to reflect new model of internal calls.
 
 import {stringify} from "../util/Logger";
-// import {convertResponse} from "../util/MiscUtil";
-// import ActionTypes from './GameActionTypes';
-import ActionStages from './GameActionStages';
 import {mkEmptyGame} from '../domain/Game';
 import GameParams from '../domain/GameParams';
 import * as PlayPiece from '../domain/PlayPiece';
@@ -107,7 +104,7 @@ export const mkGameHandler = function(gameService) {
 
   const revertParamsToDefault = function(gameParams) {
     let isProd = gameParams.appParams.envType === 'prod'; // TODO. Constant for prod.
-    let params = isProd ? GameParams.defaultClientParams() : GameParams.defaultParams();
+    let params = isProd ? GameParams.mkDefaultClientParams() : GameParams.mkDefaultParams();
     return params;
   };
 
@@ -169,18 +166,21 @@ export const mkGameHandler = function(gameService) {
      * Starts a game based on the input game parameters. Among other things, the starting
      * player is specified in the input parameters. If the starting player is the machine,
      * calls the backed to get the first play and reflect on the board.
+     *
+     * A top-level method called when the user requests to start a new game.
      */
-    handleStart: function(gameParams) {
+    start: function(gameParams) {
       console.log(`handle start - ${stringify(gameParams)}`);
       // No need for triggering START_INIT for now. Keep it simple.
       let handler = this;
-      handler.handleStartInternal(gameParams).then(gameState => {
+      handler.startInternal(gameParams).then(gameState => {
         if (playerStarts(gameParams) || startFailure(gameState.actionType))
           emitChange(gameState);
         else
-          handler.handleMachinePlayInternal(gameState.game, gameState.auxGameData)
+          handler.machinePlayInternal(gameState.game, gameState.auxGameData)
             .then(playData => {
               let gameState = machinePlayDataToGameState(playData, startCompletion(playData.ok));
+              console.log(`start - gameState: ${stringify(gameState)}`);
               emitChange(gameState)
             });
         })
@@ -191,10 +191,136 @@ export const mkGameHandler = function(gameService) {
     },
 
     /**
-     * Starts a game based on the input parameters without doing any plays and
-     * returns the game state for the started game.
+     * Reflect a single move of a piece from the tray to the board.
+     *
+     * A top-level method called when the user moves a piece to the board.
+     *
+     * @param move - A move object that include the piece and the destination point on the board:
+     *               { piece, point }.
      */
-    handleStartInternal: function(gameParams) {
+    move: function(game, auxGameData, move) {
+      if (noGame(game)) { logNoGame(); return; }
+      // TODO. Could this call fail? If so need to return failure state.
+      const updatedGame = game.applyUserMove(move);
+      const gameState = mkGameState(updatedGame, auxGameData, OK, NewActionTypes.MOVE_SUCCESS);
+      emitChange(gameState);
+    },
+
+    /**
+     * Reverse an earlier move by moving its piece from the board to the tray;
+     * reflect the result on the board.
+     *
+     * A top-level method called when the user asks to undo a move.
+     */
+    revertMove: function(game, auxGameData, piece) {
+      if (noGame(game)) { logNoGame(); return; }
+      const updatedGame = game.revertMove(piece);
+      const gameState = mkGameState(updatedGame, auxGameData, OK, NewActionTypes.REVERT_MOVE_SUCCESS);
+      emitChange(gameState);
+    },
+
+    /**
+     * Commit the user's current play and get the next machine play from
+     * the backend.
+     *
+     * A top-level call when the user commits a play.
+     */
+    commitPlayAndGetMachinePlay: function(game, auxGameData) {
+      if (noGame(game)) { logNoGame(); return; }
+      let handler = this;
+      handler.commitPlayInternal(game, auxGameData).then(commitData => {
+
+        if (!commitData.ok) {
+          let gameState = commitDataToGameState(commitData.game, NewActionTypes.COMMIT_PLAY_FAILURE);
+          emitChange(gameState);
+        }
+
+        const resultActionType = function(ok) {
+          return ok ? NewActionTypes.COMMIT_PLAY_SUCCESS : NewActionTypes.COMMIT_PLAY_FAILURE;
+        };
+
+        const {gameMiniState} = commitData;
+        const {noMorePlays} = gameMiniState;
+
+        if (noMorePlays)
+          // TODO. Check that auxGameData is up-to-date.
+          handler.gameCloserHelper(game, auxGameData, resultActionType).then(
+            gameState => emitChange(gameState)
+          );
+        else
+          return handler.machinePlayInternal(game, auxGameData).then(machinePlayData => {
+            handler.completeMachinePlay(machinePlayData, resultActionType).then(
+              gameState => emitChange(gameState)
+            )
+          });
+      }).catch(reason => {
+        const failureState = blankOutGame(game.gameParams, stringify(reason), NewActionTypes.COMMIT_FAILURE);
+        emitChange(failureState);
+      });
+    },
+
+    /**
+     * Swap a user piece for another piece allocated by the system and
+     * get the next machine move from the system.
+     *
+     * @param piece The tray piece to be swapped.
+     */
+    swapAndGetMachinePlay: function(game, auxGameData, piece) {
+      if (noGame(game)) { logNoGame(); return; }
+      let handler = this;
+
+      const resultActionType = function(ok) {
+        return ok ? NewActionTypes.SWAP_SUCCESS : NewActionTypes.SWAP_FAILURE;
+      };
+
+      handler.handleSwapInternal(game, auxGameData, piece).then(swapData => {
+
+        const swapDataToGameState = function() {
+          return mkGameState(swapData.game, swapData.auxGameData, swapData.opStatus, resultActionType(swapData.ok));
+        };
+
+        const gameState = swapDataToGameState();
+
+        if (!swapData.ok)
+          emitChange(gameState);
+        else {
+          let {gameMiniState} = swapData;
+          if (gameMiniState.noMorePlays)
+            handler.gameCloserHelper(gameState.game, gameState.auxGameData, resultActionType).then(
+              gameState => emitChange(gameState)
+            );
+          else {
+            return handler.machinePlayInternal(gameState.game, gameState.auxGameData).then(machinePlayData => {
+              handler.completeMachinePlay(machinePlayData, resultActionType).then(
+                gameState => emitChange(gameState)
+              )
+            });
+          }
+        }
+      }).catch(reason => {
+        const failureState = blankOutGame(game.gameParams, stringify(reason), NewActionTypes.SWAP_FAILURE);
+        emitChange(failureState);
+      });
+    },
+
+    /**
+     * Revert the current user play moving all of its board pieces back to the tray.
+     *
+     * A top-level method called when the user asks to scrap the current (as yet uncommitted)
+     * play.
+     */
+    revertPlay: function(game, auxGameData) {
+      if (noGame(game)) { logNoGame(); return; }
+      const updatedGame = game.revertPlay();
+      const gameState = mkGameState(updatedGame, auxGameData, OK, NewActionTypes.REVERT_PLAY_SUCCESS);
+      emitChange(gameState);
+    },
+
+    /**
+     * Start a game based on the input parameters without doing any plays, and
+     * return the game state for the started game.
+     */
+    startInternal: function(gameParams) {
       console.log("handle start internal");
       let valueFactory = PointValue.mkValueFactory(gameParams.dimension);
       let pointValues = valueFactory.mkValueGrid();
@@ -209,35 +335,10 @@ export const mkGameHandler = function(gameService) {
     },
 
     /**
-     * Reflect a single move of a piece from the tray to the board.
-     *
-     * @param move - A move object that include the piece and the destination point on the board:
-     *               { piece, point }.
-     */
-    handleMove: function(game, auxGameData, move) {
-      if (noGame(game)) { logNoGame(); return; }
-      // TODO. Could this call fail? If so need to return failure state.
-      const updatedGame = game.applyUserMove(move);
-      const gameState = mkGameState(updatedGame, auxGameData, OK, NewActionTypes.MOVE_SUCCESS);
-      emitChange(gameState);
-    },
-
-    /**
-     * Reverse an earlier move by moving its piece from the board to the tray;
-     * reflect the result on the board.
-     */
-    handleRevertMove: function(game, auxGameData, piece) {
-      if (noGame(game)) { logNoGame(); return; }
-      const updatedGame = game.revertMove(piece);
-      const gameState = mkGameState(updatedGame, auxGameData, OK, NewActionTypes.REVERT_MOVE_SUCCESS);
-      emitChange(gameState);
-    },
-
-    /**
-     * Commit a user play and return the resulting committed game data:
+     * Commit a user play and return a promise of the resulting committed game data:
      * {game, auxGameData, ok, status, opStatus}
      */
-    handleCommitPlayInternal: function(game, auxGameData) {
+    commitPlayInternal: function(game, auxGameData) {
       if (noGame(game)) { logNoGame(); return; }
       let committedPlayPieces = undefined;
       try {
@@ -273,17 +374,17 @@ export const mkGameHandler = function(gameService) {
             return unhappyCommitData(422);
           else
             return unhappyCommitData(500);
-      });
+        });
       return processedPromise;
     },
 
     /**
-     * Get a machine play from the backend and return data about it:
+     * Get a machine play from the system and return a promise of data about it:
      * {game, auxGameData, opStatus, ok, gameMiniState}
      */
-    handleMachinePlayInternal: function(game, auxGameData) {
+    machinePlayInternal: function(game, auxGameData) {
       console.log("machine play internal");
-      if (noGame()) { logNoGame(); return; }
+      if (noGame(game)) { logNoGame(); return; }
 
       let promise = _gameService.getMachinePlay(game.gameId);
       return promise.then(response => {
@@ -294,6 +395,7 @@ export const mkGameHandler = function(gameService) {
           let movedPiecePoints = PlayPiece.movedPiecePoints(playedPieces);
           let updatedGame = game.commitMachineMoves(gameMiniState.lastPlayScore, movedPiecePoints, deadPoints);
           let updatedAuxGameData = auxGameData.pushWordPlayed(playPiecesWord(playedPieces), "Bot");
+          console.log(`machinePlayInternal - updatedAuxGameData: ${stringify(updatedAuxGameData)}`);
           let opStatus = movedPiecePoints.length > 0 ? OK : "bot took a pass";
           return {...defaultResult, game: updatedGame, auxGameData: updatedAuxGameData, opStatus, gameMiniState};
         };
@@ -311,40 +413,15 @@ export const mkGameHandler = function(gameService) {
       });
     },
 
-    handleCommitPlayAndGetMachinePlay: function(game, auxGameData) {
-      if (noGame(game)) { logNoGame(); return; }
-      let handler = this;
-      handler.handleCommitPlayInternal().then(commitData => {
-
-        if (!commitData.ok) {
-          let gameState = commitDataToGameState(commitData.game, NewActionTypes.COMMIT_PLAY_FAILURE);
-          emitChange(gameState);
-        }
-
-        const resultActionType = function(ok) {
-          return ok ? NewActionTypes.COMMIT_PLAY_SUCCESS : NewActionTypes.COMMIT_PLAY_FAILURE;
-        };
-
-        const {gameMiniState} = commitData;
-        const {noMorePlays} = gameMiniState;
-
-        if (noMorePlays)
-          // TODO. Check that auxGameData is up-to-date.
-          handler.gameCloserHelper(game, auxGameData, resultActionType).then(
-            gameState => emitChange(gameState)
-          );
-        else
-          return handler.handleMachinePlayInternal(game, auxGameData).then(machinePlayData => {
-            handler.completeMachinePlay(machinePlayData, resultActionType).then(
-              gameState => emitChange(gameState)
-            )
-          });
-      }).catch(reason => {
-        const failureState = blankOutGame(game.gameParams, stringify(reason), NewActionTypes.COMMIT_FAILURE);
-        emitChange(failureState);
-      });
-    },
-
+    /**
+     * A machine play has been executed; complete its processing by ending
+     * the game if the backend has declared the game as ended (timed out).
+     *
+     * @param machinePlayData Result of the the machine play.
+     * @param resultActionType A function that computes the success/failure action
+     *          type of the machine play based on the ok property of the result.
+     * @returns {Promise<{actionType, game, auxGameData, opStatus}>}
+     */
     completeMachinePlay: function(machinePlayData, resultActionType) {
       let actionType = resultActionType(machinePlayData.ok);
       let gameState = machinePlayDataToGameState(machinePlayData, actionType);
@@ -365,59 +442,11 @@ export const mkGameHandler = function(gameService) {
       }
     },
 
-    handleSwapAndGetMachinePlay: function(game, auxGameData, piece) {
-      if (noGame(game)) { logNoGame(); return; }
-      let handler = this;
-
-      const resultActionType = function(ok) {
-        return ok ? NewActionTypes.SWAP_SUCCESS : NewActionTypes.SWAP_FAILURE;
-      };
-
-      handler.handleSwapInternal(game, auxGameData, piece).then(swapData => {
-
-        const swapDataToGameState = function() {
-          return mkGameState(swapData.game, swapData.auxGameData, swapData.opStatus, resultActionType(swapData.ok));
-        };
-
-        const gameState = swapDataToGameState();
-
-        if (!swapData.ok)
-          emitChange(gameState);
-        else {
-          let {gameMiniState} = swapData;
-          if (gameMiniState.noMorePlays)
-            handler.gameCloserHelper(gameState.game, gameState.auxGameData, resultActionType).then(
-              gameState => emitChange(gameState)
-            );
-          else {
-            return handler.handleMachinePlayInternal(gameState.game, gameState.auxGameData).then(machinePlayData => {
-              handler.completeMachinePlay(machinePlayData, resultActionType).then(
-                gameState => emitChange(gameState)
-              )
-            });
-          }
-        }
-      }).catch(reason => {
-        const failureState = blankOutGame(game.gameParams, stringify(reason), NewActionTypes.SWAP_FAILURE);
-        emitChange(failureState);
-      });
-    },
-
-    handleRevertPlay: function(game, auxGameData) {
-      if (noGame()) { logNoGame(); return; }
-      const updatedGame = game.revertPlay();
-      const gameState = mkGameState(updatedGame, auxGameData, OK, NewActionTypes.REVERT_PLAY_SUCCESS);
-      emitChange(gameState);
-    },
-
-    gameSummaryStatus: function(stopInfo) {
-      let {successivePasses, filledBoard} = stopInfo;
-      let status = "game over - ";
-      status += filledBoard ? `full board` : `${successivePasses} successive passes - maxed out`;
-      return status;
-    },
-
-    handleCloseInternal: function (game) {
+    /**
+     * The server has indicated that the game should end - so go ahead and end it,
+     * returning a promise of its result.
+     */
+    closeInternal: function (game) {
       if (noGame(game)) { logNoGame(); return; }
       let promise = _gameService.gameCloserHelper(game.gameId);
       let processedResponse = promise.then(response => {
@@ -442,6 +471,13 @@ export const mkGameHandler = function(gameService) {
       return processedResponse;
     },
 
+    gameSummaryStatus: function(stopInfo) {
+      let {successivePasses, filledBoard} = stopInfo;
+      let status = "game over - ";
+      status += filledBoard ? `full board` : `${successivePasses} successive passes - maxed out`;
+      return status;
+    },
+
     gameCloserHelper: function(game, auxGameData, resultActionType) {
       return handler.handleCloseInternal(game).then(
         closeData => {
@@ -451,8 +487,13 @@ export const mkGameHandler = function(gameService) {
       );
     },
 
+    /**
+     * Swap a piece and return a promise of its result.
+     *
+     * @param pc The tray piece to be swapped.
+     */
     handleSwapInternal: function (game, auxGameData, pc) {
-      if (noGame()) { logNoGame(); return; }
+      if (noGame(game)) { logNoGame(); return; }
       let promise = _gameService.swap(game.gameId, pc);
       let processedPromise = promise.then(response => {
         const defaultResult = {game, auxGameData, opStatus: OK, ok: true};
@@ -480,7 +521,7 @@ export const mkGameHandler = function(gameService) {
    };
 
   return {
-    handler,
+    gameEventHandler: handler,
     subscribe,
     unsubscribe
   }

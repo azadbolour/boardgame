@@ -23,6 +23,7 @@ import AppParams from '../util/AppParams';
 import GameParams from '../domain/GameParams';
 import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
+import {stringify} from "../util/Logger";
 // const DragDropContext = require('react-dnd').DragDropContext;
 // const HTML5Backend = require('react-dnd-html5-backend');
 
@@ -157,20 +158,30 @@ class GameComponent extends React.Component {
     }
   }
 
-  // getInitialState() {
-  //   return {tipButton: ''};
-  // }
-
   static propTypes = {
     /**
      * The contents of the grid. It is a 2-dimensional array of strings.
      */
-    game: PropTypes.object.isRequired,
-    status: PropTypes.string,
-    auxGameData: PropTypes.object.isRequired,
+    gameState: PropTypes.object.isRequired,
+    gameEventHandler: PropTypes.object.isRequired,
     serverType: PropTypes.string.isRequired
   };
 
+  game() {
+    return this.props.gameState.game;
+  }
+
+  auxGameData() {
+    const auxGameData = this.props.gameState.auxGameData;
+    console.log(`GameComponent - auxGameData: ${stringify(auxGameData)}`);
+    return auxGameData;
+  }
+
+  status() {
+    return this.props.gameState.opStatus;
+  }
+
+  // TODO. Can we use the other properties of gameState?
 
   tipOn(tipButton) {
     this.setState({tipButton: tipButton});
@@ -189,11 +200,11 @@ class GameComponent extends React.Component {
   }
 
   commitPlay() {
-    actions.commitPlay();
+    this.props.gameEventHandler.commitPlayAndGetMachinePlay(this.game(), this.auxGameData());
   }
 
   revertPlay() {
-    actions.revertPlay();
+    this.props.gameEventHandler.revertPlay(this.game(), this.auxGameData());
   }
 
   /**
@@ -214,12 +225,12 @@ class GameComponent extends React.Component {
 
   startGame() {
     displayDeviceMessage = false;
-    let newGameParams = this.getNewGameParams(this.props.game);
-    actions.start(newGameParams);
+    let newGameParams = this.getNewGameParams(this.game());
+    this.props.gameEventHandler.start(newGameParams);
   }
 
   renderWord(index, key) {
-    let words = this.props.auxGameData.wordsPlayed;
+    let words = this.auxGameData().wordsPlayed;
     let l = words.length;
     let word = words[index].word;
     let wordRep = word.length > 0 ? word : '-----';
@@ -234,7 +245,7 @@ class GameComponent extends React.Component {
   }
 
   scrollToLastWord() {
-    this.wordReactListComponent.scrollTo(this.props.auxGameData.wordsPlayed.length - 1);
+    this.wordReactListComponent.scrollTo(this.auxGameData().wordsPlayed.length - 1);
   }
 
   componentDidMount() {
@@ -296,16 +307,20 @@ class GameComponent extends React.Component {
   }
 
   render() {
-    let game = this.props.game;
+    let gameState = this.props.gameState;
+    let gameEventHandler = this.props.gameEventHandler;
+    let game = this.game();
+    let auxGameData = this.auxGameData();
+    console.log(`GameComponent.render - auxGameData: ${stringify(auxGameData)}`);
     let running = game.running();
     let hasUncommittedPieces = game.numPiecesInPlay() > 0;
     let canMovePiece = game.canMovePiece.bind(game);
     let board = game.board;
     let trayPieces = game.tray.pieces;
-    let squarePixels = this.props.game.squarePixels;
+    let squarePixels = game.squarePixels;
     let pointsInUserPlay = board.getUserMovePlayPieces().map(pp => pp.point);
     let isLegalMove = game.legalMove.bind(game);
-    let status = this.props.status;
+    let status = this.status();
     let serverType = this.props.serverType;
     let userName = game.gameParams.appParams.userName;
     let userScore = game.score[Game.USER_INDEX];
@@ -335,7 +350,10 @@ class GameComponent extends React.Component {
       pieces={trayPieces}
       canMovePiece={canMovePiece}
       squarePixels={squarePixels}
-      enabled={running} />;
+      enabled={running}
+      gameState={gameState}
+      gameEventHandler={gameEventHandler}
+    />;
 
     let boardComponent = <BoardComponent
       board={board}
@@ -346,6 +364,8 @@ class GameComponent extends React.Component {
       squarePixels={squarePixels}
       pointValues={pointValues}
       enabled={running}
+      gameState={gameState}
+      gameEventHandler={gameEventHandler}
     />;
 
     return (
@@ -379,7 +399,7 @@ class GameComponent extends React.Component {
                   <ReactList
                     ref={c => this.wordReactListComponent = c}
                     itemRenderer={ (index, key) => this.renderWord(index, key) }
-                    length={this.props.auxGameData.wordsPlayed.length}
+                    length={auxGameData.wordsPlayed.length}
                     type='uniform'
                   />
                 </div>

@@ -20,7 +20,7 @@ export const mkAuxGameData = function(wordsPlayed) {
         playerName: playerName
       };
       // _wordsPlayed.push(wordPlayed);
-      return [..._wordsPlayed, wordPlayed];
+      return mkAuxGameData([..._wordsPlayed, wordPlayed]);
     },
 
     // resetWordsPlayed() {
@@ -28,5 +28,6 @@ export const mkAuxGameData = function(wordsPlayed) {
     // }
   }
 };
+
 
 export const emptyAuxGameData = function() {return mkAuxGameData([])};

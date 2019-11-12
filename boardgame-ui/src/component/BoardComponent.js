@@ -79,7 +79,14 @@ class BoardComponent extends React.Component {
     /**
      * The board responds to interactions.
      */
-    enabled: PropTypes.bool.isRequired
+    enabled: PropTypes.bool.isRequired,
+
+    gameState: PropTypes.object.isRequired,
+
+    /**
+     * Handler of user actions.
+     */
+    gameEventHandler: PropTypes.object.isRequired
   };
 
   /**
@@ -113,6 +120,8 @@ class BoardComponent extends React.Component {
    * UI component, and these specifications may be composed.
    */
   renderSquare(row, col) {
+    let gameState = this.props.gameState;
+    let gameEventHandler = this.props.gameEventHandler;
     let dimension = this.props.board.dimension;
     let squareKey = dimension * row + col;
     let isLegalMove = this.props.isLegalMove;
@@ -136,7 +145,10 @@ class BoardComponent extends React.Component {
           isLegalMove={isLegalMove}
           squarePixels={squarePixels}
           pointValue={pointValue}
-          enabled={enabled}>
+          enabled={enabled}
+          gameState={gameState}
+          gameEventHandler={gameEventHandler}
+        >
             {this.renderPiece(point)}
         </BoardSquareComponent>
       </div>

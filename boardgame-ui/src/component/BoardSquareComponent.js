@@ -154,7 +154,9 @@ const pieceDropper = {
     let piece = getMonitorPiece(monitor);
     let point = props.point;
     let move = mkPiecePoint(piece, point);
-    actions.move(move);
+    let game = props.gameState.game;
+    let auxGameData = props.gameState.auxGameData;
+    props.gameEventHandler.move(game, auxGameData, move);
   }
 };
 
@@ -268,6 +270,13 @@ class BoardSquareComponent extends React.Component {
      * Responds to user interactions.
      */
     enabled: PropTypes.bool.isRequired,
+
+    gameState: PropTypes.object.isRequired,
+
+    /**
+     * Handler of user actions.
+     */
+    gameEventHandler: PropTypes.object.isRequired
 
     // Note connectDropTarget is also injected.
   };

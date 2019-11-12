@@ -13,11 +13,14 @@ import {queryParams} from './util/UrlUtil';
 
 import GameParams from './domain/GameParams';
 import GameService from "./service/GameService"
-import {mkGameEventHandler} from './event/GameEventHandler';
+// import {mkGameEventHandler} from './event/GameEventHandler';
+import {mkGameHandler} from './event/GameHandler';
 import {gameDispatcher} from './event/GameDispatcher';
 import {mkEmptyGame} from './domain/Game';
-import {emptyAuxGameData} from './domain/AuxGameData';
+import {emptyAuxGameData, mkAuxGameData} from './domain/AuxGameData';
 import {stringify, stringifyNoBracesForEmpty} from "./util/Logger";
+import {mkGameState} from "./event/GameState";
+import {NewActionTypes} from "./event/NewActionTypes";
 
 let urlQueryParams = queryParams(window.location);
 
@@ -31,50 +34,62 @@ const rootEl = document.getElementById('root');
 const UNKNOWN_SERVER_TYPE = "unknown";
 let serverType = UNKNOWN_SERVER_TYPE;
 
-const renderGame = function(game, status, auxGameData, changeStage) {
-  let gameSpec = <GameComponent game={game} status={status} auxGameData={auxGameData} serverType={serverType}/>;
+let gameService = new GameService(gameParams);
+
+const {gameEventHandler, subscribe, unsubscribe} = mkGameHandler(gameService);
+
+const gameObserver = function(gameState) {
+  console.log(`gameObserver - auxGameData: ${stringify(gameState.auxGameData)}`);
+  renderGame(gameState);
+};
+
+const renderGame = function(gameState) {
+  let gameSpec = <GameComponent
+    gameState={gameState}
+    gameEventHandler={gameEventHandler}
+    serverType={serverType}
+  />;
+
   ReactDOM.render(
     gameSpec,
     rootEl
   );
 };
 
-const gameChangeObserver = function(changeStage, game, status, auxGameData) {
-  renderGame(game, status, auxGameData, changeStage);
+
+const renderEmptyGameAndStatus = function(status) {
+  let emptyGame = mkEmptyGame(gameParams);
+  let auxGameData = mkAuxGameData([]);
+  // TODO. Better action type.
+  let gameState = mkGameState(emptyGame, auxGameData, status, NewActionTypes.START_INIT);
+
+  renderGame(gameState);
 };
 
-let gameService = new GameService(gameParams);
-let gameEventHandler = mkGameEventHandler(gameService);
-gameDispatcher.register(gameEventHandler.dispatchHandler);
+subscribe(gameObserver);
 
-gameEventHandler.registerChangeObserver(gameChangeObserver);
-
-const doHandShake = function(service, handler) {
+// TODO. Can this be done generically as a result of dispatching an initial gameState.
+const doHandShake = function(service) {
   service.handShake().then(response => {
     if (response.ok) {
       serverType = response.json.serverType;
-      handler("OK");
+      renderEmptyGameAndStatus("OK");
     }
     else {
       serverType = UNKNOWN_SERVER_TYPE;
-      handler(stringifyNoBracesForEmpty(response.json));
+      renderEmptyGameAndStatus(stringifyNoBracesForEmpty(response.json));
     }
   }).catch(reason => {
       serverType = UNKNOWN_SERVER_TYPE;
-      handler(stringifyNoBracesForEmpty(reason));
+      renderEmptyGameAndStatus(stringifyNoBracesForEmpty(reason));
     }
   )
 };
 
-const renderEmptyGame = function(status) {
-  let emptyGame = mkEmptyGame(gameParams);
-  renderGame(emptyGame, status, emptyAuxGameData());
-};
-
 if (errorState.error)
-  renderEmptyGame(errorState.status);
+  renderEmptyGameAndStatus(errorState.status);
 else
-  doHandShake(gameService, renderEmptyGame);
+  doHandShake(gameService);
 
 
 //--------------------------------------------------

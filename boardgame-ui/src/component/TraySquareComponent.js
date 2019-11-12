@@ -59,7 +59,9 @@ const pieceDropper = {
     console.log("dropping");
     let draggedPiece = monitor.getItem();
     let piece = mkPiece(draggedPiece.value, draggedPiece.id);
-    actions.revertMove(piece);
+    let game = props.gameState.game;
+    let auxGameData = props.gameState.auxGameData;
+    props.gameEventHandler.revertMove(game, auxGameData, piece);
   }
 };
 
@@ -97,7 +99,14 @@ class TraySquareComponent extends React.Component {
      */
     isOver: PropTypes.bool.isRequired,
 
-    canDrop: PropTypes.bool.isRequired
+    canDrop: PropTypes.bool.isRequired,
+
+    gameState: PropTypes.object.isRequired,
+
+    /**
+     * Handler of user actions.
+     */
+    gameEventHandler: PropTypes.object.isRequired
   };
 
   render() {

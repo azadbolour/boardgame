@@ -43,7 +43,14 @@ class TrayComponent extends React.Component {
     pieces: PropTypes.array.isRequired,
     canMovePiece: PropTypes.func.isRequired,
     squarePixels: PropTypes.number.isRequired,
-    enabled: PropTypes.bool.isRequired
+    enabled: PropTypes.bool.isRequired,
+
+    gameState: PropTypes.object.isRequired,
+
+    /**
+     * Handler of user actions.
+     */
+    gameEventHandler: PropTypes.object.isRequired
   };
   
   /**
@@ -62,6 +69,8 @@ class TrayComponent extends React.Component {
    * UI component, and these specifications may be composed.
    */
   renderSquare(position) {
+    let gameState = this.props.gameState;
+    let gameEventHandler = this.props.gameEventHandler;
     let squareKey = position;
     let squarePixels = this.props.squarePixels;
     let pieces = this.props.pieces;
@@ -78,7 +87,10 @@ class TrayComponent extends React.Component {
           position={position}
           isTrayPiece={isTrayPiece}
           squarePixels={squarePixels}
-          enabled={enabled} >
+          enabled={enabled}
+          gameState={gameState}
+          gameEventHandler={gameEventHandler}
+        >
           {this.renderPiece(position)}
         </TraySquareComponent>
       </div>
