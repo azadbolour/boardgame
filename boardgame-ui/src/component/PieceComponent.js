@@ -119,7 +119,7 @@ const PieceComponent = (props) => {
     if (isDead(letter))
       letter = ""; // Do not render "dead" piece.
     // let worth = Piece.worths[letter];
-  
+
     // let theDiv =
     return (
       <>

@@ -64,7 +64,9 @@ const pieceDropper = {
 
   drop: function (props, monitor) {
     let piece = getMonitorPiece(monitor);
-    actions.swap(piece);
+    const gameEventHandler = props.gameEventHandler;
+    const gameState = props.gameState;
+    gameEventHandler.swapAndGetMachinePlay(gameState.game, gameState.auxGameData, piece);
   }
 };
 
@@ -93,7 +95,14 @@ class SwapBinComponent extends React.Component {
      */
     isOver: PropTypes.bool.isRequired,
 
-    canDrop: PropTypes.bool.isRequired
+    canDrop: PropTypes.bool.isRequired,
+
+    gameState: PropTypes.object.isRequired,
+
+    /**
+     * Handler of user actions.
+     */
+    gameEventHandler: PropTypes.object.isRequired
 
     // Note connectDropTarget is also injected.
   };

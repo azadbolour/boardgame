@@ -391,7 +391,12 @@ class GameComponent extends React.Component {
             </div> <pre>  </pre>
             <div style={{display: 'flex', flexDirection: 'column'}}>
               <div style={paddingStyle}>
-                <SwapBinComponent isTrayPiece={isTrayPiece} enabled={running} />
+                <SwapBinComponent
+                  isTrayPiece={isTrayPiece}
+                  enabled={running}
+                  gameState={gameState}
+                  gameEventHandler={gameEventHandler}
+                />
               </div>
               <pre> </pre>
               <div>

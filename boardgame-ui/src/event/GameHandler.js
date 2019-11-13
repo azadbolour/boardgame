@@ -283,12 +283,14 @@ export const mkGameHandler = function(gameService) {
 
         const gameState = swapDataToGameState();
 
-        if (!swapData.ok)
+        if (!swapData.ok) {
           emitChange(gameState);
+          return gameState;
+        }
         else {
           let {gameMiniState} = swapData;
           if (gameMiniState.noMorePlays)
-            handler.gameCloserHelper(gameState.game, gameState.auxGameData, resultActionType).then(
+            return handler.gameCloserHelper(gameState.game, gameState.auxGameData, resultActionType).then(
               gameState => emitChange(gameState)
             );
           else {
