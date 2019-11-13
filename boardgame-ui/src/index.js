@@ -37,7 +37,6 @@ let gameService = new GameService(gameParams);
 const {gameEventHandler, subscribe, unsubscribe} = mkGameHandler(gameService);
 
 const gameObserver = function(gameState) {
-  console.log(`gameObserver - auxGameData: ${stringify(gameState.auxGameData)}`);
   renderGame(gameState);
 };
 

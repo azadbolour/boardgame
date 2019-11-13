@@ -8,14 +8,12 @@
 
 // import {stringify} from "../util/Logger";
 
-import actions from '../event/GameActions';
 import GameParams from "../domain/GameParams";
-import {mkGameEventHandler} from '../event/GameEventHandler';
+import {mkGameHandler} from '../event/GameHandler';
 // import * as Piece from "../domain/Piece";
 import {mkPoint} from "../domain/Point";
 import {mkPiecePoint} from "../domain/PiecePoint";
 import GameService from "../service/GameService"
-import {gameDispatcher} from '../event/GameDispatcher';
 
 // TODO. Don't know how you are supposed to wait for a promise
 // TODO. to be fulfilled in a jest test. What is the model?
@@ -25,7 +23,9 @@ test('generate events to exercise game transitions', done => {
   let dimension = gameParams.dimension;
   let mid = Math.floor(dimension / 2);
   let gameService = new GameService(gameParams);
-  let handler = mkGameEventHandler(gameService);
+  // let handler = mkGameEventHandler(gameService);
+
+  const {gameEventHandler, subscribe, unsubscribe} = mkGameHandler(gameService);
 
   // let moveDest = mkPoint(1, 1);
   // let moveDest = mkPoint(mid - 1, mid);
@@ -44,30 +44,48 @@ test('generate events to exercise game transitions', done => {
     done(); // Tell jest it can now exit.
   };
 
-  let moveCallback = function(stage, game, status, auxGameData) {
+  let moveCallback = function(gameState) {
+    const game = gameState.game;
+    const auxGameData = gameState.auxGameData;
     let playPieces = game.getUserMovePlayPieces();
     expect(playPieces.length).toBe(1);
     setTimeout(function() {
       console.log("move callback");
-      handler.unregisterChangeObserver(moveCallback);
-      handler.registerChangeObserver(endCallback);
-      actions.commitPlay();
+      unsubscribe(moveCallback);
+      subscribe(endCallback);
+      gameEventHandler.commitPlayAndGetMachinePlay(game, auxGameData);
     }, 20);
   };
 
-  let startCallback = function(stage, game, status, auxGameData) {
+  let startCallback = function(gameState) {
+    const game = gameState.game;
+    const auxGameData = gameState.auxGameData;
     setTimeout(function() {
       console.log("start callback");
-      handler.unregisterChangeObserver(startCallback);
-      handler.registerChangeObserver(moveCallback);
+      unsubscribe(startCallback);
+      subscribe(moveCallback);
       movingPiece = game.tray.pieces[0];
       let move = mkPiecePoint(movingPiece, moveDest);
-      actions.move(move);
+      gameEventHandler.move(game, auxGameData, move);
     }, 20);
   };
 
-  gameDispatcher.register(handler.dispatchHandler);
-  handler.registerChangeObserver(startCallback);
-  actions.start(gameParams);
+  // gameDispatcher.register(handler.dispatchHandler);
+  subscribe(startCallback);
+  gameEventHandler.start(gameParams);
 });
 
+
+/*
+let gameService = new GameService(gameParams);
+
+const {gameEventHandler, subscribe, unsubscribe} = mkGameHandler(gameService);
+
+const gameObserver = function(gameState) {
+  console.log(`gameObserver - auxGameData: ${stringify(gameState.auxGameData)}`);
+  renderGame(gameState);
+};
+
+subscribe(gameObserver);
+
+ */

@@ -53,7 +53,7 @@ class GameService {
   }
 
   closeGame(gameId) {
-    let promise = this.api.gameCloserHelper(gameId);
+    let promise = this.api.closeGame(gameId);
     return promise;
   }
 

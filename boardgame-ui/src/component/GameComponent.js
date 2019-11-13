@@ -167,7 +167,6 @@ class GameComponent extends React.Component {
 
   auxGameData() {
     const auxGameData = this.props.gameState.auxGameData;
-    console.log(`GameComponent - auxGameData: ${stringify(auxGameData)}`);
     return auxGameData;
   }
 
@@ -305,7 +304,6 @@ class GameComponent extends React.Component {
     let gameEventHandler = this.props.gameEventHandler;
     let game = this.game();
     let auxGameData = this.auxGameData();
-    console.log(`GameComponent.render - auxGameData: ${stringify(auxGameData)}`);
     let running = game.running();
     let hasUncommittedPieces = game.numPiecesInPlay() > 0;
     let canMovePiece = game.canMovePiece.bind(game);

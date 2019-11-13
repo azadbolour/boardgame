@@ -24,36 +24,19 @@ export const mkBoard = function(matrix) {
 
   let _matrix = matrix;
   let _dimension = matrix.dimension;
-  // let _center = parseInt(_dimension/2);
-
-  /*
-  const inBounds = function(index) {
-    return index >= 0 && index < _dimension;
-  };
-  */
-
-  /*
-  const sum = function(array) {
-    return array.reduce(function(sum, element) {
-      return sum + element;
-    }, 0);
-  };
-  */
-
-  // const centerPoint = mkPoint(_center, _center);
 
   return {
 
     get dimension() { return _dimension; },
     get matrix() { return _matrix; },
 
-    rows: function() {
-      return _matrix.rows();
-    },
+    rows: () => matrix.rows(),
+    cols: () => matrix.cols(),
+    isEmpty: () => _matrix.every(function (playPiece) {return playPiece.isFree()}),
+    isFull: () => _matrix.every(function (playPiece) {return !playPiece.isFree()}),
 
-    cols: function() {
-      return _matrix.cols();
-    },
+    getPlayPiece: (point) => _matrix.getElement(point),
+    findPiece: (piece) => _matrix.find(playPiece => Piece.eq(piece, playPiece.piece)),
 
     numMoves: function () {
       return _matrix.reduce(function (count, playPiece) {
@@ -64,31 +47,17 @@ export const mkBoard = function(matrix) {
       }, 0);
     },
 
-    isEmpty: function () {
-      return _matrix.every(function (playPiece) {return playPiece.isFree()});
-    },
-
-    isFull: function() {
-      return _matrix.every(function (playPiece) {return !playPiece.isFree()});
-    },
-
     playPieces: function() {
       return _matrix.linearize().filter(function(playPiece) {
         return playPiece.hasRealPiece();
       })
     },
 
-    hasCommittedPlays: function () {
-      return _matrix.some(function (playPiece) {return playPiece.isOriginal()});
-    },
+    hasCommittedPlays: () => _matrix.some(playPiece => playPiece.isOriginal()),
 
     setPlayPiece: function(playPiece) {
       let $matrix = _matrix.setElement(playPiece.point, playPiece);
       return mkBoard($matrix);
-    },
-
-    getPlayPiece: function(point) {
-      return _matrix.getElement(point);
     },
 
     getUserMovePlayPieces: function() {
@@ -124,10 +93,6 @@ export const mkBoard = function(matrix) {
       return $board;
     },
 
-    findPiece(piece) {
-      return _matrix.find(playPiece => Piece.eq(piece, playPiece.piece));
-    },
-
     setDeadPoints: function(points) {
       let $board = this;
       points.forEach(point => {
@@ -144,19 +109,19 @@ export const mkBoard = function(matrix) {
       return $board;
     },
 
-    isFree: function(point) {
+    isFree(point) {
       return this.getPlayPiece(point).isFree();
     },
 
-    isDead: function(point) {
+    isDead(point) {
       return this.getPlayPiece(point).isDead();
     },
 
-    isMoved: function(point) {
+    isMoved(point) {
       return this.getPlayPiece(point).moved;
     },
 
-    isOriginal: function(point) {
+    isOriginal(point) {
       return this.getPlayPiece(point).isOriginal();
     },
 
@@ -165,7 +130,7 @@ export const mkBoard = function(matrix) {
      *
      * @param point Trying to move to this position.
      */
-    legalMove: function(point) {
+    legalMove(point) {
       return this.isFree(point);
     },
 

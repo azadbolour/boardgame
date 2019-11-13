@@ -94,6 +94,8 @@
 
 ## Technical Debt
 
+- Integration test for a game all the way from start to the game's completion.
+
 - Separate out the scala server and language packages into their own 
   scala sub-projects.
 
@@ -231,6 +233,9 @@
   docker container. Build with Nix if possible for a better experience.
 
 ## Development Nice-to-Haves
+
+- Use typed JS code where possible. See for example, React DND Knight example:
+  https://github.com/react-dnd/react-dnd/tree/master/packages/documentation/examples-decorators/src/00-chessboard
 
 - Use NIX to build the Haskell server. Better solution than using docker.
   Can still copy the executable and any special libraries to a docker image

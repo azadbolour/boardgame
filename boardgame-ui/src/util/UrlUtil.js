@@ -49,13 +49,13 @@ export const queryParams = function(location) {
  * @param queryParams The query parameter object obtained from the URL.
  * @param paramSpec Include the names and types of the parameters to be extracted.
  * @param validator The parameter validator.
- * @param mkDefaultParams Initializer of the extracted object - fills iin default values.
+ * @param defaultParamsMaker A 0-arg function that returns an object containing default parameter values.
  *
  * @returns {extracted, errorState} The extracted object and validation errors.
  */
-export const queryParamsToObject = function(queryParams, paramSpec, validator, mkDefaultParams) {
+export const queryParamsToObject = function(queryParams, paramSpec, validator, defaultParamsMaker) {
   let errorState = mkErrorState();
-  let extracted = mkDefaultParams();
+  let extracted = defaultParamsMaker();
 
   for (let name in paramSpec) {
     if (!paramSpec.hasOwnProperty(name))

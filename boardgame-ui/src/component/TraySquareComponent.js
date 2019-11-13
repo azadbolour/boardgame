@@ -140,6 +140,4 @@ class TraySquareComponent extends React.Component {
   }
 }
 
-// export default TraySquareComponent;
-
 export default DropTarget(ItemTypes.PIECE, pieceDropper, injectedDropTargetProperties)(TraySquareComponent);

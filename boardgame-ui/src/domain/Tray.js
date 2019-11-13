@@ -29,7 +29,7 @@ export const mkTray = function(capacity, pieces) {
     get capacity() { return _capacity; },
     get pieces() { return pieces.slice(); },
 
-    size: function() { return pieces.length},
+    size: () => pieces.length,
 
     piece: function(index) {
       checkArrayIndex(index, this.size, "tray index out bounds");
@@ -86,9 +86,7 @@ export const mkTray = function(capacity, pieces) {
       return mkTray(_capacity, elements);
     },
 
-    mapPieces(f) {
-      return _pieces.map(f);
-    }
+    mapPieces: (fun) => _pieces.map(fun)
   };
 };
   

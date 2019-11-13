@@ -112,6 +112,13 @@ Examples:
 
 ## React Drag and Drop Notes
 
+Note. Minor changes were made to the React DND model in newer versions. 
+The account below may be out of date in some details.
+
+See the latest source code for the knight example for new details:
+
+https://github.com/react-dnd/react-dnd/tree/master/packages/documentation/examples-decorators/src/00-chessboard
+
 The design pattern required by the React drag and drop library is somewhat
 complicated. Here I will provide an overview. See the React DND documentation
 for details.

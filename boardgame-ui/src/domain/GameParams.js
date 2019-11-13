@@ -183,12 +183,30 @@ class GameParams {
 
   static fromQueryParams = function(queryParams) {
     let {extracted: appExtracted, errorState: appErrorState} = AppParams.fromQueryParams(queryParams);
+
+    const defaultParamsMaker = function() {
+      return GameParams.appParamsToDefaultGameParams(appExtracted);
+    };
+
     let {extracted, errorState} = queryParamsToObject(queryParams,
-      GameParams.settableParameters, GameParams.validateParam, GameParams.mkDefaultParams);
+      GameParams.settableParameters, GameParams.validateParam, defaultParamsMaker);
+
     errorState.addErrorState(appErrorState);
     extracted.appParams = appExtracted;
     return {extracted, errorState};
-  }
+  };
+
+  static useClientDefaults = function(appParams) {
+    return appParams.apiType === AppParams.CLIENT_API_TYPE || appParams.envType === AppParams.PROD_ENV_TYPE;
+  };
+
+  static appParamsToDefaultGameParams = function(appParams) {
+    // let isProd = gameParams.appParams.envType === 'prod';
+    return GameParams.useClientDefaults(appParams) ?
+      GameParams.mkDefaultClientParams() :
+      GameParams.mkDefaultParams();
+  };
+
 }
 
 export default GameParams;

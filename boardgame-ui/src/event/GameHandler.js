@@ -100,16 +100,10 @@ export const mkGameHandler = function(gameService) {
 
   const noAuxData = emptyAuxGameData();
 
-  const isUserError = (response) => response.status === 422;
-
-  const revertParamsToDefault = function(gameParams) {
-    let isProd = gameParams.appParams.envType === 'prod'; // TODO. Constant for prod.
-    let params = isProd ? GameParams.mkDefaultClientParams() : GameParams.mkDefaultParams();
-    return params;
-  };
+  const isUserError = response => response.status === 422;
 
   const blankOutGame = function(gameParams, message, actionType) {
-    let stableParams = revertParamsToDefault(gameParams);
+    let stableParams = GameParams.appParamsToDefaultGameParams(gameParams.appParams);
     return mkGameState(
       mkEmptyGame(stableParams),
       emptyAuxGameData(),
@@ -132,33 +126,28 @@ export const mkGameHandler = function(gameService) {
     return message;
   };
 
-  const closeDataToGameState = function(auxGameData, closeData, mkResultActionType) {
-    return mkGameState(closeData.game, auxGameData, closeData.opStatus, mkResultActionType(closeData.ok));
-  };
+  const closeDataToGameState = (closeData, auxGameData, mkResultActionType) =>
+    mkGameState(closeData.game, auxGameData, closeData.opStatus, mkResultActionType(closeData.ok));
 
-  const noGame = (game) => game === undefined || game.terminated();
+  const noGame = game => game === undefined || game.terminated();
 
   const logNoGame = () => console.log('warning: game event handler called with no game in effect');
 
-  const machineStarts = (gameParams) => gameParams.startingPlayer === GameParams.PlayerType.machinePlayer;
+  const machineStarts = gameParams => gameParams.startingPlayer === GameParams.PlayerType.machinePlayer;
 
-  const playerStarts = (gameParams) => !machineStarts(gameParams);
+  const playerStarts = gameParams => !machineStarts(gameParams);
 
-  const startSuccessOpStatus = function(gameParams) {
-    return machineStarts(gameParams) ? MACHINE_START_STATUS : USER_START_STATUS;
-  };
+  const startSuccessOpStatus = gameParams =>
+    machineStarts(gameParams) ? MACHINE_START_STATUS : USER_START_STATUS;
 
-  const mkStartErrorState = function(gameParams, response) {
-    return mkGameState(mkEmptyGame(gameParams), emptyAuxGameData(), errorText(response), GameActionTypes.START_FAILURE);
-  };
+  const mkStartErrorState = (gameParams, response) =>
+    mkGameState(mkEmptyGame(gameParams), emptyAuxGameData(), errorText(response), GameActionTypes.START_FAILURE);
 
-  const commitDataToGameState = function(data, actionType) {
-    return mkGameState(data.game, data.auxGameData, data.opStatus, actionType);
-  };
+  const commitDataToGameState = (data, actionType) =>
+    mkGameState(data.game, data.auxGameData, data.opStatus, actionType);
 
-  const machinePlayDataToGameState = function(data, actionType) {
-    return mkGameState(data.game, data.auxGameData, data.opStatus, actionType);
-  };
+  const machinePlayDataToGameState = (data, actionType) =>
+    mkGameState(data.game, data.auxGameData, data.opStatus, actionType);
 
   let handler = {
 
@@ -170,7 +159,6 @@ export const mkGameHandler = function(gameService) {
      * A top-level method called when the user requests to start a new game.
      */
     start: function(gameParams) {
-      console.log(`handle start - ${stringify(gameParams)}`);
       // No need for triggering START_INIT for now. Keep it simple.
       let handler = this;
       handler.startInternal(gameParams).then(gameState => {
@@ -180,7 +168,6 @@ export const mkGameHandler = function(gameService) {
           handler.machinePlayInternal(gameState.game, gameState.auxGameData)
             .then(playData => {
               let gameState = machinePlayDataToGameState(playData, startCompletion(playData.ok));
-              console.log(`start - gameState: ${stringify(gameState)}`);
               emitChange(gameState)
             });
         })
@@ -235,7 +222,6 @@ export const mkGameHandler = function(gameService) {
         };
 
         let commitGameState = commitDataToGameState(commitData, resultActionType(commitData.ok));
-        console.log(`GameHandler - commitGameState: ${stringify(commitGameState)}`);
         emitChange(commitGameState);
 
         if (!commitData.ok)
@@ -325,7 +311,6 @@ export const mkGameHandler = function(gameService) {
      * return the game state for the started game.
      */
     startInternal: function(gameParams) {
-      console.log("handle start internal");
       let valueFactory = PointValue.mkValueFactory(gameParams.dimension);
       let pointValues = valueFactory.mkValueGrid();
       let initPieces = mkInitPieces([], [], []);
@@ -387,7 +372,6 @@ export const mkGameHandler = function(gameService) {
      * {game, auxGameData, opStatus, ok, gameMiniState}
      */
     machinePlayInternal: function(game, auxGameData) {
-      console.log("machine play internal");
       if (noGame(game)) { logNoGame(); return; }
 
       let promise = _gameService.getMachinePlay(game.gameId);
@@ -399,7 +383,6 @@ export const mkGameHandler = function(gameService) {
           let movedPiecePoints = PlayPiece.movedPiecePoints(playedPieces);
           let updatedGame = game.commitMachineMoves(gameMiniState.lastPlayScore, movedPiecePoints, deadPoints);
           let updatedAuxGameData = auxGameData.pushWordPlayed(playPiecesWord(playedPieces), "Bot");
-          console.log(`machinePlayInternal - updatedAuxGameData: ${stringify(updatedAuxGameData)}`);
           let opStatus = movedPiecePoints.length > 0 ? OK : "bot took a pass";
           return {...defaultResult, game: updatedGame, auxGameData: updatedAuxGameData, opStatus, gameMiniState};
         };
@@ -452,13 +435,14 @@ export const mkGameHandler = function(gameService) {
      */
     closeInternal: function (game) {
       if (noGame(game)) { logNoGame(); return; }
-      let promise = _gameService.gameCloserHelper(game.gameId);
+      let handler = this;
+      let promise = _gameService.closeGame(game.gameId);
       let processedResponse = promise.then(response => {
 
         const happyCloseData = function() {
           let {stopInfo} = response.json;
           const updatedGame = game.end();
-          const opStatus = this.gameSummaryStatus(stopInfo);
+          const opStatus = handler.gameSummaryStatus(stopInfo);
           return {game: updatedGame, opStatus, ok: true, stopInfo};
         };
 
@@ -483,9 +467,10 @@ export const mkGameHandler = function(gameService) {
     },
 
     gameCloserHelper: function(game, auxGameData, resultActionType) {
-      return handler.handleCloseInternal(game).then(
+      return handler.closeInternal(game).then(
         closeData => {
-          return closeDataToGameState(closeData, auxGameData, resultActionType);
+          const closeGameState = closeDataToGameState(closeData, auxGameData, resultActionType);
+          return closeGameState;
         }
       );
     },

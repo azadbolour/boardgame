@@ -11,7 +11,6 @@ import PropTypes from 'prop-types';
 import SquareComponent from './SquareComponent';
 import * as Piece from '../domain/Piece';
 import {mkPiece} from '../domain/Piece';
-// import {mkPoint} from '../domain/Point';
 import {mkPiecePoint} from '../domain/PiecePoint';
 // import {stringify} from "../util/Logger";
 import {pieceIsDead} from "../domain/Piece";
@@ -74,8 +73,6 @@ function scoreStyle(pointValue, squarePixels) {
   const width = Math.floor(squarePixels/2);
   let backgroundColor = pointValueColor(pointValue);
   let top = squarePixels - height;
-  // let top = 0;
-  // let left = squarePixels - width;
   let left = 1;
   return {
     position: 'absolute',

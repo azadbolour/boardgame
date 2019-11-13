@@ -45,13 +45,6 @@ function squareStyle(squarePixels) {
 const BoardComponent = (props) => {
 
   /**
-   * Is an row, col position currently occupied?
-   */
-  const positionInPlay = function (point) {
-    return props.pointsInUserPlay.some(p => Point.eq(p, point));
-  };
-
-  /**
    * Return the UI specification of the piece that goes into
    * a specific board square - given the square's position.
    */
@@ -86,8 +79,6 @@ const BoardComponent = (props) => {
     let justFilledByMachine = props.pointsMovedInMachinePlay.some(p => Point.eq(p, point));
     let enabled = props.enabled;
     let pointValue = props.pointValues.getElement(point);
-    // let center = Math.floor(dimension/20);
-    // let isCenterPoint = row === center && col === center;
     let squarePiece = props.board.rows()[row][col].piece;
 
     return (
@@ -175,6 +166,5 @@ BoardComponent.propTypes = {
    */
   gameEventHandler: PropTypes.object.isRequired
 };
-
 
 export default BoardComponent;

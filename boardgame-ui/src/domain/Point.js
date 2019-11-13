@@ -20,4 +20,4 @@ export const mkPoint = function(row, col) {
 
 export const eq = function(point1, point2) {
   return point1.row === point2.row && point1.col === point2.col;
-}
+};

@@ -69,17 +69,9 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
     get machineMoves() { return _machineMoves.slice(); },
     get runState() {return _runState; },
 
-    isEmpty: function() {
-      return _gameId === EMPTY_GAME_ID;
-    },
-
-    isFilled: function() {
-      return _board.isFull();
-    },
-
-    running: function() {
-      return _runState === RUN_STATE.RUNNING;
-    },
+    isEmpty: () => _gameId === EMPTY_GAME_ID,
+    isFilled: () => _board.isFull(),
+    running: () => _runState === RUN_STATE.RUNNING,
 
     terminated: function() {
       return !this.running();
@@ -147,16 +139,12 @@ export const mkGame = function(gameParams, gameId, board, tray, pointValues, sco
       return $game;
     },
 
-    getUserMovePlayPieces: function() {
-      return _board.getUserMovePlayPieces();
-    },
+    getUserMovePlayPieces: () => _board.getUserMovePlayPieces(),
 
     /**
      * Throws exception if play is illegal.
      */
-    getCompletedPlayPieces: function() {
-      return _board.completedPlayPieces(); // Throws.
-    },
+    getCompletedPlayPieces: () => _board.completedPlayPieces(), // Throws.
 
     commitUserMoves: function(playScore, replacementPieces, deadPoints) {
       let $tray = _tray.addPieces(replacementPieces);
