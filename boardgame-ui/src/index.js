@@ -13,14 +13,12 @@ import {queryParams} from './util/UrlUtil';
 
 import GameParams from './domain/GameParams';
 import GameService from "./service/GameService"
-// import {mkGameEventHandler} from './event/GameEventHandler';
 import {mkGameHandler} from './event/GameHandler';
-import {gameDispatcher} from './event/GameDispatcher';
 import {mkEmptyGame} from './domain/Game';
 import {emptyAuxGameData, mkAuxGameData} from './domain/AuxGameData';
 import {stringify, stringifyNoBracesForEmpty} from "./util/Logger";
 import {mkGameState} from "./event/GameState";
-import {NewActionTypes} from "./event/NewActionTypes";
+import {GameActionTypes} from "./event/GameActionTypes";
 
 let urlQueryParams = queryParams(window.location);
 
@@ -61,7 +59,7 @@ const renderEmptyGameAndStatus = function(status) {
   let emptyGame = mkEmptyGame(gameParams);
   let auxGameData = mkAuxGameData([]);
   // TODO. Better action type.
-  let gameState = mkGameState(emptyGame, auxGameData, status, NewActionTypes.START_INIT);
+  let gameState = mkGameState(emptyGame, auxGameData, status, GameActionTypes.START_INIT);
 
   renderGame(gameState);
 };

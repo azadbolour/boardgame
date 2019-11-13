@@ -10,7 +10,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {mkPiece} from '../domain/Piece';
 import SquareComponent from './SquareComponent';
-import actions from '../event/GameActions';
 // import {stringify} from "../util/Logger";
 import * as Style from "../util/StyleUtil";
 const ItemTypes = require('./DragDropTypes').ItemTypes;

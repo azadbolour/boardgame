@@ -15,7 +15,6 @@ import * as Game from '../domain/Game';
 import TrayComponent from './TrayComponent';
 import BoardComponent from './BoardComponent';
 import SwapBinComponent from './SwapBinComponent';
-import actions from '../event/GameActions';
 // import {stringify} from "../util/Logger";
 import * as Style from "../util/StyleUtil";
 import * as BrowserUtil from "../util/BrowserUtil";

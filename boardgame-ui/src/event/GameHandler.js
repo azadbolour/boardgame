@@ -15,7 +15,7 @@ import {playPiecesWord} from '../domain/PlayPiece';
 import {emptyAuxGameData} from '../domain/AuxGameData';
 import * as PointValue from '../domain/PointValue';
 import {mkInitPieces} from '../domain/InitPieces';
-import {NewActionTypes, startCompletion, startFailure} from "./NewActionTypes";
+import {GameActionTypes, startCompletion, startFailure} from "./GameActionTypes";
 import {mkGameState} from "./GameState";
 
 /**
@@ -149,7 +149,7 @@ export const mkGameHandler = function(gameService) {
   };
 
   const mkStartErrorState = function(gameParams, response) {
-    return mkGameState(mkEmptyGame(gameParams), emptyAuxGameData(), errorText(response), NewActionTypes.START_FAILURE);
+    return mkGameState(mkEmptyGame(gameParams), emptyAuxGameData(), errorText(response), GameActionTypes.START_FAILURE);
   };
 
   const commitDataToGameState = function(data, actionType) {
@@ -185,7 +185,7 @@ export const mkGameHandler = function(gameService) {
             });
         })
         .catch(reason => {
-          const failureState = blankOutGame(gameParams, stringify(reason), NewActionTypes.START_FAILURE);
+          const failureState = blankOutGame(gameParams, stringify(reason), GameActionTypes.START_FAILURE);
           emitChange(failureState);
         });
     },
@@ -202,7 +202,7 @@ export const mkGameHandler = function(gameService) {
       if (noGame(game)) { logNoGame(); return; }
       // TODO. Could this call fail? If so need to return failure state.
       const updatedGame = game.applyUserMove(move);
-      const gameState = mkGameState(updatedGame, auxGameData, OK, NewActionTypes.MOVE_SUCCESS);
+      const gameState = mkGameState(updatedGame, auxGameData, OK, GameActionTypes.MOVE_SUCCESS);
       emitChange(gameState);
     },
 
@@ -215,7 +215,7 @@ export const mkGameHandler = function(gameService) {
     revertMove: function(game, auxGameData, piece) {
       if (noGame(game)) { logNoGame(); return; }
       const updatedGame = game.revertMove(piece);
-      const gameState = mkGameState(updatedGame, auxGameData, OK, NewActionTypes.REVERT_MOVE_SUCCESS);
+      const gameState = mkGameState(updatedGame, auxGameData, OK, GameActionTypes.REVERT_MOVE_SUCCESS);
       emitChange(gameState);
     },
 
@@ -231,7 +231,7 @@ export const mkGameHandler = function(gameService) {
       handler.commitPlayInternal(game, auxGameData).then(commitData => {
 
         const resultActionType = function(ok) {
-          return ok ? NewActionTypes.COMMIT_PLAY_SUCCESS : NewActionTypes.COMMIT_PLAY_FAILURE;
+          return ok ? GameActionTypes.COMMIT_PLAY_SUCCESS : GameActionTypes.COMMIT_PLAY_FAILURE;
         };
 
         let commitGameState = commitDataToGameState(commitData, resultActionType(commitData.ok));
@@ -256,7 +256,7 @@ export const mkGameHandler = function(gameService) {
             )
           });
       }).catch(reason => {
-        const failureState = blankOutGame(game.gameParams, stringify(reason), NewActionTypes.COMMIT_PLAY_FAILURE);
+        const failureState = blankOutGame(game.gameParams, stringify(reason), GameActionTypes.COMMIT_PLAY_FAILURE);
         emitChange(failureState);
       });
     },
@@ -272,7 +272,7 @@ export const mkGameHandler = function(gameService) {
       let handler = this;
 
       const resultActionType = function(ok) {
-        return ok ? NewActionTypes.SWAP_SUCCESS : NewActionTypes.SWAP_FAILURE;
+        return ok ? GameActionTypes.SWAP_SUCCESS : GameActionTypes.SWAP_FAILURE;
       };
 
       handler.handleSwapInternal(game, auxGameData, piece).then(swapData => {
@@ -302,7 +302,7 @@ export const mkGameHandler = function(gameService) {
           }
         }
       }).catch(reason => {
-        const failureState = blankOutGame(game.gameParams, stringify(reason), NewActionTypes.SWAP_FAILURE);
+        const failureState = blankOutGame(game.gameParams, stringify(reason), GameActionTypes.SWAP_FAILURE);
         emitChange(failureState);
       });
     },
@@ -316,7 +316,7 @@ export const mkGameHandler = function(gameService) {
     revertPlay: function(game, auxGameData) {
       if (noGame(game)) { logNoGame(); return; }
       const updatedGame = game.revertPlay();
-      const gameState = mkGameState(updatedGame, auxGameData, OK, NewActionTypes.REVERT_PLAY_SUCCESS);
+      const gameState = mkGameState(updatedGame, auxGameData, OK, GameActionTypes.REVERT_PLAY_SUCCESS);
       emitChange(gameState);
     },
 
@@ -334,7 +334,7 @@ export const mkGameHandler = function(gameService) {
         if (!response.ok)
           return mkStartErrorState(gameParams, response);
         else
-          return mkGameState(response.json, noAuxData, startSuccessOpStatus(gameParams), NewActionTypes.START_SUCCESS);
+          return mkGameState(response.json, noAuxData, startSuccessOpStatus(gameParams), GameActionTypes.START_SUCCESS);
       });
     },
 

@@ -9,7 +9,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import SquareComponent from './SquareComponent';
-import actions from '../event/GameActions';
 import * as Piece from '../domain/Piece';
 import {mkPiece} from '../domain/Piece';
 // import {mkPoint} from '../domain/Point';
