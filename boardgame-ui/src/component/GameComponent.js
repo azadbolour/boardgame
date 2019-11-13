@@ -6,7 +6,6 @@
 
 /** @module Game */
 
-// import detectIt from 'detect-it';
 import PropTypes from 'prop-types';
 import { default as TouchBackend } from 'react-dnd-touch-backend';
 import React from 'react';
@@ -23,10 +22,6 @@ import GameParams from '../domain/GameParams';
 import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 import {stringify} from "../util/Logger";
-// const DragDropContext = require('react-dnd').DragDropContext;
-// const HTML5Backend = require('react-dnd-html5-backend');
-
-
 
 function buttonStyle(enabled) {
   let color = enabled ? 'Chocolate' : Style.disabledColor;

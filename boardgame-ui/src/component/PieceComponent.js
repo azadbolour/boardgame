@@ -8,18 +8,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-// import logger from "../util/Logger";
-// import {stringify} from "../util/Logger";
-// import * as Piece from "../domain/Piece";
 import {isDead} from "../domain/Piece";
 
 import {
   DragSource,
-  ConnectDragSource,
-  ConnectDragPreview,
-  DragSourceConnector,
-  DragSourceMonitor,
-  DragPreviewImage,
 } from 'react-dnd';
 
 const ItemTypes = require('./DragDropTypes').ItemTypes;
@@ -62,55 +54,10 @@ const pieceDragger = {
 };
 
 /**
- * Get dnd properties to be injected into the drag source component.
- * This is called a 'collect' function in the react dnd jargon.
- *
- * @param connect DragSourceConnector - see React dnd docs.
- * @param monitor DragSourceMonitor - see React dnd docs.
- * @returns Plain object including properties to inject into
- * the dragged source component.
- */
-function injectedDragSourceProperties(connect, monitor) {
-  return {
-    connectDragSource: connect.dragSource(),
-    connectDragPreview: connect.dragPreview(),
-    isDragging: monitor.isDragging()
-  }
-}
-
-/**
  * The piece. A draggable item.
  */
 // class PieceComponent extends React.Component {
 const PieceComponent = (props) => {
-
-  // static propTypes = {
-  //
-  //   /**
-  //    * The immutable state of the piece.
-  //    * TODO. How to add isRequired with type constraint?
-  //    */
-  //   piece: PropTypes.object.isRequired,
-  //
-  //   /**
-  //    * Function that takes a piece and determines if it can be moved
-  //    * (based on its current location and move status).
-  //    */
-  //   canMovePiece: PropTypes.func.isRequired,
-  //
-  //   /**
-  //    * Injected - obtained from the 'collect' function.
-  //    */
-  //   connectDragSource: PropTypes.func.isRequired,
-  //
-  //   connectDragPreview: PropTypes.func.isRequired,
-  //
-  //   /**
-  //    * Injected - obtained from the 'collect' function.
-  //    */
-  //   isDragging: PropTypes.bool.isRequired
-  // };
-
 
     let connectDragSource = props.connectDragSource;
     let connectDragPreview = props.connectDragPreview;
@@ -139,14 +86,33 @@ const PieceComponent = (props) => {
       </div>
       </>
     );
+};
 
-    // return connectDragSource(theDiv);
-    // if (!isDragging)
-    //   return connectDragSource(theDiv);
-    // else
-    //   // return connectDragPreview(connectDragSource(theDiv));
-    //   return connectDragPreview(theDiv);
+PieceComponent.propTypes = {
 
+  /**
+   * The immutable state of the piece.
+   * TODO. How to add isRequired with type constraint?
+   */
+  piece: PropTypes.object.isRequired,
+
+  /**
+   * Function that takes a piece and determines if it can be moved
+   * (based on its current location and move status).
+   */
+  canMovePiece: PropTypes.func.isRequired,
+
+  /**
+   * Injected - obtained from the 'collect' function.
+   */
+  connectDragSource: PropTypes.func.isRequired,
+
+  connectDragPreview: PropTypes.func.isRequired,
+
+  /**
+   * Injected - obtained from the 'collect' function.
+   */
+  isDragging: PropTypes.bool.isRequired
 };
 
 export default DragSource(
@@ -157,9 +123,3 @@ export default DragSource(
     isDragging: monitor.isDragging(),
   })
 )(PieceComponent)
-
-
-
-// DragSource(ItemTypes.PIECE, pieceDragger, injectedDragSourceProperties)(PieceComponent);
-
-// export {PieceComponent as OriginalPieceComponent};
