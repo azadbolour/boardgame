@@ -38,28 +38,15 @@ function squareStyle(squarePixels) {
 /**
  * User interface component representing tray of available pieces.
  */
-class TrayComponent extends React.Component {
-  static propTypes = {
-    pieces: PropTypes.array.isRequired,
-    canMovePiece: PropTypes.func.isRequired,
-    squarePixels: PropTypes.number.isRequired,
-    enabled: PropTypes.bool.isRequired,
+const TrayComponent = (props) => {
 
-    gameState: PropTypes.object.isRequired,
-
-    /**
-     * Handler of user actions.
-     */
-    gameEventHandler: PropTypes.object.isRequired
-  };
-  
   /**
    * Return the UI specification of the piece that goes into
    * a specific board square - given the square's position.
    */
-  renderPiece(position) {
-    return <PieceComponent piece={this.props.pieces[position]} canMovePiece={this.props.canMovePiece} />;
-  }
+  const renderPiece = function(position) {
+    return <PieceComponent piece={props.pieces[position]} canMovePiece={props.canMovePiece} />;
+  };
 
   /**
    * Return the UI specification of a single square based
@@ -68,18 +55,18 @@ class TrayComponent extends React.Component {
    * A function may return the react specification of a
    * UI component, and these specifications may be composed.
    */
-  renderSquare(position) {
-    let gameState = this.props.gameState;
-    let gameEventHandler = this.props.gameEventHandler;
+  const renderSquare = function(position) {
+    let gameState = props.gameState;
+    let gameEventHandler = props.gameEventHandler;
     let squareKey = position;
-    let squarePixels = this.props.squarePixels;
-    let pieces = this.props.pieces;
+    let squarePixels = props.squarePixels;
+    let pieces = props.pieces;
     let isTrayPiece = function(piece) {
       let index = pieces.findIndex(pce => Piece.eq(pce, piece));
       let exists = index >= 0;
       return exists;
     };
-    let enabled = this.props.enabled;
+    let enabled = props.enabled;
 
     return (
       <div key={squareKey} style={squareStyle({squarePixels})}>
@@ -91,11 +78,11 @@ class TrayComponent extends React.Component {
           gameState={gameState}
           gameEventHandler={gameEventHandler}
         >
-          {this.renderPiece(position)}
+          {renderPiece(position)}
         </TraySquareComponent>
       </div>
     );
-  }
+  };
 
   /**
    * Render all the squares on the tray by accumulating their
@@ -103,22 +90,33 @@ class TrayComponent extends React.Component {
    * the child of a div component. The div component has a style
    * with the correct overall size of the board. See boardStyle.
    */
-  render() {
-    let trayCapacity = this.props.pieces.length;
-    let squarePixels = this.props.squarePixels;
-    let squares = [];
+  let trayCapacity = props.pieces.length;
+  let squarePixels = props.squarePixels;
+  let squares = [];
 
-    for (let position = 0; position < trayCapacity; position++)
-      squares.push(this.renderSquare(position));
+  for (let position = 0; position < trayCapacity; position++)
+    squares.push(renderSquare(position));
 
-    return (
-      <div style={trayStyle(trayCapacity, squarePixels)}>
-        {squares}
-      </div>
-    );
-  }
+  return (
+    <div style={trayStyle(trayCapacity, squarePixels)}>
+      {squares}
+    </div>
+  );
+};
 
-}
+TrayComponent.propTypes = {
+  pieces: PropTypes.array.isRequired,
+  canMovePiece: PropTypes.func.isRequired,
+  squarePixels: PropTypes.number.isRequired,
+  enabled: PropTypes.bool.isRequired,
+
+  gameState: PropTypes.object.isRequired,
+
+  /**
+   * Handler of user actions.
+   */
+  gameEventHandler: PropTypes.object.isRequired
+};
 
 /**
  * The opponent's tray of pieces.

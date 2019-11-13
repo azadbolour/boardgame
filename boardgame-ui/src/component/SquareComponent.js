@@ -27,26 +27,19 @@ function squareStyle(pixels, backgroundColor, color) {
 /**
  * Plain old board square - does not know about drag and drop.
  */
-class SquareComponent extends React.PureComponent {
+const SquareComponent = ({pixels, color, backgroundColor, enabled, children}) => (
+  <div style={squareStyle(pixels, backgroundColor, color)}>
+    {children}
+  </div>
+);
 
-  static propTypes = {
-    pixels: PropTypes.number.isRequired,
-    color: PropTypes.string.isRequired,
-    backgroundColor: PropTypes.string.isRequired,
-    enabled: PropTypes.bool.isRequired
-  };
 
-  render() {
-    let pixels = this.props.pixels;
-    let color = this.props.color;
-    let backgroundColor = this.props.backgroundColor;
+SquareComponent.propTypes = {
+  pixels: PropTypes.number.isRequired,
+  color: PropTypes.string.isRequired,
+  backgroundColor: PropTypes.string.isRequired,
+  enabled: PropTypes.bool.isRequired
+};
 
-    return (
-      <div style={squareStyle(pixels, backgroundColor, color)}>
-        {this.props.children}
-      </div>
-    );
-  }
-}
 
 export default SquareComponent;
