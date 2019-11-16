@@ -9,6 +9,10 @@ import {stringify} from "../util/Logger";
 
 export const coinToss = (x, y) => Math.random() < 0.5 ? x : y;
 
+export const randomString = function() {
+  return Math.random().toString().substring(2);
+};
+
 export const checkArray = function(array, message) {
   if (!Array.isArray(array))
     throw {

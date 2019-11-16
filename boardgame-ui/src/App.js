@@ -7,27 +7,35 @@
 /** @module App - top level app */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Router } from "@reach/router"
-import WelcomeComponent from "./component/WelcomeComponent"
-import RequiredLoginContainer from "./component/RequiredLoginContainer"
-import GameComponent from "./component/GameComponent"
+import { Router } from "@reach/router";
+import HomeContainer from "./component/HomeContainer";
+import LoginRedirectContainer from "./component/LoginRedirectContainer";
+import LogoutRedirectContainer from "./component/LogoutRedirectContainer";
+import {LOGIN_REDIRECT_PATH, LOGOUT_REDIRECT_PATH} from './event/AuthService';
 
-class App extends React.Component {
+const NotFound = () => <p>Page not found!</p>;
 
-  static propTypes = {
-    isLoggedIn: PropTypes.bool.isRequired
-  };
+// TODO. Where do you inject props for the application?
+// Don't see how to do that with Reach Router.
+// TODO. Convert to ReactRouter
 
-  render() {
+const App = props => {
+  // TODO. Do the props propagate this way?
     return (
       <Router>
-        <WelcomeComponent path="/" />
-        <RequiredLoginContainer isLoggedIn={this.props.isLoggedIn}>
-          <GameComponent />
-        </RequiredLoginContainer>
+        <HomeContainer path="/" props={props}/>
+        <LoginRedirectContainer path={LOGIN_REDIRECT_PATH} />
+        <LogoutRedirectContainer path={LOGOUT_REDIRECT_PATH} />
+        <NotFound default />
       </Router>
     )
-  }
-}
+};
+
+App.propTypes = {
+  loginState: PropTypes.object.isRequired,
+  gameState: PropTypes.object.isRequired,
+  gameEventHandler: PropTypes.object.isRequired,
+  serverType: PropTypes.string.isRequired
+};
 
 export default App

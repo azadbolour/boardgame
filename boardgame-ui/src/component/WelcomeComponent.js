@@ -9,21 +9,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 
-class WelcomeComponent extends React.Component {
+const WelcomeComponent = props => {
 
   // TODO. Add login action. Get appropriate login service. Call its login.
 
-  render() {
-    return (
-      <div>
-        Welcome to Eager Words
+  return (
+    <div>
+      Welcome to Eager Words
 
-        <button onClick={() => {}}>
-          login
-        </button>
-      </div>
-    )
-  }
-}
+      <button onClick={() => {}}>
+        login
+      </button>
+    </div>
+  )
+};
 
 export default WelcomeComponent
