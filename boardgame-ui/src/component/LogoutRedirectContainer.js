@@ -8,17 +8,19 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import GameComponent from "./component/GameComponent"
+import HomeContainer from "./component/HomeContainer"
 
 /**
  * The response from a logout call to the authentication service
  * is redirected here.
  *
- * TODO. Just assume that it worked and remove the token cookie.
+ * For now just assume that it worked and remove the token cookie.
  *
  */
 export const LogoutRedirectContainer = props => {
-
+  return (
+    <HomeContainer />
+  );
 };
 
 export default LogoutRedirectContainer;

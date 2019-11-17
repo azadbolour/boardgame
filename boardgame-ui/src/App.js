@@ -17,7 +17,8 @@ const NotFound = () => <p>Page not found!</p>;
 
 // TODO. Where do you inject props for the application?
 // Don't see how to do that with Reach Router.
-// TODO. Convert to ReactRouter
+// TODO. Convert to ReactRouter - can provide renderer that allows props
+// Do we need any props? At the top level should not have any props.
 
 const App = props => {
   // TODO. Do the props propagate this way?
@@ -31,11 +32,12 @@ const App = props => {
     )
 };
 
-App.propTypes = {
-  loginState: PropTypes.object.isRequired,
-  gameState: PropTypes.object.isRequired,
-  gameEventHandler: PropTypes.object.isRequired,
-  serverType: PropTypes.string.isRequired
-};
+// TODO. Verify that at top level we don't need any props.
+// App.propTypes = {
+//   loginState: PropTypes.object.isRequired,
+//   gameState: PropTypes.object.isRequired,
+//   gameEventHandler: PropTypes.object.isRequired,
+//   serverType: PropTypes.string.isRequired
+// };
 
 export default App

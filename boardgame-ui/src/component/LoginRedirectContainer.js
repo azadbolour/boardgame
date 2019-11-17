@@ -8,28 +8,44 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import GameComponent from "./component/GameComponent"
+import HomeContainer from "./component/HomeContainer"
+import {queryParams} from './util/UrlUtil';
+import {stringify} from "./util/Logger";
+import {mkGameState} from "./GameState";
 
 /**
  * The response from a login call to the authentication service
  * is redirected here. The redirect has the following parameters:
  *
  *   code=AUTH_CODE&state=whatWasTransmittedInTheLoginRequest
+ *   error=access_denied in the query string - is it the same for Cognito?
+ *   Bottom line is that there will be an error parameter in the query string.
  */
 export const LoginRedirectContainer = props => {
+  // TODO. Create initial gameState here.
+  const gameState = null;
+  const gameEventHandler = props.gameEventHandler;
+  console.log(`LoginRedirectContainer - location: ${stringify(window.location)}`);
+  const urlQueryParams = queryParams(window.location);
+  const token = urlQueryParams["code"];  // TODO. Constants.
+  const state = urlQueryParams["state"];
+  const error = urlQueryParams["error"];
 
-  // the response has: code=AUTH_CODE&state=sameRandomness
-  // TODO. How do we detect an error?
-
-  // error=access_denied in the query string - is it the same for Cognito?
-  // Bottom line is that there will be an error parameter in the query string.
-
-  // TODO. Get the code and the state.
-  // TODO. Check state param against saved state.
-  // If OK - save token and render the game.
-
-  // TODO. Set the state and notify the observer to render the game.
-  // Or how about just redirecting to / and let home figure it out?
+  // TODO. Also check state === transmitted state
+  // TODO. How to keep track of transmitted state safely?
+  if (error === undefined) {
+    // TODO. Set cookie for token.
+  }
+  else {
+    // store token in cookie or local or session storage
+  }
+  return (
+    <HomeContainer error={error} />
+  )
 };
+
+
+
+
 
 export default LoginRedirectContainer;
