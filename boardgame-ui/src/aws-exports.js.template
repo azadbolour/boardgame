@@ -1,0 +1,22 @@
+/*
+ * Copyright 2017-2018 Azad Bolour
+ * Licensed under GNU Affero General Public License v3.0 -
+ *   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
+ */
+
+export const configuration = {
+  Auth: {
+    region: '',
+    userPoolId: '',
+    userPoolWebClientId: '',
+    mandatorySignIn: true,
+    authenticationFlowType: 'USER_SRP_AUTH',
+    oauth: {
+      domain: "",
+      scope: ['openid', 'aws.cognito.signin.user.admin'],
+      redirectSignIn: 'http://localhost:3000/',
+      redirectSignOut: 'http://localhost:3000/',
+      responseType: 'code',
+    }
+  }
+};

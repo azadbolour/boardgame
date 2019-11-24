@@ -5,10 +5,10 @@
  *   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
 
+import Cookies from 'js-cookie';
+import {CODE_COOKIE} from "../event/AuthService";
 import GameComponent from './GameComponent';
 import WelcomeComponent from './WelcomeComponent';
-
-// TODO. Implement token expiration.
 
 /**
  * Top-level container. Keep it real simple to begin with and
@@ -19,14 +19,17 @@ import WelcomeComponent from './WelcomeComponent';
 // TODO. What about the gameState, etc.
 // TODO. Should index.js functionality be moved to here?
 
+
+  // TODO. Remove cookie.
+  // Wrap the component in withAuth. Use auth.isAuthenticated to check instead of cookie.
 export const HomeContainer = props => {
 
   // TODO. This is where props will be injected.
   // Add in the props.
 
-  const token = null; // Get token from cookie or storage.
+  const authCode = Cookies.get(CODE_COOKIE);
 
-  if (token !== undefined)
+  if (authCode !== undefined)
     return (GameComponent(props));
   else
     return (WelcomeComponent(props));
