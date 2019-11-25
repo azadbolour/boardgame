@@ -5,6 +5,7 @@
   "dependencies": {
     "@okta/okta-react": "^1.2.3",
     "aws-amplify": "^1.2.4",
+    "aws-amplify-react": "^2.5.4",
     "basic-authorization-header": "^0.2.7",
     "detect-it": "*",
     "flux": "^3.1.2",

@@ -8,7 +8,7 @@
    Without it the board is not displayed! Why? */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import GameComponent from './component/GameComponent';
+import App from './App';
 import {queryParams} from './util/UrlUtil';
 
 import GameParams from './domain/GameParams';
@@ -20,28 +20,28 @@ import {stringify, stringifyNoBracesForEmpty} from "./util/Logger";
 import {mkGameState} from "./event/GameState";
 import {GameActionTypes} from "./event/GameActionTypes";
 
-let urlQueryParams = queryParams(window.location);
+const urlQueryParams = queryParams(window.location);
 
 const {extracted: gameParams, errorState} = GameParams.fromQueryParams(urlQueryParams);
 if (errorState.error)
   console.log(`errors: ${stringify(errorState.status)}`);
 console.log(`game params: ${stringify(gameParams)}`);
 
-const rootEl = document.getElementById('root');
-
 const UNKNOWN_SERVER_TYPE = "unknown";
 let serverType = UNKNOWN_SERVER_TYPE;
+
+const rootEl = document.getElementById('root');
 
 let gameService = new GameService(gameParams);
 
 const {gameEventHandler, subscribe, unsubscribe} = mkGameHandler(gameService);
 
 const gameObserver = function(gameState) {
-  renderGame(gameState);
+  renderApp(gameState);
 };
 
-const renderGame = function(gameState) {
-  let gameSpec = <GameComponent
+const renderApp = function(gameState) {
+  let gameSpec = <App
     gameState={gameState}
     gameEventHandler={gameEventHandler}
     serverType={serverType}
@@ -53,14 +53,13 @@ const renderGame = function(gameState) {
   );
 };
 
-
 const renderEmptyGameAndStatus = function(status) {
   let emptyGame = mkEmptyGame(gameParams);
   let auxGameData = mkAuxGameData([]);
   // TODO. Better action type.
   let gameState = mkGameState(emptyGame, auxGameData, status, GameActionTypes.START_INIT);
 
-  renderGame(gameState);
+  renderApp(gameState);
 };
 
 subscribe(gameObserver);

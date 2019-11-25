@@ -6,31 +6,40 @@
  */
 
 import Cookies from 'js-cookie';
+import React from 'react';
 import {CODE_COOKIE} from "../event/AuthService";
 import GameComponent from './GameComponent';
 import WelcomeComponent from './WelcomeComponent';
+import GameParams from "../domain/GameParams";
+import {stringify} from "../util/Logger";
+import GameService from "../service/GameService";
+import {mkGameHandler} from "../event/GameHandler";
+import PropTypes from "prop-types";
+import App from "../App";
 
 /**
  * Top-level container. Keep it real simple to begin with and
  * go directly to a game if logged in and to the Welcome page if not.
  */
 
-// TODO. Home component should have an error prop - send to WelcomeComponent.
-// TODO. What about the gameState, etc.
-// TODO. Should index.js functionality be moved to here?
+// Wrap the component in withAuth. Use auth.isAuthenticated to check instead of cookie.
+const HomeContainer = props => {
 
+  // TODO. Check authenticated and get authenticated user.
+  const userName = "You";
 
-  // TODO. Remove cookie.
-  // Wrap the component in withAuth. Use auth.isAuthenticated to check instead of cookie.
-export const HomeContainer = props => {
-
-  // TODO. This is where props will be injected.
-  // Add in the props.
-
-  const authCode = Cookies.get(CODE_COOKIE);
-
-  if (authCode !== undefined)
-    return (GameComponent(props));
+  if (userName !== undefined) {
+    const ps = {...props, userName: {userName}};
+    return <GameComponent {...ps} />;
+  }
   else
-    return (WelcomeComponent(props));
+    return <WelcomeComponent {...props} />;
 };
+
+HomeContainer.propTypes = {
+  gameState: PropTypes.object.isRequired,
+  gameEventHandler: PropTypes.object.isRequired,
+  serverType: PropTypes.string.isRequired
+};
+
+export default HomeContainer;
