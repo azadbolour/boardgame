@@ -5,36 +5,56 @@
  *   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
 
-import Cookies from 'js-cookie';
 import React from 'react';
-import {CODE_COOKIE} from "../event/AuthService";
+import {Component} from 'react';
+import {Suspense, Fragment} from 'react';
 import GameComponent from './GameComponent';
-import WelcomeComponent from './WelcomeComponent';
-import GameParams from "../domain/GameParams";
+import LandingComponent from './LandingComponent';
+import {Auth} from 'aws-amplify';
 import {stringify} from "../util/Logger";
-import GameService from "../service/GameService";
-import {mkGameHandler} from "../event/GameHandler";
 import PropTypes from "prop-types";
-import App from "../App";
 
 /**
  * Top-level container. Keep it real simple to begin with and
- * go directly to a game if logged in and to the Welcome page if not.
+ * go directly to games if logged in and to the Welcome page if not.
  */
 
-// Wrap the component in withAuth. Use auth.isAuthenticated to check instead of cookie.
-const HomeContainer = props => {
-
-  // TODO. Check authenticated and get authenticated user.
-  const userName = "You";
-
-  if (userName !== undefined) {
-    const ps = {...props, userName: {userName}};
-    return <GameComponent {...ps} />;
-  }
-  else
-    return <WelcomeComponent {...props} />;
+const getUserName = async () => {
+  let info = await Auth.currentUserInfo();
+  console.log(`getUserName: info: ${stringify(info)}`);
+  let userName = undefined;
+  if (info)
+    userName = info.username;
+  return await userName;
 };
+
+class HomeContainer extends Component {
+
+  constructor() {
+    super();
+    this.state = {userName: '' };
+  }
+
+  async componentDidMount() {
+    const info = await Auth.currentUserInfo();
+    if (!info)
+      return;
+    const userName = info.username;
+    this.setState ({ userName: userName});
+  }
+
+  // TODO. Present the catch error in LandingComponent.
+
+  render() {
+    let props = this.props;
+    let userName = this.state.userName;
+    if (userName) {
+      const ps = {...props, userName: {userName}};
+      return (<GameComponent {...ps} />);
+    } else
+      return (<LandingComponent {...props} />);
+  }
+}
 
 HomeContainer.propTypes = {
   gameState: PropTypes.object.isRequired,

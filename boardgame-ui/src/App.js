@@ -10,12 +10,16 @@ import PropTypes from 'prop-types';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { withAuthenticator } from 'aws-amplify-react';
 import HomeContainer from "./component/HomeContainer";
-import Amplify from '@aws-amplify/core';
-import Auth from '@aws-amplify/auth';
+import GameComponent from "./component/GameComponent";
+import Amplify from 'aws-amplify';
+import {Auth} from 'aws-amplify';
 import {configuration} from './aws-exports';
 import {stringify} from "./util/Logger";
 
 Amplify.configure(configuration);
+const auth = configuration.auth;
+Auth.configure({ auth });
+
 const NotFound = () => <p>Page not found!</p>;
 
 const App = props => {
@@ -30,6 +34,14 @@ const App = props => {
               serverType={props.serverType}
             />}
           />
+          <Route path='/games' exact={true}
+            render={(routeProps) => <GameComponent {...routeProps}
+              gameState={props.gameState}
+              gameEventHandler={props.gameEventHandler}
+              serverType={props.serverType}
+            />}
+          />
+
         </Switch>
       </Router>
     )
@@ -41,6 +53,7 @@ App.propTypes = {
   serverType: PropTypes.string.isRequired
 };
 
-const authenticationParams = {includeGreetings: true};
+// const authenticationParams = {includeGreetings: true};
 
-export default withAuthenticator(App, authenticationParams);
+// export default withAuthenticator(App, authenticationParams);
+export default App

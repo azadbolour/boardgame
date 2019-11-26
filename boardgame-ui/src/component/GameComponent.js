@@ -9,6 +9,7 @@
 import PropTypes from 'prop-types';
 import { default as TouchBackend } from 'react-dnd-touch-backend';
 import React from 'react';
+import { withAuthenticator } from 'aws-amplify-react';
 import ReactList from 'react-list';
 import * as Game from '../domain/Game';
 import TrayComponent from './TrayComponent';
@@ -427,5 +428,6 @@ class GameComponent extends React.Component {
   }
 }
 
-// export default DragDropContext(dndBackend)(GameComponent);
-export default GameComponent
+const authenticationParams = {includeGreetings: true};
+
+export default withAuthenticator(GameComponent, authenticationParams);
