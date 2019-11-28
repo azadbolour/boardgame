@@ -8,7 +8,8 @@ import React, { Component } from 'react';
 import OAuthButton from './OAuthButton';
 import Amplify, { Auth, Hub } from 'aws-amplify';
 import {configuration} from '../aws-exports';
-import GameComponent from "./GameComponent"; // your Amplify configuration
+import GameComponent from "./GameComponent";
+import {stringify} from "../util/Logger"; // your Amplify configuration
 
 Amplify.configure(configuration);
 const auth = configuration.auth;
@@ -20,6 +21,7 @@ class LandingComponent extends Component {
     this.signOut = this.signOut.bind(this);
     // let the Hub module listen on Auth events
     Hub.listen('auth', (data) => {
+      console.log(`auth response - data.payload: ${stringify(data.payload)}`);
       switch (data.payload.event) {
         case 'signIn':
           this.setState({authState: 'signedIn', authData: data.payload.data});
@@ -43,10 +45,10 @@ class LandingComponent extends Component {
     console.log('on component mount');
     // check the current user when the App component is loaded
     Auth.currentAuthenticatedUser().then(user => {
-      console.log(user);
+      console.log(`current authenticated user: ${stringify(user)}`);
       this.setState({authState: 'signedIn', user: user});
     }).catch(e => {
-      console.log(e);
+      console.log(`error is getting current authenticated user: ${stringify(e)}`);
       this.setState({authState: 'signIn', user: null});
     });
   }
