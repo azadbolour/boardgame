@@ -7,7 +7,7 @@
 /** @module App - top level app */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Redirect, Route, Switch} from 'react-router-dom';
 import { withAuthenticator } from 'aws-amplify-react';
 import HomeContainer from "./component/HomeContainer";
 import GameComponent from "./component/GameComponent";
@@ -15,6 +15,7 @@ import Amplify from 'aws-amplify';
 import {Auth} from 'aws-amplify';
 import {configuration} from './aws-exports';
 import {stringify} from "./util/Logger";
+import LandingComponent from "./component/LandingComponent";
 
 Amplify.configure(configuration);
 const auth = configuration.auth;
@@ -22,26 +23,23 @@ Auth.configure({ auth });
 
 const NotFound = () => <p>Page not found!</p>;
 
+/**
+ * The App component just does the routing. For now, everything goes to the
+ * landing component, which knows about authentication. IndexRedirect is the default.
+ */
 const App = props => {
     return (
       <Router>
         <Switch>
           <Route
             path='/' exact={true}
-            render={(routeProps) => <HomeContainer {...routeProps}
+            render={(routeProps) => <LandingComponent {...routeProps}
               gameState={props.gameState}
               gameEventHandler={props.gameEventHandler}
               serverType={props.serverType}
             />}
           />
-          <Route path='/games' exact={true}
-            render={(routeProps) => <GameComponent {...routeProps}
-              gameState={props.gameState}
-              gameEventHandler={props.gameEventHandler}
-              serverType={props.serverType}
-            />}
-          />
-
+          <Redirect path="*" to="/" />
         </Switch>
       </Router>
     )
@@ -53,7 +51,4 @@ App.propTypes = {
   serverType: PropTypes.string.isRequired
 };
 
-// const authenticationParams = {includeGreetings: true};
-
-// export default withAuthenticator(App, authenticationParams);
 export default App

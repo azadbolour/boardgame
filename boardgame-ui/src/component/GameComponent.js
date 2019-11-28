@@ -9,7 +9,6 @@
 import PropTypes from 'prop-types';
 import { default as TouchBackend } from 'react-dnd-touch-backend';
 import React from 'react';
-import { withAuthenticator } from 'aws-amplify-react';
 import ReactList from 'react-list';
 import * as Game from '../domain/Game';
 import TrayComponent from './TrayComponent';
@@ -22,7 +21,6 @@ import AppParams from '../util/AppParams';
 import GameParams from '../domain/GameParams';
 import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
-import {stringify} from "../util/Logger";
 
 function buttonStyle(enabled) {
   let color = enabled ? 'Chocolate' : Style.disabledColor;
@@ -428,6 +426,4 @@ class GameComponent extends React.Component {
   }
 }
 
-const authenticationParams = {includeGreetings: true};
-
-export default withAuthenticator(GameComponent, authenticationParams);
+export default GameComponent;
