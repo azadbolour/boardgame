@@ -82,7 +82,7 @@ class LandingComponent extends Component {
       <div>
         {authState === 'loading' && (<div>loading...</div>)}
         {authState === 'signIn' && <OAuthButton/>}
-        {authState === 'signedIn' && {signedInRendered} }
+        {authState === 'signedIn' && this.renderSignedIn() }
       </div>
     );
   }

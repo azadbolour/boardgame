@@ -4,6 +4,12 @@
  *   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
  */
 
+// Note. As of Nov 2019 - client should NOT have a client SECRET, as per forum responses to issues.
+// Exactly why is unclear.
+
+// Using just http for redirects to localhost for testing.
+// localhost does not have a certificate - and the browser rejects an https redirect.
+
 export const configuration = {
   Auth: {
     region: '',
@@ -13,10 +19,10 @@ export const configuration = {
     authenticationFlowType: 'USER_SRP_AUTH',
     oauth: {
       domain: "",
-      scope: ['openid', 'aws.cognito.signin.user.admin'],
+      scope: [aws.cognito.signin.user.admin'],
       redirectSignIn: 'http://localhost:3000/',
       redirectSignOut: 'http://localhost:3000/',
-      responseType: 'code',
+      responseType: 'token',
     }
   }
 };
