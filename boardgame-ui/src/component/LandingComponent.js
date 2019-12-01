@@ -6,15 +6,9 @@
 
 import React, { Component } from 'react';
 import OAuthButton from './OAuthButton';
-import Amplify, { Auth, Hub } from 'aws-amplify';
-import {configuration} from '../aws-exports';
+import { Auth, Hub } from 'aws-amplify';
 import GameComponent from "./GameComponent";
 import {stringify} from "../util/Logger";
-import * as Style from "../util/StyleUtil"; // your Amplify configuration
-
-Amplify.configure(configuration);
-const auth = configuration.auth;
-Auth.configure({ auth });
 
 function ruleStyle(color) {
   if (color === undefined)
@@ -184,12 +178,16 @@ class LandingComponent extends Component {
         </div>
         <div>
           {authState === 'signIn' && this.renderRules() }
+          {authState === 'signIn' &&
+          <div>
+            <pre> </pre>
+            <div style={ruleStyle('#009FFF')}>
+              Bolour Computing. 6144 N Rockridge Blvd, Oakland, CA 94618
+            </div>
+          </div>
+          }
         </div>
 
-        <pre> </pre>
-        <div style={ruleStyle('#009FFF')}>
-          Bolour Computing. 6144 N Rockridge Blvd, Oakland, CA 94618
-        </div>
       </div>
     );
   }

@@ -8,18 +8,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { BrowserRouter as Router, Redirect, Route, Switch} from 'react-router-dom';
-import { withAuthenticator } from 'aws-amplify-react';
-import HomeContainer from "./component/HomeContainer";
-import GameComponent from "./component/GameComponent";
-import Amplify from 'aws-amplify';
-import {Auth} from 'aws-amplify';
-import {configuration} from './aws-exports';
 import {stringify} from "./util/Logger";
 import LandingComponent from "./component/LandingComponent";
-
-Amplify.configure(configuration);
-const auth = configuration.auth;
-Auth.configure({ auth });
 
 const NotFound = () => <p>Page not found!</p>;
 
