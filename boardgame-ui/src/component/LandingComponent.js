@@ -9,11 +9,46 @@ import OAuthButton from './OAuthButton';
 import Amplify, { Auth, Hub } from 'aws-amplify';
 import {configuration} from '../aws-exports';
 import GameComponent from "./GameComponent";
-import {stringify} from "../util/Logger"; // your Amplify configuration
+import {stringify} from "../util/Logger";
+import * as Style from "../util/StyleUtil"; // your Amplify configuration
 
 Amplify.configure(configuration);
 const auth = configuration.auth;
 Auth.configure({ auth });
+
+function ruleStyle(color) {
+  if (color === undefined)
+    color = 'Black';
+  return {
+    width: '1000px',
+    color: color,
+    align: 'left',
+    fontSize: 18,
+    fontFamily: 'arial',
+    borderWidth: '4px',
+    borderColor: 'Red',
+    margin: 'auto',
+    padding: '10px'
+  }
+}
+
+// TODO. Duplicated from OAuthButton. Remove after merging OAuthButton into this file.
+function buttonStyle() {
+  let color = 'Chocolate';
+  let backgroundColor = 'Khaki';
+  return {
+    width: '150px',
+    height: '50px',
+    color: color,
+    backgroundColor: backgroundColor,
+    align: 'left',
+    fontSize: 15,
+    fontWeight: 'bold',
+    borderWidth: '4px',
+    margin: 'auto',
+    padding: '2px'
+  }
+}
 
 class LandingComponent extends Component {
   constructor(props) {
@@ -67,22 +102,94 @@ class LandingComponent extends Component {
     const ps = {...props, userName: state.user};
     return (
       <div>
-        <div>
-          <button onClick={this.signOut}>Sign out</button>}
-        </div>
+      <div>
+          <button
+            onClick={this.signOut}
+            style={buttonStyle()} >
+            SignOut</button>
+      </div>
+        <pre> </pre>
+      <div>
         <GameComponent {...ps} />
+      </div>
+      </div>
+    )
+  }
+
+  renderRules() {
+    return (
+      <div>
+        <div style={ruleStyle("#009FFF")}>A Crossword Game</div>
+        <div style={ruleStyle("#009FFF")}>Rules</div>
+        <ul>
+        <li style={ruleStyle()}>
+          Points are associated with board locations - not with letters.
+        </li>
+        <li style={ruleStyle()}>
+          The assignment of points to board locations varies from game to game.
+        </li>
+        <li style={ruleStyle()}>
+          A word play accumulates the points of the [new] locations it captures.
+        </li>
+        <li style={ruleStyle()}>
+          A word play on a non-empty board must contain at least one existing letter.
+        </li>
+        <li style={ruleStyle()}>
+          A word play on an empty board is unrestricted.
+        </li>
+        <li style={ruleStyle()}>
+          The played word and any crosswords formed by the play must exist in the
+          game's dictionary.
+        </li>
+        <li style={ruleStyle()}>
+          Letters for play are generated randomly based on their frequency in the English lexicon
+          (per <a href="http://www.oxfordmathcenter.com/drupal7/node/353">Oxford Math Center</a>).
+        </li>
+        <li style={ruleStyle()}>
+          There is no notion of a container of letters getting depleted.
+        </li>
+        <li style={ruleStyle()}>
+          When no board play is possible, a single letter is swapped by dropping it onto the
+          swap bin.
+        </li>
+        <li style={ruleStyle()}>
+          A game ends upon 10 consecutive no-plays [swaps].
+        </li>
+        <li style={ruleStyle()}>
+          Games have a time limit of 1 hour. Longer games are considered
+          abandoned and are harvested.
+        </li>
+        </ul>
       </div>
     )
   }
 
   render() {
     const { authState } = this.state;
-    const signedInRendered = this.renderSignedIn();
     return (
       <div>
-        {authState === 'loading' && (<div>loading...</div>)}
-        {authState === 'signIn' && <OAuthButton/>}
-        {authState === 'signedIn' && this.renderSignedIn() }
+        <div align='center'>
+          <div style={{fontSize: "35px", color: "#009FFF", align: 'center', padding: '20px'}}>
+          Eager Words
+          </div>
+        </div>
+        <div align='center'>
+          {authState === 'loading' && (<div>loading...</div>)}
+        </div>
+        <div align='center'>
+          {authState === 'signIn' && <OAuthButton style={buttonStyle()}/>}
+        </div>
+          {authState === 'signedIn' && this.renderSignedIn() }
+        <div>
+        </div>
+        <div>
+          {authState === 'signIn' && this.renderRules() }
+        </div>
+
+        <pre> </pre>
+        <div style={ruleStyle('#009FFF')}>
+          Bolour Computing. 6144 N Rockridge Blvd, Oakland, CA 94618
+        </div>
       </div>
     );
   }
