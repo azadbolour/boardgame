@@ -6,9 +6,14 @@
 
 import React, { Component } from 'react';
 import OAuthButton from './OAuthButton';
-import { Auth, Hub } from 'aws-amplify';
+import Amplify, { Auth, Hub } from 'aws-amplify';
 import GameComponent from "./GameComponent";
 import {stringify} from "../util/Logger";
+import {configuration} from "../aws-exports";
+
+Amplify.configure(configuration);
+const auth = configuration.auth;
+Auth.configure({ auth });
 
 function ruleStyle(color) {
   if (color === undefined)

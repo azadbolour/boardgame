@@ -19,10 +19,10 @@ import {emptyAuxGameData, mkAuxGameData} from './domain/AuxGameData';
 import {stringify, stringifyNoBracesForEmpty} from "./util/Logger";
 import {mkGameState} from "./event/GameState";
 import {GameActionTypes} from "./event/GameActionTypes";
-import Amplify, {Auth} from "aws-amplify";
+// import Amplify, {Auth} from "aws-amplify";
 // import {configuration} from "./aws-exports";
-import AppParams from './util/AppParams';
-import {getAuthConfiguration} from './AuthParams';
+// import AppParams from './util/AppParams';
+// import {getAuthConfiguration} from './AuthParams';
 
 const urlQueryParams = queryParams(window.location);
 
@@ -31,15 +31,15 @@ if (errorState.error)
   console.log(`errors: ${stringify(errorState.status)}`);
 console.log(`game params: ${stringify(gameParams)}`);
 
-/*
- * Configure Cognito. Static configuration depends on env.
- * Simplest to do it here.
- */
-const envType = gameParams.appParams[AppParams.ENV_TYPE_PARAM];
-const configuration = getAuthConfiguration(envType);
-Amplify.configure(configuration);
-const auth = configuration.auth;
-Auth.configure({ auth });
+// /*
+//  * Configure Cognito. Static configuration depends on env.
+//  * Simplest to do it here.
+//  */
+// const envType = gameParams.appParams[AppParams.ENV_TYPE_PARAM];
+// const configuration = getAuthConfiguration(envType);
+// Amplify.configure(configuration);
+// const auth = configuration.auth;
+// Auth.configure({ auth });
 
 const UNKNOWN_SERVER_TYPE = "unknown";
 let serverType = UNKNOWN_SERVER_TYPE;
