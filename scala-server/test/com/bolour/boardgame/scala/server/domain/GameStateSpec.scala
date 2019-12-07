@@ -43,7 +43,7 @@ class GameStateSpec extends FlatSpec with Matchers {
   "initial game state" should "not have duplicate piece ids" in {
     val dimension = 15
     val trayCapacity = 15
-    val gameParams = GameParams(dimension, trayCapacity, "en", name, genType)
+    val gameParams = GameParams(dimension, trayCapacity, "en", genType)
 
     val initPieces = InitPieces(List(), List(), List())
     val pointValues = List.fill(dimension, dimension)(1)
@@ -63,7 +63,7 @@ class GameStateSpec extends FlatSpec with Matchers {
     val dimension = 15
     val trayCapacity = 7
 
-    val gameParams = GameParams(dimension, trayCapacity, "en", name, PieceProviderType.Cyclic)
+    val gameParams = GameParams(dimension, trayCapacity, "en", PieceProviderType.Cyclic)
     val initPieces = InitPieces(List(), List(), List())
     val pointValues = List.fill(dimension, dimension)(1)
     val gameBase = GameBase(gameParams, initPieces, pointValues, "123")

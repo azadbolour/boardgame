@@ -10,6 +10,7 @@ import javax.inject._
 import controllers.GameApiJsonSupport._
 import controllers.GameDtoConverters._
 import com.bolour.boardgame.scala.common.message._
+import com.bolour.util.scala.server.BasicServerUtil.stringId
 import com.bolour.boardgame.scala.server.domain.GameExceptions._
 import com.bolour.boardgame.scala.server.service.GameService
 import com.bolour.boardgame.scala.common.domain.{Piece, PlayPiece}
@@ -56,7 +57,7 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
     */
   def addPlayerValidated(dto: PlayerDto) = {
     logger.info(s"addPlayer playerDto: ${dto}")
-    val player = fromPlayerDto(dto)
+    val player = fromPlayerDto(dto).copy(id = stringId())
     val triedUnit = service.addPlayer(player)
     triedUnit match {
       case Failure(ex) =>
@@ -84,8 +85,8 @@ class GameController @Inject() (cc: ControllerComponents, service: GameService) 
   def startGameValidated(startGameRequest: StartGameRequest) = {
     logger.info(s"startGame startGameRequest: ${startGameRequest}")
     startGameRequest match {
-      case StartGameRequest(gameParams, initPieces, pointValues) => {
-        val triedStart = service.startGame(gameParams, initPieces, pointValues)
+      case StartGameRequest(gameParams, initPieces, pointValues, userId) => {
+        val triedStart = service.startGame(gameParams, initPieces, pointValues, userId)
         triedStart match {
           case Failure(ex) =>
             logger.error("startGame failure", ex)

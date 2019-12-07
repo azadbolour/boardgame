@@ -6,7 +6,9 @@
 package com.bolour.util.scala.common
 
 object CommonUtil {
+  // TODO. Use Scala value class.
   type ID = String
+  case class Email(val email: String) extends AnyVal
 
   def javaListToScala[T](source: java.util.List[T]): List[T] = {
     // TODO. Scala syntax for inlining the next two lines as a parameter to fill??

@@ -14,13 +14,13 @@ import com.bolour.boardgame.scala.common.domain.PieceProviderType.PieceProviderT
   * @param trayCapacity The number of pieces (tiles) in each player's tray.
   * @param languageCode The id of the game's language. Determines the word dictionary to use.
   *                     This is the standard underscore-separated locale identifier.
-  * @param playerName TODO. Should be separated out.
+  // * @param playerName TODO. Should be separated out.
   * @param pieceProviderType The type of factory to use for generating new pieces (tiles).
   */
 case class GameParams(
   dimension: Int,
   trayCapacity: Int,
   languageCode: String,
-  playerName: String,
+  // playerName: String,
   pieceProviderType: PieceProviderType
 )

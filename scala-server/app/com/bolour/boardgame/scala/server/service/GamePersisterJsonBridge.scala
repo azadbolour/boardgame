@@ -28,12 +28,12 @@ class GamePersisterJsonBridge(jsonPersister: GameJsonPersister, version: Int) ex
   override def savePlayer(player: Player) = {
     val versionedPlayer = VersionStamped[Player](version, player)
     val json = versionedPlayer.toJson.prettyPrint
-    jsonPersister.savePlayer(player.id, player.name, json)
+    jsonPersister.savePlayer(player.id, player.userId, player.name, player.email, json)
   }
 
-  override def findPlayerByName(name: String) = {
+  override def findPlayerByUserId(userId: String) = {
     for {
-      ojson <- jsonPersister.findPlayerByName(name)
+      ojson <- jsonPersister.findPlayerByUserId(userId)
       oplayer = ojson map { json =>
         val jsonAst = json.parseJson
         val versionedPlayer = jsonAst.convertTo[VersionStamped[Player]]

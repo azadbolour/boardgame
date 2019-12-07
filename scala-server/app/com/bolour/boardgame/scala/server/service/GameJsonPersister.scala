@@ -5,7 +5,7 @@
  */
 package com.bolour.boardgame.scala.server.service
 
-import com.bolour.util.scala.common.CommonUtil.ID
+import com.bolour.util.scala.common.CommonUtil.{Email, ID}
 
 import scala.util.Try
 
@@ -26,8 +26,8 @@ trait GameJsonPersister {
   def clearPlayers(): Try[Unit]
   def clearGames(): Try[Unit]
 
-  def savePlayer(playerId: ID, playerName: String, json: String): Try[Unit]
-  def findPlayerByName(name: String): Try[Option[String]]
+  def savePlayer(playerId: ID, userId: String, playerName: String, email: Email, json: String): Try[Unit]
+  def findPlayerByUserId(userId: String): Try[Option[String]]
 
   def saveGame(gameId: ID, playerId: ID, json: String): Try[Unit]
   def findGameById(gameId: ID): Try[Option[String]]

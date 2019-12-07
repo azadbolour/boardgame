@@ -28,7 +28,7 @@ trait GamePersister {
   def clearPlayers(): Try[Unit]
 
   def savePlayer(player: Player): Try[Unit]
-  def findPlayerByName(name: String): Try[Option[Player]]
+  def findPlayerByUserId(userId: String): Try[Option[Player]]
 
   def saveGame(game: GameData): Try[Unit]
   def findGameById(gameId: ID): Try[Option[GameData]]

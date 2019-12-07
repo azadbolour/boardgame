@@ -85,8 +85,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   // val persister: GamePersister = new GamePersisterJsonImpl(new GameJsonPersisterMemoryImpl(), Version.version)
   val persister: GamePersister = new GamePersisterJsonBridge(GameJsonPersisterSlickImpl(defaultDb, config), Version.version)
 
-  val seedPlayerName = "You"
-  val seedPlayer = Player(stringId, seedPlayerName)
+  // val seedPlayerName = "You"
+  // val seedPlayer = Player(stringId, seedPlayerName)
 
   migrate()
 
@@ -96,11 +96,11 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     // Keep last upgraded version in the database.
     for /* try */ {
       _ <- persister.migrate()
-      maybeSeedPlayer <- persister.findPlayerByName(seedPlayerName)
-      _ <- maybeSeedPlayer match {
-        case None => persister.savePlayer(seedPlayer)
-        case _ => Success(())
-      }
+//      maybeSeedPlayer <- persister.findPlayerByName(seedPlayerName)
+//      _ <- maybeSeedPlayer match {
+//        case None => persister.savePlayer(seedPlayer)
+//        case _ => Success(())
+//      }
     } yield ()
 
   }
@@ -119,7 +119,8 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   override def startGame(
     gameParams: GameParams,
     initPieces: InitPieces,
-    pointValues: List[List[Int]]
+    pointValues: List[List[Int]],
+    userId: String
   ): Try[Game] = {
     if (gameCache.size >= maxActiveGames)
       return Failure(SystemOverloadedException())
@@ -127,7 +128,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
     val pieceProvider: PieceProvider = mkPieceProvider(gameParams.pieceProviderType)
 
     for {
-      player <- getPlayerByName(gameParams.playerName)
+      player <- getPlayerByName(userId)
       gameBase = GameBase(gameParams, initPieces, pointValues, player.id)
       game <- Game.mkGame(gameBase, pieceProvider)
       _ <- saveGame(game)
@@ -137,7 +138,7 @@ class GameServiceImpl @Inject() (config: Config) extends GameService {
   }
 
   private def getPlayerByName(playerName: String): Try[Player] = {
-    val tried = persister.findPlayerByName(playerName)
+    val tried = persister.findPlayerByUserId(playerName)
     tried match {
       case Failure(err) => Failure(err)
       case Success(maybePlayer) =>

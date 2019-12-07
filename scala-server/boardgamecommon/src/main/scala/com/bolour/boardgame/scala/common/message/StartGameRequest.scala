@@ -17,5 +17,6 @@ import com.bolour.boardgame.scala.common.domain.{GameParams, InitPieces}
 case class StartGameRequest(
   gameParams: GameParams,
   initPieces: InitPieces,
-  pointValues: List[List[Int]]
+  pointValues: List[List[Int]],
+  userId: String
 )

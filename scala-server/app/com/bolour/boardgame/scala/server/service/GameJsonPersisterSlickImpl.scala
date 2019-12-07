@@ -6,13 +6,13 @@
 package com.bolour.boardgame.scala.server.service
 
 import org.slf4j.LoggerFactory
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import com.typesafe.config.Config
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.JdbcProfile
-
-import com.bolour.util.scala.common.CommonUtil.ID
+import com.bolour.util.scala.common.CommonUtil.{Email, ID}
 import com.bolour.util.scala.server.SlickUtil.{configuredDbAndProfile, tableNames}
 
 import scala.util.Try
@@ -35,14 +35,16 @@ class GameJsonPersisterSlickImpl(val profile: JdbcProfile, db: Database) extends
   def tableMap = Map(playerTableName -> playerRows, gameTableName -> gameRows)
   def allTableNames = tableMap.keySet.toList
 
-  case class PlayerRow(id: ID, name: String, json: String)
+  case class PlayerRow(id: ID, userId: String, name: String, email: String, json: String)
 
   class PlayerTable(tag: Tag) extends Table[PlayerRow](tag, playerTableName) {
     def id = column[ID]("id", O.PrimaryKey)
+    def userId = column[String]("user-id")
     def name = column[String]("name")
+    def email = column[String]("email")
     def json = column[String]("json")
 
-    def * = (id, name, json).mapTo[PlayerRow]
+    def * = (id, userId, name, email, json).mapTo[PlayerRow]
   }
 
   def playerRows = TableQuery[PlayerTable]
@@ -75,16 +77,18 @@ class GameJsonPersisterSlickImpl(val profile: JdbcProfile, db: Database) extends
     gameRows.delete
   }
 
-  override def savePlayer(playerId: ID, playerName: String, json: String) = Try {
-    val playerRow = PlayerRow(playerId, playerName, json)
+  // TODO. Best practices for value class (Email) as column type of Slick row?
+  // For now just convert explicitly.
+  override def savePlayer(playerId: ID, userId: String, playerName: String, email: Email, json: String) = Try {
+    val playerRow = PlayerRow(playerId, userId, playerName, email.email, json)
     val save = playerRows.insertOrUpdate(playerRow)
     val future = db.run(save)
     val numRows = Await.result(future, timeout)
     logger.debug(s"added ${numRows} player(s)")
   }
 
-  override def findPlayerByName(name: String) = Try {
-    val query = playerRows.filter {_.name === name }
+  override def findPlayerByUserId(userId: String) = Try {
+    val query = playerRows.filter {_.userId === userId }
     val future = db.run(query.result)
     val rows = Await.result(future, timeout)
     rows.headOption map { _.json }

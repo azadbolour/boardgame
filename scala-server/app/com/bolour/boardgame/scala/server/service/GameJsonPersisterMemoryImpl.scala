@@ -1,7 +1,7 @@
 package com.bolour.boardgame.scala.server.service
 
 import scala.util.Try
-import com.bolour.util.scala.common.CommonUtil.ID
+import com.bolour.util.scala.common.CommonUtil.{Email, ID}
 
 import scala.collection.mutable
 
@@ -11,21 +11,21 @@ import scala.collection.mutable
   */
 class GameJsonPersisterMemoryImpl extends GameJsonPersister {
 
-  var playersByName: mutable.Map[String, String] = mutable.Map[String, String]()
+  var playersByUserId: mutable.Map[String, String] = mutable.Map[String, String]()
   var gamesById = mutable.Map[ID, String]()
 
   override def migrate() = Try {}
 
-  override def clearPlayers() = Try { playersByName = mutable.Map.empty }
+  override def clearPlayers() = Try { playersByUserId = mutable.Map.empty }
 
   override def clearGames() = Try { gamesById = mutable.Map.empty }
 
-  override def savePlayer(playerId: ID, playerName: String, json: String) = Try {
-    playersByName += ((playerName, json))
+  override def savePlayer(playerId: ID, userId: String, playerName: String, email: Email, json: String) = Try {
+    playersByUserId += ((userId, json))
   }
 
-  override def findPlayerByName(name: String) = Try {
-    playersByName.get(name)
+  override def findPlayerByUserId(userId: String) = Try {
+    playersByUserId.get(userId)
   }
 
   override def saveGame(gameId: ID, playerId: ID, json: String) = Try {

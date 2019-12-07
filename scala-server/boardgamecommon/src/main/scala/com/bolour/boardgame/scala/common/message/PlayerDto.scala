@@ -5,7 +5,9 @@
  */
 package com.bolour.boardgame.scala.common.message
 
+import com.bolour.util.scala.common.CommonUtil.{ID, Email}
+
 /**
-  * Data transfer object for a user.
+  * Data transfer object for a user. See Player domain class.
   */
-case class PlayerDto(name: String)
+case class PlayerDto(id: ID, userId: String, name: String, email: Email)

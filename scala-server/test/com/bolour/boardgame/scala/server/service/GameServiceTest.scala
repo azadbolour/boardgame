@@ -11,6 +11,7 @@ import com.bolour.boardgame.scala.server.domain.Player
 import com.typesafe.config.ConfigFactory
 import com.bolour.boardgame.scala.common.domain._
 import com.bolour.plane.scala.domain.Point
+import com.bolour.util.scala.common.CommonUtil.Email
 import org.scalatest.{FlatSpec, Matchers}
 import org.slf4j.LoggerFactory
 
@@ -23,12 +24,15 @@ class GameServiceTest extends FlatSpec with Matchers {
   val center = dimension / 2
   val tinyLang = "tiny"
   val name = "John"
+  val email = Email("john@example.com")
+  val userId = "12345678"
+
   val genType = PieceProviderType.Random
-  val gameParams = GameParams(dimension, trayCapacity, tinyLang, name, genType)
+  val gameParams = GameParams(dimension, trayCapacity, tinyLang, genType)
 
   val service = new GameServiceImpl(ConfigFactory.load())
   service.migrate()
-  service.addPlayer(Player(stringId, name))
+  service.addPlayer(Player(stringId, userId, name, email))
 
   def piecePoint(letter: Char, row: Int, col: Int) = PiecePoint(Piece(letter, stringId()), Point(row, col))
 
@@ -49,7 +53,7 @@ class GameServiceTest extends FlatSpec with Matchers {
     val initPieces = InitPieces(piecePoints, initUserPieces, List())
     val pointValues = List.fill(dimension, dimension)(1)
     for {
-      game <- service.startGame(gameParams, initPieces, pointValues)
+      game <- service.startGame(gameParams, initPieces, pointValues, userId)
       (score, replacementPieces, deadPoints) <- service.commitPlay(game.gameBase.gameId, playPieces)
     } yield (game, score, replacementPieces)
   }

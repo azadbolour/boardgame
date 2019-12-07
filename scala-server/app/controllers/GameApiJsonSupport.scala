@@ -10,6 +10,7 @@ import play.api.libs.json.Json.{reads, writes}
 import com.bolour.boardgame.scala.common.message._
 import com.bolour.boardgame.scala.common.domain.{PieceProviderType, _}
 import com.bolour.plane.scala.domain.Point
+import com.bolour.util.scala.common.CommonUtil.Email
 import play.api.libs.json._
 
 /**
@@ -24,6 +25,13 @@ object GameApiJsonSupport {
     def reads(json: JsValue) = {
       val string = Json.fromJson[String](json)
       string map PieceProviderType.fromString
+    }
+  }
+
+  implicit val emailReads: Reads[Email] = new Reads[Email] {
+    def reads(json: JsValue) = {
+      val string = Json.fromJson[String](json)
+      string map (value => Email(value))
     }
   }
 
@@ -69,6 +77,10 @@ object GameApiJsonSupport {
 
   implicit val pieceProviderTypeWrites: Writes[PieceProviderType] = new Writes[PieceProviderType] {
     def writes(o: PieceProviderType) = Json.toJson[String](o.toString)
+  }
+
+  implicit val emailWrites: Writes[Email] = new Writes[Email] {
+    def writes(o: Email) = Json.toJson[String](o.toString)
   }
 
   implicit val unitWrites: Writes[Unit] = new Writes[Unit] {

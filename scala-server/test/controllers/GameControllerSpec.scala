@@ -17,7 +17,9 @@ import play.api.test._
 import play.api.test.Helpers._
 import com.bolour.boardgame.scala.server.service.GameServiceImpl
 import com.bolour.boardgame.scala.common.domain._
+import com.bolour.boardgame.scala.server.domain.Player
 import com.bolour.plane.scala.domain.Point
+import com.bolour.util.scala.common.CommonUtil.Email
 import controllers.GameApiJsonSupport._
 import org.slf4j.LoggerFactory
 
@@ -35,8 +37,14 @@ class GameControllerSpec extends PlaySpec with Results {
   val service = new GameServiceImpl(config)
   val controller = new GameController(stubControllerComponents(), service)
 
+  val name = "Bill"
+  val email: Email = Email("bill@example.com")
+  val userId = "123345"
+
+  val player = Player(stringId, userId, name, email)
   service.migrate().get
   service.reset().get
+  service.addPlayer(player).get
 
   def decodeJsonContent[DTO](result: Future[Result])(implicit reads: Reads[DTO]): DTO = {
     // TODO. Check for status OK - can also be BadRequest or Unprocessable.
@@ -59,19 +67,18 @@ class GameControllerSpec extends PlaySpec with Results {
     var theUserTrayPieces: List[Piece] = Nil
     var result: Future[Result] = null
 
-    val name = "Bill"
     val dimension = 5
-    val gameParams = GameParams(dimension, 5, languageCode, name, PieceProviderType.Cyclic)
+    val gameParams = GameParams(dimension, 5, languageCode, PieceProviderType.Cyclic)
     val uPieces = List(Piece('B', stringId()), Piece('E', stringId()), Piece('T', stringId())) // User to play "BET".
     val mPieces = List(Piece('S', stringId()), Piece('T', stringId()), Piece('Z', stringId())) // Machine to play "SET" using user's 'E'.
     val pointValues = List.fill(dimension, dimension)(1)
     val initPieces = InitPieces(Nil, uPieces, mPieces)
-    val startGameRequest = StartGameRequest(gameParams, initPieces, pointValues)
+    val startGameRequest = StartGameRequest(gameParams, initPieces, pointValues, userId)
 
     val center = dimension/2
 
     "play a mini game" in {
-      val playerDto = new PlayerDto(name)
+      val playerDto = new PlayerDto("", "12345", name, email)
       result = controller.addPlayer()(mkRequest(playerDto))
       val unit = decodeJsonContent[Unit](result)
       logger.info(s"addPlayer result: ${unit}")

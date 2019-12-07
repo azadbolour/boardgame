@@ -49,7 +49,8 @@ trait GameService {
   def startGame(
     gameParams: GameParams,
     initPieces: InitPieces,
-    pointValues: List[List[Int]]
+    pointValues: List[List[Int]],
+    userId: String
   ): Try[Game]
 
   /**
