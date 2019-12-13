@@ -157,7 +157,8 @@ class GameComponent extends React.Component {
      */
     gameState: PropTypes.object.isRequired,
     gameEventHandler: PropTypes.object.isRequired,
-    serverType: PropTypes.string.isRequired
+    serverType: PropTypes.string.isRequired,
+    user: PropTypes.object.isRequired
   };
 
   game() {
@@ -218,7 +219,8 @@ class GameComponent extends React.Component {
   startGame() {
     displayDeviceMessage = false;
     let newGameParams = this.getNewGameParams(this.game());
-    this.props.gameEventHandler.start(newGameParams);
+    const userId = this.props.user.id;
+    this.props.gameEventHandler.start(newGameParams, userId);
   }
 
   renderWord(index, key) {
@@ -313,7 +315,7 @@ class GameComponent extends React.Component {
     let isLegalMove = game.legalMove.bind(game);
     let status = this.status();
     let serverType = this.props.serverType;
-    let userName = game.gameParams.appParams.userName;
+    let userName = this.props.name;
     let userScore = game.score[Game.USER_INDEX];
     let machineScore = game.score[Game.MACHINE_INDEX];
     let isTrayPiece = game.tray.isTrayPiece.bind(game.tray);

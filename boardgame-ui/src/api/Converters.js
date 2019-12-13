@@ -18,11 +18,12 @@ import {mkCommittedPlayPiece, mkPlayPiece} from "../domain/PlayPiece";
 // TODO. What about conversion from json to a class object?
 
 export const StartGameRequestConverter = {
-  toJson: function(gameParams, initPieces, pointValues) {
+  toJson: function(gameParams, initPieces, pointValues, userId) {
     return {
       gameParams,
       initPieces,
-      pointValues
+      pointValues,
+      userId
     }
   }
 };
@@ -33,7 +34,6 @@ export const GameParamsConverter = {
       dimension: gameParams.dimension,
       trayCapacity: gameParams.trayCapacity,
       languageCode: "",
-      playerName: gameParams.appParams.userName,
       pieceProviderType: gameParams.pieceProviderType
     }
   }

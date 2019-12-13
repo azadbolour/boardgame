@@ -10,6 +10,7 @@ import Amplify, { Auth, Hub } from 'aws-amplify';
 import GameComponent from "./GameComponent";
 import {stringify} from "../util/Logger";
 import {configuration} from "../aws-exports";
+import {userInfoToUser} from "../util/CognitoUtil";
 
 Amplify.configure(configuration);
 const auth = configuration.auth;
@@ -55,7 +56,7 @@ class LandingComponent extends Component {
     this.signOut = this.signOut.bind(this);
     // let the Hub module listen on Auth events
     Hub.listen('auth', (data) => {
-      console.log(`auth response - data.payload: ${stringify(data.payload)}`);
+      // console.log(`auth response - data.payload: ${JSON.stringify(data.payload, null, 2)}`);
       switch (data.payload.event) {
         case 'signIn':
           this.setState({authState: 'signedIn', authData: data.payload.data});
@@ -78,8 +79,10 @@ class LandingComponent extends Component {
   componentDidMount() {
     console.log('on component mount');
     // check the current user when the App component is loaded
-    Auth.currentAuthenticatedUser().then(user => {
-      console.log(`current authenticated user: ${stringify(user)}`);
+    Auth.currentAuthenticatedUser().then(userInfo => {
+      console.log(`current authenticated user: ${stringify(userInfo, null, 2)}`);
+      let user = userInfoToUser(userInfo);
+      console.log(`user: ${stringify(user)}`);
       this.setState({authState: 'signedIn', user: user});
     }).catch(e => {
       console.log(`error is getting current authenticated user: ${stringify(e)}`);
@@ -98,7 +101,7 @@ class LandingComponent extends Component {
   renderSignedIn() {
     const state = this.state;
     const props = this.props;
-    const ps = {...props, userName: state.user};
+    const ps = {...props, user: state.user};
     return (
       <div>
       <div>

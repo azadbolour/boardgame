@@ -21,15 +21,12 @@ function getEnv(varName, defaultValue) {
   return value ? value : defaultValue;
 }
 
-// TODO. User name and password not provided in the URL. Obtained by identity service. Remove from here.
-
 class AppParams {
-  constructor(envType, apiType, serverUrl, inputDevice, userName) {
+  constructor(envType, apiType, serverUrl, inputDevice) {
     this.envType = envType;
     this.apiType = apiType;
     this.serverUrl = serverUrl;
     this.inputDevice = inputDevice;
-    this.userName = userName;
   }
 
   // Names of parameters settable in the URL for testing.

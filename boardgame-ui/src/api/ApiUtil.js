@@ -13,12 +13,9 @@ import ClientApi from './ClientApi';
  * Select the api implementation to use for a game - mock or game server client.
  */
 export const apiSelector = function(gameParams) {
-  // TODO. Remove user name and password.
-  let userName = gameParams.appParams.userName;
-  let password = gameParams.appParams.password;
   let url = gameParams.appParams.serverUrl;
-  let mockApi = new MockApi(url, userName, password);
-  let clientApi = new ClientApi(url, userName, password);
+  let mockApi = new MockApi(url);
+  let clientApi = new ClientApi(url);
 
   switch (gameParams.appParams.apiType) {
     case AppParams.MOCK_API_TYPE:

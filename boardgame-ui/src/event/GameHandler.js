@@ -158,10 +158,10 @@ export const mkGameHandler = function(gameService) {
      *
      * A top-level method called when the user requests to start a new game.
      */
-    start: function(gameParams) {
+    start: function(gameParams, userId) {
       // No need for triggering START_INIT for now. Keep it simple.
       let handler = this;
-      handler.startInternal(gameParams).then(gameState => {
+      handler.startInternal(gameParams, userId).then(gameState => {
         if (playerStarts(gameParams) || startFailure(gameState.actionType))
           emitChange(gameState);
         else
@@ -310,11 +310,11 @@ export const mkGameHandler = function(gameService) {
      * Start a game based on the input parameters without doing any plays, and
      * return the game state for the started game.
      */
-    startInternal: function(gameParams) {
+    startInternal: function(gameParams, userId) {
       let valueFactory = PointValue.mkValueFactory(gameParams.dimension);
       let pointValues = valueFactory.mkValueGrid();
       let initPieces = mkInitPieces([], [], []);
-      let promise = _gameService.start(initPieces, pointValues);
+      let promise = _gameService.start(initPieces, pointValues, userId);
       return promise.then(response => {
         if (!response.ok)
           return mkStartErrorState(gameParams, response);

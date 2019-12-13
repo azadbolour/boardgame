@@ -13,10 +13,8 @@ const fetch = require('node-fetch');
 // TODO. Logging for requests and responses.
 
 class ClientApi {
-  constructor(serverUrl, userName, password) {
+  constructor(serverUrl) {
     this.serverUrl = serverUrl;
-    this.userName = userName;
-    this.password = password;
   }
 
   handShake() {
@@ -25,8 +23,8 @@ class ClientApi {
     return promise;
   }
 
-  startGame(gameParams, initPieces, pointValues) {
-    let startGameRequest = StartGameRequestConverter.toJson(gameParams, initPieces, pointValues);
+  startGame(gameParams, initPieces, pointValues, userId) {
+    let startGameRequest = StartGameRequestConverter.toJson(gameParams, initPieces, pointValues, userId);
     let body = JSON.stringify(startGameRequest);
     let request = restManager.mkPostRequest(body);
     let promise = restManager.send(request, this.serverUrl, '/game/game');
@@ -91,9 +89,7 @@ const restManager = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       mode: 'cors' // ,
-      // credentials: 'same-origin' // ,
-      // 'Authorization': basic(this.userName, this.password) // ,
-      // 'Access-Control-Allow-Origin': "http://localhost:3000" // TODO. Just a response type. Security hole. See CORS.
+      // TODO. Just a response type. Security hole. See CORS.
     };
   },
 

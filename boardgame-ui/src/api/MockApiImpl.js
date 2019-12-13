@@ -15,7 +15,7 @@ const pieceMoves = true;
 // TODO. Take account of initialGrid and initial machine pieces.
 
 class MockApiImpl {
-  constructor(gameId, gameParams, initPieces, pointValues) {
+  constructor(gameId, gameParams, initPieces, pointValues, userId) {
     // TODO. Reflect initial conditions on game. Check server-side code for logic.
     this.gameParams = gameParams;
     this.nextPieceId = 0;

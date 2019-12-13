@@ -28,7 +28,7 @@ const promise = function(json) {
 };
 
 class MockApi {
-  constructor(serverApiUrl, userName, password) {
+  constructor(serverApiUrl) {
     // Associative array of game id => game service object.
     this.impls = {};
     this.nextGameId = 0;
@@ -51,10 +51,10 @@ class MockApi {
     return promise(json);
   }
 
-  startGame(gameParams, initPieces, pointValues) {
+  startGame(gameParams, initPieces, pointValues, userId) {
     this.nextGameId += 1;
     let gameId = this.nextGameId;
-    let impl = new MockApiImpl(gameId, gameParams, initPieces, pointValues);
+    let impl = new MockApiImpl(gameId, gameParams, initPieces, pointValues, userId);
     this.impls[gameId] = impl;
     let gameDto = impl.gameDto;
     return promise(gameDto);
