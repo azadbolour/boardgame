@@ -54,9 +54,35 @@ class LandingComponent extends Component {
   constructor(props) {
     super(props);
     this.signOut = this.signOut.bind(this);
+    // No notification seen for sign in.
     // let the Hub module listen on Auth events
+    // The other events are signOut, SignUp. TODO. Catch signUp and enter user in db.
+    // Hub.listen('auth', (data) => {
+    //   console.log(`Hub notification - data.payload: ${JSON.stringify(data.payload, null, 2)}`);
+    //   switch (data.payload.event) {
+    //     case 'signIn':
+    //       this.setState({authState: 'signedIn', authData: data.payload.data});
+    //       break;
+    //     case 'signIn_failure':
+    //       this.setState({authState: 'signIn', authData: null, authError: data.payload.data});
+    //       break;
+    //     default:
+    //       break;
+    //   }
+    // });
+    this.state = {
+      authState: 'loading',
+      authData: null,
+      authError: null,
+      user: null
+    }
+  }
+
+  componentDidMount() {
+
+    // No notification seen for sign in.
     Hub.listen('auth', (data) => {
-      // console.log(`auth response - data.payload: ${JSON.stringify(data.payload, null, 2)}`);
+      console.log(`Hub notification - data.payload: ${JSON.stringify(data.payload, null, 2)}`);
       switch (data.payload.event) {
         case 'signIn':
           this.setState({authState: 'signedIn', authData: data.payload.data});
@@ -68,15 +94,7 @@ class LandingComponent extends Component {
           break;
       }
     });
-    this.state = {
-      authState: 'loading',
-      authData: null,
-      authError: null,
-      user: null
-    }
-  }
 
-  componentDidMount() {
     console.log('on component mount');
     // check the current user when the App component is loaded
     Auth.currentAuthenticatedUser().then(userInfo => {
