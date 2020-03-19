@@ -162,4 +162,7 @@ The following configuration parameters are recognized:
   Sample config files for postgres and sqlite are also provided under
   the test-data directory. 
 
+### To Research
+
+- Fused effects to replace monad transformers. Algebraic effects.
 
