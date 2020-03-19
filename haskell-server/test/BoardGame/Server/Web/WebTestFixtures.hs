@@ -13,6 +13,8 @@ module BoardGame.Server.Web.WebTestFixtures (
   , makeGame
   ) where
 
+import Servant (runHandler, Handler(..))
+
 import Control.Monad.Trans.Except (runExceptT)
 import Bolour.Util.SpecUtil (satisfiesRight) -- satisfiesJust
 import BoardGame.Common.Domain.PlayerDto (PlayerDto(PlayerDto))
@@ -29,12 +31,14 @@ import BoardGame.Common.Message.StartGameRequest (StartGameRequest(StartGameRequ
 makePlayer :: GameEnv -> String -> IO ()
 makePlayer env name = do
     let player = PlayerDto name
-    eitherUnit <- runExceptT $ addPlayerHandler env player
+    -- eitherUnit <- runExceptT $ addPlayerHandler env player
+    eitherUnit <- runHandler $ addPlayerHandler env player
     satisfiesRight eitherUnit
 
 makeGame :: GameEnv -> GameParams -> InitPieces -> [[Int]] -> IO StartGameResponse
 makeGame env gameParams initPieces pointValues =
   satisfiesRight
-    =<< runExceptT (startGameHandler env (StartGameRequest gameParams initPieces pointValues))
+    =<< runHandler (startGameHandler env (StartGameRequest gameParams initPieces pointValues))
+    -- =<< runExceptT (startGameHandler env (StartGameRequest gameParams initPieces pointValues))
 
 -- runExceptT $ TransformerStack.runDefault gameEnv GameService.prepareDb

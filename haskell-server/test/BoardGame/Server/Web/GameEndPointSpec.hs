@@ -15,6 +15,7 @@ module BoardGame.Server.Web.GameEndPointSpec (
 import Test.Hspec
 import Data.Char (isUpper)
 import Control.Monad.Trans.Except (runExceptT)
+import Servant(runHandler)
 
 import Bolour.Util.SpecUtil (satisfiesRight)
 import BoardGame.Common.Message.SwapPieceResponse (SwapPieceResponse(..))
@@ -85,7 +86,7 @@ spec = do
               ]
 
         CommitPlayResponse {gameMiniState, replacementPieces} <- satisfiesRight
-          =<< runExceptT (commitPlayHandler env gameId playPieces)
+          =<< runHandler (commitPlayHandler env gameId playPieces)
         length replacementPieces `shouldBe` 3
 
   describe "make machine play" $
@@ -95,7 +96,7 @@ spec = do
         Fixtures.makePlayer env Fixtures.thePlayer
         gameDto <- Fixtures.makeGame env Fixtures.gameParams (InitPieces [] [] []) pointValues
         MachinePlayResponse {gameMiniState, playedPieces} <- satisfiesRight
-          =<< runExceptT (machinePlayHandler env (StartGameResponse.gameId gameDto))
+          =<< runHandler (machinePlayHandler env (StartGameResponse.gameId gameDto))
         let word = PlayPiece.playPiecesToWord playedPieces
         length word `shouldSatisfy` (> 1)
   describe "swap a piece" $
@@ -106,7 +107,7 @@ spec = do
         (StartGameResponse {gameId, trayPieces}) <- Fixtures.makeGame env Fixtures.gameParams (InitPieces [] [] []) pointValues
         let piece = head trayPieces
         SwapPieceResponse {gameMiniState, piece = swappedPiece} <- satisfiesRight
-          =<< runExceptT (swapPieceHandler env gameId piece)
+          =<< runHandler (swapPieceHandler env gameId piece)
         let Piece {value} = swappedPiece
         value `shouldSatisfy` isUpper
 

@@ -4,6 +4,10 @@
 --   https://github.com/azadbolour/boardgame/blob/master/LICENSE.md
 --
 
+
+-- TODO. Must convert this test as per new pattern in:
+-- https://docs.servant.dev/en/stable/cookbook/testing/Testing.html
+
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}

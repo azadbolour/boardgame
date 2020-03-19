@@ -134,7 +134,7 @@ test-suite spec
   ghc-options: -W -fno-warn-unused-binds -fno-warn-unused-matches
   build-depends:
       base
-    , servant == 0.6.*
+    , servant
     , servant-server
     , servant-client
     , transformers
@@ -209,7 +209,7 @@ test-suite infocus
     , hspec
     , boardgame
     , transformers, mtl
-    , servant == 0.6.*
+    , servant
     , servant-server
     , servant-client
     , http-client
