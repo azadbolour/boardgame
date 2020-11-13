@@ -2,6 +2,22 @@
 
 # Board Game Application
 
+## Continuing Develeopment
+
+This repo is for all intents and purposes frozen. 
+
+Development on the boardgame application continues at
+[the eargerwords github project](https://github.com/azadbolour/eagerwords.com).
+In contrast to this repo which features implementations of the
+boardgame server in both Scala and Haskell, eagerwords includes 
+only a Scala server. 
+
+This repo therefore survives solely for its Haskell server, demonstrating how to
+build a non-trivial modern web server using Haskell.
+
+Note however that the Haskell server is not quite up-to-date with the latest API
+specification implemented in the Scala server and in the ReactJS client. 
+
 ## Versions
 
 Version 0.9.5 beta.
@@ -10,8 +26,6 @@ Version 0.9.5 beta.
 
 The board game is in the same genre as other well-known crossword games:
 drag and drop letters to form words on a square board.
-
-See the [project web site](http://www.bolour.com/boardgame/index.html).
 
 ## Scope
 
@@ -122,10 +136,6 @@ application is easily amenable to horizontal scaling. The bottleneck for very
 high scalability may end up being the database. But at this stage of the project
 database interactions are de-emphasized, and very high scalability is beyond our
 scope.
-
-## Github Site
-
-http://www.bolour.com/boardgame/index.html
 
 ## General Conventions
 
